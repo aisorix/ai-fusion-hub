@@ -120,13 +120,18 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Menu Toggle */}
-          <div className="flex lg:hidden items-center gap-2">
+          <div className="flex lg:hidden items-center gap-2 sm:gap-3">
             <ThemeToggle />
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl bg-muted hover:bg-muted/80 transition"
+              className="relative flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-muted/80 hover:bg-muted border border-border/50 transition-all duration-200"
+              aria-label="Toggle menu"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? (
+                <X className="w-5 h-5 sm:w-6 sm:h-6 text-foreground" />
+              ) : (
+                <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-foreground" strokeWidth={2.5} />
+              )}
             </button>
           </div>
         </div>
