@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { ChatGPTLogo, ClaudeLogo, GeminiLogo, PerplexityLogo, DeepSeekLogo, GrokLogo } from './AIModelLogos';
+import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo } from './AIModelLogos';
 import logo from '../assets/logo.png';
 
 const Workflow = () => {
@@ -24,22 +24,6 @@ const Workflow = () => {
       borderColor: 'border-[#D97706]/30',
     },
     {
-      title: "Gemini 2.5 Pro",
-      subtitle: t('geminiSubtitle'),
-      desc: t('geminiDesc'),
-      Logo: GeminiLogo,
-      bgColor: 'bg-[#4285F4]/10',
-      borderColor: 'border-[#4285F4]/30',
-    },
-    {
-      title: "Perplexity Sonar",
-      subtitle: t('perplexitySubtitle'),
-      desc: t('perplexityDesc'),
-      Logo: PerplexityLogo,
-      bgColor: 'bg-[#20808D]/10',
-      borderColor: 'border-[#20808D]/30',
-    },
-    {
       title: "DeepSeek R1",
       subtitle: t('deepseekSubtitle'),
       desc: t('deepseekDesc'),
@@ -48,17 +32,25 @@ const Workflow = () => {
       borderColor: 'border-[#7C3AED]/30',
     },
     {
+      title: "Gemini 2.5 Pro",
+      subtitle: t('geminiSubtitle'),
+      desc: t('geminiDesc'),
+      Logo: GeminiLogo,
+      bgColor: 'bg-[#4285F4]/10',
+      borderColor: 'border-[#4285F4]/30',
+    },
+    {
       title: "Grok 4",
       subtitle: t('grokSubtitle'),
       desc: t('grokDesc'),
       Logo: GrokLogo,
-      bgColor: 'bg-gray-900/10',
-      borderColor: 'border-gray-900/30',
+      bgColor: 'bg-gray-900/10 dark:bg-gray-100/10',
+      borderColor: 'border-gray-900/30 dark:border-gray-100/30',
     }
   ];
 
   return (
-    <section className="py-20 md:py-32 bg-background relative overflow-hidden">
+    <section className="py-24 md:py-36 bg-background relative overflow-hidden">
       {/* Background Decoration */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-primary/5 to-transparent rounded-full blur-3xl" />
@@ -67,7 +59,7 @@ const Workflow = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-8">
         {/* Heading */}
         <div className="text-center mb-16">
-          <span className="inline-block px-4 py-2 rounded-full bg-secondary/10 text-secondary text-sm font-semibold mb-6">
+          <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-6">
             {t('aiModelsLabel')}
           </span>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6">
@@ -83,7 +75,7 @@ const Workflow = () => {
         {/* Center Logo */}
         <div className="flex justify-center mb-16">
           <div className="relative">
-            <div className="w-28 h-28 md:w-36 md:h-36 bg-card rounded-3xl flex items-center justify-center shadow-2xl border border-border p-4">
+            <div className="w-32 h-32 md:w-40 md:h-40 bg-card rounded-3xl flex items-center justify-center shadow-2xl border border-border p-4 glow-effect">
               <img src={logo} alt="AI Sorix" className="w-full h-full object-contain" />
             </div>
             {/* Orbiting dots */}
@@ -91,7 +83,7 @@ const Workflow = () => {
               <div className="absolute top-0 left-1/2 w-3 h-3 bg-primary rounded-full -translate-x-1/2" />
             </div>
             <div className="absolute -inset-12 animate-spin" style={{ animationDuration: '30s', animationDirection: 'reverse' }}>
-              <div className="absolute top-0 left-1/2 w-2 h-2 bg-secondary rounded-full -translate-x-1/2" />
+              <div className="absolute top-0 left-1/2 w-2 h-2 bg-accent rounded-full -translate-x-1/2" />
             </div>
           </div>
         </div>
@@ -113,6 +105,17 @@ const Workflow = () => {
               </p>
             </div>
           ))}
+          
+          {/* +10 More Card */}
+          <div className="group bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl p-6 lg:p-8 border border-primary/20 hover:border-primary/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col items-center justify-center">
+            <div className="w-16 h-16 mx-auto mb-6 gradient-primary rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <span className="text-2xl font-bold text-foreground">+10</span>
+            </div>
+            <h3 className="text-xl lg:text-2xl font-bold text-foreground mb-2 text-center">More AI Models</h3>
+            <p className="text-muted-foreground leading-relaxed text-center">
+              Access additional premium AI models including Qwen, Llama, Mistral, and more.
+            </p>
+          </div>
         </div>
       </div>
     </section>
