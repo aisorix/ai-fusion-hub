@@ -16,7 +16,7 @@ const Hero = () => {
   ];
 
   return (
-    <section className="relative py-24 md:py-36 overflow-hidden bg-gradient-to-b from-background via-background to-muted/20">
+    <section className="relative py-16 md:py-24 overflow-hidden bg-gradient-to-b from-background via-background to-muted/20">
       {/* Background Decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse" />
@@ -25,43 +25,30 @@ const Hero = () => {
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-8">
-        {/* Badge */}
-        <div className="flex justify-center mb-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border shadow-sm">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-            </span>
-            <span className="text-sm font-medium text-muted-foreground">{t('heroBadge')}</span>
-          </div>
-        </div>
-
         {/* Logo Display */}
-        <div className="flex justify-center mb-10">
+        <div className="flex justify-center mb-8">
           <div className="relative">
-            <img src={logo} alt="AI Sorix" className="w-28 h-28 md:w-36 md:h-36 object-contain drop-shadow-2xl" />
+            <img src={logo} alt="AI Sorix" className="w-24 h-24 md:w-32 md:h-32 object-contain drop-shadow-2xl" />
             <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full -z-10" />
           </div>
         </div>
 
         {/* Main Title */}
-        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-center leading-tight tracking-tight max-w-5xl mx-auto">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center leading-tight tracking-tight max-w-5xl mx-auto">
           <span className="text-foreground">{t('heroTitle1')}</span>
           <br />
           <span className="text-gradient-primary">{t('heroTitle2')}</span>
         </h1>
 
         {/* Description */}
-        <p className="mt-8 text-lg md:text-xl text-muted-foreground text-center max-w-3xl mx-auto leading-relaxed">
+        <p className="mt-6 text-base md:text-lg text-muted-foreground text-center max-w-3xl mx-auto leading-relaxed">
           {t('heroDesc')}
         </p>
 
         {/* CTA Buttons */}
-        <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center items-center">
           <a
-            href="https://chat.aifiesta.com"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/login"
             className="group inline-flex items-center gap-3 gradient-primary text-foreground px-8 py-4 rounded-full font-bold text-lg shadow-2xl hover:shadow-primary/25 transform hover:scale-105 hover:-translate-y-1 transition-all duration-300 glow-effect"
           >
             {t('startFreeTrial')}
@@ -76,7 +63,7 @@ const Hero = () => {
         </div>
 
         {/* Trust Indicators */}
-        <div className="mt-16 flex flex-wrap justify-center items-center gap-8 md:gap-12">
+        <div className="mt-10 flex flex-wrap justify-center items-center gap-6 md:gap-10">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Sparkles className="w-5 h-5 text-primary" />
             <span className="text-sm font-medium">{t('tokensMonth')}</span>
@@ -92,7 +79,7 @@ const Hero = () => {
         </div>
 
         {/* AI Model Logos */}
-        <div className="mt-16 flex flex-wrap justify-center items-center gap-4 md:gap-6">
+        <div className="mt-10 flex flex-wrap justify-center items-center gap-3 md:gap-4">
           {aiModels.map((model, i) => (
             <div
               key={model.name}

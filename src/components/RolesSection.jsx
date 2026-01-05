@@ -175,7 +175,7 @@ const RolesSection = () => {
   };
 
   return (
-    <section className="py-20 md:py-32 bg-primary/5 relative overflow-hidden">
+    <section className="py-16 md:py-24 bg-primary/5 relative overflow-hidden">
       <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-8">
         {/* Section Header */}
         <div className="text-center mb-12">

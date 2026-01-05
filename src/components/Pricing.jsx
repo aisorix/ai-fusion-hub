@@ -7,6 +7,10 @@ const Pricing = () => {
   const [isYearly, setIsYearly] = useState(false);
   const { t, language } = useLanguage();
 
+  const sorixHealthLabel = language === 'en' ? 'Sorix Health' : 'সোরিক্স হেলথ';
+  const sorixAgroLabel = language === 'en' ? 'Sorix Agro' : 'সোরিক্স অ্যাগ্রো';
+  const sorixLegendsLabel = language === 'en' ? 'Sorix Legends' : 'সোরিক্স লিজেন্ডস';
+
   const plans = [
     {
       name: 'free',
@@ -26,11 +30,13 @@ const Pricing = () => {
         { text: t('memory'), included: false },
         { text: t('projects'), included: false },
         { text: t('teamAccess'), included: false },
-        { text: t('avatars'), included: false },
+        { text: sorixLegendsLabel, included: false },
         { text: t('multiWindowChat'), included: false },
+        { text: sorixHealthLabel, subtext: language === 'en' ? 'Free for all' : 'সবার জন্য ফ্রি', included: true },
+        { text: sorixAgroLabel, subtext: language === 'en' ? 'Free for all' : 'সবার জন্য ফ্রি', included: true },
       ],
       buttonText: t('currentPlan'),
-      buttonStyle: 'bg-muted text-muted-foreground cursor-default',
+      buttonStyle: 'border-2 border-primary/30 text-primary bg-primary/5 cursor-default',
       isCurrentPlan: true,
     },
     {
@@ -48,8 +54,10 @@ const Pricing = () => {
         { text: t('memory'), included: true },
         { text: `4 ${t('projects')}`, included: true },
         { text: t('teamAccess'), included: false },
-        { text: `3 ${t('avatars')}`, included: true },
+        { text: `3 ${sorixLegendsLabel}`, included: true },
         { text: t('multiWindowChat'), included: true },
+        { text: sorixHealthLabel, subtext: language === 'en' ? 'Free for all' : 'সবার জন্য ফ্রি', included: true },
+        { text: sorixAgroLabel, subtext: language === 'en' ? 'Free for all' : 'সবার জন্য ফ্রি', included: true },
       ],
       buttonText: t('upgrade'),
       buttonStyle: 'gradient-primary text-foreground hover:shadow-lg hover:scale-105',
@@ -72,8 +80,10 @@ const Pricing = () => {
         { text: t('memoryLong'), included: true },
         { text: `10 ${t('projects')}`, included: true },
         { text: t('teamAccess'), included: false },
-        { text: `10 ${t('avatars')}`, included: true },
+        { text: `10 ${sorixLegendsLabel}`, included: true },
         { text: t('multiWindowChat'), included: true },
+        { text: sorixHealthLabel, subtext: language === 'en' ? 'Free for all' : 'সবার জন্য ফ্রি', included: true },
+        { text: sorixAgroLabel, subtext: language === 'en' ? 'Free for all' : 'সবার জন্য ফ্রি', included: true },
       ],
       buttonText: t('upgrade'),
       buttonStyle: 'gradient-primary text-foreground hover:shadow-lg hover:scale-105',
@@ -93,8 +103,10 @@ const Pricing = () => {
         { text: t('memoryUltra'), included: true },
         { text: `30 ${t('projects')}`, included: true },
         { text: t('teamAccess'), subtext: t('upToMembers'), included: true },
-        { text: t('allAvatars'), included: true },
+        { text: language === 'en' ? `All ${sorixLegendsLabel}` : `সব ${sorixLegendsLabel}`, included: true },
         { text: t('multiWindowChat'), included: true },
+        { text: sorixHealthLabel, subtext: language === 'en' ? 'Free for all' : 'সবার জন্য ফ্রি', included: true },
+        { text: sorixAgroLabel, subtext: language === 'en' ? 'Free for all' : 'সবার জন্য ফ্রি', included: true },
       ],
       buttonText: t('upgrade'),
       buttonStyle: 'bg-gradient-to-r from-amber-500 to-orange-500 text-foreground hover:shadow-lg hover:scale-105',
@@ -109,7 +121,7 @@ const Pricing = () => {
   };
 
   return (
-    <section id="pricing" className="py-24 md:py-36 bg-muted/20 relative overflow-hidden">
+    <section id="pricing" className="py-16 md:py-24 bg-muted/20 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl" />
@@ -118,12 +130,12 @@ const Pricing = () => {
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-8">
         {/* Header */}
-        <div className="text-center mb-12">
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-6">
+        <div className="text-center mb-10">
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4">
             <Sparkles className="w-4 h-4" />
             {t('pricingLabel')}
           </span>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground mb-4">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground mb-3">
             {t('pricingTitle')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -132,7 +144,7 @@ const Pricing = () => {
         </div>
 
         {/* Toggle */}
-        <div className="flex items-center justify-center gap-4 mb-12">
+        <div className="flex items-center justify-center gap-4 mb-10">
           <span className={`font-medium transition-colors ${!isYearly ? 'text-foreground' : 'text-muted-foreground'}`}>
             {t('monthly')}
           </span>
@@ -155,7 +167,7 @@ const Pricing = () => {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
           {plans.map((plan) => (
             <div
               key={plan.name}
@@ -170,37 +182,37 @@ const Pricing = () => {
                 </div>
               )}
 
-              <div className={`p-6 ${plan.badge ? 'pt-12' : ''}`}>
+              <div className={`p-5 ${plan.badge ? 'pt-10' : ''}`}>
                 {/* Plan Icon & Name */}
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-3 mb-3">
                   <div className={`w-10 h-10 rounded-xl ${plan.iconBg} flex items-center justify-center`}>
                     <plan.icon className={`w-5 h-5 ${plan.iconColor}`} />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-foreground">{plan.displayName}</h3>
-                    {plan.subtitle && <p className="text-sm text-muted-foreground">{plan.subtitle}</p>}
+                    <h3 className="text-lg font-bold text-foreground">{plan.displayName}</h3>
+                    {plan.subtitle && <p className="text-xs text-muted-foreground">{plan.subtitle}</p>}
                   </div>
                 </div>
 
                 {/* Price */}
-                <div className="mb-6">
-                  <span className="text-4xl font-black text-foreground">
+                <div className="mb-4">
+                  <span className="text-3xl font-black text-foreground">
                     {formatPrice(isYearly ? Math.round((plan.yearlyPrice || plan.price * 12 * 0.8) / 12) : plan.price)}
                   </span>
-                  <span className="text-muted-foreground">{t('perMonth')}</span>
+                  <span className="text-muted-foreground text-sm">{t('perMonth')}</span>
                 </div>
 
                 {/* Features */}
-                <div className="space-y-3 mb-6">
+                <div className="space-y-2 mb-5">
                   {plan.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
+                    <div key={idx} className="flex items-start gap-2">
                       {feature.included ? (
-                        <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                       ) : (
-                        <X className="w-5 h-5 text-muted-foreground/50 flex-shrink-0 mt-0.5" />
+                        <X className="w-4 h-4 text-muted-foreground/50 flex-shrink-0 mt-0.5" />
                       )}
                       <div>
-                        <span className={`text-sm ${feature.included ? 'text-foreground' : 'text-muted-foreground line-through'}`}>
+                        <span className={`text-xs ${feature.included ? 'text-foreground' : 'text-muted-foreground line-through'}`}>
                           {feature.text}
                         </span>
                         {feature.subtext && feature.included && (
@@ -213,7 +225,7 @@ const Pricing = () => {
 
                 {/* CTA Button */}
                 <button
-                  className={`w-full py-3 rounded-xl font-semibold transition-all duration-300 ${plan.buttonStyle}`}
+                  className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 ${plan.buttonStyle}`}
                   disabled={plan.isCurrentPlan}
                 >
                   {plan.buttonText}
@@ -224,9 +236,9 @@ const Pricing = () => {
         </div>
 
         {/* AI Models Showcase */}
-        <div className="mt-20 text-center">
-          <p className="text-muted-foreground mb-6">{language === 'en' ? 'Powered by the best AI models' : 'সেরা AI মডেল দ্বারা চালিত'}</p>
-          <div className="flex flex-wrap justify-center gap-4">
+        <div className="mt-14 text-center">
+          <p className="text-muted-foreground mb-5 text-sm">{language === 'en' ? 'Powered by the best AI models' : 'সেরা AI মডেল দ্বারা চালিত'}</p>
+          <div className="flex flex-wrap justify-center gap-3">
             {[
               { name: 'ChatGPT', Logo: ChatGPTLogo },
               { name: 'Claude', Logo: ClaudeLogo },
@@ -234,13 +246,13 @@ const Pricing = () => {
               { name: 'Gemini', Logo: GeminiLogo },
               { name: 'Grok', Logo: GrokLogo },
             ].map((model) => (
-              <div key={model.name} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-card border border-border">
-                <model.Logo className="w-5 h-5" />
-                <span className="text-sm font-medium text-foreground">{model.name}</span>
+              <div key={model.name} className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-card border border-border">
+                <model.Logo className="w-4 h-4" />
+                <span className="text-xs font-medium text-foreground">{model.name}</span>
               </div>
             ))}
-            <div className="px-4 py-2 rounded-xl bg-primary/10 border border-primary/20">
-              <span className="text-sm font-bold text-primary">+10 more</span>
+            <div className="px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20">
+              <span className="text-xs font-bold text-primary">+10 more</span>
             </div>
           </div>
         </div>
