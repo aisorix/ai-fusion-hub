@@ -41,8 +41,10 @@ const Navbar = () => {
   }, [mobileMenuOpen]);
 
   return (
-    <nav className={`sticky top-0 z-50 transition-all duration-300 ${
-      scrolled ? 'bg-card/95 backdrop-blur-xl shadow-lg border-b border-border/50' : 'bg-card/80 backdrop-blur-xl border-b border-border/50'
+    <nav className={`sticky top-0 z-50 transition-all duration-500 ${
+      scrolled 
+        ? 'bg-background/70 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.1)] border-b border-white/10 dark:border-white/5' 
+        : 'bg-background/40 backdrop-blur-xl border-b border-transparent'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 sm:h-20 items-center">
