@@ -16,7 +16,7 @@ const Hero = () => {
   ];
 
   return (
-    <section className="relative py-10 sm:py-16 md:py-24 overflow-hidden bg-gradient-to-b from-background via-background to-muted/20">
+    <section className="relative pt-6 sm:pt-10 md:pt-16 pb-10 sm:pb-16 md:pb-24 overflow-hidden bg-gradient-to-b from-background via-background to-muted/20">
       {/* Background Decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-48 sm:w-72 h-48 sm:h-72 bg-primary/10 rounded-full blur-3xl animate-pulse" />
