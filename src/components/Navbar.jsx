@@ -43,9 +43,10 @@ const Navbar = () => {
   return (
     <nav className={`sticky top-0 z-50 transition-all duration-500 ${
       scrolled 
-        ? 'bg-background/70 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.1)] border-b border-white/10 dark:border-white/5' 
-        : 'bg-background/40 backdrop-blur-xl border-b border-transparent'
+        ? 'bg-gradient-to-r from-background/80 via-background/70 to-background/80 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.08)] border-b border-primary/10 dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)]' 
+        : 'bg-gradient-to-r from-background/50 via-background/40 to-background/50 backdrop-blur-xl border-b border-white/5'
     }`}>
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/[0.02] via-transparent to-accent/[0.02] pointer-events-none" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 sm:h-20 items-center">
           {/* Logo */}
