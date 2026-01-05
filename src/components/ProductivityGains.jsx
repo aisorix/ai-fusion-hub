@@ -49,20 +49,20 @@ const ProductivityGains = () => {
   ];
 
   return (
-    <section className="py-16 md:py-24 bg-background relative overflow-hidden">
+    <section className="py-10 sm:py-16 md:py-24 bg-background relative overflow-hidden">
       {/* Subtle Background Pattern */}
       <div className="absolute inset-0 opacity-40 pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
+        <div className="absolute top-20 left-10 w-48 sm:w-72 h-48 sm:h-72 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-10 w-64 sm:w-96 h-64 sm:h-96 bg-accent/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         {/* Section Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-3 sm:mb-4 px-2">
             {language === 'en' ? 'Productivity Gains with' : 'উৎপাদনশীলতা বাড়ান'} <span className="text-gradient-accent">AI Sorix</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-sm sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto px-4">
             {language === 'en' 
               ? 'Do more, spend less, and stay focused with your all-in-one AI workspace built for Bangladesh.'
               : 'বেশি করুন, কম খরচ করুন, এবং বাংলাদেশের জন্য তৈরি আপনার অল-ইন-ওয়ান AI ওয়ার্কস্পেসে ফোকাস থাকুন।'}
@@ -70,24 +70,24 @@ const ProductivityGains = () => {
         </div>
 
         {/* Productivity Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
           {/* First row - 2 large cards */}
           {productivityFeatures.slice(0, 2).map((feature, index) => {
             const IconComponent = feature.icon;
             return (
               <div
                 key={index}
-                className="group bg-card rounded-2xl p-8 lg:p-10 border border-border hover:border-primary/20 hover:shadow-xl transition-all duration-300"
+                className="group bg-card rounded-xl sm:rounded-2xl p-5 sm:p-8 lg:p-10 border border-border hover:border-primary/20 hover:shadow-xl transition-all duration-300"
               >
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="inline-flex p-3 rounded-xl bg-muted text-primary">
-                    <IconComponent className="w-6 h-6" />
+                <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
+                  <div className="inline-flex p-2.5 sm:p-3 rounded-xl bg-muted text-primary flex-shrink-0">
+                    <IconComponent className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <h3 className="text-xl lg:text-2xl font-bold text-foreground pt-1">
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground pt-0.5 sm:pt-1">
                     {feature.title}
                   </h3>
                 </div>
-                <p className="text-muted-foreground leading-relaxed text-lg pl-[52px]">
+                <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed pl-0 sm:pl-[52px]">
                   {feature.desc}
                 </p>
               </div>
@@ -96,23 +96,23 @@ const ProductivityGains = () => {
         </div>
 
         {/* Second row - 3 smaller cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 mt-6 lg:mt-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mt-4 sm:mt-6 lg:mt-8">
           {productivityFeatures.slice(2).map((feature, index) => {
             const IconComponent = feature.icon;
             return (
               <div
                 key={index}
-                className="group bg-card rounded-2xl p-6 lg:p-8 border border-border hover:border-primary/20 hover:shadow-xl transition-all duration-300"
+                className="group bg-card rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-border hover:border-primary/20 hover:shadow-xl transition-all duration-300"
               >
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="inline-flex p-2.5 rounded-xl bg-muted text-primary">
-                    <IconComponent className="w-5 h-5" />
+                <div className="flex items-start gap-2.5 sm:gap-3 mb-2 sm:mb-3">
+                  <div className="inline-flex p-2 sm:p-2.5 rounded-xl bg-muted text-primary flex-shrink-0">
+                    <IconComponent className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
-                  <h3 className="text-lg lg:text-xl font-bold text-foreground pt-0.5">
+                  <h3 className="text-base sm:text-lg lg:text-xl font-bold text-foreground pt-0.5">
                     {feature.title}
                   </h3>
                 </div>
-                <p className="text-muted-foreground leading-relaxed pl-[46px]">
+                <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed pl-0 sm:pl-[46px]">
                   {feature.desc}
                 </p>
               </div>

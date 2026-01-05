@@ -79,33 +79,33 @@ const Faqs = () => {
   };
 
   return (
-    <section id="faq" className="py-16 md:py-24 bg-background relative">
+    <section id="faq" className="py-10 sm:py-16 md:py-24 bg-background relative">
       {/* Background */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-primary/3 to-transparent rounded-full" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] sm:w-[800px] h-[400px] sm:h-[800px] bg-gradient-radial from-primary/3 to-transparent rounded-full" />
       </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto px-6">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6">
         {/* Header */}
-        <div className="text-center mb-12">
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4">
-            <MessageCircleQuestion className="w-4 h-4" />
+        <div className="text-center mb-8 sm:mb-12">
+          <span className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-semibold mb-3 sm:mb-4">
+            <MessageCircleQuestion className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             {language === 'en' ? 'Got Questions?' : 'প্রশ্ন আছে?'}
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-foreground mb-3 sm:mb-4 px-2">
             {t('faqTitle')}
           </h2>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-sm sm:text-lg md:text-xl text-muted-foreground px-4">
             {t('faqDesc')}
           </p>
         </div>
 
         {/* FAQ Items */}
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {faqData.map((item, index) => (
             <div
               key={index}
-              className={`bg-card rounded-2xl border overflow-hidden transition-all duration-300 ${
+              className={`bg-card rounded-xl sm:rounded-2xl border overflow-hidden transition-all duration-300 ${
                 openIndex === index 
                   ? 'border-primary/30 shadow-lg' 
                   : 'border-border hover:border-border/80 hover:shadow-md'
@@ -114,16 +114,16 @@ const Faqs = () => {
               {/* Question Header */}
               <button
                 onClick={() => toggleAccordion(index)}
-                className="w-full px-6 md:px-8 py-5 md:py-6 flex items-center justify-between text-left focus:outline-none gap-4"
+                className="w-full px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 flex items-center justify-between text-left focus:outline-none gap-3 sm:gap-4"
               >
-                <h3 className="text-lg md:text-xl font-semibold text-foreground">
+                <h3 className="text-sm sm:text-lg md:text-xl font-semibold text-foreground">
                   {item.question}
                 </h3>
 
-                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
+                <div className={`flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
                   openIndex === index ? 'bg-primary text-primary-foreground rotate-180' : 'bg-muted text-muted-foreground'
                 }`}>
-                  <ChevronDown className="w-5 h-5" />
+                  <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
               </button>
 
@@ -134,8 +134,8 @@ const Faqs = () => {
                 }`}
               >
                 <div className="overflow-hidden">
-                  <div className="px-6 md:px-8 pb-6">
-                    <p className="text-muted-foreground leading-relaxed text-lg">
+                  <div className="px-4 sm:px-6 md:px-8 pb-4 sm:pb-6">
+                    <p className="text-xs sm:text-sm md:text-lg text-muted-foreground leading-relaxed">
                       {item.answer}
                     </p>
                   </div>
@@ -146,13 +146,13 @@ const Faqs = () => {
         </div>
 
         {/* Contact CTA */}
-        <div className="mt-12 text-center">
-          <p className="text-muted-foreground mb-4">
+        <div className="mt-8 sm:mt-12 text-center">
+          <p className="text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4">
             {language === 'en' ? 'Still have questions?' : 'এখনও প্রশ্ন আছে?'}
           </p>
           <a
             href="mailto:support@aisorix.com"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border hover:border-primary/30 hover:bg-card font-semibold transition-all duration-300"
+            className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full border border-border hover:border-primary/30 hover:bg-card font-semibold text-sm sm:text-base transition-all duration-300"
           >
             {language === 'en' ? 'Contact Support' : 'সাপোর্টে যোগাযোগ করুন'}
           </a>
