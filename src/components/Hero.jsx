@@ -1,7 +1,21 @@
 import React from 'react';
 import { ArrowUpRight, Sparkles, Zap, Shield } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { ChatGPTLogo, ClaudeLogo, GeminiLogo, PerplexityLogo, DeepSeekLogo, GrokLogo } from './AIModelLogos';
+import logo from '../assets/logo.png';
 
 const Hero = () => {
+  const { t } = useLanguage();
+
+  const aiModels = [
+    { name: 'ChatGPT', Logo: ChatGPTLogo },
+    { name: 'Claude', Logo: ClaudeLogo },
+    { name: 'Gemini', Logo: GeminiLogo },
+    { name: 'DeepSeek', Logo: DeepSeekLogo },
+    { name: 'Grok', Logo: GrokLogo },
+    { name: 'Perplexity', Logo: PerplexityLogo },
+  ];
+
   return (
     <section className="relative py-20 md:py-32 overflow-hidden bg-gradient-to-b from-background via-background to-muted/30">
       {/* Background Decorations */}
@@ -19,20 +33,25 @@ const Hero = () => {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
             </span>
-            <span className="text-sm font-medium text-muted-foreground">New: Now with Grok 4 & Claude Sonnet 4</span>
+            <span className="text-sm font-medium text-muted-foreground">{t('heroBadge')}</span>
           </div>
+        </div>
+
+        {/* Logo Display */}
+        <div className="flex justify-center mb-8">
+          <img src={logo} alt="AI Sorix" className="w-24 h-24 md:w-32 md:h-32 object-contain" />
         </div>
 
         {/* Main Title */}
         <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-center leading-tight tracking-tight max-w-5xl mx-auto">
-          <span className="text-foreground">All Premium AI in</span>
+          <span className="text-foreground">{t('heroTitle1')}</span>
           <br />
-          <span className="text-gradient-primary">One Powerful Platform</span>
+          <span className="text-gradient-primary">{t('heroTitle2')}</span>
         </h1>
 
         {/* Description */}
         <p className="mt-8 text-lg md:text-xl text-muted-foreground text-center max-w-3xl mx-auto leading-relaxed">
-          Stop juggling multiple AI subscriptions. Get ChatGPT 5, Claude, Gemini, DeepSeek, Grok & Perplexity — all in one place for a fraction of the cost.
+          {t('heroDesc')}
         </p>
 
         {/* CTA Buttons */}
@@ -43,14 +62,14 @@ const Hero = () => {
             rel="noopener noreferrer"
             className="group inline-flex items-center gap-3 gradient-accent text-primary-foreground px-8 py-4 rounded-full font-bold text-lg shadow-2xl hover:shadow-accent/25 transform hover:scale-105 hover:-translate-y-1 transition-all duration-300"
           >
-            Start Free Trial
+            {t('startFreeTrial')}
             <ArrowUpRight className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
           </a>
           <a
             href="#pricing"
             className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-lg border-2 border-border hover:border-primary/50 hover:bg-card transition-all duration-300"
           >
-            View Pricing
+            {t('viewPricing')}
           </a>
         </div>
 
@@ -58,30 +77,28 @@ const Hero = () => {
         <div className="mt-16 flex flex-wrap justify-center items-center gap-8 md:gap-12">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Sparkles className="w-5 h-5 text-primary" />
-            <span className="text-sm font-medium">3M+ Tokens/Month</span>
+            <span className="text-sm font-medium">{t('tokensMonth')}</span>
           </div>
           <div className="flex items-center gap-2 text-muted-foreground">
             <Zap className="w-5 h-5 text-secondary" />
-            <span className="text-sm font-medium">6 Premium AI Models</span>
+            <span className="text-sm font-medium">{t('premiumModels')}</span>
           </div>
           <div className="flex items-center gap-2 text-muted-foreground">
             <Shield className="w-5 h-5 text-accent" />
-            <span className="text-sm font-medium">100% Secure & Private</span>
+            <span className="text-sm font-medium">{t('securePrivate')}</span>
           </div>
         </div>
 
         {/* AI Model Logos */}
         <div className="mt-16 flex flex-wrap justify-center gap-4 md:gap-6">
-          {['ChatGPT', 'Claude', 'Gemini', 'DeepSeek', 'Grok', 'Perplexity'].map((name, i) => (
+          {aiModels.map((model, i) => (
             <div
-              key={name}
-              className="group flex items-center gap-2 px-4 py-2 rounded-xl bg-card border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300"
+              key={model.name}
+              className="group flex items-center gap-3 px-5 py-3 rounded-xl bg-card border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300"
               style={{ animationDelay: `${i * 100}ms` }}
             >
-              <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
-                <span className="text-sm font-bold text-primary-foreground">{name[0]}</span>
-              </div>
-              <span className="text-sm font-medium text-foreground">{name}</span>
+              <model.Logo className="w-7 h-7" />
+              <span className="text-sm font-semibold text-foreground">{model.name}</span>
             </div>
           ))}
         </div>
