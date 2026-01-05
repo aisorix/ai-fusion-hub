@@ -138,76 +138,84 @@ const Navbar = () => {
 
         {/* Mobile Menu Overlay */}
         {mobileMenuOpen && (
-          <div className="lg:hidden fixed inset-0 top-16 sm:top-20 bg-background/95 backdrop-blur-lg z-40 animate-in fade-in slide-in-from-top-2 duration-200">
-            <div className="flex flex-col h-full px-4 py-6 overflow-y-auto">
-              {/* Navigation Links */}
-              <div className="space-y-2">
-                <a 
-                  href="#Features" 
-                  className="block py-3 px-4 rounded-xl hover:bg-muted text-foreground font-medium transition text-base"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {t('features')}
-                </a>
-                <a 
-                  href="#pricing" 
-                  className="block py-3 px-4 rounded-xl hover:bg-muted text-foreground font-medium transition text-base"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {t('pricing')}
-                </a>
-                <a 
-                  href="#faq" 
-                  className="block py-3 px-4 rounded-xl hover:bg-muted text-foreground font-medium transition text-base"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {t('faqs')}
-                </a>
-              </div>
-              
-              {/* Divider */}
-              <div className="h-px bg-border my-4" />
-              
-              {/* Language Toggle */}
-              <div className="flex items-center gap-3 px-4 py-3">
-                <Globe className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground mr-2">Language:</span>
-                <button
-                  onClick={() => setLanguage('en')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${language === 'en' ? 'gradient-primary text-foreground' : 'bg-muted text-foreground'}`}
-                >
-                  EN
-                </button>
-                <button
-                  onClick={() => setLanguage('bn')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${language === 'bn' ? 'gradient-primary text-foreground' : 'bg-muted text-foreground'}`}
-                >
-                  বাং
-                </button>
-              </div>
+          <>
+            {/* Backdrop */}
+            <div 
+              className="lg:hidden fixed inset-0 bg-black/20 z-40"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            {/* Menu Panel */}
+            <div className="lg:hidden fixed inset-x-0 top-16 sm:top-20 bottom-0 bg-background z-50 overflow-y-auto">
+              <div className="flex flex-col h-full px-4 py-6">
+                {/* Navigation Links */}
+                <div className="space-y-2">
+                  <a 
+                    href="#Features" 
+                    className="block py-3 px-4 rounded-xl hover:bg-muted text-foreground font-medium transition text-base"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t('features')}
+                  </a>
+                  <a 
+                    href="#pricing" 
+                    className="block py-3 px-4 rounded-xl hover:bg-muted text-foreground font-medium transition text-base"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t('pricing')}
+                  </a>
+                  <a 
+                    href="#faq" 
+                    className="block py-3 px-4 rounded-xl hover:bg-muted text-foreground font-medium transition text-base"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t('faqs')}
+                  </a>
+                </div>
+                
+                {/* Divider */}
+                <div className="h-px bg-border my-4" />
+                
+                {/* Language Toggle */}
+                <div className="flex items-center gap-3 px-4 py-3">
+                  <Globe className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground mr-2">Language:</span>
+                  <button
+                    onClick={() => setLanguage('en')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${language === 'en' ? 'gradient-primary text-foreground' : 'bg-muted text-foreground'}`}
+                  >
+                    EN
+                  </button>
+                  <button
+                    onClick={() => setLanguage('bn')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${language === 'bn' ? 'gradient-primary text-foreground' : 'bg-muted text-foreground'}`}
+                  >
+                    বাং
+                  </button>
+                </div>
 
-              {/* Spacer */}
-              <div className="flex-1" />
+                {/* Spacer */}
+                <div className="flex-1" />
 
-              {/* Auth Buttons */}
-              <div className="space-y-3 mt-6">
-                <Link
-                  to="/login"
-                  className="block w-full text-center py-3.5 border border-border text-foreground font-semibold rounded-xl hover:bg-muted transition"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {t('login')}
-                </Link>
-                <Link
-                  to="/register"
-                  className="block w-full text-center py-3.5 gradient-primary text-foreground font-semibold rounded-xl shadow-md"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {t('register')}
-                </Link>
+                {/* Auth Buttons */}
+                <div className="space-y-3 mt-6 pb-6">
+                  <Link
+                    to="/login"
+                    className="block w-full text-center py-3.5 border border-border text-foreground font-semibold rounded-xl hover:bg-muted transition"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t('login')}
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="block w-full text-center py-3.5 gradient-primary text-foreground font-semibold rounded-xl shadow-md"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t('register')}
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )}
       </div>
     </nav>
