@@ -1,10 +1,18 @@
 import React from 'react';
-import { Mail, Twitter, Linkedin, Github } from 'lucide-react';
+import { Mail, Twitter, Linkedin, Youtube, Facebook, Instagram } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import logo from '../assets/logo.png';
 
 const Footer = () => {
   const { t } = useLanguage();
+
+  const socialLinks = [
+    { icon: Facebook, href: 'https://facebook.com/aisorix', label: 'Facebook' },
+    { icon: Instagram, href: 'https://instagram.com/aisorix', label: 'Instagram' },
+    { icon: Youtube, href: 'https://youtube.com/@aisorix', label: 'YouTube' },
+    { icon: Twitter, href: 'https://twitter.com/aisorix', label: 'Twitter' },
+    { icon: Linkedin, href: 'https://linkedin.com/company/aisorix', label: 'LinkedIn' },
+  ];
 
   return (
     <footer className="bg-card border-t border-border">
@@ -13,22 +21,25 @@ const Footer = () => {
           {/* Brand */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-6">
-              <img src={logo} alt="AI Sorix" className="w-12 h-12 object-contain" />
-              <span className="text-2xl font-bold text-foreground">AI Sorix</span>
+              <img src={logo} alt="AI Sorix" className="w-14 h-14 object-contain" />
+              <span className="text-2xl font-bold text-gradient-primary">AI Sorix</span>
             </div>
             <p className="text-muted-foreground leading-relaxed max-w-md mb-6">
               {t('footerDesc')}
             </p>
-            <div className="flex items-center gap-4">
-              <a href="#" className="w-10 h-10 rounded-xl bg-muted hover:bg-primary/10 hover:text-primary flex items-center justify-center transition-colors">
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-xl bg-muted hover:bg-primary/10 hover:text-primary flex items-center justify-center transition-colors">
-                <Linkedin className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-xl bg-muted hover:bg-primary/10 hover:text-primary flex items-center justify-center transition-colors">
-                <Github className="w-5 h-5" />
-              </a>
+            <div className="flex items-center gap-3">
+              {socialLinks.map(({ icon: Icon, href, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-xl bg-muted hover:gradient-primary hover:text-foreground flex items-center justify-center transition-all duration-300 hover:scale-110"
+                  aria-label={label}
+                >
+                  <Icon className="w-5 h-5" />
+                </a>
+              ))}
             </div>
           </div>
 

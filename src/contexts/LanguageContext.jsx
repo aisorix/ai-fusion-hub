@@ -14,11 +14,11 @@ const translations = {
     heroBadge: 'New: Now with Grok 4 & Claude Sonnet 4',
     heroTitle1: 'All Premium AI in',
     heroTitle2: 'One Powerful Platform',
-    heroDesc: 'Stop juggling multiple AI subscriptions. Get ChatGPT 5, Claude, Gemini, DeepSeek, Grok & Perplexity — all in one place for a fraction of the cost.',
+    heroDesc: 'Stop juggling multiple AI subscriptions. Get ChatGPT, Claude, DeepSeek, Gemini, Grok +10 more — all in one place for a fraction of the cost.',
     startFreeTrial: 'Start Free Trial',
     viewPricing: 'View Pricing',
     tokensMonth: '3M+ Tokens/Month',
-    premiumModels: '6 Premium AI Models',
+    premiumModels: '15+ Premium AI Models',
     securePrivate: '100% Secure & Private',
     
     // Features
@@ -51,8 +51,6 @@ const translations = {
     claudeDesc: 'Refines polished emails, essays, and scripts while keeping your style.',
     geminiSubtitle: 'Long Context Master',
     geminiDesc: 'Handles long documents and images, tracking full context and details.',
-    perplexitySubtitle: 'Live Web Researcher',
-    perplexityDesc: 'Delivers fresh answers and news from credible, real-time sources.',
     deepseekSubtitle: 'Reasoning Specialist',
     deepseekDesc: 'Excels at logic, math, and coding with clear, detailed solutions.',
     grokSubtitle: 'Creative Powerhouse',
@@ -100,7 +98,7 @@ const translations = {
     faqDesc: 'Find answers to common questions about AI Sorix.',
     
     // Footer
-    footerDesc: 'All Premium AI models in one powerful platform. Get ChatGPT, Claude, Gemini, DeepSeek, Grok & Perplexity — together.',
+    footerDesc: 'All Premium AI models in one powerful platform. Get ChatGPT, Claude, DeepSeek, Gemini, Grok +10 more — together.',
     product: 'Product',
     legal: 'Legal',
     privacyPolicy: 'Privacy Policy',
@@ -122,11 +120,11 @@ const translations = {
     heroBadge: 'নতুন: এখন Grok 4 এবং Claude Sonnet 4 সহ',
     heroTitle1: 'সব প্রিমিয়াম AI',
     heroTitle2: 'একটি শক্তিশালী প্ল্যাটফর্মে',
-    heroDesc: 'একাধিক AI সাবস্ক্রিপশন পরিচালনা বন্ধ করুন। ChatGPT 5, Claude, Gemini, DeepSeek, Grok এবং Perplexity — সব এক জায়গায় অল্প খরচে পান।',
+    heroDesc: 'একাধিক AI সাবস্ক্রিপশন পরিচালনা বন্ধ করুন। ChatGPT, Claude, DeepSeek, Gemini, Grok +১০টি আরও — সব এক জায়গায় অল্প খরচে পান।',
     startFreeTrial: 'ফ্রি ট্রায়াল শুরু',
     viewPricing: 'মূল্য দেখুন',
     tokensMonth: '৩০ লক্ষ+ টোকেন/মাস',
-    premiumModels: '৬টি প্রিমিয়াম AI মডেল',
+    premiumModels: '১৫+ প্রিমিয়াম AI মডেল',
     securePrivate: '১০০% নিরাপদ ও গোপনীয়',
     
     // Features
@@ -159,8 +157,6 @@ const translations = {
     claudeDesc: 'আপনার স্টাইল বজায় রেখে ইমেইল, প্রবন্ধ এবং স্ক্রিপ্ট পরিমার্জন করে।',
     geminiSubtitle: 'দীর্ঘ প্রসঙ্গ মাস্টার',
     geminiDesc: 'দীর্ঘ নথি এবং ছবি হ্যান্ডেল করে, সম্পূর্ণ প্রসঙ্গ ট্র্যাক করে।',
-    perplexitySubtitle: 'লাইভ ওয়েব গবেষক',
-    perplexityDesc: 'বিশ্বাসযোগ্য, রিয়েল-টাইম উৎস থেকে তাজা উত্তর প্রদান করে।',
     deepseekSubtitle: 'যুক্তি বিশেষজ্ঞ',
     deepseekDesc: 'যুক্তি, গণিত এবং কোডিংয়ে স্পষ্ট সমাধান সহ উৎকৃষ্ট।',
     grokSubtitle: 'সৃজনশীল পাওয়ারহাউস',
@@ -208,7 +204,7 @@ const translations = {
     faqDesc: 'AI Sorix সম্পর্কে সাধারণ প্রশ্নের উত্তর খুঁজুন।',
     
     // Footer
-    footerDesc: 'সব প্রিমিয়াম AI মডেল একটি শক্তিশালী প্ল্যাটফর্মে। ChatGPT, Claude, Gemini, DeepSeek, Grok এবং Perplexity — একসাথে পান।',
+    footerDesc: 'সব প্রিমিয়াম AI মডেল একটি শক্তিশালী প্ল্যাটফর্মে। ChatGPT, Claude, DeepSeek, Gemini, Grok +১০টি আরও — একসাথে পান।',
     product: 'পণ্য',
     legal: 'আইনি',
     privacyPolicy: 'গোপনীয়তা নীতি',

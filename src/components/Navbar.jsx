@@ -1,21 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X, ChevronDown, Globe } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import ThemeToggle from './ThemeToggle';
 import logo from '../assets/logo.png';
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { language, setLanguage, t } = useLanguage();
+  const langRef = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (langRef.current && !langRef.current.contains(event.target)) {
+        setLangDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
-    <nav className="bg-card/80 backdrop-blur-xl border-b border-border/50 sticky top-0 z-50">
+    <nav className={`sticky top-0 z-50 transition-all duration-300 ${
+      scrolled ? 'bg-card/95 backdrop-blur-xl shadow-lg border-b border-border/50' : 'bg-card/80 backdrop-blur-xl border-b border-border/50'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
           {/* Logo */}
           <a href="#" className="flex items-center gap-3 group">
             <img src={logo} alt="AI Sorix" className="w-12 h-12 object-contain" />
-            <span className="text-2xl font-bold text-foreground tracking-tight">AI Sorix</span>
+            <span className="text-2xl font-bold text-gradient-primary tracking-tight">AI Sorix</span>
           </a>
 
           {/* Desktop Menu */}
@@ -31,10 +52,13 @@ const Navbar = () => {
             </a>
           </div>
 
-          {/* Right Side: Language + Auth */}
-          <div className="hidden md:flex items-center gap-4">
+          {/* Right Side: Theme + Language + Auth */}
+          <div className="hidden md:flex items-center gap-3">
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
             {/* Language Dropdown */}
-            <div className="relative">
+            <div className="relative" ref={langRef}>
               <button
                 onClick={() => setLangDropdownOpen(!langDropdownOpen)}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
@@ -45,7 +69,7 @@ const Navbar = () => {
               </button>
               
               {langDropdownOpen && (
-                <div className="absolute top-full right-0 mt-2 bg-card border border-border rounded-xl shadow-xl overflow-hidden min-w-[120px]">
+                <div className="absolute top-full right-0 mt-2 bg-card border border-border rounded-xl shadow-xl overflow-hidden min-w-[120px] z-50">
                   <button
                     onClick={() => { setLanguage('en'); setLangDropdownOpen(false); }}
                     className={`w-full px-4 py-3 text-left text-sm font-medium hover:bg-muted transition-colors flex items-center gap-2 ${language === 'en' ? 'text-primary bg-primary/5' : 'text-foreground'}`}
@@ -65,7 +89,7 @@ const Navbar = () => {
             {/* Login Button */}
             <a
               href="https://chat.aifiesta.com/login"
-              className="px-5 py-2.5 border border-border rounded-lg font-medium text-foreground hover:bg-muted transition-colors"
+              className="px-5 py-2.5 border border-border rounded-xl font-semibold text-foreground hover:bg-muted transition-all duration-300"
             >
               {t('login')}
             </a>
@@ -73,7 +97,7 @@ const Navbar = () => {
             {/* Register Button */}
             <a
               href="https://chat.aifiesta.com/register"
-              className="px-5 py-2.5 gradient-primary text-primary-foreground font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+              className="px-5 py-2.5 gradient-primary text-foreground font-semibold rounded-xl shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
             >
               {t('register')}
             </a>
@@ -101,33 +125,36 @@ const Navbar = () => {
               {t('faqs')}
             </a>
             
-            {/* Language Toggle Mobile */}
-            <div className="flex items-center gap-2 px-4 py-3">
-              <Globe className="w-4 h-4 text-muted-foreground" />
-              <button
-                onClick={() => setLanguage('en')}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${language === 'en' ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}
-              >
-                EN
-              </button>
-              <button
-                onClick={() => setLanguage('bn')}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${language === 'bn' ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}
-              >
-                বাং
-              </button>
+            {/* Theme & Language Toggle Mobile */}
+            <div className="flex items-center justify-between px-4 py-3">
+              <div className="flex items-center gap-2">
+                <Globe className="w-4 h-4 text-muted-foreground" />
+                <button
+                  onClick={() => setLanguage('en')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${language === 'en' ? 'gradient-primary text-foreground' : 'bg-muted text-foreground'}`}
+                >
+                  EN
+                </button>
+                <button
+                  onClick={() => setLanguage('bn')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${language === 'bn' ? 'gradient-primary text-foreground' : 'bg-muted text-foreground'}`}
+                >
+                  বাং
+                </button>
+              </div>
+              <ThemeToggle />
             </div>
 
             <div className="flex gap-3 px-4">
               <a
                 href="https://chat.aifiesta.com/login"
-                className="flex-1 text-center py-3 border border-border text-foreground font-medium rounded-xl"
+                className="flex-1 text-center py-3 border border-border text-foreground font-semibold rounded-xl"
               >
                 {t('login')}
               </a>
               <a
                 href="https://chat.aifiesta.com/register"
-                className="flex-1 text-center py-3 gradient-primary text-primary-foreground font-semibold rounded-xl"
+                className="flex-1 text-center py-3 gradient-primary text-foreground font-semibold rounded-xl"
               >
                 {t('register')}
               </a>

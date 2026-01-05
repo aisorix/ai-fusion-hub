@@ -26,12 +26,6 @@ export const GeminiLogo = ({ className = "w-6 h-6" }) => (
   </svg>
 );
 
-export const PerplexityLogo = ({ className = "w-6 h-6" }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none">
-    <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 2.18L18.36 7.5 12 10.82 5.64 7.5 12 4.18zM5 8.82l6 3.32v6.04l-6-3.32V8.82zm8 9.36v-6.04l6-3.32v6.04l-6 3.32z" fill="#20808D"/>
-  </svg>
-);
-
 export const DeepSeekLogo = ({ className = "w-6 h-6" }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none">
     <circle cx="12" cy="12" r="10" fill="#7C3AED"/>
@@ -52,7 +46,6 @@ export const getModelLogo = (modelName) => {
   if (name.includes('chatgpt') || name.includes('gpt')) return ChatGPTLogo;
   if (name.includes('claude')) return ClaudeLogo;
   if (name.includes('gemini')) return GeminiLogo;
-  if (name.includes('perplexity') || name.includes('sonar')) return PerplexityLogo;
   if (name.includes('deepseek')) return DeepSeekLogo;
   if (name.includes('grok')) return GrokLogo;
   return null;
@@ -63,7 +56,6 @@ export const modelColors = {
   chatgpt: { gradient: 'from-[#10A37F] to-[#1A7F64]', bg: 'bg-[#10A37F]' },
   claude: { gradient: 'from-[#D97706] to-[#B45309]', bg: 'bg-[#D97706]' },
   gemini: { gradient: 'from-[#4285F4] via-[#9B72CB] to-[#D96570]', bg: 'bg-gradient-to-r from-[#4285F4] to-[#D96570]' },
-  perplexity: { gradient: 'from-[#20808D] to-[#166B77]', bg: 'bg-[#20808D]' },
   deepseek: { gradient: 'from-[#7C3AED] to-[#5B21B6]', bg: 'bg-[#7C3AED]' },
   grok: { gradient: 'from-gray-800 to-black', bg: 'bg-black' },
 };
