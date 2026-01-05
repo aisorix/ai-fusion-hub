@@ -175,17 +175,17 @@ const RolesSection = () => {
   };
 
   return (
-    <section className="py-16 md:py-24 bg-primary/5 relative overflow-hidden">
-      <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-8">
+    <section className="py-10 sm:py-16 md:py-24 bg-primary/5 relative overflow-hidden">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         {/* Section Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground px-2">
             {language === 'en' ? 'For Every Role & Every Need' : 'প্রতিটি ভূমিকা ও প্রয়োজনের জন্য'}
           </h2>
         </div>
 
-        {/* Tabs Navigation */}
-        <div className="flex flex-wrap justify-center gap-3 md:gap-4 mb-12">
+        {/* Tabs Navigation - Horizontal scroll on mobile */}
+        <div className="flex overflow-x-auto gap-2 sm:gap-3 md:gap-4 mb-8 sm:mb-12 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:justify-center scrollbar-hide">
           {tabs.map((tab) => {
             const IconComponent = tab.icon;
             const isActive = activeTab === tab.id;
@@ -193,34 +193,34 @@ const RolesSection = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center justify-center gap-2 px-4 py-3 md:px-5 md:py-4 rounded-xl font-medium transition-all duration-300 ${
+                className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 md:px-5 py-2.5 sm:py-3 md:py-4 rounded-xl font-medium transition-all duration-300 flex-shrink-0 ${
                   isActive
                     ? 'bg-card shadow-lg border border-primary/30 text-primary'
                     : 'bg-card/50 text-muted-foreground hover:text-foreground hover:bg-card hover:shadow-md border border-transparent'
                 }`}
               >
-                <div className={`p-2 rounded-lg ${isActive ? 'bg-primary/10' : 'bg-muted'}`}>
-                  <IconComponent className={`w-5 h-5 ${isActive ? 'text-primary' : ''}`} />
+                <div className={`p-1.5 sm:p-2 rounded-lg ${isActive ? 'bg-primary/10' : 'bg-muted'}`}>
+                  <IconComponent className={`w-4 h-4 sm:w-5 sm:h-5 ${isActive ? 'text-primary' : ''}`} />
                 </div>
-                <span className="hidden sm:inline text-sm md:text-base">{tab.label}</span>
+                <span className="text-xs sm:text-sm md:text-base whitespace-nowrap">{tab.label}</span>
               </button>
             );
           })}
         </div>
 
         {/* Tab Content */}
-        <div className="bg-card rounded-3xl p-8 md:p-12 border border-border shadow-lg">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+        <div className="bg-card rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 border border-border shadow-lg">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
             {roleContent[activeTab].map((item, index) => {
               const IconComponent = item.icon;
               return (
-                <div key={index} className="flex items-start gap-4 group">
-                  <div className="flex-shrink-0 p-3 rounded-xl bg-muted text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
-                    <IconComponent className="w-6 h-6" />
+                <div key={index} className="flex items-start gap-3 sm:gap-4 group">
+                  <div className="flex-shrink-0 p-2.5 sm:p-3 rounded-xl bg-muted text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
+                    <IconComponent className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-foreground mb-2">{item.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                  <div className="min-w-0">
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-1 sm:mb-2">{item.title}</h3>
+                    <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed">{item.desc}</p>
                   </div>
                 </div>
               );

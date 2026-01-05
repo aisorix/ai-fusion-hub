@@ -28,20 +28,32 @@ const Navbar = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
+
   return (
     <nav className={`sticky top-0 z-50 transition-all duration-300 ${
       scrolled ? 'bg-card/95 backdrop-blur-xl shadow-lg border-b border-border/50' : 'bg-card/80 backdrop-blur-xl border-b border-border/50'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-20 items-center">
+        <div className="flex justify-between h-16 sm:h-20 items-center">
           {/* Logo */}
-          <a href="#" className="flex items-center gap-3 group">
-            <img src={logo} alt="AI Sorix" className="w-12 h-12 object-contain" />
-            <span className="text-2xl font-bold text-gradient-primary tracking-tight">AI Sorix</span>
+          <a href="#" className="flex items-center gap-2 sm:gap-3 group">
+            <img src={logo} alt="AI Sorix" className="w-9 h-9 sm:w-12 sm:h-12 object-contain" />
+            <span className="text-lg sm:text-2xl font-bold text-gradient-primary tracking-tight">AI Sorix</span>
           </a>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-10">
+          <div className="hidden lg:flex items-center gap-10">
             <a href="#Features" className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all">
               {t('features')}
             </a>
@@ -54,7 +66,7 @@ const Navbar = () => {
           </div>
 
           {/* Right Side: Theme + Language + Auth */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3">
             {/* Theme Toggle */}
             <ThemeToggle />
 
@@ -105,62 +117,87 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Menu Toggle */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-xl bg-muted hover:bg-muted/80 transition"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          <div className="flex lg:hidden items-center gap-2">
+            <ThemeToggle />
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-xl bg-muted hover:bg-muted/80 transition"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu Overlay */}
         {mobileMenuOpen && (
-          <div className="md:hidden pb-6 space-y-4 animate-in slide-in-from-top-2">
-            <a href="#Features" className="block py-3 px-4 rounded-xl hover:bg-muted text-foreground font-medium transition">
-              {t('features')}
-            </a>
-            <a href="#pricing" className="block py-3 px-4 rounded-xl hover:bg-muted text-foreground font-medium transition">
-              {t('pricing')}
-            </a>
-            <a href="#faq" className="block py-3 px-4 rounded-xl hover:bg-muted text-foreground font-medium transition">
-              {t('faqs')}
-            </a>
-            
-            {/* Theme & Language Toggle Mobile */}
-            <div className="flex items-center justify-between px-4 py-3">
-              <div className="flex items-center gap-2">
+          <div className="lg:hidden fixed inset-0 top-16 sm:top-20 bg-background/95 backdrop-blur-lg z-40 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="flex flex-col h-full px-4 py-6 overflow-y-auto">
+              {/* Navigation Links */}
+              <div className="space-y-2">
+                <a 
+                  href="#Features" 
+                  className="block py-3 px-4 rounded-xl hover:bg-muted text-foreground font-medium transition text-base"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {t('features')}
+                </a>
+                <a 
+                  href="#pricing" 
+                  className="block py-3 px-4 rounded-xl hover:bg-muted text-foreground font-medium transition text-base"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {t('pricing')}
+                </a>
+                <a 
+                  href="#faq" 
+                  className="block py-3 px-4 rounded-xl hover:bg-muted text-foreground font-medium transition text-base"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {t('faqs')}
+                </a>
+              </div>
+              
+              {/* Divider */}
+              <div className="h-px bg-border my-4" />
+              
+              {/* Language Toggle */}
+              <div className="flex items-center gap-3 px-4 py-3">
                 <Globe className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground mr-2">Language:</span>
                 <button
                   onClick={() => setLanguage('en')}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${language === 'en' ? 'gradient-primary text-foreground' : 'bg-muted text-foreground'}`}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${language === 'en' ? 'gradient-primary text-foreground' : 'bg-muted text-foreground'}`}
                 >
                   EN
                 </button>
                 <button
                   onClick={() => setLanguage('bn')}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${language === 'bn' ? 'gradient-primary text-foreground' : 'bg-muted text-foreground'}`}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${language === 'bn' ? 'gradient-primary text-foreground' : 'bg-muted text-foreground'}`}
                 >
                   বাং
                 </button>
               </div>
-              <ThemeToggle />
-            </div>
 
-            <div className="flex gap-3 px-4">
-              <Link
-                to="/login"
-                className="flex-1 text-center py-3 border border-border text-foreground font-semibold rounded-xl"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {t('login')}
-              </Link>
-              <Link
-                to="/register"
-                className="flex-1 text-center py-3 gradient-primary text-foreground font-semibold rounded-xl"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {t('register')}
-              </Link>
+              {/* Spacer */}
+              <div className="flex-1" />
+
+              {/* Auth Buttons */}
+              <div className="space-y-3 mt-6">
+                <Link
+                  to="/login"
+                  className="block w-full text-center py-3.5 border border-border text-foreground font-semibold rounded-xl hover:bg-muted transition"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {t('login')}
+                </Link>
+                <Link
+                  to="/register"
+                  className="block w-full text-center py-3.5 gradient-primary text-foreground font-semibold rounded-xl shadow-md"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {t('register')}
+                </Link>
+              </div>
             </div>
           </div>
         )}

@@ -121,102 +121,102 @@ const Pricing = () => {
   };
 
   return (
-    <section id="pricing" className="py-16 md:py-24 bg-muted/20 relative overflow-hidden">
+    <section id="pricing" className="py-10 sm:py-16 md:py-24 bg-muted/20 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-accent/5 rounded-full blur-3xl" />
+        <div className="absolute top-0 right-0 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-accent/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         {/* Header */}
-        <div className="text-center mb-10">
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4">
-            <Sparkles className="w-4 h-4" />
+        <div className="text-center mb-8 sm:mb-10">
+          <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-semibold mb-3 sm:mb-4">
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             {t('pricingLabel')}
           </span>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground mb-3">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground mb-2 sm:mb-3 px-2">
             {t('pricingTitle')}
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
             {t('pricingDesc')}
           </p>
         </div>
 
         {/* Toggle */}
-        <div className="flex items-center justify-center gap-4 mb-10">
-          <span className={`font-medium transition-colors ${!isYearly ? 'text-foreground' : 'text-muted-foreground'}`}>
+        <div className="flex items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-10">
+          <span className={`text-sm sm:text-base font-medium transition-colors ${!isYearly ? 'text-foreground' : 'text-muted-foreground'}`}>
             {t('monthly')}
           </span>
           <button
             onClick={() => setIsYearly(!isYearly)}
-            className="relative w-16 h-8 rounded-full bg-muted p-1 transition-colors"
+            className="relative w-14 sm:w-16 h-7 sm:h-8 rounded-full bg-muted p-1 transition-colors"
           >
             <div
-              className={`absolute top-1 w-6 h-6 rounded-full gradient-primary shadow-md transition-all duration-300 ${
-                isYearly ? 'left-9' : 'left-1'
+              className={`absolute top-1 w-5 sm:w-6 h-5 sm:h-6 rounded-full gradient-primary shadow-md transition-all duration-300 ${
+                isYearly ? 'left-8 sm:left-9' : 'left-1'
               }`}
             />
           </button>
-          <span className={`font-medium transition-colors flex items-center gap-2 ${isYearly ? 'text-foreground' : 'text-muted-foreground'}`}>
+          <span className={`text-sm sm:text-base font-medium transition-colors flex items-center gap-1.5 sm:gap-2 ${isYearly ? 'text-foreground' : 'text-muted-foreground'}`}>
             {t('yearly')}
-            <span className="px-2 py-1 bg-green-500/10 text-green-600 dark:text-green-400 text-xs font-bold rounded-full">
+            <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-green-500/10 text-green-600 dark:text-green-400 text-[10px] sm:text-xs font-bold rounded-full">
               {t('save20')}
             </span>
           </span>
         </div>
 
-        {/* Pricing Cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* Pricing Cards - Horizontal scroll on mobile */}
+        <div className="flex lg:grid lg:grid-cols-4 gap-4 sm:gap-5 overflow-x-auto pb-4 lg:pb-0 -mx-4 px-4 lg:mx-0 lg:px-0 snap-x snap-mandatory">
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`relative bg-card rounded-2xl border ${
-                plan.popular ? 'border-primary shadow-2xl shadow-primary/10 scale-105' : 'border-border'
+              className={`relative bg-card rounded-2xl border flex-shrink-0 w-[280px] sm:w-[300px] lg:w-auto snap-center ${
+                plan.popular ? 'border-primary shadow-2xl shadow-primary/10 lg:scale-105' : 'border-border'
               } overflow-hidden transition-all duration-300 hover:shadow-xl`}
             >
               {/* Badge */}
               {plan.badge && (
-                <div className={`absolute top-0 left-0 right-0 py-2 text-center text-xs font-bold ${plan.badgeStyle}`}>
+                <div className={`absolute top-0 left-0 right-0 py-1.5 sm:py-2 text-center text-[10px] sm:text-xs font-bold ${plan.badgeStyle}`}>
                   {plan.badge}
                 </div>
               )}
 
-              <div className={`p-5 ${plan.badge ? 'pt-10' : ''}`}>
+              <div className={`p-4 sm:p-5 ${plan.badge ? 'pt-8 sm:pt-10' : ''}`}>
                 {/* Plan Icon & Name */}
-                <div className="flex items-center gap-3 mb-3">
-                  <div className={`w-10 h-10 rounded-xl ${plan.iconBg} flex items-center justify-center`}>
-                    <plan.icon className={`w-5 h-5 ${plan.iconColor}`} />
+                <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl ${plan.iconBg} flex items-center justify-center`}>
+                    <plan.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${plan.iconColor}`} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-foreground">{plan.displayName}</h3>
-                    {plan.subtitle && <p className="text-xs text-muted-foreground">{plan.subtitle}</p>}
+                    <h3 className="text-base sm:text-lg font-bold text-foreground">{plan.displayName}</h3>
+                    {plan.subtitle && <p className="text-[10px] sm:text-xs text-muted-foreground">{plan.subtitle}</p>}
                   </div>
                 </div>
 
                 {/* Price */}
-                <div className="mb-4">
-                  <span className="text-3xl font-black text-foreground">
+                <div className="mb-3 sm:mb-4">
+                  <span className="text-2xl sm:text-3xl font-black text-foreground">
                     {formatPrice(isYearly ? Math.round((plan.yearlyPrice || plan.price * 12 * 0.8) / 12) : plan.price)}
                   </span>
-                  <span className="text-muted-foreground text-sm">{t('perMonth')}</span>
+                  <span className="text-muted-foreground text-xs sm:text-sm">{t('perMonth')}</span>
                 </div>
 
                 {/* Features */}
-                <div className="space-y-2 mb-5">
+                <div className="space-y-1.5 sm:space-y-2 mb-4 sm:mb-5">
                   {plan.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-start gap-2">
+                    <div key={idx} className="flex items-start gap-1.5 sm:gap-2">
                       {feature.included ? (
-                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 flex-shrink-0 mt-0.5" />
                       ) : (
-                        <X className="w-4 h-4 text-muted-foreground/50 flex-shrink-0 mt-0.5" />
+                        <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground/50 flex-shrink-0 mt-0.5" />
                       )}
                       <div>
-                        <span className={`text-xs ${feature.included ? 'text-foreground' : 'text-muted-foreground line-through'}`}>
+                        <span className={`text-[10px] sm:text-xs ${feature.included ? 'text-foreground' : 'text-muted-foreground line-through'}`}>
                           {feature.text}
                         </span>
                         {feature.subtext && feature.included && (
-                          <p className="text-xs text-muted-foreground">{feature.subtext}</p>
+                          <p className="text-[10px] sm:text-xs text-muted-foreground">{feature.subtext}</p>
                         )}
                       </div>
                     </div>
@@ -225,7 +225,7 @@ const Pricing = () => {
 
                 {/* CTA Button */}
                 <button
-                  className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 ${plan.buttonStyle}`}
+                  className={`w-full py-2 sm:py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 ${plan.buttonStyle}`}
                   disabled={plan.isCurrentPlan}
                 >
                   {plan.buttonText}
@@ -236,9 +236,9 @@ const Pricing = () => {
         </div>
 
         {/* AI Models Showcase */}
-        <div className="mt-14 text-center">
-          <p className="text-muted-foreground mb-5 text-sm">{language === 'en' ? 'Powered by the best AI models' : 'সেরা AI মডেল দ্বারা চালিত'}</p>
-          <div className="flex flex-wrap justify-center gap-3">
+        <div className="mt-10 sm:mt-14 text-center">
+          <p className="text-muted-foreground mb-4 sm:mb-5 text-xs sm:text-sm">{language === 'en' ? 'Powered by the best AI models' : 'সেরা AI মডেল দ্বারা চালিত'}</p>
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
             {[
               { name: 'ChatGPT', Logo: ChatGPTLogo },
               { name: 'Claude', Logo: ClaudeLogo },
@@ -246,13 +246,13 @@ const Pricing = () => {
               { name: 'Gemini', Logo: GeminiLogo },
               { name: 'Grok', Logo: GrokLogo },
             ].map((model) => (
-              <div key={model.name} className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-card border border-border">
-                <model.Logo className="w-4 h-4" />
-                <span className="text-xs font-medium text-foreground">{model.name}</span>
+              <div key={model.name} className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-card border border-border">
+                <model.Logo className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="text-[10px] sm:text-xs font-medium text-foreground">{model.name}</span>
               </div>
             ))}
-            <div className="px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20">
-              <span className="text-xs font-bold text-primary">+10 more</span>
+            <div className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-primary/10 border border-primary/20">
+              <span className="text-[10px] sm:text-xs font-bold text-primary">+10 more</span>
             </div>
           </div>
         </div>
