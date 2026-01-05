@@ -1,45 +1,62 @@
 import React from 'react';
-
-const aiModels = [
-  {
-    title: "ChatGPT 5",
-    subtitle: "All Rounder Explainer",
-    desc: "Great for questions, brainstorming, and clear step-by-step explanations",
-    color: "from-green-500 to-emerald-500"
-  },
-  {
-    title: "Claude Sonnet 4",
-    subtitle: "Co-Writing Master",
-    desc: "Refines polished emails, essays, and scripts while keeping your style.",
-    color: "from-amber-500 to-orange-500"
-  },
-  {
-    title: "Gemini 2.5 Pro",
-    subtitle: "Long Context Master",
-    desc: "Handles long documents and images, tracking full context and details.",
-    color: "from-blue-500 to-cyan-500"
-  },
-  {
-    title: "Perplexity Sonar",
-    subtitle: "Live Web Researcher",
-    desc: "Delivers fresh answers and news from credible, real-time sources.",
-    color: "from-orange-500 to-red-500"
-  },
-  {
-    title: "DeepSeek R1",
-    subtitle: "Reasoning Specialist",
-    desc: "Excels at logic, math, and coding with clear, detailed solutions.",
-    color: "from-violet-500 to-purple-500"
-  },
-  {
-    title: "Grok 4",
-    subtitle: "Creative Powerhouse",
-    desc: "Bold, unconventional ideas and punchy copy for trend-focused content.",
-    color: "from-cyan-500 to-blue-500"
-  }
-];
+import { useLanguage } from '../contexts/LanguageContext';
+import { ChatGPTLogo, ClaudeLogo, GeminiLogo, PerplexityLogo, DeepSeekLogo, GrokLogo } from './AIModelLogos';
+import logo from '../assets/logo.png';
 
 const Workflow = () => {
+  const { t } = useLanguage();
+
+  const aiModels = [
+    {
+      title: "ChatGPT 5",
+      subtitle: t('chatgptSubtitle'),
+      desc: t('chatgptDesc'),
+      Logo: ChatGPTLogo,
+      bgColor: 'bg-[#10A37F]/10',
+      borderColor: 'border-[#10A37F]/30',
+    },
+    {
+      title: "Claude Sonnet 4",
+      subtitle: t('claudeSubtitle'),
+      desc: t('claudeDesc'),
+      Logo: ClaudeLogo,
+      bgColor: 'bg-[#D97706]/10',
+      borderColor: 'border-[#D97706]/30',
+    },
+    {
+      title: "Gemini 2.5 Pro",
+      subtitle: t('geminiSubtitle'),
+      desc: t('geminiDesc'),
+      Logo: GeminiLogo,
+      bgColor: 'bg-[#4285F4]/10',
+      borderColor: 'border-[#4285F4]/30',
+    },
+    {
+      title: "Perplexity Sonar",
+      subtitle: t('perplexitySubtitle'),
+      desc: t('perplexityDesc'),
+      Logo: PerplexityLogo,
+      bgColor: 'bg-[#20808D]/10',
+      borderColor: 'border-[#20808D]/30',
+    },
+    {
+      title: "DeepSeek R1",
+      subtitle: t('deepseekSubtitle'),
+      desc: t('deepseekDesc'),
+      Logo: DeepSeekLogo,
+      bgColor: 'bg-[#7C3AED]/10',
+      borderColor: 'border-[#7C3AED]/30',
+    },
+    {
+      title: "Grok 4",
+      subtitle: t('grokSubtitle'),
+      desc: t('grokDesc'),
+      Logo: GrokLogo,
+      bgColor: 'bg-gray-900/10',
+      borderColor: 'border-gray-900/30',
+    }
+  ];
+
   return (
     <section className="py-20 md:py-32 bg-background relative overflow-hidden">
       {/* Background Decoration */}
@@ -51,23 +68,23 @@ const Workflow = () => {
         {/* Heading */}
         <div className="text-center mb-16">
           <span className="inline-block px-4 py-2 rounded-full bg-secondary/10 text-secondary text-sm font-semibold mb-6">
-            AI Models
+            {t('aiModelsLabel')}
           </span>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6">
-            Pick the Best of
+            {t('aiModelsTitle1')}
             <br className="hidden sm:block" />
-            <span className="text-gradient-primary">Each AI Model</span>
+            <span className="text-gradient-primary">{t('aiModelsTitle2')}</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Every AI has its superpower. Combine them all for unstoppable results.
+            {t('aiModelsDesc')}
           </p>
         </div>
 
         {/* Center Logo */}
         <div className="flex justify-center mb-16">
           <div className="relative">
-            <div className="w-28 h-28 md:w-36 md:h-36 gradient-primary rounded-3xl flex items-center justify-center shadow-2xl">
-              <span className="text-4xl md:text-5xl font-black text-primary-foreground">AI</span>
+            <div className="w-28 h-28 md:w-36 md:h-36 bg-card rounded-3xl flex items-center justify-center shadow-2xl border border-border p-4">
+              <img src={logo} alt="AI Sorix" className="w-full h-full object-contain" />
             </div>
             {/* Orbiting dots */}
             <div className="absolute -inset-8 animate-spin" style={{ animationDuration: '20s' }}>
@@ -84,14 +101,14 @@ const Workflow = () => {
           {aiModels.map((model, index) => (
             <div
               key={index}
-              className="group bg-card rounded-2xl p-6 lg:p-8 border border-border hover:border-primary/30 hover:shadow-xl transition-all duration-300 text-center hover:-translate-y-1"
+              className={`group bg-card rounded-2xl p-6 lg:p-8 border ${model.borderColor} hover:border-primary/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}
             >
-              <div className={`w-16 h-16 mx-auto mb-6 bg-gradient-to-br ${model.color} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                <span className="text-2xl font-bold text-primary-foreground">{model.title[0]}</span>
+              <div className={`w-16 h-16 mx-auto mb-6 ${model.bgColor} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                <model.Logo className="w-10 h-10" />
               </div>
-              <h3 className="text-xl lg:text-2xl font-bold text-foreground mb-2">{model.title}</h3>
-              <p className="text-primary font-semibold text-sm mb-3">{model.subtitle}</p>
-              <p className="text-muted-foreground leading-relaxed">
+              <h3 className="text-xl lg:text-2xl font-bold text-foreground mb-2 text-center">{model.title}</h3>
+              <p className="text-primary font-semibold text-sm mb-3 text-center">{model.subtitle}</p>
+              <p className="text-muted-foreground leading-relaxed text-center">
                 {model.desc}
               </p>
             </div>

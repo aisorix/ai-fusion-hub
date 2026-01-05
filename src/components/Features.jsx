@@ -1,28 +1,37 @@
 import React from 'react';
 import { Gem, Users, Stethoscope, Sparkles, Brain, Zap, Heart, Shield, Globe, ArrowRight } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Features = () => {
+  const { language, t } = useLanguage();
+
   const premiumFeatures = [
     {
       icon: Gem,
-      title: "Sorix Chat",
-      desc: "All Premium AI in One Chat — GPT-4o, Gemini 1.5 Pro, DeepSeek; সব একসাথে। যখন খুশি সুইচ করো",
+      title: t('sorixChat'),
+      desc: language === 'en' 
+        ? 'All Premium AI in One Chat — GPT-4o, Gemini 1.5 Pro, DeepSeek; all together. Switch whenever you want.'
+        : 'সব প্রিমিয়াম AI একটি চ্যাটে — GPT-4o, Gemini 1.5 Pro, DeepSeek; সব একসাথে। যখন খুশি সুইচ করো।',
       gradient: "from-purple-500 to-pink-500",
       bgGradient: "from-purple-500/10 to-pink-500/10",
       comingSoon: false
     },
     {
       icon: Users,
-      title: "Sorix Avatar",
-      desc: "Build Your Elite AI Team — Doctors, Lawyers, Coders, and Marketing Experts Working Together for You",
+      title: t('sorixAvatar'),
+      desc: language === 'en'
+        ? 'Build Your Elite AI Team — Doctors, Lawyers, Coders, and Marketing Experts Working Together for You.'
+        : 'তোমার এলিট AI টিম তৈরি করো — ডাক্তার, উকিল, কোডার এবং মার্কেটিং বিশেষজ্ঞ তোমার জন্য একসাথে কাজ করছে।',
       gradient: "from-blue-500 to-cyan-500",
       bgGradient: "from-blue-500/10 to-cyan-500/10",
       comingSoon: true
     },
     {
       icon: Stethoscope,
-      title: "Sorix Health",
-      desc: "তোমার রিপোর্ট, লক্ষণ দাও — সেকেন্ডের মধ্যে ডাক্তার লেভেলের অ্যানালাইসিস + সাজেশন",
+      title: t('sorixHealth'),
+      desc: language === 'en'
+        ? 'Share your reports, symptoms — get doctor-level analysis and suggestions within seconds.'
+        : 'তোমার রিপোর্ট, লক্ষণ দাও — সেকেন্ডের মধ্যে ডাক্তার লেভেলের অ্যানালাইসিস + সাজেশন।',
       gradient: "from-emerald-500 to-teal-500",
       bgGradient: "from-emerald-500/10 to-teal-500/10",
       comingSoon: true
@@ -30,12 +39,54 @@ const Features = () => {
   ];
 
   const regularFeatures = [
-    { icon: Sparkles, title: "Fun & Emotional", desc: "আমরা শুধু AI না — তোমার বেস্ট ফ্রেন্ড। হাসি, রাগ, ভালোবাসা — সব বোঝে", gradient: "from-pink-500 to-rose-500" },
-    { icon: Brain, title: "Super Intelligent", desc: "কোডিং, গান লেখা, ছবি বানানো, রোস্টিং — যা বলবে তাই পারব", gradient: "from-purple-500 to-indigo-500" },
-    { icon: Zap, title: "Instant Replies", desc: "কোনো লোডিং নেই। সেকেন্ডের মধ্যে মজার মজার উত্তর", gradient: "from-amber-500 to-orange-500" },
-    { icon: Heart, title: "Long-term Memory", desc: "তোমার নাম, পছন্দ, গতকালের কথা — সব মনে রাখি", gradient: "from-red-500 to-pink-500" },
-    { icon: Shield, title: "100% Private", desc: "তোমার চ্যাট কেউ দেখে না। তোমার সিক্রেট, আমার সিক্রেট", gradient: "from-emerald-500 to-teal-500" },
-    { icon: Globe, title: "50+ Languages", desc: "বাংলা, ইংরেজি, হিন্দি, স্প্যানিশ — যেকোনো ভাষায় কথা বলি", gradient: "from-blue-500 to-cyan-500" }
+    { 
+      icon: Sparkles, 
+      title: t('funEmotional'), 
+      desc: language === 'en' 
+        ? "We're not just AI — we're your best friend. Laughter, anger, love — we understand it all."
+        : 'আমরা শুধু AI না — তোমার বেস্ট ফ্রেন্ড। হাসি, রাগ, ভালোবাসা — সব বোঝি।', 
+      gradient: "from-pink-500 to-rose-500" 
+    },
+    { 
+      icon: Brain, 
+      title: t('superIntelligent'), 
+      desc: language === 'en'
+        ? 'Coding, songwriting, image creation, roasting — whatever you ask, we can do it.'
+        : 'কোডিং, গান লেখা, ছবি বানানো, রোস্টিং — যা বলবে তাই পারব।', 
+      gradient: "from-purple-500 to-indigo-500" 
+    },
+    { 
+      icon: Zap, 
+      title: t('instantReplies'), 
+      desc: language === 'en'
+        ? 'No loading. Fun answers within seconds.'
+        : 'কোনো লোডিং নেই। সেকেন্ডের মধ্যে মজার মজার উত্তর।', 
+      gradient: "from-amber-500 to-orange-500" 
+    },
+    { 
+      icon: Heart, 
+      title: language === 'en' ? 'Long-term Memory' : 'দীর্ঘমেয়াদী স্মৃতি', 
+      desc: language === 'en'
+        ? "Your name, preferences, yesterday's conversation — we remember everything."
+        : 'তোমার নাম, পছন্দ, গতকালের কথা — সব মনে রাখি।', 
+      gradient: "from-red-500 to-pink-500" 
+    },
+    { 
+      icon: Shield, 
+      title: language === 'en' ? '100% Private' : '১০০% প্রাইভেট', 
+      desc: language === 'en'
+        ? "No one sees your chat. Your secret, our secret."
+        : 'তোমার চ্যাট কেউ দেখে না। তোমার সিক্রেট, আমার সিক্রেট।', 
+      gradient: "from-emerald-500 to-teal-500" 
+    },
+    { 
+      icon: Globe, 
+      title: language === 'en' ? '50+ Languages' : '৫০+ ভাষা', 
+      desc: language === 'en'
+        ? 'Bengali, English, Hindi, Spanish — we speak any language.'
+        : 'বাংলা, ইংরেজি, হিন্দি, স্প্যানিশ — যেকোনো ভাষায় কথা বলি।', 
+      gradient: "from-blue-500 to-cyan-500" 
+    }
   ];
 
   return (
@@ -50,13 +101,15 @@ const Features = () => {
         {/* Section Header */}
         <div className="text-center mb-20">
           <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-6">
-            Why Choose Us
+            {language === 'en' ? 'Why Choose Us' : 'আমাদের কেন বেছে নেবেন'}
           </span>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-            Why Choose <span className="text-gradient-accent">AI Sorix</span>
+            {language === 'en' ? 'Why Choose' : 'কেন বেছে নেবেন'} <span className="text-gradient-accent">AI Sorix</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            এখানে শুধু চ্যাট নয় — পুরো AI ইউনিভার্স তোমার হাতের মুঠোয়
+            {language === 'en' 
+              ? "Not just chat — the entire AI universe in the palm of your hand."
+              : 'এখানে শুধু চ্যাট নয় — পুরো AI ইউনিভার্স তোমার হাতের মুঠোয়।'}
           </p>
         </div>
 
@@ -79,7 +132,7 @@ const Features = () => {
                 {feature.comingSoon && (
                   <div className="absolute top-4 right-4 z-10">
                     <span className="px-3 py-1 bg-foreground text-background text-xs font-bold rounded-full">
-                      Coming Soon
+                      {t('comingSoon')}
                     </span>
                   </div>
                 )}
@@ -98,7 +151,7 @@ const Features = () => {
 
                   {!feature.comingSoon && (
                     <div className="mt-6 flex items-center gap-2 text-primary font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                      Learn more <ArrowRight className="w-4 h-4" />
+                      {language === 'en' ? 'Learn more' : 'আরও জানুন'} <ArrowRight className="w-4 h-4" />
                     </div>
                   )}
                 </div>
