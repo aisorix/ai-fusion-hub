@@ -79,7 +79,7 @@ const Faqs = () => {
   };
 
   return (
-    <section id="faq" className="py-20 md:py-32 bg-background relative">
+    <section id="faq" className="py-16 md:py-24 bg-background relative">
       {/* Background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-primary/3 to-transparent rounded-full" />
@@ -87,12 +87,12 @@ const Faqs = () => {
 
       <div className="relative z-10 max-w-4xl mx-auto px-6">
         {/* Header */}
-        <div className="text-center mb-16">
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-6">
+        <div className="text-center mb-12">
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4">
             <MessageCircleQuestion className="w-4 h-4" />
             {language === 'en' ? 'Got Questions?' : 'প্রশ্ন আছে?'}
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             {t('faqTitle')}
           </h2>
           <p className="text-xl text-muted-foreground">
@@ -146,7 +146,7 @@ const Faqs = () => {
         </div>
 
         {/* Contact CTA */}
-        <div className="mt-16 text-center">
+        <div className="mt-12 text-center">
           <p className="text-muted-foreground mb-4">
             {language === 'en' ? 'Still have questions?' : 'এখনও প্রশ্ন আছে?'}
           </p>

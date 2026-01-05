@@ -49,7 +49,7 @@ const ProductivityGains = () => {
   ];
 
   return (
-    <section className="py-20 md:py-32 bg-background relative overflow-hidden">
+    <section className="py-16 md:py-24 bg-background relative overflow-hidden">
       {/* Subtle Background Pattern */}
       <div className="absolute inset-0 opacity-40 pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
@@ -58,8 +58,8 @@ const ProductivityGains = () => {
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-8">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
             {language === 'en' ? 'Productivity Gains with' : 'উৎপাদনশীলতা বাড়ান'} <span className="text-gradient-accent">AI Sorix</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">

@@ -50,7 +50,7 @@ const Workflow = () => {
   ];
 
   return (
-    <section className="py-24 md:py-36 bg-background relative overflow-hidden">
+    <section className="py-16 md:py-24 bg-background relative overflow-hidden">
       {/* Background Decoration */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-primary/5 to-transparent rounded-full blur-3xl" />
@@ -58,11 +58,11 @@ const Workflow = () => {
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-8">
         {/* Heading */}
-        <div className="text-center mb-16">
-          <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-6">
+        <div className="text-center mb-12">
+          <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4">
             {t('aiModelsLabel')}
           </span>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-4">
             {t('aiModelsTitle1')}
             <br className="hidden sm:block" />
             <span className="text-gradient-primary">{t('aiModelsTitle2')}</span>
@@ -73,7 +73,7 @@ const Workflow = () => {
         </div>
 
         {/* Center Logo */}
-        <div className="flex justify-center mb-16">
+        <div className="flex justify-center mb-12">
           <div className="relative">
             <div className="w-32 h-32 md:w-40 md:h-40 bg-card rounded-3xl flex items-center justify-center shadow-2xl border border-border p-4 glow-effect">
               <img src={logo} alt="AI Sorix" className="w-full h-full object-contain" />
