@@ -71,7 +71,7 @@ const Pricing = () => {
       iconBg: 'bg-primary/10',
       iconColor: 'text-primary',
       badge: t('mostPopular'),
-      badgeStyle: 'gradient-primary text-foreground',
+      badgeStyle: 'bg-primary/10 text-primary border-b border-primary/20',
       popular: true,
       features: [
         { text: `10 ${t('aiModels')}`, subtext: 'ChatGPT, Claude, DeepSeek, Gemini, Grok +5 more', included: true },
