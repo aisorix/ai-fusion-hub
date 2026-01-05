@@ -7,6 +7,7 @@ import ProductivityGains from "@/components/ProductivityGains";
 import Workflow from "@/components/Workflow";
 import Pricing from "@/components/Pricing";
 import Faqs from "@/components/Faqs";
+import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -21,6 +22,7 @@ const Index = () => {
       <Workflow />
       <Pricing />
       <Faqs />
+      <Testimonials />
       <Footer />
     </div>
   );
