@@ -185,21 +185,24 @@ const RolesSection = () => {
         </div>
 
         {/* Tabs Navigation */}
-        <div className="flex flex-wrap justify-center gap-2 md:gap-4 mb-12">
+        <div className="flex flex-wrap justify-center gap-3 md:gap-4 mb-12">
           {tabs.map((tab) => {
             const IconComponent = tab.icon;
+            const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-300 ${
-                  activeTab === tab.id
-                    ? 'text-primary border-b-2 border-primary bg-background shadow-md'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
+                className={`flex items-center justify-center gap-2 px-4 py-3 md:px-5 md:py-4 rounded-xl font-medium transition-all duration-300 ${
+                  isActive
+                    ? 'bg-card shadow-lg border border-primary/30 text-primary'
+                    : 'bg-card/50 text-muted-foreground hover:text-foreground hover:bg-card hover:shadow-md border border-transparent'
                 }`}
               >
-                <IconComponent className="w-5 h-5" />
-                <span className="hidden sm:inline">{tab.label}</span>
+                <div className={`p-2 rounded-lg ${isActive ? 'bg-primary/10' : 'bg-muted'}`}>
+                  <IconComponent className={`w-5 h-5 ${isActive ? 'text-primary' : ''}`} />
+                </div>
+                <span className="hidden sm:inline text-sm md:text-base">{tab.label}</span>
               </button>
             );
           })}

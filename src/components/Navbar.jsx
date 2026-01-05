@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { Menu, X, ChevronDown, Globe } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import ThemeToggle from './ThemeToggle';
@@ -87,20 +88,20 @@ const Navbar = () => {
             </div>
 
             {/* Login Button */}
-            <a
-              href="https://chat.aifiesta.com/login"
+            <Link
+              to="/login"
               className="px-5 py-2.5 border border-border rounded-xl font-semibold text-foreground hover:bg-muted transition-all duration-300"
             >
               {t('login')}
-            </a>
+            </Link>
 
             {/* Register Button */}
-            <a
-              href="https://chat.aifiesta.com/register"
+            <Link
+              to="/register"
               className="px-5 py-2.5 gradient-primary text-foreground font-semibold rounded-xl shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
             >
               {t('register')}
-            </a>
+            </Link>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -146,18 +147,20 @@ const Navbar = () => {
             </div>
 
             <div className="flex gap-3 px-4">
-              <a
-                href="https://chat.aifiesta.com/login"
+              <Link
+                to="/login"
                 className="flex-1 text-center py-3 border border-border text-foreground font-semibold rounded-xl"
+                onClick={() => setMobileMenuOpen(false)}
               >
                 {t('login')}
-              </a>
-              <a
-                href="https://chat.aifiesta.com/register"
+              </Link>
+              <Link
+                to="/register"
                 className="flex-1 text-center py-3 gradient-primary text-foreground font-semibold rounded-xl"
+                onClick={() => setMobileMenuOpen(false)}
               >
                 {t('register')}
-              </a>
+              </Link>
             </div>
           </div>
         )}
