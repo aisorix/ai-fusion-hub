@@ -15,6 +15,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+        display: ['Space Grotesk', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -52,6 +53,7 @@ export default {
         },
         // Extended palette
         cyan: {
+          400: "hsl(var(--cyan-400))",
           500: "hsl(var(--cyan-500))",
           600: "hsl(187 85% 43%)",
         },
@@ -85,6 +87,7 @@ export default {
           500: "hsl(var(--rose-500))",
         },
         teal: {
+          400: "hsl(var(--teal-400))",
           500: "hsl(var(--teal-500))",
         },
         violet: {
@@ -118,6 +121,7 @@ export default {
         sm: "calc(var(--radius) - 4px)",
         "2xl": "1rem",
         "3xl": "1.5rem",
+        "4xl": "2rem",
       },
       boxShadow: {
         sm: "var(--shadow-sm)",
@@ -125,6 +129,10 @@ export default {
         lg: "var(--shadow-lg)",
         xl: "var(--shadow-xl)",
         "2xl": "var(--shadow-2xl)",
+        glow: "0 0 30px hsl(var(--cyan-500) / 0.3)",
+        "glow-lg": "0 0 60px hsl(var(--cyan-500) / 0.4)",
+        neon: "0 0 20px hsl(var(--primary) / 0.5), 0 0 40px hsl(var(--primary) / 0.3)",
+        futuristic: "0 4px 24px -1px rgba(0, 0, 0, 0.1), 0 0 40px -10px hsl(var(--primary) / 0.15)",
       },
       keyframes: {
         "accordion-down": {
@@ -138,11 +146,26 @@ export default {
         ping: {
           "75%, 100%": { transform: "scale(2)", opacity: "0" },
         },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-12px)" },
+        },
+        "gradient-x": {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "ping-slow": "ping 2s cubic-bezier(0, 0, 0.2, 1) infinite",
+        float: "float 3s ease-in-out infinite",
+        "float-slow": "float 6s ease-in-out infinite",
+        "gradient-x": "gradient-x 8s ease infinite",
+      },
+      backdropBlur: {
+        xs: "2px",
+        "3xl": "64px",
       },
     },
   },
