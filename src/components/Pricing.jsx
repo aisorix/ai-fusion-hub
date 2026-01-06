@@ -11,6 +11,7 @@ import dutchBanglaLogo from '../assets/dutch-bangla-bank.png';
 import bracBankLogo from '../assets/brac-bank.png';
 import mastercardLogo from '../assets/mastercard.png';
 import visaLogo from '../assets/visa.png';
+import amexLogo from '../assets/amex.png';
 
 const Pricing = () => {
   const [isYearly, setIsYearly] = useState(false);
@@ -368,118 +369,111 @@ const Pricing = () => {
           </div>
 
           {/* Payment Gateway Card */}
-          <div className="futuristic-card rounded-3xl p-8 sm:p-12 max-w-5xl mx-auto">
-            {/* SSLCommerz Logo */}
-            <div className="flex flex-col items-center mb-10">
-              <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg mb-4 hover:shadow-xl transition-all duration-300 hover:scale-105">
-                <img 
-                  src={sslcommerzLogo} 
-                  alt="SSLCommerz" 
-                  className="h-10 sm:h-14 w-auto object-contain"
-                />
+          <div className="futuristic-card rounded-3xl p-6 sm:p-10 lg:p-12 max-w-4xl mx-auto">
+            {/* SSLCommerz Header */}
+            <div className="flex flex-col items-center mb-8 sm:mb-10">
+              <div className="relative group">
+                <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative bg-white rounded-2xl p-5 sm:p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <img 
+                    src={sslcommerzLogo} 
+                    alt="SSLCommerz Payment Gateway" 
+                    className="h-8 sm:h-10 w-auto object-contain"
+                  />
+                </div>
               </div>
-              <p className="text-sm text-muted-foreground text-center">
-                {language === 'en' ? 'Powered by SSLCommerz - Trusted by 50,000+ merchants' : 'SSLCommerz দ্বারা চালিত - ৫০,০০০+ মার্চেন্টদের বিশ্বস্ত'}
+              <p className="text-sm text-muted-foreground text-center mt-4">
+                {language === 'en' ? 'Powered by Bangladesh\'s Most Trusted Payment Gateway' : 'বাংলাদেশের সবচেয়ে বিশ্বস্ত পেমেন্ট গেটওয়ে দ্বারা চালিত'}
               </p>
             </div>
 
-            {/* Payment Methods Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Mobile Banking */}
-              <div className="glass-card rounded-2xl p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center">
-                    <CreditCard className="w-5 h-5 text-white" />
-                  </div>
-                  <h4 className="font-bold text-foreground">
-                    {language === 'en' ? 'Mobile Banking' : 'মোবাইল ব্যাংকিং'}
-                  </h4>
-                </div>
-                <div className="bg-white rounded-xl p-4 flex items-center justify-center group-hover:shadow-md transition-all">
+            {/* All Payment Methods in Single Row */}
+            <div className="bg-muted/30 rounded-2xl p-6 sm:p-8">
+              <p className="text-center text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-6">
+                {language === 'en' ? 'Accepted Payment Methods' : 'গৃহীত পেমেন্ট মেথড'}
+              </p>
+              
+              <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+                {/* Mobile Banking */}
+                <div className="bg-white rounded-xl p-3 sm:p-4 shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
                   <img 
                     src={mobileBankingLogo} 
                     alt="bKash, Rocket, Nagad" 
-                    className="h-10 sm:h-12 w-auto object-contain"
+                    className="h-8 sm:h-10 w-auto object-contain"
                   />
                 </div>
-                <p className="text-xs text-muted-foreground mt-3 text-center">bKash • Rocket • Nagad</p>
+                
+                {/* Dutch Bangla Bank */}
+                <div className="bg-white rounded-xl p-3 sm:p-4 shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+                  <img 
+                    src={dutchBanglaLogo} 
+                    alt="Dutch Bangla Bank" 
+                    className="h-8 sm:h-10 w-auto object-contain"
+                  />
+                </div>
+                
+                {/* BRAC Bank */}
+                <div className="bg-white rounded-xl p-3 sm:p-4 shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+                  <img 
+                    src={bracBankLogo} 
+                    alt="BRAC Bank" 
+                    className="h-8 sm:h-10 w-auto object-contain"
+                  />
+                </div>
+                
+                {/* Visa */}
+                <div className="bg-white rounded-xl p-3 sm:p-4 shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+                  <img 
+                    src={visaLogo} 
+                    alt="Visa" 
+                    className="h-8 sm:h-10 w-auto object-contain"
+                  />
+                </div>
+                
+                {/* MasterCard */}
+                <div className="bg-white rounded-xl p-3 sm:p-4 shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+                  <img 
+                    src={mastercardLogo} 
+                    alt="MasterCard" 
+                    className="h-8 sm:h-10 w-auto object-contain"
+                  />
+                </div>
+                
+                {/* American Express */}
+                <div className="bg-white rounded-xl p-3 sm:p-4 shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+                  <img 
+                    src={amexLogo} 
+                    alt="American Express" 
+                    className="h-8 sm:h-10 w-auto object-contain"
+                  />
+                </div>
               </div>
-
-              {/* Bank Transfer */}
-              <div className="glass-card rounded-2xl p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                    <CreditCard className="w-5 h-5 text-white" />
-                  </div>
-                  <h4 className="font-bold text-foreground">
-                    {language === 'en' ? 'Bank Transfer' : 'ব্যাংক ট্রান্সফার'}
-                  </h4>
-                </div>
-                <div className="flex gap-3 justify-center">
-                  <div className="bg-white rounded-xl p-3 flex items-center justify-center group-hover:shadow-md transition-all flex-1">
-                    <img 
-                      src={dutchBanglaLogo} 
-                      alt="Dutch Bangla Bank" 
-                      className="h-10 w-auto object-contain"
-                    />
-                  </div>
-                  <div className="bg-white rounded-xl p-3 flex items-center justify-center group-hover:shadow-md transition-all flex-1">
-                    <img 
-                      src={bracBankLogo} 
-                      alt="BRAC Bank" 
-                      className="h-10 w-auto object-contain"
-                    />
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground mt-3 text-center">
-                  {language === 'en' ? 'All major banks supported' : 'সকল প্রধান ব্যাংক সমর্থিত'}
-                </p>
-              </div>
-
-              {/* Cards */}
-              <div className="glass-card rounded-2xl p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group sm:col-span-2 lg:col-span-1">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-                    <CreditCard className="w-5 h-5 text-white" />
-                  </div>
-                  <h4 className="font-bold text-foreground">
-                    {language === 'en' ? 'Credit/Debit Cards' : 'ক্রেডিট/ডেবিট কার্ড'}
-                  </h4>
-                </div>
-                <div className="flex gap-3 justify-center">
-                  <div className="bg-white rounded-xl p-3 flex items-center justify-center group-hover:shadow-md transition-all flex-1">
-                    <img 
-                      src={visaLogo} 
-                      alt="Visa" 
-                      className="h-8 w-auto object-contain"
-                    />
-                  </div>
-                  <div className="bg-white rounded-xl p-3 flex items-center justify-center group-hover:shadow-md transition-all flex-1">
-                    <img 
-                      src={mastercardLogo} 
-                      alt="MasterCard" 
-                      className="h-8 w-auto object-contain"
-                    />
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground mt-3 text-center">Visa • MasterCard • AMEX</p>
-              </div>
+              
+              <p className="text-center text-xs text-muted-foreground mt-6">
+                bKash • Nagad • Rocket • Dutch-Bangla Bank • BRAC Bank • Visa • MasterCard • AMEX
+              </p>
             </div>
 
             {/* Security Badges */}
-            <div className="mt-10 pt-8 border-t border-border/50">
-              <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <ShieldCheck className="w-5 h-5 text-green-500" />
-                  <span className="text-sm font-medium">{language === 'en' ? '256-bit SSL Encryption' : '২৫৬-বিট SSL এনক্রিপশন'}</span>
+            <div className="mt-8 pt-6 border-t border-border/30">
+              <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
+                    <ShieldCheck className="w-4 h-4 text-green-500" />
+                  </div>
+                  <span className="text-sm font-medium text-muted-foreground">{language === 'en' ? '256-bit SSL' : '২৫৬-বিট SSL'}</span>
                 </div>
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <ShieldCheck className="w-5 h-5 text-green-500" />
-                  <span className="text-sm font-medium">{language === 'en' ? 'PCI DSS Compliant' : 'PCI DSS সম্মত'}</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
+                    <ShieldCheck className="w-4 h-4 text-green-500" />
+                  </div>
+                  <span className="text-sm font-medium text-muted-foreground">{language === 'en' ? 'PCI DSS Compliant' : 'PCI DSS সম্মত'}</span>
                 </div>
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <ShieldCheck className="w-5 h-5 text-green-500" />
-                  <span className="text-sm font-medium">{language === 'en' ? '100% Secure' : '১০০% নিরাপদ'}</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
+                    <ShieldCheck className="w-4 h-4 text-green-500" />
+                  </div>
+                  <span className="text-sm font-medium text-muted-foreground">{language === 'en' ? '100% Secure' : '১০০% নিরাপদ'}</span>
                 </div>
               </div>
             </div>
