@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Mail, Twitter, Linkedin, Youtube, Facebook, Instagram } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import logo from '../assets/logo.png';
@@ -67,17 +68,19 @@ const Footer = () => {
             <h4 className="font-bold text-foreground mb-4 sm:mb-6 text-sm sm:text-base">{t('legal')}</h4>
             <ul className="space-y-3 sm:space-y-4">
               <li>
-                <a href="https://chat.aifiesta.ai/privacy" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   {t('privacyPolicy')}
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="https://chat.aifiesta.ai/terms" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/terms-of-service" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   {t('termsOfService')}
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">{t('cookiePolicy')}</a>
+                <Link to="/cookie-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  {t('cookiePolicy')}
+                </Link>
               </li>
             </ul>
           </div>
