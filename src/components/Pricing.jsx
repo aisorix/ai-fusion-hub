@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, X, Sparkles, Gift, Zap, Crown, ArrowRight, Star } from 'lucide-react';
+import { Check, X, Sparkles, Gift, Zap, Crown, ArrowRight, Star, ShieldCheck, CreditCard } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo, QwenLogo, LlamaLogo, PerplexityLogo, KimiLogo, MistralLogo, SorixLogo } from './AIModelLogos';
+
+// Payment method logos
+import sslcommerzLogo from '../assets/sslcommerz.png';
+import mobileBankingLogo from '../assets/mobile-banking.png';
+import dutchBanglaLogo from '../assets/dutch-bangla-bank.png';
+import bracBankLogo from '../assets/brac-bank.png';
+import mastercardLogo from '../assets/mastercard.png';
+import visaLogo from '../assets/visa.png';
 
 const Pricing = () => {
   const [isYearly, setIsYearly] = useState(false);
@@ -337,6 +345,143 @@ const Pricing = () => {
             ))}
             <div className="px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
               <span className="text-xs font-bold text-primary">+3 more</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Payment Methods Section */}
+        <div className="mt-20 sm:mt-28">
+          {/* Section Header */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-primary text-sm font-semibold mb-4">
+              <ShieldCheck className="w-4 h-4" />
+              {language === 'en' ? 'Secure Payments' : 'নিরাপদ পেমেন্ট'}
+            </div>
+            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4 font-display">
+              {language === 'en' ? 'We Accept Multiple Payment Methods' : 'আমরা বিভিন্ন পেমেন্ট মেথড গ্রহণ করি'}
+            </h3>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              {language === 'en' 
+                ? 'Pay securely with your preferred method through SSLCommerz - Bangladesh\'s leading payment gateway' 
+                : 'SSLCommerz - বাংলাদেশের শীর্ষস্থানীয় পেমেন্ট গেটওয়ের মাধ্যমে আপনার পছন্দের মেথডে নিরাপদে পেমেন্ট করুন'}
+            </p>
+          </div>
+
+          {/* Payment Gateway Card */}
+          <div className="futuristic-card rounded-3xl p-8 sm:p-12 max-w-5xl mx-auto">
+            {/* SSLCommerz Logo */}
+            <div className="flex flex-col items-center mb-10">
+              <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg mb-4 hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <img 
+                  src={sslcommerzLogo} 
+                  alt="SSLCommerz" 
+                  className="h-10 sm:h-14 w-auto object-contain"
+                />
+              </div>
+              <p className="text-sm text-muted-foreground text-center">
+                {language === 'en' ? 'Powered by SSLCommerz - Trusted by 50,000+ merchants' : 'SSLCommerz দ্বারা চালিত - ৫০,০০০+ মার্চেন্টদের বিশ্বস্ত'}
+              </p>
+            </div>
+
+            {/* Payment Methods Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Mobile Banking */}
+              <div className="glass-card rounded-2xl p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center">
+                    <CreditCard className="w-5 h-5 text-white" />
+                  </div>
+                  <h4 className="font-bold text-foreground">
+                    {language === 'en' ? 'Mobile Banking' : 'মোবাইল ব্যাংকিং'}
+                  </h4>
+                </div>
+                <div className="bg-white rounded-xl p-4 flex items-center justify-center group-hover:shadow-md transition-all">
+                  <img 
+                    src={mobileBankingLogo} 
+                    alt="bKash, Rocket, Nagad" 
+                    className="h-10 sm:h-12 w-auto object-contain"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-3 text-center">bKash • Rocket • Nagad</p>
+              </div>
+
+              {/* Bank Transfer */}
+              <div className="glass-card rounded-2xl p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                    <CreditCard className="w-5 h-5 text-white" />
+                  </div>
+                  <h4 className="font-bold text-foreground">
+                    {language === 'en' ? 'Bank Transfer' : 'ব্যাংক ট্রান্সফার'}
+                  </h4>
+                </div>
+                <div className="flex gap-3 justify-center">
+                  <div className="bg-white rounded-xl p-3 flex items-center justify-center group-hover:shadow-md transition-all flex-1">
+                    <img 
+                      src={dutchBanglaLogo} 
+                      alt="Dutch Bangla Bank" 
+                      className="h-10 w-auto object-contain"
+                    />
+                  </div>
+                  <div className="bg-white rounded-xl p-3 flex items-center justify-center group-hover:shadow-md transition-all flex-1">
+                    <img 
+                      src={bracBankLogo} 
+                      alt="BRAC Bank" 
+                      className="h-10 w-auto object-contain"
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-3 text-center">
+                  {language === 'en' ? 'All major banks supported' : 'সকল প্রধান ব্যাংক সমর্থিত'}
+                </p>
+              </div>
+
+              {/* Cards */}
+              <div className="glass-card rounded-2xl p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group sm:col-span-2 lg:col-span-1">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                    <CreditCard className="w-5 h-5 text-white" />
+                  </div>
+                  <h4 className="font-bold text-foreground">
+                    {language === 'en' ? 'Credit/Debit Cards' : 'ক্রেডিট/ডেবিট কার্ড'}
+                  </h4>
+                </div>
+                <div className="flex gap-3 justify-center">
+                  <div className="bg-white rounded-xl p-3 flex items-center justify-center group-hover:shadow-md transition-all flex-1">
+                    <img 
+                      src={visaLogo} 
+                      alt="Visa" 
+                      className="h-8 w-auto object-contain"
+                    />
+                  </div>
+                  <div className="bg-white rounded-xl p-3 flex items-center justify-center group-hover:shadow-md transition-all flex-1">
+                    <img 
+                      src={mastercardLogo} 
+                      alt="MasterCard" 
+                      className="h-8 w-auto object-contain"
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-3 text-center">Visa • MasterCard • AMEX</p>
+              </div>
+            </div>
+
+            {/* Security Badges */}
+            <div className="mt-10 pt-8 border-t border-border/50">
+              <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <ShieldCheck className="w-5 h-5 text-green-500" />
+                  <span className="text-sm font-medium">{language === 'en' ? '256-bit SSL Encryption' : '২৫৬-বিট SSL এনক্রিপশন'}</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <ShieldCheck className="w-5 h-5 text-green-500" />
+                  <span className="text-sm font-medium">{language === 'en' ? 'PCI DSS Compliant' : 'PCI DSS সম্মত'}</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <ShieldCheck className="w-5 h-5 text-green-500" />
+                  <span className="text-sm font-medium">{language === 'en' ? '100% Secure' : '১০০% নিরাপদ'}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
