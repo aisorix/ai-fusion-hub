@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo } from './AIModelLogos';
+import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo, QwenLogo, LlamaLogo, PerplexityLogo, MistralLogo } from './AIModelLogos';
 import logo from '../assets/logo.png';
 
 const Workflow = () => {
@@ -8,7 +8,7 @@ const Workflow = () => {
 
   const aiModels = [
     {
-      title: "ChatGPT 5",
+      title: "ChatGPT",
       subtitle: t('chatgptSubtitle'),
       desc: t('chatgptDesc'),
       Logo: ChatGPTLogo,
@@ -16,7 +16,7 @@ const Workflow = () => {
       borderColor: 'border-[#10A37F]/30',
     },
     {
-      title: "Claude Sonnet 4",
+      title: "Claude",
       subtitle: t('claudeSubtitle'),
       desc: t('claudeDesc'),
       Logo: ClaudeLogo,
@@ -24,7 +24,7 @@ const Workflow = () => {
       borderColor: 'border-[#D97706]/30',
     },
     {
-      title: "DeepSeek R1",
+      title: "DeepSeek",
       subtitle: t('deepseekSubtitle'),
       desc: t('deepseekDesc'),
       Logo: DeepSeekLogo,
@@ -32,7 +32,7 @@ const Workflow = () => {
       borderColor: 'border-[#7C3AED]/30',
     },
     {
-      title: "Gemini 2.5 Pro",
+      title: "Gemini",
       subtitle: t('geminiSubtitle'),
       desc: t('geminiDesc'),
       Logo: GeminiLogo,
@@ -40,7 +40,7 @@ const Workflow = () => {
       borderColor: 'border-[#4285F4]/30',
     },
     {
-      title: "Grok 4",
+      title: "Grok",
       subtitle: t('grokSubtitle'),
       desc: t('grokDesc'),
       Logo: GrokLogo,
@@ -106,14 +106,14 @@ const Workflow = () => {
             </div>
           ))}
           
-          {/* +10 More Card */}
+          {/* +5 More Card */}
           <div className="group bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl sm:rounded-2xl p-5 sm:p-6 lg:p-8 border border-primary/20 hover:border-primary/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col items-center justify-center">
             <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 sm:mb-6 gradient-primary rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-              <span className="text-xl sm:text-2xl font-bold text-foreground">+10</span>
+              <span className="text-xl sm:text-2xl font-bold text-foreground">+5</span>
             </div>
             <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-1.5 sm:mb-2 text-center">More AI Models</h3>
             <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed text-center">
-              Access Qwen, Llama, Perplexity, Kimi, Mistral and more premium models.
+              Access Qwen, Llama, Perplexity, Kimi & Mistral in premium plans.
             </p>
           </div>
         </div>

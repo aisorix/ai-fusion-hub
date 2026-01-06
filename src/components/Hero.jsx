@@ -1,20 +1,22 @@
 import React from 'react';
 import { ArrowUpRight, Sparkles, Zap, Shield } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo } from './AIModelLogos';
+import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo, QwenLogo, LlamaLogo, PerplexityLogo, KimiLogo, MistralLogo } from './AIModelLogos';
 import logo from '../assets/logo.png';
 
 const Hero = () => {
   const { t } = useLanguage();
 
+  // Showing top 6 models from Premium tier
   const aiModels = [
     { name: 'ChatGPT', Logo: ChatGPTLogo },
     { name: 'Claude', Logo: ClaudeLogo },
     { name: 'DeepSeek', Logo: DeepSeekLogo },
     { name: 'Gemini', Logo: GeminiLogo },
     { name: 'Grok', Logo: GrokLogo },
+    { name: 'Qwen', Logo: QwenLogo },
   ];
-  // Premium tier shows: ChatGPT, Claude, DeepSeek, Gemini, Grok, Qwen, Llama, Perplexity, Kimi-k2, Mistral
+  // Full Premium tier: ChatGPT, Claude, DeepSeek, Gemini, Grok, Qwen, Llama, Perplexity, Kimi-k2, Mistral
 
   return (
     <section className="relative pt-6 sm:pt-10 md:pt-16 pb-10 sm:pb-16 md:pb-24 overflow-hidden bg-gradient-to-b from-background via-background to-muted/20">
@@ -92,7 +94,7 @@ const Hero = () => {
             </div>
           ))}
           <div className="px-3 sm:px-5 py-2 sm:py-3 rounded-xl bg-primary/10 border border-primary/20">
-            <span className="text-xs sm:text-sm font-bold text-primary">+10 more</span>
+            <span className="text-xs sm:text-sm font-bold text-primary">+4 more</span>
           </div>
         </div>
       </div>
