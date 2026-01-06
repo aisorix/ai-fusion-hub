@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Check, X, Sparkles, Gift, Zap, Crown } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo } from './AIModelLogos';
+import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo, QwenLogo, LlamaLogo, PerplexityLogo, KimiLogo, MistralLogo } from './AIModelLogos';
 
 const Pricing = () => {
   const [isYearly, setIsYearly] = useState(false);
@@ -10,6 +10,7 @@ const Pricing = () => {
   const sorixHealthLabel = language === 'en' ? 'Sorix Health' : 'সোরিক্স হেলথ';
   const sorixAgroLabel = language === 'en' ? 'Sorix Agro' : 'সোরিক্স অ্যাগ্রো';
   const sorixLegendsLabel = language === 'en' ? 'Sorix Legends' : 'সোরিক্স লিজেন্ডস';
+  const freeForAll = language === 'en' ? 'Free for all' : 'সবার জন্য ফ্রি';
 
   const plans = [
     {
@@ -24,20 +25,23 @@ const Pricing = () => {
       badge: t('yourCurrentPlan'),
       badgeStyle: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
       features: [
-        { text: `3 ${t('aiModels')}`, subtext: 'DeepSeek, Gemini Flash, Qwen', included: true },
-        { text: `20K ${t('tokens')}`, included: true },
+        { text: `3 ${t('aiModels')}`, subtext: 'DeepSeek, Gemini, Sorix', included: true },
+        { text: `50K ${t('tokens')}`, included: true },
         { text: t('voiceAI'), included: false },
+        { text: language === 'en' ? 'Web Search (Limited)' : 'ওয়েব সার্চ (সীমিত)', included: true },
+        { text: language === 'en' ? 'File Upload' : 'ফাইল আপলোড', included: false },
+        { text: language === 'en' ? 'Image Gen' : 'ইমেজ জেন', included: false },
         { text: t('memory'), included: false },
         { text: t('projects'), included: false },
         { text: t('teamAccess'), included: false },
         { text: sorixLegendsLabel, included: false },
         { text: t('multiWindowChat'), included: false },
-        { text: sorixHealthLabel, subtext: language === 'en' ? 'Free for all' : 'সবার জন্য ফ্রি', included: true },
-        { text: sorixAgroLabel, subtext: language === 'en' ? 'Free for all' : 'সবার জন্য ফ্রি', included: true },
+        { text: sorixHealthLabel, subtext: freeForAll, included: true },
+        { text: sorixAgroLabel, subtext: freeForAll, included: true },
       ],
-      buttonText: t('currentPlan'),
-      buttonStyle: 'border-2 border-primary/30 text-primary bg-primary/5 cursor-default',
-      isCurrentPlan: true,
+      buttonText: language === 'en' ? 'Start Free Trial' : 'ফ্রি ট্রায়াল শুরু করুন',
+      buttonStyle: 'border-2 border-border text-foreground bg-background hover:bg-muted transition-colors',
+      isCurrentPlan: false,
     },
     {
       name: 'basic',
@@ -48,19 +52,22 @@ const Pricing = () => {
       iconBg: 'bg-primary/10',
       iconColor: 'text-primary',
       features: [
-        { text: `5 ${t('aiModels')}`, subtext: 'ChatGPT, Claude, DeepSeek, Gemini, Grok', included: true },
-        { text: `3M ${t('tokens')}`, included: true },
+        { text: `5 ${t('aiModels')}`, subtext: 'ChatGPT, Qwen, DeepSeek, Gemini, Llama', included: true },
+        { text: `700K ${t('tokens')}`, included: true },
         { text: `${t('voiceAIBasic')}`, subtext: '10 min/day', included: true },
+        { text: language === 'en' ? 'Web Search (Basic)' : 'ওয়েব সার্চ (বেসিক)', included: true },
+        { text: language === 'en' ? 'File Upload: PDF/DOC' : 'ফাইল আপলোড: PDF/DOC', subtext: language === 'en' ? 'Max 5mb' : 'সর্বোচ্চ ৫MB', included: true },
+        { text: language === 'en' ? 'Image Gen' : 'ইমেজ জেন', subtext: language === 'en' ? '20 imgs/month' : '২০টি ছবি/মাস', included: true },
         { text: t('memory'), included: true },
-        { text: `4 ${t('projects')}`, included: true },
+        { text: `2 ${t('projects')}`, included: true },
         { text: t('teamAccess'), included: false },
-        { text: `3 ${sorixLegendsLabel}`, included: true },
+        { text: `2 ${sorixLegendsLabel}`, included: true },
         { text: t('multiWindowChat'), included: true },
-        { text: sorixHealthLabel, subtext: language === 'en' ? 'Free for all' : 'সবার জন্য ফ্রি', included: true },
-        { text: sorixAgroLabel, subtext: language === 'en' ? 'Free for all' : 'সবার জন্য ফ্রি', included: true },
+        { text: sorixHealthLabel, subtext: freeForAll, included: true },
+        { text: sorixAgroLabel, subtext: freeForAll, included: true },
       ],
-      buttonText: t('upgrade'),
-      buttonStyle: 'gradient-primary text-foreground hover:shadow-lg hover:scale-105',
+      buttonText: language === 'en' ? 'Get Started' : 'শুরু করুন',
+      buttonStyle: 'border-2 border-primary text-primary bg-transparent hover:bg-primary/10 transition-colors',
     },
     {
       name: 'pro',
@@ -74,42 +81,48 @@ const Pricing = () => {
       badgeStyle: 'bg-primary/10 text-primary border-b border-primary/20',
       popular: true,
       features: [
-        { text: `10 ${t('aiModels')}`, subtext: 'ChatGPT, Claude, DeepSeek, Gemini, Grok +5 more', included: true },
-        { text: `6M ${t('tokens')}`, included: true },
+        { text: `7 ${t('aiModels')}`, subtext: 'ChatGPT, Qwen, DeepSeek, Gemini, Llama, Perplexity, Kimi-k1', included: true },
+        { text: `1.5M ${t('tokens')}`, included: true },
         { text: t('voiceAIHigh'), included: true },
+        { text: language === 'en' ? 'Web Search (Pro)' : 'ওয়েব সার্চ (প্রো)', included: true },
+        { text: language === 'en' ? 'File Upload: PDF/DOC' : 'ফাইল আপলোড: PDF/DOC', subtext: language === 'en' ? 'Max 10mb' : 'সর্বোচ্চ ১০MB', included: true },
+        { text: language === 'en' ? 'Image Gen' : 'ইমেজ জেন', subtext: language === 'en' ? '50 imgs/month' : '৫০টি ছবি/মাস', included: true },
         { text: t('memoryLong'), included: true },
-        { text: `10 ${t('projects')}`, included: true },
+        { text: `5 ${t('projects')}`, included: true },
         { text: t('teamAccess'), included: false },
-        { text: `10 ${sorixLegendsLabel}`, included: true },
+        { text: `5 ${sorixLegendsLabel}`, included: true },
         { text: t('multiWindowChat'), included: true },
-        { text: sorixHealthLabel, subtext: language === 'en' ? 'Free for all' : 'সবার জন্য ফ্রি', included: true },
-        { text: sorixAgroLabel, subtext: language === 'en' ? 'Free for all' : 'সবার জন্য ফ্রি', included: true },
+        { text: sorixHealthLabel, subtext: freeForAll, included: true },
+        { text: sorixAgroLabel, subtext: freeForAll, included: true },
       ],
-      buttonText: t('upgrade'),
-      buttonStyle: 'gradient-primary text-foreground hover:shadow-lg hover:scale-105',
+      buttonText: language === 'en' ? 'Get Started' : 'শুরু করুন',
+      buttonStyle: 'gradient-primary text-foreground hover:shadow-lg hover:scale-105 transition-all',
     },
     {
-      name: 'ultra',
-      displayName: t('sorixUltra'),
+      name: 'premium',
+      displayName: language === 'en' ? 'Sorix Premium' : 'সোরিক্স প্রিমিয়াম',
       price: 1999,
       yearlyPrice: Math.round(1999 * 12 * 0.8),
       icon: Crown,
       iconBg: 'bg-amber-100 dark:bg-amber-900/30',
       iconColor: 'text-amber-600 dark:text-amber-400',
       features: [
-        { text: `15+ ${t('aiModels')}`, subtext: 'ChatGPT, Claude, DeepSeek, Gemini, Grok +10 more', included: true },
-        { text: `15M ${t('tokens')}`, included: true },
+        { text: `10 ${t('aiModels')}`, subtext: 'ChatGPT, Claude, DeepSeek, Gemini, Grok, Qwen, Llama, Perplexity, Kimi-k2, Mistral', included: true },
+        { text: `3M ${t('tokens')}`, included: true },
         { text: t('voiceAIUnlimited'), included: true },
+        { text: language === 'en' ? 'Web Search (Pro)' : 'ওয়েব সার্চ (প্রো)', included: true },
+        { text: language === 'en' ? 'File Upload: PDF/DOC' : 'ফাইল আপলোড: PDF/DOC', subtext: language === 'en' ? 'Max 15mb' : 'সর্বোচ্চ ১৫MB', included: true },
+        { text: language === 'en' ? 'Image Gen' : 'ইমেজ জেন', subtext: language === 'en' ? '100 imgs/month' : '১০০টি ছবি/মাস', included: true },
         { text: t('memoryUltra'), included: true },
-        { text: `30 ${t('projects')}`, included: true },
-        { text: t('teamAccess'), subtext: t('upToMembers'), included: true },
+        { text: `10 ${t('projects')}`, included: true },
+        { text: t('teamAccess'), subtext: language === 'en' ? 'Up to 3 members' : '৩ জন পর্যন্ত', included: true },
         { text: language === 'en' ? `All ${sorixLegendsLabel}` : `সব ${sorixLegendsLabel}`, included: true },
         { text: t('multiWindowChat'), included: true },
-        { text: sorixHealthLabel, subtext: language === 'en' ? 'Free for all' : 'সবার জন্য ফ্রি', included: true },
-        { text: sorixAgroLabel, subtext: language === 'en' ? 'Free for all' : 'সবার জন্য ফ্রি', included: true },
+        { text: sorixHealthLabel, subtext: freeForAll, included: true },
+        { text: sorixAgroLabel, subtext: freeForAll, included: true },
       ],
-      buttonText: t('upgrade'),
-      buttonStyle: 'bg-gradient-to-r from-amber-500 to-orange-500 text-foreground hover:shadow-lg hover:scale-105',
+      buttonText: language === 'en' ? 'Get Started' : 'শুরু করুন',
+      buttonStyle: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:shadow-lg hover:scale-105 transition-all',
     },
   ];
 
@@ -225,8 +238,7 @@ const Pricing = () => {
 
                 {/* CTA Button */}
                 <button
-                  className={`w-full py-2 sm:py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 ${plan.buttonStyle}`}
-                  disabled={plan.isCurrentPlan}
+                  className={`w-full py-2 sm:py-2.5 rounded-xl font-semibold text-xs sm:text-sm ${plan.buttonStyle}`}
                 >
                   {plan.buttonText}
                 </button>
@@ -245,6 +257,8 @@ const Pricing = () => {
               { name: 'DeepSeek', Logo: DeepSeekLogo },
               { name: 'Gemini', Logo: GeminiLogo },
               { name: 'Grok', Logo: GrokLogo },
+              { name: 'Qwen', Logo: QwenLogo },
+              { name: 'Llama', Logo: LlamaLogo },
             ].map((model) => (
               <div key={model.name} className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-card border border-border">
                 <model.Logo className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -252,7 +266,7 @@ const Pricing = () => {
               </div>
             ))}
             <div className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-primary/10 border border-primary/20">
-              <span className="text-[10px] sm:text-xs font-bold text-primary">+10 more</span>
+              <span className="text-[10px] sm:text-xs font-bold text-primary">+5 more</span>
             </div>
           </div>
         </div>
