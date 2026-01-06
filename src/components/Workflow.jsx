@@ -1,30 +1,13 @@
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo } from './AIModelLogos';
+import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo, QwenLogo, LlamaLogo, PerplexityLogo, KimiLogo, MistralLogo, SorixLogo } from './AIModelLogos';
 import logo from '../assets/logo.png';
 
 const Workflow = () => {
   const { t } = useLanguage();
 
+  // Models organized by plan tier
   const aiModels = [
-    {
-      title: "ChatGPT",
-      subtitle: t('chatgptSubtitle'),
-      desc: t('chatgptDesc'),
-      Logo: ChatGPTLogo,
-      gradient: 'from-[#10A37F]/20 to-[#10A37F]/5',
-      borderColor: 'border-[#10A37F]/30',
-      iconBg: 'bg-[#10A37F]/10',
-    },
-    {
-      title: "Claude",
-      subtitle: t('claudeSubtitle'),
-      desc: t('claudeDesc'),
-      Logo: ClaudeLogo,
-      gradient: 'from-[#D97706]/20 to-[#D97706]/5',
-      borderColor: 'border-[#D97706]/30',
-      iconBg: 'bg-[#D97706]/10',
-    },
     {
       title: "DeepSeek",
       subtitle: t('deepseekSubtitle'),
@@ -33,6 +16,7 @@ const Workflow = () => {
       gradient: 'from-[#7C3AED]/20 to-[#7C3AED]/5',
       borderColor: 'border-[#7C3AED]/30',
       iconBg: 'bg-[#7C3AED]/10',
+      tier: 'Free'
     },
     {
       title: "Gemini",
@@ -42,15 +26,37 @@ const Workflow = () => {
       gradient: 'from-[#4285F4]/20 to-[#4285F4]/5',
       borderColor: 'border-[#4285F4]/30',
       iconBg: 'bg-[#4285F4]/10',
+      tier: 'Free'
     },
     {
-      title: "Grok",
-      subtitle: t('grokSubtitle'),
-      desc: t('grokDesc'),
-      Logo: GrokLogo,
-      gradient: 'from-gray-500/20 to-gray-500/5',
-      borderColor: 'border-gray-500/30',
-      iconBg: 'bg-gray-500/10',
+      title: "ChatGPT",
+      subtitle: t('chatgptSubtitle'),
+      desc: t('chatgptDesc'),
+      Logo: ChatGPTLogo,
+      gradient: 'from-[#10A37F]/20 to-[#10A37F]/5',
+      borderColor: 'border-[#10A37F]/30',
+      iconBg: 'bg-[#10A37F]/10',
+      tier: 'Basic'
+    },
+    {
+      title: "Qwen",
+      subtitle: t('qwenSubtitle') || 'Alibaba\'s AI',
+      desc: t('qwenDesc') || 'Advanced multilingual capabilities for diverse tasks.',
+      Logo: QwenLogo,
+      gradient: 'from-[#6366F1]/20 to-[#6366F1]/5',
+      borderColor: 'border-[#6366F1]/30',
+      iconBg: 'bg-[#6366F1]/10',
+      tier: 'Basic'
+    },
+    {
+      title: "Llama",
+      subtitle: t('llamaSubtitle') || 'Meta\'s Open AI',
+      desc: t('llamaDesc') || 'Open-source power for efficient AI processing.',
+      Logo: LlamaLogo,
+      gradient: 'from-[#0668E1]/20 to-[#0668E1]/5',
+      borderColor: 'border-[#0668E1]/30',
+      iconBg: 'bg-[#0668E1]/10',
+      tier: 'Basic'
     }
   ];
 
@@ -124,14 +130,14 @@ const Workflow = () => {
             </div>
           ))}
           
-          {/* +5 More Card */}
+          {/* Premium Models Card */}
           <div className="group futuristic-card p-6 sm:p-8 flex flex-col items-center justify-center transition-all duration-500 hover:-translate-y-2 bg-gradient-to-br from-primary/10 to-accent/10">
             <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 gradient-primary rounded-2xl flex items-center justify-center group-hover:scale-110 group-hover:shadow-glow transition-all duration-500">
-              <span className="text-2xl sm:text-3xl font-bold text-foreground">+5</span>
+              <span className="text-2xl sm:text-3xl font-bold text-foreground">+4</span>
             </div>
-            <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2 text-center">More AI Models</h3>
+            <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2 text-center">Premium Models</h3>
             <p className="text-sm text-muted-foreground leading-relaxed text-center">
-              Access Qwen, Llama, Perplexity, Kimi & Mistral in premium plans.
+              Unlock Perplexity, Kimi, Claude, Grok & Mistral in Pro & Premium plans.
             </p>
           </div>
         </div>

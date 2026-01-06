@@ -1,19 +1,20 @@
 import React from 'react';
 import { ArrowUpRight, Sparkles, Zap, Shield, Play } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo, QwenLogo } from './AIModelLogos';
+import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo, QwenLogo, LlamaLogo, PerplexityLogo, KimiLogo, MistralLogo, SorixLogo } from './AIModelLogos';
 import logo from '../assets/logo.png';
 
 const Hero = () => {
   const { t } = useLanguage();
 
+  // All 10+ models available across plans
   const aiModels = [
-    { name: 'ChatGPT', Logo: ChatGPTLogo },
-    { name: 'Claude', Logo: ClaudeLogo },
     { name: 'DeepSeek', Logo: DeepSeekLogo },
     { name: 'Gemini', Logo: GeminiLogo },
-    { name: 'Grok', Logo: GrokLogo },
+    { name: 'Sorix', Logo: SorixLogo },
+    { name: 'ChatGPT', Logo: ChatGPTLogo },
     { name: 'Qwen', Logo: QwenLogo },
+    { name: 'Llama', Logo: LlamaLogo },
   ];
 
   return (
@@ -124,7 +125,7 @@ const Hero = () => {
               </div>
             ))}
             <div className="px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 animate-glow">
-              <span className="text-xs sm:text-sm font-bold text-primary">+4 more</span>
+              <span className="text-xs sm:text-sm font-bold text-primary">+4 Premium</span>
             </div>
           </div>
         </div>

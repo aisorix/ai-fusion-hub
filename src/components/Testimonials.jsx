@@ -9,8 +9,8 @@ const Testimonials = () => {
       name: "Rafiq Ahmed",
       role: language === 'en' ? "Startup Founder" : "স্টার্টআপ প্রতিষ্ঠাতা",
       review: language === 'en' 
-        ? "AI Sorix replaced 4 different AI subscriptions for me. Having GPT-4, Claude, and Gemini in one place is a game-changer for my workflow."
-        : "AI Sorix আমার ৪টি ভিন্ন AI সাবস্ক্রিপশন প্রতিস্থাপন করেছে। এক জায়গায় GPT-4, Claude এবং Gemini থাকা আমার কাজের জন্য অসাধারণ।",
+        ? "AI Sorix replaced 4 different AI subscriptions for me. Having ChatGPT, DeepSeek, Gemini and 7+ models in one place is a game-changer for my workflow."
+        : "AI Sorix আমার ৪টি ভিন্ন AI সাবস্ক্রিপশন প্রতিস্থাপন করেছে। এক জায়গায় ChatGPT, DeepSeek, Gemini এবং ৭+ মডেল থাকা আমার কাজের জন্য অসাধারণ।",
       rating: 5
     },
     {
@@ -57,7 +57,7 @@ const Testimonials = () => {
 
   const stats = [
     { value: "500+", label: language === 'en' ? "Beta Users" : "বেটা ব্যবহারকারী" },
-    { value: "15+", label: language === 'en' ? "AI Models" : "AI মডেল" },
+    { value: "10+", label: language === 'en' ? "AI Models" : "AI মডেল" },
     { value: "85%", label: language === 'en' ? "Cost Savings" : "খরচ সাশ্রয়" },
     { value: "5x", label: language === 'en' ? "Productivity" : "উৎপাদনশীলতা" }
   ];
