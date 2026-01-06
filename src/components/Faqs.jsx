@@ -9,7 +9,7 @@ const Faqs = () => {
   const faqData = language === 'en' ? [
     {
       question: "How is AI Sorix different from subscribing to each AI separately?",
-      answer: "AI Sorix brings together the world's most powerful AI models — Grok 4, ChatGPT 5, Gemini 2.5 Pro, DeepSeek, Claude Sonnet 4, and Perplexity Sonar Pro — in one place. Instead of juggling multiple subscriptions and browser tabs, you get all answers side-by-side in a single chat window, plus exclusive features like Prompt Enhancer and Custom Projects."
+      answer: "AI Sorix brings together 10+ world-leading AI models — DeepSeek, Gemini, Sorix, ChatGPT, Qwen, Llama, Perplexity, Kimi, Claude, Grok, and Mistral — all in one place. Instead of juggling multiple subscriptions and browser tabs, you get all answers side-by-side in a single chat window, plus exclusive features like Prompt Enhancer and Custom Projects."
     },
     {
       question: "Can I choose which AI models to use?",
@@ -42,7 +42,7 @@ const Faqs = () => {
   ] : [
     {
       question: "AI Sorix প্রতিটি AI-তে আলাদা সাবস্ক্রিপশন থেকে কীভাবে আলাদা?",
-      answer: "AI Sorix বিশ্বের সবচেয়ে শক্তিশালী AI মডেলগুলো — Grok 4, ChatGPT 5, Gemini 2.5 Pro, DeepSeek, Claude Sonnet 4, এবং Perplexity Sonar Pro — এক জায়গায় একত্রিত করে। একাধিক সাবস্ক্রিপশন এবং ব্রাউজার ট্যাব নিয়ে ঝামেলা না করে, আপনি একটি চ্যাট উইন্ডোতে পাশাপাশি সব উত্তর পাবেন, সাথে Prompt Enhancer এবং Custom Projects এর মতো এক্সক্লুসিভ ফিচার।"
+      answer: "AI Sorix ১০+ বিশ্বের শীর্ষ AI মডেল — DeepSeek, Gemini, Sorix, ChatGPT, Qwen, Llama, Perplexity, Kimi, Claude, Grok, এবং Mistral — সব এক জায়গায় একত্রিত করে। একাধিক সাবস্ক্রিপশন এবং ব্রাউজার ট্যাব নিয়ে ঝামেলা না করে, আপনি একটি চ্যাট উইন্ডোতে পাশাপাশি সব উত্তর পাবেন, সাথে Prompt Enhancer এবং Custom Projects এর মতো এক্সক্লুসিভ ফিচার।"
     },
     {
       question: "আমি কি বেছে নিতে পারি কোন AI মডেল ব্যবহার করব?",
