@@ -40,6 +40,56 @@ export const GrokLogo = ({ className = "w-6 h-6" }) => (
   </svg>
 );
 
+export const QwenLogo = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="11" fill="#6366F1"/>
+    <text x="12" y="16" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Q</text>
+  </svg>
+);
+
+export const LlamaLogo = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="11" fill="#0668E1"/>
+    <path d="M8 16V10c0-2.2 1.8-4 4-4s4 1.8 4 4v6" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+    <circle cx="9" cy="11" r="1" fill="white"/>
+    <circle cx="15" cy="11" r="1" fill="white"/>
+  </svg>
+);
+
+export const PerplexityLogo = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <rect width="24" height="24" rx="4" fill="#20B2AA"/>
+    <path d="M12 4v16M4 12h16M7 7l10 10M17 7l-10 10" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+  </svg>
+);
+
+export const KimiLogo = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="11" fill="#FF6B6B"/>
+    <text x="12" y="16" textAnchor="middle" fill="white" fontSize="8" fontWeight="bold">K</text>
+  </svg>
+);
+
+export const MistralLogo = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <rect width="24" height="24" rx="4" fill="#FF7000"/>
+    <path d="M6 8h3v8h-3zM10 6h4v12h-4zM15 8h3v8h-3z" fill="white"/>
+  </svg>
+);
+
+export const SorixLogo = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="11" fill="url(#sorix-gradient)"/>
+    <text x="12" y="16" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">S</text>
+    <defs>
+      <linearGradient id="sorix-gradient" x1="0" y1="0" x2="24" y2="24">
+        <stop stopColor="#06B6D4"/>
+        <stop offset="1" stopColor="#3B82F6"/>
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
 // Map model names to their logos
 export const getModelLogo = (modelName) => {
   const name = modelName.toLowerCase();
@@ -48,6 +98,12 @@ export const getModelLogo = (modelName) => {
   if (name.includes('gemini')) return GeminiLogo;
   if (name.includes('deepseek')) return DeepSeekLogo;
   if (name.includes('grok')) return GrokLogo;
+  if (name.includes('qwen')) return QwenLogo;
+  if (name.includes('llama')) return LlamaLogo;
+  if (name.includes('perplexity')) return PerplexityLogo;
+  if (name.includes('kimi')) return KimiLogo;
+  if (name.includes('mistral')) return MistralLogo;
+  if (name.includes('sorix')) return SorixLogo;
   return null;
 };
 
@@ -58,4 +114,10 @@ export const modelColors = {
   gemini: { gradient: 'from-[#4285F4] via-[#9B72CB] to-[#D96570]', bg: 'bg-gradient-to-r from-[#4285F4] to-[#D96570]' },
   deepseek: { gradient: 'from-[#7C3AED] to-[#5B21B6]', bg: 'bg-[#7C3AED]' },
   grok: { gradient: 'from-gray-800 to-black', bg: 'bg-black' },
+  qwen: { gradient: 'from-[#6366F1] to-[#4F46E5]', bg: 'bg-[#6366F1]' },
+  llama: { gradient: 'from-[#0668E1] to-[#0552B5]', bg: 'bg-[#0668E1]' },
+  perplexity: { gradient: 'from-[#20B2AA] to-[#008B8B]', bg: 'bg-[#20B2AA]' },
+  kimi: { gradient: 'from-[#FF6B6B] to-[#EE5A5A]', bg: 'bg-[#FF6B6B]' },
+  mistral: { gradient: 'from-[#FF7000] to-[#E65C00]', bg: 'bg-[#FF7000]' },
+  sorix: { gradient: 'from-[#06B6D4] to-[#3B82F6]', bg: 'bg-gradient-to-r from-[#06B6D4] to-[#3B82F6]' },
 };

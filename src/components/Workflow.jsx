@@ -113,7 +113,7 @@ const Workflow = () => {
             </div>
             <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-1.5 sm:mb-2 text-center">More AI Models</h3>
             <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed text-center">
-              Access additional premium AI models including Qwen, Llama, Mistral, and more.
+              Access Qwen, Llama, Perplexity, Kimi, Mistral and more premium models.
             </p>
           </div>
         </div>

@@ -14,6 +14,7 @@ const Hero = () => {
     { name: 'Gemini', Logo: GeminiLogo },
     { name: 'Grok', Logo: GrokLogo },
   ];
+  // Premium tier shows: ChatGPT, Claude, DeepSeek, Gemini, Grok, Qwen, Llama, Perplexity, Kimi-k2, Mistral
 
   return (
     <section className="relative pt-6 sm:pt-10 md:pt-16 pb-10 sm:pb-16 md:pb-24 overflow-hidden bg-gradient-to-b from-background via-background to-muted/20">
