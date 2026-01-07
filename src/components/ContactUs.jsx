@@ -64,7 +64,7 @@ const ContactUs = () => {
   ];
 
   return (
-    <section id="contact" className="py-20 sm:py-28 md:py-36 relative overflow-hidden">
+    <section id="contact" className="py-12 sm:py-16 md:py-20 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-muted/20 via-background to-background" />
       
@@ -76,7 +76,7 @@ const ContactUs = () => {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         {/* Header */}
-        <div className="text-center mb-16 sm:mb-20">
+        <div className="text-center mb-10 sm:mb-12">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-primary text-sm font-semibold mb-6">
             <Mail className="w-4 h-4" />
             {language === 'en' ? 'Contact Us' : 'যোগাযোগ করুন'}

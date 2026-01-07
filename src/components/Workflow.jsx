@@ -61,7 +61,7 @@ const Workflow = () => {
   ];
 
   return (
-    <section className="py-16 sm:py-24 md:py-32 relative overflow-hidden">
+    <section className="py-10 sm:py-16 md:py-20 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/10 to-background" />
       
@@ -72,7 +72,7 @@ const Workflow = () => {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         {/* Heading */}
-        <div className="text-center mb-12 sm:mb-16">
+        <div className="text-center mb-8 sm:mb-10">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-primary text-xs sm:text-sm font-semibold mb-6">
             {t('aiModelsLabel')}
           </span>
@@ -87,7 +87,7 @@ const Workflow = () => {
         </div>
 
         {/* Center Logo */}
-        <div className="flex justify-center mb-12 sm:mb-16">
+        <div className="flex justify-center mb-8 sm:mb-10">
           <div className="relative group">
             {/* Outer glow ring */}
             <div className="absolute -inset-4 sm:-inset-6 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 rounded-full blur-xl animate-pulse-slow" />
