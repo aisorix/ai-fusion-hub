@@ -7,6 +7,16 @@ const Features = () => {
 
   const premiumFeatures = [
     {
+      icon: Search,
+      title: language === 'en' ? 'Sorix Search' : 'সোরিক্স সার্চ',
+      desc: language === 'en'
+        ? 'Best Google alternative — AI-powered search with instant answers, citations, and real-time web results.'
+        : 'গুগলের সেরা বিকল্প — AI চালিত সার্চ, তাৎক্ষণিক উত্তর, সাইটেশন এবং রিয়েল-টাইম ওয়েব রেজাল্ট।',
+      gradient: "from-orange-500 to-amber-500",
+      bgGradient: "from-orange-500/10 to-amber-500/10",
+      comingSoon: false
+    },
+    {
       icon: Gem,
       title: t('sorixChat'),
       desc: language === 'en' 
@@ -15,6 +25,16 @@ const Features = () => {
       gradient: "from-purple-500 to-pink-500",
       bgGradient: "from-purple-500/10 to-pink-500/10",
       comingSoon: false
+    },
+    {
+      icon: Leaf,
+      title: language === 'en' ? 'Sorix Agro' : 'সোরিক্স অ্যাগ্রো',
+      desc: language === 'en'
+        ? 'Smart farming assistant — crop planning, weather insights, pest detection, and yield optimization for Bangladesh farmers.'
+        : 'স্মার্ট কৃষি সহায়ক — ফসল পরিকল্পনা, আবহাওয়া তথ্য, পোকা সনাক্তকরণ এবং বাংলাদেশি কৃষকদের জন্য ফলন অপ্টিমাইজেশন।',
+      gradient: "from-green-500 to-lime-500",
+      bgGradient: "from-green-500/10 to-lime-500/10",
+      comingSoon: true
     },
     {
       icon: Crown,
@@ -35,26 +55,6 @@ const Features = () => {
       gradient: "from-emerald-500 to-teal-500",
       bgGradient: "from-emerald-500/10 to-teal-500/10",
       comingSoon: true
-    },
-    {
-      icon: Leaf,
-      title: language === 'en' ? 'Sorix Agro' : 'সোরিক্স অ্যাগ্রো',
-      desc: language === 'en'
-        ? 'Smart farming assistant — crop planning, weather insights, pest detection, and yield optimization for Bangladesh farmers.'
-        : 'স্মার্ট কৃষি সহায়ক — ফসল পরিকল্পনা, আবহাওয়া তথ্য, পোকা সনাক্তকরণ এবং বাংলাদেশি কৃষকদের জন্য ফলন অপ্টিমাইজেশন।',
-      gradient: "from-green-500 to-lime-500",
-      bgGradient: "from-green-500/10 to-lime-500/10",
-      comingSoon: true
-    },
-    {
-      icon: Search,
-      title: language === 'en' ? 'Sorix Search' : 'সোরিক্স সার্চ',
-      desc: language === 'en'
-        ? 'Best Google alternative — AI-powered search with instant answers, citations, and real-time web results.'
-        : 'গুগলের সেরা বিকল্প — AI চালিত সার্চ, তাৎক্ষণিক উত্তর, সাইটেশন এবং রিয়েল-টাইম ওয়েব রেজাল্ট।',
-      gradient: "from-orange-500 to-amber-500",
-      bgGradient: "from-orange-500/10 to-amber-500/10",
-      comingSoon: false
     }
   ];
 
