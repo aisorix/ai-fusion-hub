@@ -138,7 +138,7 @@ const Pricing = () => {
       ],
       tokens: '3M',
       features: [
-        { text: language === 'en' ? 'Web Search (Pro)' : 'ওয়েব সার্চ (প্রো)', included: true },
+        { text: language === 'en' ? 'Web Search (Premium)' : 'ওয়েব সার্চ (প্রিমিয়াম)', included: true },
         { text: t('voiceAIUnlimited'), included: true },
         { text: language === 'en' ? 'File Upload: PDF/DOC' : 'ফাইল আপলোড: PDF/DOC', subtext: language === 'en' ? 'Max 15mb' : 'সর্বোচ্চ ১৫MB', included: true },
         { text: language === 'en' ? 'Image Gen' : 'ইমেজ জেন', subtext: language === 'en' ? '100 imgs/month' : '১০০টি ছবি/মাস', included: true },
