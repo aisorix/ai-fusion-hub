@@ -5,7 +5,7 @@ import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo, QwenLogo, 
 import logo from '../assets/logo.png';
 
 const Hero = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   // All 10+ models available across plans
   const aiModels = [
@@ -93,9 +93,9 @@ const Hero = () => {
 
         {/* Trust Indicators with Glass Effect */}
         <div className="mt-8 sm:mt-12 flex flex-wrap justify-center items-center gap-3 sm:gap-4 md:gap-6 px-4">
-          {[
+        {[
             { icon: Sparkles, text: t('tokensMonth') },
-            { icon: Zap, text: t('premiumModels') },
+            { icon: Zap, text: language === 'en' ? '10 Premium AI Models' : '১০টি প্রিমিয়াম AI মডেল' },
             { icon: Shield, text: t('securePrivate') }
           ].map((item, i) => (
             <div 
