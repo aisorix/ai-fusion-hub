@@ -57,7 +57,10 @@ const AboutUs = () => {
     },
     {
       name: 'Khalid Masum',
-      role: language === 'en' ? 'Strategic Contributor' : 'কৌশলগত অবদানকারী',
+      role: language === 'en' ? 'Contributor' : 'অবদানকারী',
+      description: language === 'en' 
+        ? 'Actively contributes to the development phase, assisting the engineering team in building and refining the technical features of AI Sorix.'
+        : 'উন্নয়ন পর্যায়ে সক্রিয়ভাবে অবদান রাখেন, AI Sorix-এর প্রযুক্তিগত বৈশিষ্ট্য তৈরি এবং পরিমার্জনে ইঞ্জিনিয়ারিং দলকে সহায়তা করেন।',
       icon: Briefcase,
     },
   ];
@@ -228,7 +231,10 @@ const AboutUs = () => {
                       <member.icon className="w-8 h-8 text-foreground" />
                     </div>
                     <h5 className="text-lg font-bold text-foreground text-center mb-1">{member.name}</h5>
-                    <p className="text-sm text-primary font-medium text-center">{member.role}</p>
+                    <p className="text-sm text-primary font-medium text-center mb-2">{member.role}</p>
+                    {member.description && (
+                      <p className="text-xs text-muted-foreground text-center leading-relaxed">{member.description}</p>
+                    )}
                   </div>
                 ))}
               </div>
