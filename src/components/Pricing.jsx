@@ -46,8 +46,8 @@ const Pricing = () => {
         { text: t('memory'), included: false },
         { text: t('projects'), included: false },
         { text: sorixLegendsLabel, included: false },
-        { text: sorixHealthLabel, subtext: comingSoon, included: true },
-        { text: sorixAgroLabel, subtext: comingSoon, included: true },
+        { text: sorixHealthLabel, included: true },
+        { text: sorixAgroLabel, included: true },
       ],
       buttonText: language === 'en' ? 'Start Free' : 'ফ্রি শুরু করুন',
       buttonStyle: 'bg-muted hover:bg-muted/80 text-foreground',
@@ -76,8 +76,8 @@ const Pricing = () => {
         { text: t('memory'), included: true },
         { text: `2 ${t('projects')}`, included: true },
         { text: `2 ${sorixLegendsLabel}`, included: true },
-        { text: sorixHealthLabel, subtext: comingSoon, included: true },
-        { text: sorixAgroLabel, subtext: comingSoon, included: true },
+        { text: sorixHealthLabel, included: true },
+        { text: sorixAgroLabel, included: true },
       ],
       buttonText: language === 'en' ? 'Get Started' : 'শুরু করুন',
       buttonStyle: 'border-2 border-primary/50 text-primary hover:bg-primary/10',
@@ -110,8 +110,8 @@ const Pricing = () => {
         { text: t('memoryLong'), included: true },
         { text: `5 ${t('projects')}`, included: true },
         { text: `5 ${sorixLegendsLabel}`, included: true },
-        { text: sorixHealthLabel, subtext: comingSoon, included: true },
-        { text: sorixAgroLabel, subtext: comingSoon, included: true },
+        { text: sorixHealthLabel, included: true },
+        { text: sorixAgroLabel, included: true },
       ],
       buttonText: language === 'en' ? 'Get Pro' : 'প্রো নিন',
       buttonStyle: 'gradient-primary text-foreground shadow-glow hover:shadow-glow-lg',
@@ -146,8 +146,8 @@ const Pricing = () => {
         { text: `10 ${t('projects')}`, included: true },
         { text: t('teamAccess'), subtext: language === 'en' ? 'Up to 3 members' : '৩ জন পর্যন্ত', included: true },
         { text: language === 'en' ? `All ${sorixLegendsLabel}` : `সব ${sorixLegendsLabel}`, included: true },
-        { text: sorixHealthLabel, subtext: comingSoon, included: true },
-        { text: sorixAgroLabel, subtext: comingSoon, included: true },
+        { text: sorixHealthLabel, included: true },
+        { text: sorixAgroLabel, included: true },
       ],
       buttonText: language === 'en' ? 'Go Premium' : 'প্রিমিয়াম নিন',
       buttonStyle: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg hover:shadow-xl',
@@ -325,7 +325,7 @@ const Pricing = () => {
         {/* Footer Note */}
         <div className="mt-16 sm:mt-20 text-center">
           <p className="text-sm text-muted-foreground mb-8">
-            {language === 'en' ? 'All plans include access to Sorix Health & Sorix Agro (Coming Soon)' : 'সব প্ল্যানে সোরিক্স হেলথ ও সোরিক্স অ্যাগ্রো অন্তর্ভুক্ত (শীঘ্রই আসছে)'}
+            {language === 'en' ? 'All plans include access to Sorix Health & Sorix Agro' : 'সব প্ল্যানে সোরিক্স হেলথ ও সোরিক্স অ্যাগ্রো অন্তর্ভুক্ত'}
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             {[
