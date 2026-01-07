@@ -162,7 +162,7 @@ const Pricing = () => {
   };
 
   return (
-    <section id="pricing" className="py-20 sm:py-28 md:py-36 relative overflow-hidden">
+    <section id="pricing" className="py-10 sm:py-16 md:py-20 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/20 to-background" />
       
@@ -174,7 +174,7 @@ const Pricing = () => {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         {/* Header */}
-        <div className="text-center mb-12 sm:mb-20">
+        <div className="text-center mb-8 sm:mb-12">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-primary text-sm font-semibold mb-6">
             <Star className="w-4 h-4" />
             {t('pricingLabel')}

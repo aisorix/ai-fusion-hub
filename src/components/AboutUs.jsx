@@ -66,7 +66,7 @@ const AboutUs = () => {
   ];
 
   return (
-    <section id="about" className="py-20 sm:py-28 md:py-36 relative overflow-hidden">
+    <section id="about" className="py-12 sm:py-16 md:py-20 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/20 to-background" />
       
@@ -78,7 +78,7 @@ const AboutUs = () => {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         {/* Header */}
-        <div className="text-center mb-16 sm:mb-20">
+        <div className="text-center mb-10 sm:mb-12">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-primary text-sm font-semibold mb-6">
             <Target className="w-4 h-4" />
             {language === 'en' ? 'About Us' : 'আমাদের সম্পর্কে'}
@@ -98,7 +98,7 @@ const AboutUs = () => {
         </div>
 
         {/* Logo and Mission */}
-        <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20 mb-20">
+        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12 mb-12">
           <div className="relative group">
             <div className="absolute inset-0 gradient-primary blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 scale-150" />
             <div className="relative futuristic-card p-8 sm:p-12 rounded-3xl">
@@ -124,7 +124,7 @@ const AboutUs = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-20">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-12">
           {stats.map((stat, index) => (
             <div 
               key={index} 
@@ -141,7 +141,7 @@ const AboutUs = () => {
         </div>
 
         {/* Values */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
             {language === 'en' ? 'Our Core Values' : 'আমাদের মূল মূল্যবোধ'}
           </h3>
@@ -152,7 +152,7 @@ const AboutUs = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12">
           {values.map((value, index) => (
             <div 
               key={index} 
@@ -168,7 +168,7 @@ const AboutUs = () => {
         </div>
 
         {/* Sorix Lab Section */}
-        <div id="sorix-lab" className="relative mt-20 scroll-mt-24">
+        <div id="sorix-lab" className="relative mt-12 scroll-mt-24">
           <div className="absolute inset-0 gradient-primary opacity-5 rounded-3xl blur-3xl" />
           <div className="relative futuristic-card rounded-3xl p-8 sm:p-12 lg:p-16 overflow-hidden">
             {/* Decorative elements */}
@@ -241,10 +241,10 @@ const AboutUs = () => {
 
               {/* Bangladesh Pride */}
               <div className="text-center pt-8 border-t border-border/30">
-                <p className="text-lg sm:text-xl font-semibold text-foreground flex items-center justify-center gap-3">
-                  <span className="text-2xl">🇧🇩</span>
-                  {language === 'en' ? 'Innovating for Impact from Bangladesh' : 'বাংলাদেশ থেকে প্রভাবের জন্য উদ্ভাবন'}
-                  <span className="text-2xl">🇧🇩</span>
+                <p className="text-base sm:text-lg md:text-xl font-semibold text-foreground flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
+                  <span className="text-xl sm:text-2xl">🇧🇩</span>
+                  <span className="whitespace-nowrap">{language === 'en' ? 'Innovating for Impact from Bangladesh' : 'বাংলাদেশ থেকে প্রভাবের জন্য উদ্ভাবন'}</span>
+                  <span className="text-xl sm:text-2xl">🇧🇩</span>
                 </p>
               </div>
             </div>

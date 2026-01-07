@@ -110,7 +110,7 @@ const Features = () => {
   ];
 
   return (
-    <section id="Features" className="py-16 sm:py-24 md:py-32 relative overflow-hidden">
+    <section id="Features" className="py-10 sm:py-16 md:py-20 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-muted/30 via-background to-background" />
       
@@ -122,7 +122,7 @@ const Features = () => {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         {/* Section Header */}
-        <div className="text-center mb-12 sm:mb-20">
+        <div className="text-center mb-8 sm:mb-12">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-primary text-xs sm:text-sm font-semibold mb-4 sm:mb-6">
             <Sparkles className="w-4 h-4" />
             {language === 'en' ? 'Why Choose Us' : 'আমাদের কেন বেছে নেবেন'}
