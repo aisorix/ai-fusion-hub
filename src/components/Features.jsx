@@ -205,10 +205,10 @@ const Features = () => {
             return (
               <div
                 key={index}
-                className="group futuristic-card p-5 sm:p-6 lg:p-8 transition-all duration-500 hover:-translate-y-2"
+                className="group p-6 sm:p-8 transition-all duration-500 hover:-translate-y-2"
               >
-                <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${feature.gradient} shadow-md mb-4 group-hover:scale-110 group-hover:shadow-glow transition-all duration-500`}>
-                  <IconComponent className="w-5 h-5 text-white" />
+                <div className={`inline-flex p-3 sm:p-4 rounded-2xl bg-gradient-to-br ${feature.gradient} shadow-lg mb-4 sm:mb-6 group-hover:scale-110 group-hover:shadow-glow transition-all duration-500`}>
+                  <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2">{feature.title}</h3>
                 <p className="text-muted-foreground leading-relaxed text-sm">{feature.desc}</p>
