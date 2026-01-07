@@ -165,7 +165,7 @@ const AboutUs = () => {
         </div>
 
         {/* Sorix Lab Section */}
-        <div className="relative mt-20">
+        <div id="sorix-lab" className="relative mt-20 scroll-mt-24">
           <div className="absolute inset-0 gradient-primary opacity-5 rounded-3xl blur-3xl" />
           <div className="relative futuristic-card rounded-3xl p-8 sm:p-12 lg:p-16 overflow-hidden">
             {/* Decorative elements */}

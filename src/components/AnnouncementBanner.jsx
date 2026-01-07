@@ -4,11 +4,11 @@ import { useLanguage } from '../contexts/LanguageContext';
 const AnnouncementBanner = () => {
   const { language } = useLanguage();
 
-  const handleScrollToAbout = (e) => {
+  const handleScrollToSorixLab = (e) => {
     e.preventDefault();
-    const aboutSection = document.getElementById('about');
-    if (aboutSection) {
-      aboutSection.scrollIntoView({ behavior: 'smooth' });
+    const sorixLabSection = document.getElementById('sorix-lab');
+    if (sorixLabSection) {
+      sorixLabSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -17,7 +17,7 @@ const AnnouncementBanner = () => {
       <div className="max-w-7xl mx-auto px-3 sm:px-4 py-1.5">
         <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
           <button 
-            onClick={handleScrollToAbout}
+            onClick={handleScrollToSorixLab}
             className="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-medium border border-primary/30 bg-primary/5 text-primary whitespace-nowrap hover:bg-primary/10 hover:border-primary/50 transition-all duration-200 cursor-pointer"
           >
             Built by Sorixlab
