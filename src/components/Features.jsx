@@ -34,7 +34,7 @@ const Features = () => {
         : 'স্মার্ট কৃষি সহায়ক — ফসল পরিকল্পনা, আবহাওয়া তথ্য, পোকা সনাক্তকরণ এবং বাংলাদেশি কৃষকদের জন্য ফলন অপ্টিমাইজেশন।',
       gradient: "from-green-500 to-lime-500",
       bgGradient: "from-green-500/10 to-lime-500/10",
-      comingSoon: true
+      comingSoon: false
     },
     {
       icon: Crown,
@@ -44,7 +44,7 @@ const Features = () => {
         : 'তোমার এলিট AI টিম তৈরি করো — ডাক্তার, উকিল, কোডার এবং মার্কেটিং বিশেষজ্ঞ তোমার জন্য একসাথে কাজ করছে।',
       gradient: "from-blue-500 to-cyan-500",
       bgGradient: "from-blue-500/10 to-cyan-500/10",
-      comingSoon: true
+      comingSoon: false
     },
     {
       icon: Stethoscope,
@@ -54,7 +54,7 @@ const Features = () => {
         : 'তোমার রিপোর্ট, লক্ষণ দাও — সেকেন্ডের মধ্যে ডাক্তার লেভেলের অ্যানালাইসিস + সাজেশন।',
       gradient: "from-emerald-500 to-teal-500",
       bgGradient: "from-emerald-500/10 to-teal-500/10",
-      comingSoon: true
+      comingSoon: false
     }
   ];
 
