@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Target, Lightbulb, Globe, Rocket, Heart } from 'lucide-react';
+import { Users, Target, Lightbulb, Globe, Rocket, Heart, Code, Briefcase, Star } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import logo from '../assets/logo.png';
 
@@ -42,6 +42,24 @@ const AboutUs = () => {
     { value: '10K+', label: language === 'en' ? 'Active Users' : 'সক্রিয় ব্যবহারকারী' },
     { value: '1M+', label: language === 'en' ? 'Queries Processed' : 'কোয়েরি প্রসেসড' },
     { value: '24/7', label: language === 'en' ? 'Support' : 'সাপোর্ট' },
+  ];
+
+  const teamMembers = [
+    {
+      name: 'Rakib Eslam',
+      role: language === 'en' ? 'Founder' : 'প্রতিষ্ঠাতা',
+      icon: Star,
+    },
+    {
+      name: 'Shahadat Hossain',
+      role: language === 'en' ? 'Lead Developer' : 'লিড ডেভেলপার',
+      icon: Code,
+    },
+    {
+      name: 'Khalid Masum',
+      role: language === 'en' ? 'Strategic Contributor' : 'কৌশলগত অবদানকারী',
+      icon: Briefcase,
+    },
   ];
 
   return (
@@ -131,7 +149,7 @@ const AboutUs = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
           {values.map((value, index) => (
             <div 
               key={index} 
@@ -144,6 +162,87 @@ const AboutUs = () => {
               <p className="text-sm text-muted-foreground leading-relaxed">{value.description}</p>
             </div>
           ))}
+        </div>
+
+        {/* Sorix Lab Section */}
+        <div className="relative mt-20">
+          <div className="absolute inset-0 gradient-primary opacity-5 rounded-3xl blur-3xl" />
+          <div className="relative futuristic-card rounded-3xl p-8 sm:p-12 lg:p-16 overflow-hidden">
+            {/* Decorative elements */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[80px]" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/10 rounded-full blur-[60px]" />
+            
+            <div className="relative z-10">
+              {/* Sorix Lab Header */}
+              <div className="text-center mb-12">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-semibold mb-6">
+                  <Rocket className="w-4 h-4" />
+                  {language === 'en' ? 'Our Parent Company' : 'আমাদের মূল কোম্পানি'}
+                </div>
+                <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4">
+                  {language === 'en' ? 'About' : ''} <span className="animated-gradient-text">Sorix Lab</span>
+                </h3>
+                <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                  {language === 'en' 
+                    ? 'Sorix Lab is a Bangladesh-based R&D hub dedicated to shaping the future of AI, Education, and Social Innovation. Our mission is to build impactful technology that empowers the next generation.' 
+                    : 'সোরিক্স ল্যাব বাংলাদেশ-ভিত্তিক একটি R&D হাব যা AI, শিক্ষা এবং সামাজিক উদ্ভাবনের ভবিষ্যৎ গঠনে নিবেদিত। আমাদের মিশন হল পরবর্তী প্রজন্মকে শক্তিশালী করে এমন প্রভাবশালী প্রযুক্তি তৈরি করা।'}
+                </p>
+              </div>
+
+              {/* AI Sorix Highlight */}
+              <div className="glass-card p-6 sm:p-8 rounded-2xl mb-12 border border-primary/20">
+                <div className="flex flex-col md:flex-row items-center gap-6">
+                  <div className="w-20 h-20 rounded-2xl gradient-primary flex items-center justify-center flex-shrink-0">
+                    <img src={logo} alt="AI Sorix" className="w-12 h-12 object-contain" />
+                  </div>
+                  <div className="text-center md:text-left">
+                    <h4 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
+                      {language === 'en' ? 'AI Sorix — Our Flagship Product' : 'AI Sorix — আমাদের ফ্ল্যাগশিপ পণ্য'}
+                    </h4>
+                    <p className="text-muted-foreground">
+                      {language === 'en' 
+                        ? 'A first step toward a comprehensive ecosystem designed to revolutionize how students and researchers interact with intelligence.' 
+                        : 'শিক্ষার্থী এবং গবেষকরা কীভাবে বুদ্ধিমত্তার সাথে যোগাযোগ করে তা বিপ্লব করার জন্য ডিজাইন করা একটি সমগ্র ইকোসিস্টেমের দিকে প্রথম পদক্ষেপ।'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Team Section */}
+              <div className="text-center mb-8">
+                <h4 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
+                  {language === 'en' ? 'Meet the Team' : 'টিমের সাথে পরিচিত হন'}
+                </h4>
+                <p className="text-muted-foreground">
+                  {language === 'en' ? 'The minds behind Sorix Lab' : 'সোরিক্স ল্যাবের পেছনের মস্তিষ্করা'}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+                {teamMembers.map((member, index) => (
+                  <div 
+                    key={index}
+                    className="group relative bg-background/50 backdrop-blur-sm rounded-2xl p-6 border border-border/50 hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
+                  >
+                    <div className="w-16 h-16 rounded-full gradient-primary flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                      <member.icon className="w-8 h-8 text-foreground" />
+                    </div>
+                    <h5 className="text-lg font-bold text-foreground text-center mb-1">{member.name}</h5>
+                    <p className="text-sm text-primary font-medium text-center">{member.role}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Bangladesh Pride */}
+              <div className="text-center pt-8 border-t border-border/30">
+                <p className="text-lg sm:text-xl font-semibold text-foreground flex items-center justify-center gap-3">
+                  <span className="text-2xl">🇧🇩</span>
+                  {language === 'en' ? 'Innovating for Impact from Bangladesh' : 'বাংলাদেশ থেকে প্রভাবের জন্য উদ্ভাবন'}
+                  <span className="text-2xl">🇧🇩</span>
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
