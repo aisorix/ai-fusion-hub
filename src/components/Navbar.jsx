@@ -68,6 +68,9 @@ const Navbar = () => {
             <a href="#faq" className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all">
               {t('faqs')}
             </a>
+            <a href="#about" className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all">
+              {t('aboutUs')}
+            </a>
           </div>
 
           {/* Right Side: Theme + Language + Auth */}
@@ -171,6 +174,13 @@ const Navbar = () => {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {t('faqs')}
+                  </a>
+                  <a 
+                    href="#about" 
+                    className="block py-3 px-4 rounded-xl hover:bg-muted text-foreground font-medium transition text-base"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t('aboutUs')}
                   </a>
                 </div>
                 
