@@ -1,5 +1,5 @@
 import React from 'react';
-import { Gem, Crown, Stethoscope, Leaf, Sparkles, Brain, Zap, Heart, Shield, Globe, ArrowRight } from 'lucide-react';
+import { Gem, Crown, Stethoscope, Leaf, Search, Sparkles, Brain, Zap, Heart, Shield, Globe, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const Features = () => {
@@ -45,6 +45,16 @@ const Features = () => {
       gradient: "from-green-500 to-lime-500",
       bgGradient: "from-green-500/10 to-lime-500/10",
       comingSoon: true
+    },
+    {
+      icon: Search,
+      title: language === 'en' ? 'Sorix Search' : 'সোরিক্স সার্চ',
+      desc: language === 'en'
+        ? 'Best Google alternative — AI-powered search with instant answers, citations, and real-time web results.'
+        : 'গুগলের সেরা বিকল্প — AI চালিত সার্চ, তাৎক্ষণিক উত্তর, সাইটেশন এবং রিয়েল-টাইম ওয়েব রেজাল্ট।',
+      gradient: "from-orange-500 to-amber-500",
+      bgGradient: "from-orange-500/10 to-amber-500/10",
+      comingSoon: false
     }
   ];
 
@@ -128,7 +138,7 @@ const Features = () => {
         </div>
 
         {/* Premium Feature Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12 sm:mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 mb-12 sm:mb-16">
           {premiumFeatures.map((feature, index) => {
             const IconComponent = feature.icon;
             return (
