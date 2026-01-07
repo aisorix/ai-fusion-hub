@@ -1,5 +1,5 @@
 import React from 'react';
-import { Gem, Crown, Stethoscope, Leaf, Search, Sparkles, Brain, Zap, Heart, Shield, Globe, ArrowRight } from 'lucide-react';
+import { Gem, Crown, Stethoscope, Leaf, Search, Sparkles, Brain, Zap, Heart, Shield, Globe, ArrowRight, Plus } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const Features = () => {
@@ -138,7 +138,7 @@ const Features = () => {
         </div>
 
         {/* Premium Feature Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 mb-12 sm:mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-12 sm:mb-16">
           {premiumFeatures.map((feature, index) => {
             const IconComponent = feature.icon;
             return (
@@ -181,6 +181,21 @@ const Features = () => {
               </div>
             );
           })}
+          
+          {/* More Coming Card */}
+          <div className="relative group futuristic-card p-6 sm:p-8 transition-all duration-500 hover:-translate-y-2 flex flex-col items-center justify-center text-center border-2 border-dashed border-muted-foreground/30">
+            <div className="inline-flex p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-gray-400 to-gray-500 shadow-lg mb-4 sm:mb-6 group-hover:scale-110 transition-all duration-500">
+              <Plus className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+            </div>
+            <h3 className="text-xl sm:text-2xl font-bold mb-3 text-foreground">
+              {language === 'en' ? 'More Coming' : 'আরও আসছে'}
+            </h3>
+            <p className="text-muted-foreground leading-relaxed text-sm">
+              {language === 'en' 
+                ? 'Stay tuned for exciting new features and AI-powered tools.'
+                : 'নতুন উত্তেজনাপূর্ণ ফিচার এবং AI টুলসের জন্য অপেক্ষা করুন।'}
+            </p>
+          </div>
         </div>
 
         {/* Regular Feature Cards */}
