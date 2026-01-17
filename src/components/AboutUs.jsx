@@ -55,14 +55,6 @@ const AboutUs = () => {
       role: language === 'en' ? 'Lead Developer' : 'লিড ডেভেলপার',
       icon: Code,
     },
-    {
-      name: 'Khalid Masum',
-      role: language === 'en' ? 'Contributor' : 'অবদানকারী',
-      description: language === 'en' 
-        ? 'Actively contributes to the development phase, assisting the engineering team in building and refining the technical features of AI Sorix.'
-        : 'উন্নয়ন পর্যায়ে সক্রিয়ভাবে অবদান রাখেন, AI Sorix-এর প্রযুক্তিগত বৈশিষ্ট্য তৈরি এবং পরিমার্জনে ইঞ্জিনিয়ারিং দলকে সহায়তা করেন।',
-      icon: Briefcase,
-    },
   ];
 
   return (
@@ -83,14 +75,14 @@ const AboutUs = () => {
             <Target className="w-4 h-4" />
             {language === 'en' ? 'About Us' : 'আমাদের সম্পর্কে'}
           </span>
-          <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-foreground mb-6 font-display">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-foreground mb-4 font-display">
             {language === 'en' ? 'Empowering Bangladesh' : 'বাংলাদেশকে শক্তিশালী করা'}
             <br />
             <span className="animated-gradient-text">
               {language === 'en' ? 'With AI Innovation' : 'AI উদ্ভাবনের মাধ্যমে'}
             </span>
           </h2>
-          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             {language === 'en' 
               ? 'AI Sorix is Bangladesh\'s first unified AI platform, bringing together the world\'s most powerful AI models in one place. We\'re on a mission to democratize AI access for every Bangladeshi.' 
               : 'AI Sorix হল বাংলাদেশের প্রথম ইউনিফাইড AI প্ল্যাটফর্ম, বিশ্বের সবচেয়ে শক্তিশালী AI মডেলগুলোকে এক জায়গায় একত্রিত করে। আমরা প্রতিটি বাংলাদেশীর জন্য AI অ্যাক্সেস গণতান্ত্রিক করার মিশনে আছি।'}
@@ -221,7 +213,7 @@ const AboutUs = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10 max-w-2xl mx-auto">
                 {teamMembers.map((member, index) => (
                   <div 
                     key={index}
@@ -239,14 +231,6 @@ const AboutUs = () => {
                 ))}
               </div>
 
-              {/* Bangladesh Pride */}
-              <div className="text-center pt-8 border-t border-border/30">
-                <p className="text-base sm:text-lg md:text-xl font-semibold text-foreground flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
-                  <span className="text-xl sm:text-2xl">🇧🇩</span>
-                  <span className="whitespace-nowrap">{language === 'en' ? 'Innovating for Impact from Bangladesh' : 'বাংলাদেশ থেকে প্রভাবের জন্য উদ্ভাবন'}</span>
-                  <span className="text-xl sm:text-2xl">🇧🇩</span>
-                </p>
-              </div>
             </div>
           </div>
         </div>
