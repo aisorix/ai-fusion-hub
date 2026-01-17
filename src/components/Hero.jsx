@@ -62,13 +62,13 @@ const Hero = () => {
         </div>
 
         {/* Main Title with Animation */}
-        <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-center leading-tight tracking-tight max-w-5xl mx-auto px-2 font-display">
+        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center leading-tight tracking-tight max-w-5xl mx-auto px-2 font-display">
           <span className="text-foreground block mb-2">{t('heroTitle1')}</span>
           <span className="animated-gradient-text">{t('heroTitle2')}</span>
         </h1>
 
         {/* Description */}
-        <p className="mt-4 sm:mt-6 text-sm sm:text-lg md:text-xl text-muted-foreground text-center max-w-3xl mx-auto leading-relaxed px-2">
+        <p className="mt-4 sm:mt-6 text-sm sm:text-base md:text-lg text-muted-foreground text-center max-w-3xl mx-auto leading-relaxed px-2">
           {t('heroDesc')}
         </p>
 
