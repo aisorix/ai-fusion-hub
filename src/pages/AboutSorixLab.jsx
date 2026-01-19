@@ -80,7 +80,7 @@ const AboutSorixLab = () => {
               <span>{language === 'en' ? 'Home' : 'হোম'}</span>
             </Link>
             <ChevronRight className="w-3.5 h-3.5" />
-            <span className="text-foreground font-medium">{language === 'en' ? 'About Sorix Lab' : 'সোরিক্স ল্যাব সম্পর্কে'}</span>
+            <span className="text-foreground font-medium">{language === 'en' ? 'About Sorixlab' : 'সোরিক্সল্যাব সম্পর্কে'}</span>
           </nav>
         </div>
       </div>
@@ -96,7 +96,7 @@ const AboutSorixLab = () => {
               <Rocket className="w-7 h-7 sm:w-8 sm:h-8 text-foreground" />
             </div>
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-3">
-              {language === 'en' ? 'About ' : ''}<span className="animated-gradient-text">Sorix Lab</span>
+              {language === 'en' ? 'About ' : ''}<span className="animated-gradient-text">Sorixlab</span>
             </h1>
             <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
               {language === 'en' 
@@ -138,8 +138,8 @@ const AboutSorixLab = () => {
               </h2>
               <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
                 {language === 'en' 
-                  ? 'We envision a future where cutting-edge technology is accessible to everyone, regardless of their location or economic background. Sorix Lab is committed to bridging the digital divide and bringing world-class AI tools to Bangladesh and beyond.'
-                  : 'আমরা এমন একটি ভবিষ্যতের কল্পনা করি যেখানে অত্যাধুনিক প্রযুক্তি সবার কাছে অ্যাক্সেসযোগ্য, তাদের অবস্থান বা অর্থনৈতিক পটভূমি নির্বিশেষে। সোরিক্স ল্যাব ডিজিটাল বিভাজন দূর করতে এবং বাংলাদেশ এবং এর বাইরে বিশ্বমানের AI টুলস আনতে প্রতিশ্রুতিবদ্ধ।'}
+                  ? 'We envision a future where cutting-edge technology is accessible to everyone, regardless of their location or economic background. Sorixlab is committed to bridging the digital divide and bringing world-class AI tools to Bangladesh and beyond.'
+                  : 'আমরা এমন একটি ভবিষ্যতের কল্পনা করি যেখানে অত্যাধুনিক প্রযুক্তি সবার কাছে অ্যাক্সেসযোগ্য, তাদের অবস্থান বা অর্থনৈতিক পটভূমি নির্বিশেষে। সোরিক্সল্যাব ডিজিটাল বিভাজন দূর করতে এবং বাংলাদেশ এবং এর বাইরে বিশ্বমানের AI টুলস আনতে প্রতিশ্রুতিবদ্ধ।'}
               </p>
             </article>
 
@@ -170,9 +170,9 @@ const AboutSorixLab = () => {
                 {language === 'en' ? 'Meet the Team' : 'টিমের সাথে পরিচিত হন'}
               </h2>
               <p className="text-muted-foreground text-sm text-center mb-6">
-                {language === 'en' ? 'The minds behind Sorix Lab' : 'সোরিক্স ল্যাবের পেছনের মস্তিষ্করা'}
+                {language === 'en' ? 'The minds behind Sorixlab' : 'সোরিক্সল্যাবের পেছনের মস্তিষ্করা'}
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-2xl mx-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-2xl mx-auto mb-6">
                 {teamMembers.map((member, index) => (
                   <div 
                     key={index}
@@ -187,6 +187,43 @@ const AboutSorixLab = () => {
                   </div>
                 ))}
               </div>
+              
+              {/* University Info */}
+              <div className="relative mt-6 pt-6 border-t border-border/30">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 bg-card">
+                  <span className="text-xs text-muted-foreground uppercase tracking-widest">
+                    {language === 'en' ? 'Academic Background' : 'শিক্ষাগত পটভূমি'}
+                  </span>
+                </div>
+                <div className="bg-gradient-to-r from-primary/5 via-cyan-500/10 to-primary/5 rounded-xl p-5 sm:p-6 border border-primary/20">
+                  <div className="flex items-center justify-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                        <path d="M6 12v5c0 2 2 4 6 4s6-2 6-4v-5" />
+                      </svg>
+                    </div>
+                    <h4 className="text-base sm:text-lg font-semibold text-foreground">
+                      {language === 'en' ? 'Daffodil International University' : 'ড্যাফোডিল ইন্টারন্যাশনাল ইউনিভার্সিটি'}
+                    </h4>
+                  </div>
+                  <p className="text-sm sm:text-base text-center text-muted-foreground leading-relaxed max-w-xl mx-auto">
+                    {language === 'en' 
+                      ? 'Rakib Eslam & Shahadat Hossain are currently pursuing their studies at Daffodil International University, Department of Software Engineering — transforming academic knowledge into innovative solutions that shape the future of AI in Bangladesh.'
+                      : 'রাকিব ইসলাম এবং শাহাদাত হোসেন বর্তমানে ড্যাফোডিল ইন্টারন্যাশনাল ইউনিভার্সিটির সফটওয়্যার ইঞ্জিনিয়ারিং বিভাগে অধ্যয়নরত — তারা একাডেমিক জ্ঞানকে উদ্ভাবনী সমাধানে রূপান্তরিত করছেন যা বাংলাদেশে AI-এর ভবিষ্যৎ গঠন করছে।'}
+                  </p>
+                  <div className="flex items-center justify-center gap-2 mt-4">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                      <Code className="w-3 h-3" />
+                      {language === 'en' ? 'Software Engineering' : 'সফটওয়্যার ইঞ্জিনিয়ারিং'}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/10 text-accent-foreground text-xs font-medium">
+                      <Star className="w-3 h-3" />
+                      {language === 'en' ? 'Student Innovators' : 'ছাত্র উদ্ভাবক'}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </article>
 
             {/* Location */}
@@ -199,7 +236,7 @@ const AboutSorixLab = () => {
                   <Globe className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-foreground font-medium mb-1">Sorix Lab HQ</p>
+                  <p className="text-foreground font-medium mb-1">Sorixlab HQ</p>
                   <p className="text-muted-foreground text-sm">Ashulia, Savar, Dhaka, Bangladesh</p>
                   <p className="text-sm text-primary mt-2">📍 {language === 'en' ? 'Proudly Made in Bangladesh' : 'গর্বের সাথে বাংলাদেশে তৈরি'}</p>
                 </div>
@@ -211,7 +248,7 @@ const AboutSorixLab = () => {
           {/* Footer */}
           <div className="mt-10 sm:mt-12 pt-6 border-t border-border/50 flex flex-col sm:flex-row justify-between items-center gap-3 text-center sm:text-left">
             <p className="text-muted-foreground text-xs sm:text-sm">
-              © 2025 Sorix Lab. {language === 'en' ? 'All rights reserved.' : 'সর্বস্বত্ব সংরক্ষিত।'}
+              © 2025 Sorixlab. {language === 'en' ? 'All rights reserved.' : 'সর্বস্বত্ব সংরক্ষিত।'}
             </p>
             <div className="flex items-center gap-4 text-xs sm:text-sm">
               <Link to="/privacy-policy" className="text-muted-foreground hover:text-primary transition-colors">
