@@ -50,7 +50,7 @@ const Hero = () => {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 w-full">
         {/* Logo with Glow Effect */}
-        <div className="flex justify-center mb-6 sm:mb-8">
+        <div className="flex justify-center mb-6 sm:mb-8 animate-[fadeInUp_0.8s_ease-out_forwards] opacity-0" style={{ animationDelay: '0.1s' }}>
           <div className="relative group">
             <div className="absolute inset-0 gradient-primary blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-500 scale-150" />
             <img 
@@ -62,18 +62,18 @@ const Hero = () => {
         </div>
 
         {/* Main Title with Animation */}
-        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center leading-tight tracking-tight max-w-5xl mx-auto px-2 font-display">
+        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center leading-tight tracking-tight max-w-5xl mx-auto px-2 font-display animate-[fadeInUp_0.8s_ease-out_forwards] opacity-0" style={{ animationDelay: '0.2s' }}>
           <span className="text-foreground block mb-2">{t('heroTitle1')}</span>
           <span className="animated-gradient-text">{t('heroTitle2')}</span>
         </h1>
 
         {/* Description */}
-        <p className="mt-4 sm:mt-6 text-sm sm:text-base md:text-lg text-muted-foreground text-center max-w-3xl mx-auto leading-relaxed px-2">
+        <p className="mt-4 sm:mt-6 text-sm sm:text-base md:text-lg text-muted-foreground text-center max-w-3xl mx-auto leading-relaxed px-2 animate-[fadeInUp_0.8s_ease-out_forwards] opacity-0" style={{ animationDelay: '0.4s' }}>
           {t('heroDesc')}
         </p>
 
         {/* CTA Buttons */}
-        <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4">
+        <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4 animate-[fadeInUp_0.8s_ease-out_forwards] opacity-0" style={{ animationDelay: '0.6s' }}>
           <a
             href="/login"
             className="group relative w-full sm:w-auto inline-flex items-center justify-center gap-2 sm:gap-3 gradient-primary text-foreground px-8 sm:px-10 py-4 sm:py-5 rounded-2xl font-bold text-base sm:text-lg shadow-glow hover:shadow-glow-lg transform hover:scale-105 hover:-translate-y-1 transition-all duration-500 overflow-hidden"
@@ -92,7 +92,7 @@ const Hero = () => {
         </div>
 
         {/* Trust Indicators with Glass Effect */}
-        <div className="mt-8 sm:mt-12 flex flex-wrap justify-center items-center gap-3 sm:gap-4 md:gap-6 px-4">
+        <div className="mt-8 sm:mt-12 flex flex-wrap justify-center items-center gap-3 sm:gap-4 md:gap-6 px-4 animate-[fadeInUp_0.8s_ease-out_forwards] opacity-0" style={{ animationDelay: '0.8s' }}>
         {[
             { icon: Sparkles, text: t('tokensMonth') },
             { icon: Zap, text: language === 'en' ? '10 Premium AI Models' : '১০টি প্রিমিয়াম AI মডেল' },
@@ -109,7 +109,7 @@ const Hero = () => {
         </div>
 
         {/* AI Model Showcase */}
-        <div className="mt-8 sm:mt-12">
+        <div className="mt-8 sm:mt-12 animate-[fadeInUp_0.8s_ease-out_forwards] opacity-0" style={{ animationDelay: '1s' }}>
           <p className="text-center text-xs sm:text-sm text-muted-foreground mb-4">
             Powered by world's leading AI models
           </p>
@@ -129,6 +129,7 @@ const Hero = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
 
       {/* Bottom Gradient Fade */}
