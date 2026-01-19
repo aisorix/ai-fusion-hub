@@ -44,8 +44,8 @@ const Navbar = () => {
     <>
       <nav className={`sticky top-0 z-50 transition-all duration-500 ${
         scrolled 
-          ? 'bg-background/95 backdrop-blur-xl shadow-lg border-b border-border/50' 
-          : 'bg-background/80 backdrop-blur-md border-b border-border/30'
+          ? 'bg-background backdrop-blur-xl shadow-lg border-b border-border/50' 
+          : 'bg-background border-b border-border/30'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 sm:h-20 items-center">
