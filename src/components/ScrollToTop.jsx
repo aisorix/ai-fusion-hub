@@ -7,8 +7,9 @@ const ScrollToTop = () => {
 
   useEffect(() => {
     // Only scroll to top on PUSH navigation (clicking links), not on POP (back/forward)
+    // Use instant scroll behavior for smooth page transitions
     if (navigationType !== 'POP') {
-      window.scrollTo(0, 0);
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }
   }, [pathname, navigationType]);
 
