@@ -6,7 +6,7 @@ import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo, QwenLogo, 
 
 // Payment method logos
 import sslcommerzLogo from '../assets/sslcommerz.png';
-import nagadMerchantLogo from '../assets/nagad-merchant.png';
+import bkashMerchantLogo from '../assets/bkash-merchant.png';
 import mobileBankingLogo from '../assets/mobile-banking.png';
 import dutchBanglaLogo from '../assets/dutch-bangla-bank.png';
 import bracBankLogo from '../assets/brac-bank.png';
@@ -386,13 +386,13 @@ const Pricing = () => {
                   </div>
                 </div>
                 
-                {/* Nagad Merchant Logo */}
+                {/* bKash Merchant Logo */}
                 <div className="relative group">
                   <div className="absolute -inset-2 bg-gradient-to-r from-rose-500/20 to-pink-500/20 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="relative bg-white rounded-2xl p-3 sm:p-4 shadow-lg hover:shadow-xl transition-all duration-300">
                     <img 
-                      src={nagadMerchantLogo} 
-                      alt="Nagad Merchant" 
+                      src={bkashMerchantLogo} 
+                      alt="bKash Merchant" 
                       className="h-12 sm:h-14 w-auto object-contain"
                     />
                   </div>
