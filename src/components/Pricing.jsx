@@ -6,6 +6,7 @@ import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo, QwenLogo, 
 
 // Payment method logos
 import sslcommerzLogo from '../assets/sslcommerz.png';
+import nagadMerchantLogo from '../assets/nagad-merchant.png';
 import mobileBankingLogo from '../assets/mobile-banking.png';
 import dutchBanglaLogo from '../assets/dutch-bangla-bank.png';
 import bracBankLogo from '../assets/brac-bank.png';
@@ -372,18 +373,33 @@ const Pricing = () => {
           <div className="futuristic-card rounded-3xl p-6 sm:p-10 lg:p-12 max-w-4xl mx-auto">
             {/* SSLCommerz Header */}
             <div className="flex flex-col items-center mb-8 sm:mb-10">
-              <div className="relative group">
-                <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative bg-white rounded-2xl p-5 sm:p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <img 
-                    src={sslcommerzLogo} 
-                    alt="SSLCommerz Payment Gateway" 
-                    className="h-8 sm:h-10 w-auto object-contain"
-                  />
+              <div className="flex items-center gap-4 sm:gap-6">
+                {/* SSLCommerz Logo */}
+                <div className="relative group">
+                  <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="relative bg-white rounded-2xl p-5 sm:p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <img 
+                      src={sslcommerzLogo} 
+                      alt="SSLCommerz Payment Gateway" 
+                      className="h-8 sm:h-10 w-auto object-contain"
+                    />
+                  </div>
+                </div>
+                
+                {/* Nagad Merchant Logo */}
+                <div className="relative group">
+                  <div className="absolute -inset-2 bg-gradient-to-r from-rose-500/20 to-pink-500/20 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="relative bg-white rounded-2xl p-3 sm:p-4 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <img 
+                      src={nagadMerchantLogo} 
+                      alt="Nagad Merchant" 
+                      className="h-12 sm:h-14 w-auto object-contain"
+                    />
+                  </div>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground text-center mt-4">
-                {language === 'en' ? 'Powered by Bangladesh\'s Most Trusted Payment Gateway' : 'বাংলাদেশের সবচেয়ে বিশ্বস্ত পেমেন্ট গেটওয়ে দ্বারা চালিত'}
+                {language === 'en' ? 'Powered by Bangladesh\'s Most Trusted Payment Gateways' : 'বাংলাদেশের সবচেয়ে বিশ্বস্ত পেমেন্ট গেটওয়ে দ্বারা চালিত'}
               </p>
             </div>
 
