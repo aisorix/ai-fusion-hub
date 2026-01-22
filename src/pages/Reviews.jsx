@@ -1,5 +1,5 @@
 import { useLanguage } from '../contexts/LanguageContext';
-import { Star, StarHalf, ArrowLeft, Filter, Search, PenLine, X } from 'lucide-react';
+import { Star, StarHalf, ArrowLeft, Filter, Search, PenLine, X, ArrowUpDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import Navbar from '@/components/Navbar';
@@ -11,6 +11,7 @@ const Reviews = () => {
   const { language } = useLanguage();
   const { toast } = useToast();
   const [filter, setFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userReviews, setUserReviews] = useState([]);
@@ -922,19 +923,52 @@ const Reviews = () => {
 
   const allReviews = [...userReviews, ...baseReviews];
 
-  const filteredReviews = allReviews.filter(review => {
-    const matchesFilter = filter === 'all' || 
-      (filter === '5' && review.rating === 5) ||
-      (filter === '4' && review.rating === 4) ||
-      (filter === '3' && review.rating <= 3);
-    
-    const matchesSearch = review.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      review.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      review.review.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      review.location.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    return matchesFilter && matchesSearch;
-  });
+  // Helper function to parse date strings for sorting
+  const getDateValue = (dateStr) => {
+    if (dateStr === 'Just now' || dateStr === 'এইমাত্র') return Date.now();
+    if (dateStr.includes('week') || dateStr.includes('সপ্তাহ')) {
+      const num = parseInt(dateStr) || 1;
+      return Date.now() - (num * 7 * 24 * 60 * 60 * 1000);
+    }
+    if (dateStr.includes('month') || dateStr.includes('মাস')) {
+      const num = parseInt(dateStr) || 1;
+      return Date.now() - (num * 30 * 24 * 60 * 60 * 1000);
+    }
+    if (dateStr.includes('day') || dateStr.includes('দিন')) {
+      const num = parseInt(dateStr) || 1;
+      return Date.now() - (num * 24 * 60 * 60 * 1000);
+    }
+    return 0;
+  };
+
+  const filteredReviews = allReviews
+    .filter(review => {
+      const matchesFilter = filter === 'all' || 
+        (filter === '5' && review.rating === 5) ||
+        (filter === '4' && review.rating === 4) ||
+        (filter === '3' && review.rating <= 3);
+      
+      const matchesSearch = review.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        review.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        review.review.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        review.location.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      return matchesFilter && matchesSearch;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'newest':
+          return getDateValue(b.date) - getDateValue(a.date);
+        case 'oldest':
+          return getDateValue(a.date) - getDateValue(b.date);
+        case 'highest':
+          return b.rating - a.rating;
+        case 'lowest':
+          return a.rating - b.rating;
+        default:
+          return 0;
+      }
+    });
 
   const averageRating = (allReviews.reduce((acc, r) => acc + r.rating, 0) / allReviews.length).toFixed(1);
   const fiveStarCount = allReviews.filter(r => r.rating === 5).length;
@@ -1095,6 +1129,19 @@ const Reviews = () => {
                 <option value="5">{language === 'en' ? '5 Stars' : '৫ স্টার'}</option>
                 <option value="4">{language === 'en' ? '4 Stars' : '৪ স্টার'}</option>
                 <option value="3">{language === 'en' ? '3 Stars & Below' : '৩ স্টার ও নিচে'}</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-4 py-2.5 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              >
+                <option value="newest">{language === 'en' ? 'Newest First' : 'নতুন আগে'}</option>
+                <option value="oldest">{language === 'en' ? 'Oldest First' : 'পুরানো আগে'}</option>
+                <option value="highest">{language === 'en' ? 'Highest Rating' : 'সর্বোচ্চ রেটিং'}</option>
+                <option value="lowest">{language === 'en' ? 'Lowest Rating' : 'সর্বনিম্ন রেটিং'}</option>
               </select>
             </div>
           </div>
