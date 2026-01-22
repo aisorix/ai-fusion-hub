@@ -14,6 +14,7 @@ import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
 import RefundPolicy from "./pages/RefundPolicy";
 import AboutSorixLab from "./pages/AboutSorixLab";
+import Reviews from "./pages/Reviews";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/cookie-policy" element={<CookiePolicy />} />
             <Route path="/refund-policy" element={<RefundPolicy />} />
             <Route path="/about-sorix-lab" element={<AboutSorixLab />} />
+            <Route path="/reviews" element={<Reviews />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

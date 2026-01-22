@@ -1,5 +1,6 @@
 import { useLanguage } from '../contexts/LanguageContext';
-import { Star } from 'lucide-react';
+import { Star, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Testimonials = () => {
   const { language } = useLanguage();
@@ -114,6 +115,17 @@ const Testimonials = () => {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* See All Reviews Button */}
+        <div className="text-center mb-10">
+          <Link 
+            to="/reviews"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-primary/10 hover:bg-primary/20 text-primary font-medium rounded-full transition-all duration-300 group"
+          >
+            <span>{language === 'en' ? 'See All 100 Reviews' : 'সব ১০০টি রিভিউ দেখুন'}</span>
+            <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
         </div>
 
         {/* Stats */}
