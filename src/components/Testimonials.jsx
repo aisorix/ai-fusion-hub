@@ -123,7 +123,7 @@ const Testimonials = () => {
             to="/reviews"
             className="inline-flex items-center gap-2 px-6 py-3 bg-primary/10 hover:bg-primary/20 text-primary font-medium rounded-full transition-all duration-300 group"
           >
-            <span>{language === 'en' ? 'See All 100 Reviews' : 'সব ১০০টি রিভিউ দেখুন'}</span>
+            <span>{language === 'en' ? 'See All Reviews' : 'সব রিভিউ দেখুন'}</span>
             <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
