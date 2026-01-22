@@ -1,16 +1,23 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, ArrowLeft, User } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, User, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 import logo from '../assets/logo.png';
 
 const Register = () => {
+  const navigate = useNavigate();
+  const { user, signUp, loading: authLoading } = useAuth();
+  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -18,15 +25,77 @@ const Register = () => {
     confirmPassword: ''
   });
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && !authLoading) {
+      navigate('/');
+    }
+  }, [user, authLoading, navigate]);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle registration logic
-    console.log('Register:', formData);
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = 'Full name is required';
+    } else if (formData.fullName.trim().length < 2) {
+      newErrors.fullName = 'Name must be at least 2 characters';
+    }
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email';
+    }
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    setIsSubmitting(true);
+    const { error } = await signUp(formData.email, formData.password, formData.fullName);
+    setIsSubmitting(false);
+
+    if (error) {
+      let errorMessage = 'Failed to create account. Please try again.';
+      if (error.message.includes('already registered')) {
+        errorMessage = 'This email is already registered. Please sign in instead.';
+      } else if (error.message.includes('Password')) {
+        errorMessage = error.message;
+      }
+      toast({
+        title: 'Registration Failed',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } else {
+      toast({
+        title: 'Account Created!',
+        description: 'Welcome to AI Sorix! You are now signed in.',
+      });
+      navigate('/');
+    }
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-background flex flex-col">
@@ -55,11 +124,12 @@ const Register = () => {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            {/* Google Sign Up */}
+            {/* Google Sign Up - Placeholder */}
             <Button 
               variant="outline" 
               className="w-full h-12 font-medium border-border hover:bg-muted transition-colors"
               type="button"
+              disabled
             >
               <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -67,7 +137,7 @@ const Register = () => {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              Continue with Google
+              Continue with Google (Coming Soon)
             </Button>
 
             <div className="relative">
@@ -90,10 +160,10 @@ const Register = () => {
                     placeholder="Enter your full name"
                     value={formData.fullName}
                     onChange={handleChange}
-                    className="pl-10 h-12 border-border focus:border-primary"
-                    required
+                    className={`pl-10 h-12 border-border focus:border-primary ${errors.fullName ? 'border-red-500' : ''}`}
                   />
                 </div>
+                {errors.fullName && <p className="text-red-500 text-xs">{errors.fullName}</p>}
               </div>
 
               <div className="space-y-2">
@@ -107,10 +177,10 @@ const Register = () => {
                     placeholder="name@example.com"
                     value={formData.email}
                     onChange={handleChange}
-                    className="pl-10 h-12 border-border focus:border-primary"
-                    required
+                    className={`pl-10 h-12 border-border focus:border-primary ${errors.email ? 'border-red-500' : ''}`}
                   />
                 </div>
+                {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
               </div>
 
               <div className="space-y-2">
@@ -124,9 +194,7 @@ const Register = () => {
                     placeholder="Create a password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="pl-10 pr-10 h-12 border-border focus:border-primary"
-                    required
-                    minLength={8}
+                    className={`pl-10 pr-10 h-12 border-border focus:border-primary ${errors.password ? 'border-red-500' : ''}`}
                   />
                   <button
                     type="button"
@@ -136,6 +204,7 @@ const Register = () => {
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
+                {errors.password && <p className="text-red-500 text-xs">{errors.password}</p>}
               </div>
 
               <div className="space-y-2">
@@ -149,8 +218,7 @@ const Register = () => {
                     placeholder="Confirm your password"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="pl-10 pr-10 h-12 border-border focus:border-primary"
-                    required
+                    className={`pl-10 pr-10 h-12 border-border focus:border-primary ${errors.confirmPassword ? 'border-red-500' : ''}`}
                   />
                   <button
                     type="button"
@@ -160,10 +228,22 @@ const Register = () => {
                     {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
+                {errors.confirmPassword && <p className="text-red-500 text-xs">{errors.confirmPassword}</p>}
               </div>
 
-              <Button type="submit" className="w-full h-12 gradient-primary text-foreground font-semibold text-base hover:opacity-90 transition-opacity">
-                Create Account
+              <Button 
+                type="submit" 
+                className="w-full h-12 gradient-primary text-foreground font-semibold text-base hover:opacity-90 transition-opacity"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating Account...
+                  </>
+                ) : (
+                  'Create Account'
+                )}
               </Button>
             </form>
 
@@ -176,9 +256,9 @@ const Register = () => {
 
             <p className="text-center text-xs text-muted-foreground">
               By creating an account, you agree to our{' '}
-              <a href="#" className="text-primary hover:underline">Terms of Service</a>
+              <Link to="/terms-of-service" className="text-primary hover:underline">Terms of Service</Link>
               {' '}and{' '}
-              <a href="#" className="text-primary hover:underline">Privacy Policy</a>
+              <Link to="/privacy-policy" className="text-primary hover:underline">Privacy Policy</Link>
             </p>
           </CardContent>
         </Card>

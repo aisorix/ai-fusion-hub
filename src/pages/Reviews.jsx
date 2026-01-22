@@ -1,5 +1,6 @@
 import { useLanguage } from '../contexts/LanguageContext';
-import { Star, StarHalf, ArrowLeft, Filter, Search, PenLine, X, ArrowUpDown, Loader2 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { Star, StarHalf, ArrowLeft, Filter, Search, PenLine, X, ArrowUpDown, Loader2, LogIn } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import Navbar from '@/components/Navbar';
@@ -9,6 +10,7 @@ import { useReviews, useSubmitReview } from '@/hooks/useReviews';
 
 const Reviews = () => {
   const { language } = useLanguage();
+  const { user } = useAuth();
   const { data: dbReviews = [], isLoading, error } = useReviews();
   const submitReviewMutation = useSubmitReview();
   const [filter, setFilter] = useState('all');
@@ -1040,13 +1042,23 @@ const Reviews = () => {
             </p>
 
             {/* Write a Review Button */}
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-full transition-all duration-300 shadow-lg hover:shadow-xl mb-8"
-            >
-              <PenLine className="h-4 w-4" />
-              <span>{language === 'en' ? 'Write a Review' : 'রিভিউ লিখুন'}</span>
-            </button>
+            {user ? (
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-full transition-all duration-300 shadow-lg hover:shadow-xl mb-8"
+              >
+                <PenLine className="h-4 w-4" />
+                <span>{language === 'en' ? 'Write a Review' : 'রিভিউ লিখুন'}</span>
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-full transition-all duration-300 shadow-lg hover:shadow-xl mb-8"
+              >
+                <LogIn className="h-4 w-4" />
+                <span>{language === 'en' ? 'Sign In to Write a Review' : 'রিভিউ লিখতে সাইন ইন করুন'}</span>
+              </Link>
+            )}
 
             {/* Stats Summary */}
             <div className="flex flex-wrap justify-center gap-6 sm:gap-12 mb-8">

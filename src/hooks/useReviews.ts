@@ -11,6 +11,7 @@ export interface Review {
   rating: number;
   verified: boolean;
   status: string;
+  user_id: string | null;
   created_at: string;
 }
 
@@ -37,7 +38,7 @@ export const useReviews = () => {
         throw error;
       }
 
-      return data || [];
+      return (data as Review[]) || [];
     },
   });
 };
@@ -61,13 +62,20 @@ export const useReviewCount = () => {
   });
 };
 
-// Submit a new review
+// Submit a new review (requires authentication)
 export const useSubmitReview = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   return useMutation({
     mutationFn: async (newReview: NewReview): Promise<Review> => {
+      // Get the current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        throw new Error("You must be logged in to submit a review");
+      }
+
       const { data, error } = await supabase
         .from("reviews")
         .insert({
@@ -78,7 +86,8 @@ export const useSubmitReview = () => {
           rating: newReview.rating,
           verified: true,
           status: "approved",
-        })
+          user_id: user.id,
+        } as any)
         .select()
         .single();
 
@@ -87,7 +96,7 @@ export const useSubmitReview = () => {
         throw error;
       }
 
-      return data;
+      return data as Review;
     },
     onSuccess: () => {
       // Invalidate queries to refetch reviews
@@ -97,11 +106,11 @@ export const useSubmitReview = () => {
         description: "Thank you for sharing your experience with us.",
       });
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error("Failed to submit review:", error);
       toast({
         title: "Submission Failed",
-        description: "There was an error submitting your review. Please try again.",
+        description: error.message || "There was an error submitting your review. Please try again.",
         variant: "destructive",
       });
     },
