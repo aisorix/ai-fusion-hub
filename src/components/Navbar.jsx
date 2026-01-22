@@ -1,16 +1,39 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, ChevronDown, Globe } from 'lucide-react';
+import { Menu, X, ChevronDown, Globe, User, LogOut } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 import ThemeToggle from './ThemeToggle';
 import logo from '../assets/logo.png';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { language, setLanguage, t } = useLanguage();
+  const { user, signOut, loading: authLoading } = useAuth();
   const langRef = useRef(null);
+
+  const handleSignOut = async () => {
+    await signOut();
+    setMobileMenuOpen(false);
+  };
+
+  const getUserInitials = () => {
+    if (!user) return 'U';
+    const name = user.user_metadata?.full_name || user.email || '';
+    if (user.user_metadata?.full_name) {
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+    return name.charAt(0).toUpperCase();
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -105,21 +128,57 @@ const Navbar = () => {
                 )}
               </div>
 
-              {/* Login Button */}
-              <Link
-                to="/login"
-                className="px-5 py-2.5 border border-border rounded-xl font-semibold text-foreground hover:bg-muted transition-all duration-300"
-              >
-                {t('login')}
-              </Link>
-
-              {/* Register Button */}
-              <Link
-                to="/register"
-                className="px-5 py-2.5 gradient-primary text-foreground font-semibold rounded-xl shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
-              >
-                {t('register')}
-              </Link>
+              {/* Auth Buttons or User Menu */}
+              {authLoading ? (
+                <div className="w-10 h-10 rounded-full bg-muted animate-pulse" />
+              ) : user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-2 p-1 rounded-full hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center text-primary font-semibold text-sm">
+                        {getUserInitials()}
+                      </div>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <div className="px-3 py-2">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {user.user_metadata?.full_name || 'User'}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {user.email}
+                      </p>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/reviews" className="flex items-center gap-2 cursor-pointer">
+                        <User className="w-4 h-4" />
+                        My Reviews
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive cursor-pointer">
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="px-5 py-2.5 border border-border rounded-xl font-semibold text-foreground hover:bg-muted transition-all duration-300"
+                  >
+                    {t('login')}
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="px-5 py-2.5 gradient-primary text-foreground font-semibold rounded-xl shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                  >
+                    {t('register')}
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Mobile Menu Toggle */}
@@ -229,22 +288,57 @@ const Navbar = () => {
                   </div>
                 </div>
 
-                {/* Auth Buttons */}
+                {/* Auth Buttons or User Info */}
                 <div className="space-y-3 mt-6">
-                  <Link
-                    to="/login"
-                    className="block w-full text-center py-3.5 border-2 border-border text-foreground font-semibold rounded-xl hover:bg-muted transition-all"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {t('login')}
-                  </Link>
-                  <Link
-                    to="/register"
-                    className="block w-full text-center py-3.5 gradient-primary text-foreground font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {t('register')}
-                  </Link>
+                  {user ? (
+                    <>
+                      <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-xl border border-border/50">
+                        <div className="w-12 h-12 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center text-primary font-semibold">
+                          {getUserInitials()}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-foreground truncate">
+                            {user.user_metadata?.full_name || 'User'}
+                          </p>
+                          <p className="text-sm text-muted-foreground truncate">
+                            {user.email}
+                          </p>
+                        </div>
+                      </div>
+                      <Link
+                        to="/reviews"
+                        className="flex items-center justify-center gap-2 w-full py-3.5 border-2 border-border text-foreground font-semibold rounded-xl hover:bg-muted transition-all"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <User className="w-4 h-4" />
+                        My Reviews
+                      </Link>
+                      <button
+                        onClick={handleSignOut}
+                        className="flex items-center justify-center gap-2 w-full py-3.5 bg-destructive/10 border-2 border-destructive/30 text-destructive font-semibold rounded-xl hover:bg-destructive/20 transition-all"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Sign Out
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        to="/login"
+                        className="block w-full text-center py-3.5 border-2 border-border text-foreground font-semibold rounded-xl hover:bg-muted transition-all"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {t('login')}
+                      </Link>
+                      <Link
+                        to="/register"
+                        className="block w-full text-center py-3.5 gradient-primary text-foreground font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {t('register')}
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
