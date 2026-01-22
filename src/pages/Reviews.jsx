@@ -62,8 +62,8 @@ const Reviews = () => {
       review: formData.review.trim(),
       rating: formData.rating,
       date: language === 'en' ? 'Just now' : 'এইমাত্র',
-      verified: false,
-      isUserSubmitted: true
+      verified: true,
+      isUserSubmitted: false
     };
 
     setUserReviews([newReview, ...userReviews]);
@@ -73,8 +73,8 @@ const Reviews = () => {
     toast({
       title: language === 'en' ? "Review Submitted!" : "রিভিউ জমা হয়েছে!",
       description: language === 'en' 
-        ? "Thank you for your feedback. Your review is pending approval." 
-        : "আপনার প্রতিক্রিয়ার জন্য ধন্যবাদ। আপনার রিভিউ অনুমোদনের অপেক্ষায় রয়েছে।",
+        ? "Thank you for your valuable feedback!" 
+        : "আপনার মূল্যবান প্রতিক্রিয়ার জন্য ধন্যবাদ!",
     });
   };
 
@@ -939,6 +939,9 @@ const Reviews = () => {
   const averageRating = (allReviews.reduce((acc, r) => acc + r.rating, 0) / allReviews.length).toFixed(1);
   const fiveStarCount = allReviews.filter(r => r.rating === 5).length;
   const fourStarCount = allReviews.filter(r => r.rating === 4).length;
+  const threeStarCount = allReviews.filter(r => r.rating === 3).length;
+  const twoStarCount = allReviews.filter(r => r.rating === 2).length;
+  const oneStarCount = allReviews.filter(r => r.rating === 1).length;
 
   const renderStars = (rating) => {
     const stars = [];
@@ -1034,6 +1037,36 @@ const Reviews = () => {
                     />
                   </div>
                   <span className="text-sm text-muted-foreground w-8">{fourStarCount}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-muted-foreground w-8">3★</span>
+                  <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-amber-400 rounded-full" 
+                      style={{ width: `${(threeStarCount / allReviews.length) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-sm text-muted-foreground w-8">{threeStarCount}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-muted-foreground w-8">2★</span>
+                  <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-amber-400 rounded-full" 
+                      style={{ width: `${(twoStarCount / allReviews.length) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-sm text-muted-foreground w-8">{twoStarCount}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-muted-foreground w-8">1★</span>
+                  <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-amber-400 rounded-full" 
+                      style={{ width: `${(oneStarCount / allReviews.length) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-sm text-muted-foreground w-8">{oneStarCount}</span>
                 </div>
               </div>
             </div>
