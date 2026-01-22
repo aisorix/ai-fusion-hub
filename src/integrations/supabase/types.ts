@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       reviews: {
         Row: {
           created_at: string
@@ -24,6 +51,7 @@ export type Database = {
           review: string
           role: string
           status: string
+          user_id: string | null
           verified: boolean | null
         }
         Insert: {
@@ -35,6 +63,7 @@ export type Database = {
           review: string
           role: string
           status?: string
+          user_id?: string | null
           verified?: boolean | null
         }
         Update: {
@@ -46,6 +75,7 @@ export type Database = {
           review?: string
           role?: string
           status?: string
+          user_id?: string | null
           verified?: boolean | null
         }
         Relationships: []
