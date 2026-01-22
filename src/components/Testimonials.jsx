@@ -124,6 +124,9 @@ const Testimonials = () => {
             className="inline-flex items-center gap-2 px-6 py-3 bg-primary/10 hover:bg-primary/20 text-primary font-medium rounded-full transition-all duration-300 group"
           >
             <span>{language === 'en' ? 'See All Reviews' : 'সব রিভিউ দেখুন'}</span>
+            <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-semibold bg-primary text-primary-foreground rounded-full">
+              100+
+            </span>
             <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
