@@ -105,6 +105,7 @@ const translations = {
     privacyPolicy: 'Privacy Policy',
     termsOfService: 'Terms of Service',
     cookiePolicy: 'Cookie Policy',
+    refundPolicy: 'Refund Policy',
     changelog: 'Changelog',
     allRightsReserved: 'All rights reserved.',
   },
@@ -212,6 +213,7 @@ const translations = {
     privacyPolicy: 'গোপনীয়তা নীতি',
     termsOfService: 'সেবার শর্তাবলী',
     cookiePolicy: 'কুকি নীতি',
+    refundPolicy: 'রিফান্ড নীতি',
     changelog: 'পরিবর্তন লগ',
     allRightsReserved: 'সর্বস্বত্ব সংরক্ষিত।',
   }

@@ -208,6 +208,9 @@ const PrivacyPolicy = () => {
               <Link to="/cookie-policy" className="text-muted-foreground hover:text-primary transition-colors">
                 {language === 'en' ? 'Cookie Policy' : 'কুকি নীতি'}
               </Link>
+              <Link to="/refund-policy" className="text-muted-foreground hover:text-primary transition-colors">
+                {language === 'en' ? 'Refund Policy' : 'রিফান্ড নীতি'}
+              </Link>
             </div>
           </div>
         </div>
