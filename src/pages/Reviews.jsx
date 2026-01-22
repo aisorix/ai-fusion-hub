@@ -1,16 +1,84 @@
 import { useLanguage } from '../contexts/LanguageContext';
-import { Star, StarHalf, ArrowLeft, Filter, Search } from 'lucide-react';
+import { Star, StarHalf, ArrowLeft, Filter, Search, PenLine, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
 
 const Reviews = () => {
   const { language } = useLanguage();
+  const { toast } = useToast();
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [userReviews, setUserReviews] = useState([]);
+  const [formData, setFormData] = useState({
+    name: '',
+    role: '',
+    location: '',
+    rating: 5,
+    review: ''
+  });
+  const [errors, setErrors] = useState({});
 
-  const allReviews = [
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.name.trim()) {
+      newErrors.name = language === 'en' ? 'Name is required' : 'নাম প্রয়োজন';
+    } else if (formData.name.trim().length > 50) {
+      newErrors.name = language === 'en' ? 'Name must be less than 50 characters' : 'নাম ৫০ অক্ষরের কম হতে হবে';
+    }
+    if (!formData.role.trim()) {
+      newErrors.role = language === 'en' ? 'Role/Profession is required' : 'পেশা প্রয়োজন';
+    } else if (formData.role.trim().length > 50) {
+      newErrors.role = language === 'en' ? 'Role must be less than 50 characters' : 'পেশা ৫০ অক্ষরের কম হতে হবে';
+    }
+    if (!formData.location.trim()) {
+      newErrors.location = language === 'en' ? 'Location is required' : 'অবস্থান প্রয়োজন';
+    } else if (formData.location.trim().length > 50) {
+      newErrors.location = language === 'en' ? 'Location must be less than 50 characters' : 'অবস্থান ৫০ অক্ষরের কম হতে হবে';
+    }
+    if (!formData.review.trim()) {
+      newErrors.review = language === 'en' ? 'Review is required' : 'রিভিউ প্রয়োজন';
+    } else if (formData.review.trim().length < 20) {
+      newErrors.review = language === 'en' ? 'Review must be at least 20 characters' : 'রিভিউ কমপক্ষে ২০ অক্ষর হতে হবে';
+    } else if (formData.review.trim().length > 500) {
+      newErrors.review = language === 'en' ? 'Review must be less than 500 characters' : 'রিভিউ ৫০০ অক্ষরের কম হতে হবে';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    const newReview = {
+      name: formData.name.trim(),
+      role: formData.role.trim(),
+      location: formData.location.trim(),
+      review: formData.review.trim(),
+      rating: formData.rating,
+      date: language === 'en' ? 'Just now' : 'এইমাত্র',
+      verified: false,
+      isUserSubmitted: true
+    };
+
+    setUserReviews([newReview, ...userReviews]);
+    setFormData({ name: '', role: '', location: '', rating: 5, review: '' });
+    setIsModalOpen(false);
+    
+    toast({
+      title: language === 'en' ? "Review Submitted!" : "রিভিউ জমা হয়েছে!",
+      description: language === 'en' 
+        ? "Thank you for your feedback. Your review is pending approval." 
+        : "আপনার প্রতিক্রিয়ার জন্য ধন্যবাদ। আপনার রিভিউ অনুমোদনের অপেক্ষায় রয়েছে।",
+    });
+  };
+
+  const baseReviews = [
     // Existing 6 reviews
     {
       name: "Rafiq Ahmed",
@@ -852,6 +920,8 @@ const Reviews = () => {
     }
   ];
 
+  const allReviews = [...userReviews, ...baseReviews];
+
   const filteredReviews = allReviews.filter(review => {
     const matchesFilter = filter === 'all' || 
       (filter === '5' && review.rating === 5) ||
@@ -908,11 +978,20 @@ const Reviews = () => {
                 <>গ্রাহক <span className="text-primary">রিভিউ</span></>
               )}
             </h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
+            <p className="text-muted-foreground max-w-2xl mx-auto mb-6">
               {language === 'en' 
                 ? "Real feedback from real users across Bangladesh and around the world"
                 : "বাংলাদেশ এবং বিশ্বজুড়ে প্রকৃত ব্যবহারকারীদের কাছ থেকে প্রকৃত প্রতিক্রিয়া"}
             </p>
+
+            {/* Write a Review Button */}
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-full transition-all duration-300 shadow-lg hover:shadow-xl mb-8"
+            >
+              <PenLine className="h-4 w-4" />
+              <span>{language === 'en' ? 'Write a Review' : 'রিভিউ লিখুন'}</span>
+            </button>
 
             {/* Stats Summary */}
             <div className="flex flex-wrap justify-center gap-6 sm:gap-12 mb-8">
@@ -997,9 +1076,13 @@ const Reviews = () => {
                 {/* Header */}
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm font-semibold text-primary">
-                        {review.name.split(' ').map(n => n[0]).join('')}
+                    <div className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      review.isUserSubmitted 
+                        ? 'bg-gradient-to-br from-amber-500/20 to-orange-500/40' 
+                        : 'bg-gradient-to-br from-primary/20 to-primary/40'
+                    }`}>
+                      <span className={`text-sm font-semibold ${review.isUserSubmitted ? 'text-amber-600' : 'text-primary'}`}>
+                        {review.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
                       </span>
                     </div>
                     <div>
@@ -1007,11 +1090,15 @@ const Reviews = () => {
                       <p className="text-xs text-muted-foreground">{review.role}</p>
                     </div>
                   </div>
-                  {review.verified && (
+                  {review.isUserSubmitted ? (
+                    <span className="text-[10px] px-2 py-0.5 bg-amber-500/10 text-amber-600 rounded-full font-medium">
+                      {language === 'en' ? 'Pending' : 'অপেক্ষমান'}
+                    </span>
+                  ) : review.verified && (
                     <span className="text-[10px] px-2 py-0.5 bg-emerald-500/10 text-emerald-600 rounded-full font-medium">
                       {language === 'en' ? 'Verified' : 'যাচাইকৃত'}
                     </span>
-                  )}
+                  ))}
                 </div>
 
                 {/* Location & Date */}
@@ -1051,6 +1138,146 @@ const Reviews = () => {
           </div>
         </div>
       </main>
+
+      {/* Write Review Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">
+              {language === 'en' ? 'Write a Review' : 'রিভিউ লিখুন'}
+            </DialogTitle>
+            <DialogDescription>
+              {language === 'en' 
+                ? 'Share your experience with AI Sorix. Your feedback helps us improve!'
+                : 'AI Sorix এর সাথে আপনার অভিজ্ঞতা শেয়ার করুন। আপনার প্রতিক্রিয়া আমাদের উন্নত করতে সাহায্য করে!'}
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+            {/* Name */}
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1.5">
+                {language === 'en' ? 'Your Name' : 'আপনার নাম'} *
+              </label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder={language === 'en' ? 'e.g., John Doe' : 'যেমন, জন ডো'}
+                className={`w-full px-4 py-2.5 rounded-lg border ${errors.name ? 'border-red-500' : 'border-border'} bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50`}
+                maxLength={50}
+              />
+              {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+            </div>
+
+            {/* Role/Profession */}
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1.5">
+                {language === 'en' ? 'Your Role/Profession' : 'আপনার পেশা'} *
+              </label>
+              <input
+                type="text"
+                value={formData.role}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                placeholder={language === 'en' ? 'e.g., Software Developer' : 'যেমন, সফটওয়্যার ডেভেলপার'}
+                className={`w-full px-4 py-2.5 rounded-lg border ${errors.role ? 'border-red-500' : 'border-border'} bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50`}
+                maxLength={50}
+              />
+              {errors.role && <p className="text-red-500 text-xs mt-1">{errors.role}</p>}
+            </div>
+
+            {/* Location */}
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1.5">
+                {language === 'en' ? 'Your Location' : 'আপনার অবস্থান'} *
+              </label>
+              <input
+                type="text"
+                value={formData.location}
+                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                placeholder={language === 'en' ? 'e.g., Dhaka, Bangladesh' : 'যেমন, ঢাকা, বাংলাদেশ'}
+                className={`w-full px-4 py-2.5 rounded-lg border ${errors.location ? 'border-red-500' : 'border-border'} bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50`}
+                maxLength={50}
+              />
+              {errors.location && <p className="text-red-500 text-xs mt-1">{errors.location}</p>}
+            </div>
+
+            {/* Rating */}
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1.5">
+                {language === 'en' ? 'Your Rating' : 'আপনার রেটিং'} *
+              </label>
+              <div className="flex gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, rating: star })}
+                    className="p-1 transition-transform hover:scale-110"
+                  >
+                    <Star 
+                      className={`h-7 w-7 ${
+                        star <= formData.rating 
+                          ? 'fill-amber-400 text-amber-400' 
+                          : 'text-muted-foreground/30 hover:text-amber-400/50'
+                      }`} 
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Review */}
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1.5">
+                {language === 'en' ? 'Your Review' : 'আপনার রিভিউ'} *
+              </label>
+              <textarea
+                value={formData.review}
+                onChange={(e) => setFormData({ ...formData, review: e.target.value })}
+                placeholder={language === 'en' 
+                  ? 'Share your experience with AI Sorix...' 
+                  : 'AI Sorix এর সাথে আপনার অভিজ্ঞতা শেয়ার করুন...'}
+                rows={4}
+                className={`w-full px-4 py-2.5 rounded-lg border ${errors.review ? 'border-red-500' : 'border-border'} bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none`}
+                maxLength={500}
+              />
+              <div className="flex justify-between items-center mt-1">
+                {errors.review ? (
+                  <p className="text-red-500 text-xs">{errors.review}</p>
+                ) : (
+                  <span className="text-xs text-muted-foreground">
+                    {language === 'en' ? 'Minimum 20 characters' : 'সর্বনিম্ন ২০ অক্ষর'}
+                  </span>
+                )}
+                <span className="text-xs text-muted-foreground">
+                  {formData.review.length}/500
+                </span>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setErrors({});
+                }}
+                className="flex-1 px-4 py-2.5 border border-border rounded-lg text-foreground hover:bg-muted transition-colors"
+              >
+                {language === 'en' ? 'Cancel' : 'বাতিল'}
+              </button>
+              <button
+                type="submit"
+                className="flex-1 px-4 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors"
+              >
+                {language === 'en' ? 'Submit Review' : 'রিভিউ জমা দিন'}
+              </button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>
