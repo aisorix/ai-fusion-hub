@@ -1,20 +1,20 @@
 import { useLanguage } from '../contexts/LanguageContext';
-import { Star, StarHalf, ArrowLeft, Filter, Search, PenLine, X, ArrowUpDown } from 'lucide-react';
+import { Star, StarHalf, ArrowLeft, Filter, Search, PenLine, X, ArrowUpDown, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
+import { useReviews, useSubmitReview } from '@/hooks/useReviews';
 
 const Reviews = () => {
   const { language } = useLanguage();
-  const { toast } = useToast();
+  const { data: dbReviews = [], isLoading, error } = useReviews();
+  const submitReviewMutation = useSubmitReview();
   const [filter, setFilter] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [userReviews, setUserReviews] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     role: '',
@@ -52,31 +52,20 @@ const Reviews = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    const newReview = {
+    await submitReviewMutation.mutateAsync({
       name: formData.name.trim(),
       role: formData.role.trim(),
       location: formData.location.trim(),
       review: formData.review.trim(),
       rating: formData.rating,
-      date: language === 'en' ? 'Just now' : 'এইমাত্র',
-      verified: true,
-      isUserSubmitted: false
-    };
+    });
 
-    setUserReviews([newReview, ...userReviews]);
     setFormData({ name: '', role: '', location: '', rating: 5, review: '' });
     setIsModalOpen(false);
-    
-    toast({
-      title: language === 'en' ? "Review Submitted!" : "রিভিউ জমা হয়েছে!",
-      description: language === 'en' 
-        ? "Thank you for your valuable feedback!" 
-        : "আপনার মূল্যবান প্রতিক্রিয়ার জন্য ধন্যবাদ!",
-    });
   };
 
   const baseReviews = [
@@ -921,11 +910,40 @@ const Reviews = () => {
     }
   ];
 
-  const allReviews = [...userReviews, ...baseReviews];
+  // Convert database reviews to the display format
+  const formattedDbReviews = dbReviews.map(review => ({
+    ...review,
+    date: formatRelativeDate(review.created_at),
+  }));
+
+  // Combine database reviews with base reviews (fallback)
+  const allReviews = [...formattedDbReviews, ...baseReviews];
+
+  // Helper function to format relative dates
+  function formatRelativeDate(dateStr) {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return language === 'en' ? 'Today' : 'আজ';
+    if (diffDays === 1) return language === 'en' ? 'Yesterday' : 'গতকাল';
+    if (diffDays < 7) return language === 'en' ? `${diffDays} days ago` : `${diffDays} দিন আগে`;
+    if (diffDays < 30) {
+      const weeks = Math.floor(diffDays / 7);
+      return language === 'en' ? `${weeks} week${weeks > 1 ? 's' : ''} ago` : `${weeks} সপ্তাহ আগে`;
+    }
+    const months = Math.floor(diffDays / 30);
+    return language === 'en' ? `${months} month${months > 1 ? 's' : ''} ago` : `${months} মাস আগে`;
+  }
 
   // Helper function to parse date strings for sorting
-  const getDateValue = (dateStr) => {
-    if (dateStr === 'Just now' || dateStr === 'এইমাত্র') return Date.now();
+  const getDateValue = (dateStr, createdAt) => {
+    // If we have a created_at timestamp, use it directly
+    if (createdAt) return new Date(createdAt).getTime();
+    
+    if (dateStr === 'Just now' || dateStr === 'এইমাত্র' || dateStr === 'Today' || dateStr === 'আজ') return Date.now();
+    if (dateStr === 'Yesterday' || dateStr === 'গতকাল') return Date.now() - (24 * 60 * 60 * 1000);
     if (dateStr.includes('week') || dateStr.includes('সপ্তাহ')) {
       const num = parseInt(dateStr) || 1;
       return Date.now() - (num * 7 * 24 * 60 * 60 * 1000);
@@ -958,9 +976,9 @@ const Reviews = () => {
     .sort((a, b) => {
       switch (sortBy) {
         case 'newest':
-          return getDateValue(b.date) - getDateValue(a.date);
+          return getDateValue(b.date, b.created_at) - getDateValue(a.date, a.created_at);
         case 'oldest':
-          return getDateValue(a.date) - getDateValue(b.date);
+          return getDateValue(a.date, a.created_at) - getDateValue(b.date, b.created_at);
         case 'highest':
           return b.rating - a.rating;
         case 'lowest':

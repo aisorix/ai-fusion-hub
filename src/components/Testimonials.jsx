@@ -1,9 +1,14 @@
 import { useLanguage } from '../contexts/LanguageContext';
-import { Star, ArrowRight } from 'lucide-react';
+import { Star, ArrowRight, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useReviewCount } from '@/hooks/useReviews';
 
 const Testimonials = () => {
   const { language } = useLanguage();
+  const { data: dbReviewCount = 0, isLoading: isCountLoading } = useReviewCount();
+  
+  // Total count = database reviews + 100 base reviews
+  const totalReviewCount = dbReviewCount + 100;
 
   const testimonials = [
     {
@@ -124,9 +129,15 @@ const Testimonials = () => {
             className="inline-flex items-center gap-2 px-6 py-3 bg-primary/10 hover:bg-primary/20 text-primary font-medium rounded-full transition-all duration-300 group"
           >
             <span>{language === 'en' ? 'See All Reviews' : 'সব রিভিউ দেখুন'}</span>
-            <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-semibold bg-primary text-primary-foreground rounded-full">
-              100+
-            </span>
+            {isCountLoading ? (
+              <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-semibold bg-primary text-primary-foreground rounded-full">
+                <Loader2 className="h-3 w-3 animate-spin" />
+              </span>
+            ) : (
+              <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-semibold bg-primary text-primary-foreground rounded-full">
+                {totalReviewCount}
+              </span>
+            )}
             <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
