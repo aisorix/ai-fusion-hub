@@ -255,6 +255,9 @@ const CookiePolicy = () => {
               <Link to="/terms-of-service" className="text-muted-foreground hover:text-primary transition-colors">
                 {language === 'en' ? 'Terms of Service' : 'সেবার শর্তাবলী'}
               </Link>
+              <Link to="/refund-policy" className="text-muted-foreground hover:text-primary transition-colors">
+                {language === 'en' ? 'Refund Policy' : 'রিফান্ড নীতি'}
+              </Link>
             </div>
           </div>
         </div>

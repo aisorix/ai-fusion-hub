@@ -82,6 +82,11 @@ const Footer = () => {
                   {t('cookiePolicy')}
                 </Link>
               </li>
+              <li>
+                <Link to="/refund-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  {t('refundPolicy')}
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
