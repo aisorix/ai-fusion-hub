@@ -1094,11 +1094,11 @@ const Reviews = () => {
                     <span className="text-[10px] px-2 py-0.5 bg-amber-500/10 text-amber-600 rounded-full font-medium">
                       {language === 'en' ? 'Pending' : 'অপেক্ষমান'}
                     </span>
-                  ) : review.verified && (
+                  ) : review.verified ? (
                     <span className="text-[10px] px-2 py-0.5 bg-emerald-500/10 text-emerald-600 rounded-full font-medium">
                       {language === 'en' ? 'Verified' : 'যাচাইকৃত'}
                     </span>
-                  ))}
+                  ) : null}
                 </div>
 
                 {/* Location & Date */}
