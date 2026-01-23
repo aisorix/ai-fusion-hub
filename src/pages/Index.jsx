@@ -11,6 +11,7 @@ import AboutUs from "@/components/AboutUs";
 import ContactUs from "@/components/ContactUs";
 import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
+import { ChatWidget } from "@/components/chat/ChatWidget";
 
 const Index = () => {
   return (
@@ -28,6 +29,7 @@ const Index = () => {
       <AboutUs />
       <ContactUs />
       <Footer />
+      <ChatWidget />
     </div>
   );
 };

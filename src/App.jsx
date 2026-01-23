@@ -18,6 +18,7 @@ import AboutSorixLab from "./pages/AboutSorixLab";
 import Reviews from "./pages/Reviews";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import ChatDashboard from "./pages/admin/ChatDashboard";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const App = () => (
               <Route path="/refund-policy" element={<RefundPolicy />} />
               <Route path="/about-sorix-lab" element={<AboutSorixLab />} />
               <Route path="/reviews" element={<Reviews />} />
+              <Route path="/admin/chat" element={<ChatDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
