@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, ChevronDown, Globe, User, LogOut } from 'lucide-react';
+import { Menu, X, ChevronDown, Globe, User, LogOut, MessageSquare } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useEmployeeRole } from '../hooks/useEmployeeRole';
 import ThemeToggle from './ThemeToggle';
 import logo from '../assets/logo.png';
 import {
@@ -19,6 +20,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const { user, signOut, loading: authLoading } = useAuth();
+  const { isEmployee } = useEmployeeRole();
   const langRef = useRef(null);
 
   const handleSignOut = async () => {
@@ -156,6 +158,14 @@ const Navbar = () => {
                         My Reviews
                       </Link>
                     </DropdownMenuItem>
+                    {isEmployee && (
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin/chat" className="flex items-center gap-2 cursor-pointer">
+                          <MessageSquare className="w-4 h-4" />
+                          Support Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive cursor-pointer">
                       <LogOut className="w-4 h-4 mr-2" />
@@ -313,6 +323,16 @@ const Navbar = () => {
                         <User className="w-4 h-4" />
                         My Reviews
                       </Link>
+                      {isEmployee && (
+                        <Link
+                          to="/admin/chat"
+                          className="flex items-center justify-center gap-2 w-full py-3.5 border-2 border-primary/30 text-primary font-semibold rounded-xl hover:bg-primary/10 transition-all"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                          Support Dashboard
+                        </Link>
+                      )}
                       <button
                         onClick={handleSignOut}
                         className="flex items-center justify-center gap-2 w-full py-3.5 bg-destructive/10 border-2 border-destructive/30 text-destructive font-semibold rounded-xl hover:bg-destructive/20 transition-all"
