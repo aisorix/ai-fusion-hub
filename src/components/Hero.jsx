@@ -1,20 +1,23 @@
 import React from 'react';
 import { ArrowUpRight, Sparkles, Zap, Shield, Play } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo, QwenLogo, LlamaLogo, PerplexityLogo, KimiLogo, MistralLogo, SorixLogo } from './AIModelLogos';
+import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo, QwenLogo, LlamaLogo, PerplexityLogo, MistralLogo } from './AIModelLogos';
 import logo from '../assets/logo.png';
 
 const Hero = () => {
   const { t, language } = useLanguage();
 
-  // All 10+ models available across plans
+  // All 10+ models available across plans - displayed in serial format
   const aiModels = [
+    { name: 'ChatGPT', Logo: ChatGPTLogo },
+    { name: 'Claude', Logo: ClaudeLogo },
     { name: 'DeepSeek', Logo: DeepSeekLogo },
     { name: 'Gemini', Logo: GeminiLogo },
-    { name: 'Sorix', Logo: SorixLogo },
-    { name: 'ChatGPT', Logo: ChatGPTLogo },
+    { name: 'Grok', Logo: GrokLogo },
     { name: 'Qwen', Logo: QwenLogo },
     { name: 'Llama', Logo: LlamaLogo },
+    { name: 'Perplexity', Logo: PerplexityLogo },
+    { name: 'Mistral', Logo: MistralLogo },
   ];
 
   return (
@@ -117,15 +120,15 @@ const Hero = () => {
             {aiModels.map((model, i) => (
               <div
                 key={model.name}
-                className="group flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2.5 sm:py-3.5 rounded-xl futuristic-card hover:-translate-y-1 transition-all duration-300"
+                className="group flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-muted/50 border border-border/50 hover:border-primary/30 transition-all duration-300"
                 style={{ animationDelay: `${i * 100}ms` }}
               >
-                <model.Logo className="w-5 h-5 sm:w-7 sm:h-7" />
-                <span className="text-xs sm:text-sm font-semibold text-foreground">{model.name}</span>
+                <model.Logo className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="text-xs sm:text-sm font-medium text-foreground">{model.name}</span>
               </div>
             ))}
-            <div className="px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 animate-glow">
-              <span className="text-xs sm:text-sm font-bold text-primary">+4 Premium</span>
+            <div className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-primary/10 border border-primary/20">
+              <span className="text-xs sm:text-sm font-bold text-primary">+3 more</span>
             </div>
           </div>
         </div>

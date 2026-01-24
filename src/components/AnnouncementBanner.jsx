@@ -20,8 +20,8 @@ const AnnouncementBanner = () => {
           </span>
           <span className="text-xs sm:text-sm text-foreground/80 text-center">
             {language === 'en' 
-              ? 'New: Grok 4 & Claude Sonnet 4' 
-              : 'নতুন: Grok 4 ও Claude Sonnet 4'}
+              ? 'New: Grok 4.1 & Claude Opus 4.5' 
+              : 'নতুন: Grok 4.1 ও Claude Opus 4.5'}
           </span>
         </div>
       </div>

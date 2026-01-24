@@ -52,7 +52,7 @@ const ContactUs = () => {
       icon: MessageSquare, 
       title: language === 'en' ? 'Live Chat' : 'লাইভ চ্যাট',
       description: language === 'en' ? 'Chat with our support team' : 'আমাদের সাপোর্ট টিমের সাথে চ্যাট করুন',
-      action: language === 'en' ? 'Coming Soon' : 'শীঘ্রই আসছে'
+      action: language === 'en' ? 'Chat Now' : 'চ্যাট করুন'
     },
     { 
       icon: ExternalLink, 
