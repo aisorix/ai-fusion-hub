@@ -7,6 +7,7 @@ import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo, QwenLogo, 
 // Payment method logos
 import sslcommerzLogo from '../assets/sslcommerz.png';
 import bkashMerchantLogo from '../assets/bkash-merchant.png';
+import stripeLogo from '../assets/stripe.png';
 import mobileBankingLogo from '../assets/mobile-banking.png';
 import dutchBanglaLogo from '../assets/dutch-bangla-bank.png';
 import bracBankLogo from '../assets/brac-bank.png';
@@ -364,16 +365,16 @@ const Pricing = () => {
             </h3>
             <p className="text-muted-foreground max-w-xl mx-auto">
               {language === 'en' 
-                ? 'Pay securely with your preferred method through SSLCommerz - Bangladesh\'s leading payment gateway' 
-                : 'SSLCommerz - বাংলাদেশের শীর্ষস্থানীয় পেমেন্ট গেটওয়ের মাধ্যমে আপনার পছন্দের মেথডে নিরাপদে পেমেন্ট করুন'}
+                ? 'Pay securely with your preferred method. We also accept Stripe for international payments!' 
+                : 'আপনার পছন্দের মেথডে নিরাপদে পেমেন্ট করুন। আন্তর্জাতিক পেমেন্টের জন্য আমরা Stripe-ও গ্রহণ করি!'}
             </p>
           </div>
 
           {/* Payment Gateway Card */}
           <div className="futuristic-card rounded-3xl p-6 sm:p-10 lg:p-12 max-w-4xl mx-auto">
-            {/* SSLCommerz Header */}
+            {/* Payment Gateways Header */}
             <div className="flex flex-col items-center mb-8 sm:mb-10">
-              <div className="flex items-center gap-4 sm:gap-6">
+              <div className="flex items-center gap-4 sm:gap-6 flex-wrap justify-center">
                 {/* SSLCommerz Logo */}
                 <div className="relative group">
                   <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -397,9 +398,21 @@ const Pricing = () => {
                     />
                   </div>
                 </div>
+                
+                {/* Stripe Logo */}
+                <div className="relative group">
+                  <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="relative bg-white rounded-2xl p-3 sm:p-4 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <img 
+                      src={stripeLogo} 
+                      alt="Stripe" 
+                      className="h-10 sm:h-12 w-auto object-contain"
+                    />
+                  </div>
+                </div>
               </div>
               <p className="text-sm text-muted-foreground text-center mt-4">
-                {language === 'en' ? 'Powered by Bangladesh\'s Most Trusted Payment Gateways' : 'বাংলাদেশের সবচেয়ে বিশ্বস্ত পেমেন্ট গেটওয়ে দ্বারা চালিত'}
+                {language === 'en' ? 'Powered by Trusted Payment Gateways - Local & International' : 'বিশ্বস্ত পেমেন্ট গেটওয়ে দ্বারা চালিত - স্থানীয় ও আন্তর্জাতিক'}
               </p>
             </div>
 
@@ -466,7 +479,7 @@ const Pricing = () => {
               </div>
               
               <p className="text-center text-xs text-muted-foreground mt-6">
-                bKash • Nagad • Rocket • Dutch-Bangla Bank • BRAC Bank • Visa • MasterCard • AMEX
+                bKash • Nagad • Rocket • Dutch-Bangla Bank • BRAC Bank • Visa • MasterCard • AMEX • Stripe
               </p>
             </div>
 
