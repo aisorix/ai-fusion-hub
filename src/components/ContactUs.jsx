@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Mail, MapPin, Phone, Send, MessageSquare, Clock, ExternalLink } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
-const ContactUs = () => {
+const ContactUs = ({ onOpenChat }) => {
   const { language } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
@@ -52,7 +52,8 @@ const ContactUs = () => {
       icon: MessageSquare, 
       title: language === 'en' ? 'Live Chat' : 'লাইভ চ্যাট',
       description: language === 'en' ? 'Chat with our support team' : 'আমাদের সাপোর্ট টিমের সাথে চ্যাট করুন',
-      action: language === 'en' ? 'Chat Now' : 'চ্যাট করুন'
+      action: language === 'en' ? 'Chat Now' : 'চ্যাট করুন',
+      isChat: true
     },
     { 
       icon: ExternalLink, 
@@ -131,20 +132,37 @@ const ContactUs = () => {
                 {language === 'en' ? 'Quick Links' : 'দ্রুত লিঙ্ক'}
               </h4>
               {quickLinks.map((link, index) => (
-                <a 
-                  key={index} 
-                  href={link.link || '#'}
-                  className="glass-card p-4 rounded-xl flex items-center gap-4 group hover:border-primary/30 transition-all duration-300 block"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <link.icon className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <h5 className="font-semibold text-foreground">{link.title}</h5>
-                    <p className="text-xs text-muted-foreground">{link.description}</p>
-                  </div>
-                  <span className="text-xs font-medium text-primary">{link.action}</span>
-                </a>
+                link.isChat ? (
+                  <button 
+                    key={index} 
+                    onClick={onOpenChat}
+                    className="glass-card p-4 rounded-xl flex items-center gap-4 group hover:border-primary/30 transition-all duration-300 w-full text-left"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <link.icon className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="font-semibold text-foreground">{link.title}</h5>
+                      <p className="text-xs text-muted-foreground">{link.description}</p>
+                    </div>
+                    <span className="text-xs font-medium text-primary">{link.action}</span>
+                  </button>
+                ) : (
+                  <a 
+                    key={index} 
+                    href={link.link || '#'}
+                    className="glass-card p-4 rounded-xl flex items-center gap-4 group hover:border-primary/30 transition-all duration-300 block"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <link.icon className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="font-semibold text-foreground">{link.title}</h5>
+                      <p className="text-xs text-muted-foreground">{link.description}</p>
+                    </div>
+                    <span className="text-xs font-medium text-primary">{link.action}</span>
+                  </a>
+                )
               ))}
             </div>
           </div>

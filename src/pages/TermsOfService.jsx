@@ -39,10 +39,10 @@ const TermsOfService = () => {
       title: language === 'en' ? "4. Payment Processing" : "৪. পেমেন্ট প্রক্রিয়াকরণ",
       content: language === 'en' ? "Payment methods available:" : "উপলব্ধ পেমেন্ট পদ্ধতি:",
       list: [
-        { bold: language === 'en' ? "Bangladesh:" : "বাংলাদেশ:", text: language === 'en' ? "SSLCommerz and bKash" : "SSLCommerz এবং bKash" },
-        { bold: language === 'en' ? "International:" : "আন্তর্জাতিক:", text: language === 'en' ? "Stripe or international cards" : "Stripe বা আন্তর্জাতিক কার্ড" }
+        { bold: language === 'en' ? "Bangladesh:" : "বাংলাদেশ:", text: language === 'en' ? "SSLCommerz and bKash Merchant" : "SSLCommerz এবং bKash Merchant" },
+        { bold: language === 'en' ? "International:" : "আন্তর্জাতিক:", text: language === 'en' ? "Stripe for secure international card payments (Visa, Mastercard, AMEX)" : "নিরাপদ আন্তর্জাতিক কার্ড পেমেন্টের জন্য Stripe (Visa, Mastercard, AMEX)" }
       ],
-      note: language === 'en' ? "Failed payments may result in account suspension until the balance is cleared." : "ব্যর্থ পেমেন্টে ব্যালেন্স পরিশোধ না হওয়া পর্যন্ত অ্যাকাউন্ট স্থগিত হতে পারে।"
+      note: language === 'en' ? "We accept Stripe for international payments. Failed payments may result in account suspension until the balance is cleared." : "আমরা আন্তর্জাতিক পেমেন্টের জন্য Stripe গ্রহণ করি। ব্যর্থ পেমেন্টে ব্যালেন্স পরিশোধ না হওয়া পর্যন্ত অ্যাকাউন্ট স্থগিত হতে পারে।"
     },
     {
       title: language === 'en' ? "5. Refund & Cancellation" : "৫. রিফান্ড ও বাতিলকরণ",
