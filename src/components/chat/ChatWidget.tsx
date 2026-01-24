@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { MessageCircle, X, Minimize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -9,7 +9,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 
-export const ChatWidget = () => {
+export interface ChatWidgetRef {
+  openChat: () => void;
+}
+
+export const ChatWidget = forwardRef<ChatWidgetRef>((_, ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -52,6 +56,19 @@ export const ChatWidget = () => {
     setIsOpen(!isOpen);
     setIsMinimized(false);
   };
+
+  const openChat = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setIsOpen(true);
+    setIsMinimized(false);
+  };
+
+  useImperativeHandle(ref, () => ({
+    openChat
+  }));
 
   return (
     <>
@@ -190,4 +207,6 @@ export const ChatWidget = () => {
       </Button>
     </>
   );
-};
+});
+
+ChatWidget.displayName = 'ChatWidget';

@@ -66,7 +66,7 @@ const Register = () => {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
-    const { error } = await signUp(formData.email, formData.password, formData.fullName);
+    const { error, needsVerification } = await signUp(formData.email, formData.password, formData.fullName);
     setIsSubmitting(false);
 
     if (error) {
@@ -80,6 +80,18 @@ const Register = () => {
         title: 'Registration Failed',
         description: errorMessage,
         variant: 'destructive',
+      });
+    } else if (needsVerification) {
+      // Navigate to verification page with email
+      toast({
+        title: 'Verification Required',
+        description: 'Please check your email for a verification code.',
+      });
+      navigate('/verify-email', { 
+        state: { 
+          email: formData.email,
+          fullName: formData.fullName
+        }
       });
     } else {
       toast({

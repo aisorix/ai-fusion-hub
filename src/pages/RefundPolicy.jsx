@@ -67,7 +67,7 @@ const RefundPolicy = () => {
       list: [
         { bold: language === 'en' ? "Dispute Window:" : "বিরোধ উইন্ডো:", text: language === 'en' ? "7 days from the transaction date (as per Bangladesh Bank guidelines)." : "লেনদেনের তারিখ থেকে ৭ দিন (বাংলাদেশ ব্যাংকের নির্দেশিকা অনুযায়ী)।" },
         { bold: language === 'en' ? "Resolution Time:" : "সমাধানের সময়:", text: language === 'en' ? "We aim to resolve disputes within 5-7 business days." : "আমরা ৫-৭ কার্যদিবসের মধ্যে বিরোধ সমাধান করার লক্ষ্য রাখি।" },
-        { bold: language === 'en' ? "SSLCommerz/bKash:" : "SSLCommerz/bKash:", text: language === 'en' ? "Disputes for local payments are handled through respective payment gateway procedures." : "স্থানীয় পেমেন্টের বিরোধ সংশ্লিষ্ট পেমেন্ট গেটওয়ে পদ্ধতির মাধ্যমে পরিচালিত হয়।" }
+        { bold: language === 'en' ? "SSLCommerz/bKash/Stripe:" : "SSLCommerz/bKash/Stripe:", text: language === 'en' ? "Disputes for local payments are handled through respective payment gateway procedures. International Stripe payments follow Stripe's dispute resolution process." : "স্থানীয় পেমেন্টের বিরোধ সংশ্লিষ্ট পেমেন্ট গেটওয়ে পদ্ধতির মাধ্যমে পরিচালিত হয়। আন্তর্জাতিক Stripe পেমেন্ট Stripe-এর বিরোধ সমাধান প্রক্রিয়া অনুসরণ করে।" }
       ]
     },
     {
@@ -119,7 +119,7 @@ const RefundPolicy = () => {
     {
       icon: ShieldCheck,
       title: language === 'en' ? "Secure Payments" : "নিরাপদ পেমেন্ট",
-      description: language === 'en' ? "SSLCommerz & bKash protected" : "SSLCommerz ও bKash সুরক্ষিত",
+      description: language === 'en' ? "SSLCommerz, bKash & Stripe protected" : "SSLCommerz, bKash ও Stripe সুরক্ষিত",
       color: "from-blue-500/20 to-blue-600/10"
     },
     {

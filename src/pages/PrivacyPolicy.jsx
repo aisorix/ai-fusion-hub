@@ -39,11 +39,11 @@ const PrivacyPolicy = () => {
       title: language === 'en' ? "4. Data Sharing" : "৪. ডেটা শেয়ারিং",
       content: language === 'en' ? "We value your privacy. We may share limited data only with:" : "আমরা আপনার গোপনীয়তাকে মূল্য দিই। আমরা শুধুমাত্র সীমিত ডেটা শেয়ার করতে পারি:",
       list: [
-        { bold: language === 'en' ? "Payment Processors:" : "পেমেন্ট প্রসেসর:", text: language === 'en' ? "SSLCommerz, bKash, or Stripe for transactions." : "লেনদেনের জন্য SSLCommerz, bKash, বা Stripe।" },
+        { bold: language === 'en' ? "Payment Processors:" : "পেমেন্ট প্রসেসর:", text: language === 'en' ? "SSLCommerz, bKash for local payments, and Stripe for international card transactions (Visa, Mastercard, AMEX)." : "স্থানীয় পেমেন্টের জন্য SSLCommerz, bKash এবং আন্তর্জাতিক কার্ড লেনদেনের জন্য Stripe (Visa, Mastercard, AMEX)।" },
         { bold: language === 'en' ? "AI Model Providers:" : "AI মডেল প্রদানকারী:", text: language === 'en' ? "OpenRouter, OpenAI, Anthropic, Google for responses." : "প্রতিক্রিয়ার জন্য OpenRouter, OpenAI, Anthropic, Google।" },
         { bold: language === 'en' ? "Service Providers:" : "সেবা প্রদানকারী:", text: language === 'en' ? "Cloud hosting and analytics partners." : "ক্লাউড হোস্টিং এবং অ্যানালিটিক্স পার্টনার।" }
       ],
-      note: language === 'en' ? "Note: We do not sell your personal data to advertisers or third parties." : "দ্রষ্টব্য: আমরা বিজ্ঞাপনদাতা বা তৃতীয় পক্ষের কাছে আপনার ব্যক্তিগত ডেটা বিক্রি করি না।"
+      note: language === 'en' ? "Note: We accept Stripe for secure international payments. We do not sell your personal data to advertisers or third parties." : "দ্রষ্টব্য: আমরা নিরাপদ আন্তর্জাতিক পেমেন্টের জন্য Stripe গ্রহণ করি। আমরা বিজ্ঞাপনদাতা বা তৃতীয় পক্ষের কাছে আপনার ব্যক্তিগত ডেটা বিক্রি করি না।"
     },
     {
       title: language === 'en' ? "5. Data Security" : "৫. ডেটা নিরাপত্তা",

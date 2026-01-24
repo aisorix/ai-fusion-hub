@@ -49,7 +49,7 @@ const CookiePolicy = () => {
         ? "Set by trusted third-party services."
         : "বিশ্বস্ত তৃতীয় পক্ষের সেবা দ্বারা সেট করা হয়।",
       items: [
-        { bold: language === 'en' ? "Payment:" : "পেমেন্ট:", text: language === 'en' ? "SSLCommerz, bKash for secure transactions." : "নিরাপদ লেনদেনের জন্য SSLCommerz, bKash।" },
+        { bold: language === 'en' ? "Payment:" : "পেমেন্ট:", text: language === 'en' ? "SSLCommerz, bKash, and Stripe for secure transactions." : "নিরাপদ লেনদেনের জন্য SSLCommerz, bKash, এবং Stripe।" },
         { bold: language === 'en' ? "Social Login:" : "সোশ্যাল লগইন:", text: language === 'en' ? "Google, GitHub authentication." : "Google, GitHub প্রমাণীকরণ।" }
       ],
       color: "from-cyan-500/20 to-cyan-600/10"
