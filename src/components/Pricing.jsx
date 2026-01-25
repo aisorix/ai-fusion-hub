@@ -39,7 +39,7 @@ const Pricing = () => {
         { name: 'Gemini', Logo: GeminiLogo },
         { name: 'Sorix', Logo: SorixLogo },
       ],
-      tokens: '50K',
+      tokens: '80K',
       features: [
         { text: language === 'en' ? 'Web Search (Limited)' : 'ওয়েব সার্চ (সীমিত)', included: true },
         { text: t('voiceAI'), included: false },
@@ -69,7 +69,7 @@ const Pricing = () => {
         { name: 'Gemini', Logo: GeminiLogo },
         { name: 'Llama', Logo: LlamaLogo },
       ],
-      tokens: '700K',
+      tokens: '800K',
       features: [
         { text: language === 'en' ? 'Web Search (Basic)' : 'ওয়েব সার্চ (বেসিক)', included: true },
         { text: `${t('voiceAIBasic')}`, subtext: '10 min/day', included: true },
