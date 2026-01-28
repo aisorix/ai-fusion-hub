@@ -6,3 +6,6 @@ export { ModelSelector } from './ModelSelector';
 export { WelcomeScreen } from './WelcomeScreen';
 export { MultiWindowChat } from './MultiWindowChat';
 export { SettingsModal } from './SettingsModal';
+export { MarkdownRenderer } from './MarkdownRenderer';
+export { CodeBlock } from './CodeBlock';
+export { MessageBubble } from './MessageBubble';
