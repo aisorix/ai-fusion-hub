@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import Navbar from "@/components/Navbar";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
 import Hero from "@/components/Hero";
@@ -12,15 +11,8 @@ import AboutUs from "@/components/AboutUs";
 import ContactUs from "@/components/ContactUs";
 import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
-import { ChatWidget } from "@/components/chat/ChatWidget";
 
 const Index = () => {
-  const chatRef = useRef(null);
-
-  const handleOpenChat = () => {
-    chatRef.current?.openChat();
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -34,9 +26,8 @@ const Index = () => {
       <Faqs />
       <Testimonials />
       <AboutUs />
-      <ContactUs onOpenChat={handleOpenChat} />
+      <ContactUs />
       <Footer />
-      <ChatWidget ref={chatRef} />
     </div>
   );
 };
