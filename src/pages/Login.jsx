@@ -21,10 +21,10 @@ const Login = () => {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  // Redirect if already logged in - go to chat
+  // Redirect if already logged in
   useEffect(() => {
     if (user && !authLoading) {
-      navigate('/chat');
+      navigate('/');
     }
   }, [user, authLoading, navigate]);
 
@@ -69,7 +69,7 @@ const Login = () => {
         title: 'Welcome back!',
         description: 'You have successfully signed in.',
       });
-      navigate('/chat');
+      navigate('/');
     }
   };
 
