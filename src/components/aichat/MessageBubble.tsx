@@ -1,4 +1,4 @@
-import React, { useState, useCallback, memo } from 'react';
+import React, { useState, useCallback, memo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Copy,
@@ -25,6 +25,36 @@ const EMOJI_REACTIONS = [
   { emoji: '🔥', label: 'Fire', key: 'fire' },
   { emoji: '😊', label: 'Nice', key: 'smile' },
 ];
+
+// Thinking Timer Component
+const ThinkingTimer = memo(({ isActive }: { isActive: boolean }) => {
+  const [elapsed, setElapsed] = useState(0);
+  const startTimeRef = useRef<number>(Date.now());
+
+  useEffect(() => {
+    if (!isActive) {
+      setElapsed(0);
+      return;
+    }
+
+    startTimeRef.current = Date.now();
+    const interval = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - startTimeRef.current) / 100) / 10);
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [isActive]);
+
+  if (!isActive) return null;
+
+  return (
+    <span className="ml-2 text-xs text-muted-foreground font-mono tabular-nums">
+      {elapsed.toFixed(1)}s
+    </span>
+  );
+});
+
+ThinkingTimer.displayName = 'ThinkingTimer';
 
 interface MessageBubbleProps {
   message: Message;
@@ -132,10 +162,20 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
                 <span className="text-sm font-semibold text-foreground">
                   Sorix AI
                 </span>
-                {isStreaming && isLast && (
-                  <span className="px-2 py-0.5 text-xs bg-primary/10 text-primary rounded-full animate-pulse">
-                    Thinking...
-                  </span>
+                {isStreaming && isLast && !message.content && (
+                  <div className="flex items-center">
+                    <span className="px-2 py-0.5 text-xs bg-primary/10 text-primary rounded-full">
+                      Thinking
+                    </span>
+                    <ThinkingTimer isActive={true} />
+                  </div>
+                )}
+                {isStreaming && isLast && message.content && (
+                  <div className="flex items-center">
+                    <span className="px-2 py-0.5 text-xs bg-green-500/10 text-green-500 rounded-full">
+                      Writing
+                    </span>
+                  </div>
                 )}
               </div>
               
@@ -145,16 +185,18 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
                   <MarkdownRenderer content={message.content} />
                 ) : (
                   isStreaming && (
-                    <div className="flex items-center gap-1.5 py-2">
-                      <span className="inline-block w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="inline-block w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="inline-block w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <div className="flex items-center gap-2 py-2">
+                      <div className="flex items-center gap-1">
+                        <span className="inline-block w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <span className="inline-block w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <span className="inline-block w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms' }} />
+                      </div>
                     </div>
                   )
                 )}
-                {/* Streaming cursor */}
+                {/* Streaming cursor - smooth blinking */}
                 {isStreaming && isLast && message.content && (
-                  <span className="inline-block w-0.5 h-5 ml-1 bg-primary animate-pulse rounded-sm align-middle" />
+                  <span className="inline-block w-[3px] h-5 ml-0.5 bg-primary rounded-sm align-middle animate-[pulse_0.8s_ease-in-out_infinite]" />
                 )}
               </div>
               
