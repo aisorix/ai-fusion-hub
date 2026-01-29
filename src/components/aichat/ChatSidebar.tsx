@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import SettingsModal from './SettingsModal';
 import UpgradePlanModal from './UpgradePlanModal';
+import { PlanIcon, PlanBadge, type PlanType } from './PlanIcons';
 
 interface ChatSidebarProps {
   onNewChat: () => void;
@@ -155,21 +156,15 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
           ? "border-primary/20 bg-gradient-to-b from-card via-card to-primary/5" 
           : "border-border"
       )}>
-        {/* Header */}
+        {/* Header with Plan Icon */}
         <div className="p-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <img src={sorixLogo} alt="AI Sorix" className={cn(
-              "w-8 h-8",
-              isPaidUser && "drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]"
-            )} />
+            <img src={sorixLogo} alt="AI Sorix" className="w-8 h-8" />
             <div>
               <h1 className="font-bold text-foreground text-sm flex items-center gap-1.5">
                 AI Sorix
                 {isPaidUser && (
-                  <span className="px-1 py-0.5 text-[8px] bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-600 dark:text-yellow-400 rounded font-semibold flex items-center gap-0.5">
-                    <Crown className="w-2 h-2" />
-                    PRO
-                  </span>
+                  <PlanBadge plan={user.plan as PlanType} />
                 )}
               </h1>
               <p className="text-[10px] text-muted-foreground">Premium AI Platform</p>
@@ -183,20 +178,14 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
           </button>
         </div>
 
-        {/* New Chat Button - Enhanced for paid users */}
+        {/* New Chat Button */}
         <div className="px-3">
           <Button
             onClick={onNewChat}
-            className={cn(
-              "w-full gap-2 transition-all",
-              isPaidUser 
-                ? "bg-gradient-to-r from-primary via-primary to-accent text-primary-foreground hover:shadow-lg hover:shadow-primary/30" 
-                : "bg-primary hover:bg-primary/90 text-primary-foreground"
-            )}
+            className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             <Plus className="w-4 h-4" />
             New chat
-            {isPaidUser && <Sparkles className="w-3 h-3 ml-auto opacity-70" />}
           </Button>
         </div>
 
@@ -413,13 +402,17 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
           </button>
 
-          {/* User Profile with Dropdown */}
+          {/* User Profile with Plan Icon */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
-                  {userInitials}
-                </div>
+                {isPaidUser ? (
+                  <PlanIcon plan={user.plan as PlanType} size="sm" />
+                ) : (
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-[10px]">
+                    {userInitials}
+                  </div>
+                )}
                 <div className="flex-1 text-left min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{userName}</p>
                   <p className="text-[10px] text-muted-foreground truncate">{userEmail}</p>
