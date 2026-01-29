@@ -4,6 +4,7 @@ import { X, Check, Sparkles, Zap, Crown, Gift, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useChatStore, type UserPlan } from '@/stores/chatStore';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useSubscription } from '@/hooks/useSubscription';
 import PaymentModal from '@/components/PaymentModal';
 
 interface UpgradePlanModalProps {
@@ -148,8 +149,9 @@ const plans: PlanData[] = [
 ];
 
 const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) => {
-  const { user, setUserPlan } = useChatStore();
+  const { setUserPlan } = useChatStore();
   const { language } = useLanguage();
+  const { currentPlan } = useSubscription();
   const [isYearly, setIsYearly] = useState(false);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PlanData | null>(null);
@@ -248,7 +250,7 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) 
             {/* Mobile: Horizontal scrolling cards */}
             <div className="flex sm:hidden overflow-x-auto gap-3 pb-4 snap-x snap-mandatory -mx-3 px-3 scrollbar-hide">
               {plans.map((plan) => {
-                const isCurrentPlan = user.plan === plan.id;
+                const isCurrentPlan = currentPlan === plan.id;
                 const Icon = plan.icon;
                 const displayPrice = isYearly && plan.price > 0 
                   ? Math.round(plan.yearlyPrice / 12) 
@@ -371,7 +373,7 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) 
             {/* Tablet & Desktop: Grid layout */}
             <div className="hidden sm:grid sm:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
               {plans.map((plan) => {
-                const isCurrentPlan = user.plan === plan.id;
+                const isCurrentPlan = currentPlan === plan.id;
                 const Icon = plan.icon;
                 const displayPrice = isYearly && plan.price > 0 
                   ? Math.round(plan.yearlyPrice / 12) 

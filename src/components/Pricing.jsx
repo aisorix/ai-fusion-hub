@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Check, X, Sparkles, Gift, Zap, Crown, ArrowRight, Star, ShieldCheck, CreditCard } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
 import PaymentModal from './PaymentModal';
 
 // Payment method logos
@@ -39,6 +40,7 @@ const Pricing = () => {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const { t, language } = useLanguage();
   const { isAuthenticated, isLoading } = useAuth();
+  const { currentPlan } = useSubscription();
   const navigate = useNavigate();
 
   const sorixHealthLabel = language === 'en' ? 'Sorix Health' : 'সোরিক্স হেলথ';
@@ -70,7 +72,7 @@ const Pricing = () => {
         { text: sorixHealthLabel, included: true },
         { text: sorixAgroLabel, included: true },
       ],
-      buttonText: language === 'en' ? 'Current Plan' : 'বর্তমান প্ল্যান',
+      buttonText: language === 'en' ? 'Get Started' : 'শুরু করুন',
       buttonStyle: 'bg-muted hover:bg-muted/80 text-foreground',
       isFree: true,
     },
@@ -242,16 +244,18 @@ const Pricing = () => {
 
         {/* Pricing Cards - Mobile: Horizontal Scroll */}
         <div className="flex md:hidden overflow-x-auto gap-4 pb-4 snap-x snap-mandatory -mx-4 px-4 scrollbar-hide">
-          {plans.map((plan, planIndex) => (
+          {plans.map((plan, planIndex) => {
+            const isCurrentUserPlan = currentPlan === plan.name;
+            return (
             <div
               key={plan.name}
               className={`relative ${plan.cardStyle} rounded-2xl ${
                 plan.popular ? 'shadow-glow' : ''
-              } overflow-hidden transition-all duration-500 flex-shrink-0 w-[280px] snap-center`}
+              } ${isCurrentUserPlan ? 'ring-2 ring-primary/50' : ''} overflow-hidden transition-all duration-500 flex-shrink-0 w-[280px] snap-center`}
               style={{ animationDelay: `${planIndex * 100}ms` }}
             >
-              {/* Popular Badge */}
-              {plan.badge && (
+              {/* Popular Badge or Current Plan Badge */}
+              {plan.badge && !isCurrentUserPlan && (
                 <div className="absolute top-0 left-0 right-0">
                   <div className="gradient-primary text-center py-2 text-xs font-bold text-foreground flex items-center justify-center gap-1.5">
                     <Sparkles className="w-3 h-3" />
@@ -259,8 +263,16 @@ const Pricing = () => {
                   </div>
                 </div>
               )}
+              
+              {isCurrentUserPlan && (
+                <div className="absolute top-0 left-0 right-0">
+                  <div className="bg-muted text-center py-2 text-xs font-medium text-muted-foreground flex items-center justify-center gap-1.5 border-b border-border">
+                    {language === 'en' ? 'Your Current Plan' : 'আপনার বর্তমান প্ল্যান'}
+                  </div>
+                </div>
+              )}
 
-              <div className={`p-5 ${plan.badge ? 'pt-11' : ''}`}>
+              <div className={`p-5 ${(plan.badge || isCurrentUserPlan) ? 'pt-11' : ''}`}>
                 {/* Plan Header */}
                 <div className="flex items-center gap-2.5 mb-4">
                   <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center shadow-lg`}>
@@ -333,28 +345,37 @@ const Pricing = () => {
                 {/* CTA Button */}
                 <button
                   onClick={() => handlePlanSelect(plan)}
-                  className={`w-full py-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 transition-all duration-500 ${plan.buttonStyle}`}
+                  disabled={currentPlan === plan.name}
+                  className={`w-full py-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 transition-all duration-500 ${
+                    currentPlan === plan.name 
+                      ? 'bg-muted text-muted-foreground cursor-not-allowed' 
+                      : plan.buttonStyle
+                  }`}
                 >
-                  {plan.buttonText}
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  {currentPlan === plan.name 
+                    ? (language === 'en' ? 'Current Plan' : 'বর্তমান প্ল্যান')
+                    : plan.buttonText}
+                  {currentPlan !== plan.name && <ArrowRight className="w-3.5 h-3.5" />}
                 </button>
               </div>
             </div>
-          ))}
+          )})}
         </div>
 
         {/* Tablet & Desktop: Grid layout */}
         <div className="hidden md:grid md:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
-          {plans.map((plan, planIndex) => (
+          {plans.map((plan, planIndex) => {
+            const isCurrentUserPlan = currentPlan === plan.name;
+            return (
             <div
               key={plan.name}
               className={`relative ${plan.cardStyle} rounded-3xl ${
                 plan.popular ? 'md:-translate-y-4 shadow-glow' : ''
-              } overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl group`}
+              } ${isCurrentUserPlan ? 'ring-2 ring-primary/50' : ''} overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl group`}
               style={{ animationDelay: `${planIndex * 100}ms` }}
             >
-              {/* Popular Badge */}
-              {plan.badge && (
+              {/* Popular Badge or Current Plan Badge */}
+              {plan.badge && !isCurrentUserPlan && (
                 <div className="absolute top-0 left-0 right-0">
                   <div className="gradient-primary text-center py-2.5 text-sm font-bold text-foreground flex items-center justify-center gap-2">
                     <Sparkles className="w-4 h-4" />
@@ -362,8 +383,16 @@ const Pricing = () => {
                   </div>
                 </div>
               )}
+              
+              {isCurrentUserPlan && (
+                <div className="absolute top-0 left-0 right-0">
+                  <div className="bg-muted text-center py-2.5 text-sm font-medium text-muted-foreground flex items-center justify-center gap-2 border-b border-border">
+                    {language === 'en' ? 'Your Current Plan' : 'আপনার বর্তমান প্ল্যান'}
+                  </div>
+                </div>
+              )}
 
-              <div className={`p-5 lg:p-8 ${plan.badge ? 'pt-12 lg:pt-14' : ''}`}>
+              <div className={`p-5 lg:p-8 ${(plan.badge || isCurrentUserPlan) ? 'pt-12 lg:pt-14' : ''}`}>
                 {/* Plan Header */}
                 <div className="flex items-center gap-3 mb-5 lg:mb-6">
                   <div className={`w-12 h-12 lg:w-14 lg:h-14 rounded-2xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:shadow-glow transition-all duration-500`}>
@@ -439,14 +468,21 @@ const Pricing = () => {
                 {/* CTA Button - Opens Payment Modal if logged in, otherwise redirects to login */}
                 <button
                   onClick={() => handlePlanSelect(plan)}
-                  className={`w-full py-3.5 lg:py-4 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-500 ${plan.buttonStyle}`}
+                  disabled={currentPlan === plan.name}
+                  className={`w-full py-3.5 lg:py-4 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-500 ${
+                    currentPlan === plan.name 
+                      ? 'bg-muted text-muted-foreground cursor-not-allowed' 
+                      : plan.buttonStyle
+                  }`}
                 >
-                  {plan.buttonText}
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  {currentPlan === plan.name 
+                    ? (language === 'en' ? 'Current Plan' : 'বর্তমান প্ল্যান')
+                    : plan.buttonText}
+                  {currentPlan !== plan.name && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
                 </button>
               </div>
             </div>
-          ))}
+          )})}
         </div>
 
         {/* Footer Note */}
