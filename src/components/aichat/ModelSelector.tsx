@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { ChevronDown, Lock, Check, Sparkles, X, Zap } from 'lucide-react';
+import { ChevronDown, Lock, Check, Sparkles, X, Zap, Crown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useChatStore } from '@/stores/chatStore';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { ModelIcon } from './ModelIcons';
 
 const ModelSelector = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,6 +12,7 @@ const ModelSelector = () => {
   const isMobile = useIsMobile();
   
   const currentModel = models.find(m => m.id === selectedModel) || models[0];
+  const isPaidUser = user.plan !== 'free';
   
   // Keep models in original order from store (free models are already ordered correctly)
   const freeModels = models.filter(m => m.plans.includes('free'));
@@ -32,20 +34,32 @@ const ModelSelector = () => {
   
   return (
     <div className="relative">
-      {/* Trigger Button */}
+      {/* Trigger Button - Enhanced for paid users */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           'flex items-center gap-2 sm:gap-2.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl transition-all duration-200',
-          'bg-card/80 border border-border/60 backdrop-blur-sm',
+          'bg-card/80 border backdrop-blur-sm',
           'hover:border-primary/40 hover:bg-card',
-          'active:scale-95'
+          'active:scale-95',
+          isPaidUser 
+            ? 'border-primary/40 shadow-md shadow-primary/10' 
+            : 'border-border/60'
         )}
       >
-        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-          <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary" />
+        {/* Model Icon instead of generic sparkle */}
+        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg overflow-hidden flex items-center justify-center">
+          <ModelIcon modelId={currentModel.id} modelName={currentModel.name} size="md" showGlow={isPaidUser} />
         </div>
-        <span className="font-medium text-xs sm:text-sm max-w-[100px] sm:max-w-none truncate">{currentModel.name}</span>
+        <span className={cn(
+          "font-medium text-xs sm:text-sm max-w-[100px] sm:max-w-none truncate",
+          isPaidUser && "bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text"
+        )}>{currentModel.name}</span>
+        {isPaidUser && (
+          <span className="hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-600 dark:text-yellow-400 rounded-md font-medium">
+            <Crown className="w-2.5 h-2.5" />
+          </span>
+        )}
         <ChevronDown className={cn(
           'w-3 h-3 sm:w-3.5 sm:h-3.5 text-muted-foreground transition-transform duration-200',
           isOpen && 'rotate-180'
@@ -299,7 +313,7 @@ interface ModelItemProps {
   onSelect: () => void;
 }
 
-// Mobile Model Item - Larger touch targets
+// Mobile Model Item - Larger touch targets with model icons
 const MobileModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect }: ModelItemProps) => (
   <button
     onClick={onSelect}
@@ -313,14 +327,9 @@ const MobileModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect }
           : 'bg-muted/30 active:bg-muted/50 border border-transparent'
     )}
   >
-    {/* Selection Indicator */}
-    <div className={cn(
-      'w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all',
-      isSelected 
-        ? 'border-primary bg-primary' 
-        : 'border-muted-foreground/30'
-    )}>
-      {isSelected && <Check className="w-3 h-3 text-primary-foreground" />}
+    {/* Model Icon */}
+    <div className="flex-shrink-0">
+      <ModelIcon modelId={model.id} modelName={model.name} size="md" />
     </div>
 
     <div className="flex-1 min-w-0">
@@ -341,6 +350,9 @@ const MobileModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect }
             {requiredPlan}
           </span>
         )}
+        {isSelected && (
+          <Check className="w-4 h-4 text-primary" />
+        )}
       </div>
       <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
         {model.description}
@@ -351,7 +363,7 @@ const MobileModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect }
   </button>
 );
 
-// Desktop Model Item - Compact
+// Desktop Model Item - Compact with model icons
 const DesktopModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect }: ModelItemProps) => (
   <button
     onClick={onSelect}
@@ -365,6 +377,11 @@ const DesktopModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect 
           : 'hover:bg-accent/50'
     )}
   >
+    {/* Model Icon */}
+    <div className="flex-shrink-0">
+      <ModelIcon modelId={model.id} modelName={model.name} size="sm" />
+    </div>
+    
     <div className="flex-1 min-w-0">
       <div className="flex items-center gap-2">
         <span className={cn(
