@@ -91,7 +91,7 @@ export const PlanIcon = ({ plan, size = 'md', className, showLabel = false }: Pl
   );
 };
 
-// Plan Badge - smaller inline badge for headers
+// Plan Badge - smaller inline badge with icon for headers
 export const PlanBadge = ({ plan, className }: { plan: PlanType; className?: string }) => {
   if (plan === 'free') return null;
 
@@ -99,18 +99,18 @@ export const PlanBadge = ({ plan, className }: { plan: PlanType; className?: str
     switch (plan) {
       case 'basic':
         return {
-          label: 'BASIC',
-          bgClass: 'bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border-cyan-500/30',
+          icon: Zap,
+          bgClass: 'bg-gradient-to-r from-cyan-400 to-teal-500',
         };
       case 'pro':
         return {
-          label: 'PRO',
-          bgClass: 'bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border-cyan-500/30',
+          icon: Sparkles,
+          bgClass: 'bg-gradient-to-r from-cyan-400 to-teal-500',
         };
       case 'premium':
         return {
-          label: 'PREMIUM',
-          bgClass: 'bg-pink-500/20 text-pink-600 dark:text-pink-400 border-pink-500/30',
+          icon: Crown,
+          bgClass: 'bg-gradient-to-r from-pink-400 to-rose-500',
         };
       default:
         return null;
@@ -120,13 +120,15 @@ export const PlanBadge = ({ plan, className }: { plan: PlanType; className?: str
   const config = getBadgeConfig();
   if (!config) return null;
 
+  const Icon = config.icon;
+
   return (
     <span className={cn(
-      'px-1.5 py-0.5 text-[10px] font-semibold rounded border',
+      'inline-flex items-center justify-center w-5 h-5 rounded-md shadow-sm',
       config.bgClass,
       className
     )}>
-      {config.label}
+      <Icon className="w-3 h-3 text-white" />
     </span>
   );
 };
