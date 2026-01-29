@@ -141,10 +141,16 @@ export const useAIChat = () => {
     addMessage(userMessage);
     clearAttachments();
     
+    // Get current model name for assistant message
+    const currentModel = models.find(m => m.id === selectedModel);
+    const modelName = currentModel?.name || 'Sorix AI';
+    
     const assistantMessage = {
       id: (Date.now() + 1).toString(),
       role: 'assistant' as const,
       content: '',
+      modelId: selectedModel,
+      modelName: modelName,
       createdAt: new Date().toISOString()
     };
     
