@@ -6,10 +6,7 @@ import {
   RotateCcw,
   Share,
   Volume2,
-  User,
-  MoreHorizontal,
-  Crown,
-  Sparkles
+  Bot
 } from 'lucide-react';
 import copy from 'copy-to-clipboard';
 import MarkdownRenderer from './MarkdownRenderer';
@@ -17,7 +14,7 @@ import ExportDropdown from './ExportDropdown';
 import SourcesWidget from './SourcesWidget';
 import { useChatStore, type Message } from '@/stores/chatStore';
 import { cn } from '@/lib/utils';
-import { ModelIcon } from './ModelIcons';
+import sorixLogo from '@/assets/logo.png';
 
 // Emoji reactions for rating AI responses
 const EMOJI_REACTIONS = [
@@ -157,64 +154,25 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
             </div>
           </div>
         ) : (
-          // Assistant message - enhanced with model icon
+          // Assistant message - clean simple style
           <div className="flex gap-4">
-            {/* Model Avatar with Icon */}
+            {/* Simple Sorix Logo Avatar */}
             <div className="flex-shrink-0">
-              <div className={cn(
-                'w-8 h-8 rounded-full flex items-center justify-center overflow-hidden relative',
-                isPaidUser && 'ring-2 ring-primary/30 ring-offset-2 ring-offset-background'
-              )}>
-                <ModelIcon 
-                  modelId={message.modelId} 
-                  modelName={message.modelName} 
-                  size="lg"
-                  showGlow={isPaidUser}
-                />
-                {/* Premium badge for paid users */}
-                {isPaidUser && (
-                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center border border-background">
-                    <Crown className="w-1.5 h-1.5 text-white" />
-                  </div>
-                )}
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center overflow-hidden">
+                <img src={sorixLogo} alt="Sorix AI" className="w-5 h-5 object-contain" />
               </div>
             </div>
             
             {/* Content */}
             <div className="flex-1 min-w-0 space-y-2">
-              {/* Role Label with Model Name and Icon */}
+              {/* Simple Role Label */}
               <div className="flex items-center gap-2">
-                <ModelIcon modelId={message.modelId} modelName={message.modelName} size="xs" />
-                <span className={cn(
-                  "text-sm font-semibold",
-                  isPaidUser ? "bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text" : "text-foreground"
-                )}>
-                  {message.modelName || 'Sorix AI'}
+                <span className="text-sm font-semibold text-foreground">
+                  Sorix AI
                 </span>
-                {message.modelName && (
-                  <span className={cn(
-                    "px-1.5 py-0.5 text-[10px] rounded-md font-medium",
-                    isPaidUser 
-                      ? "bg-gradient-to-r from-primary/20 to-accent/20 text-primary border border-primary/30" 
-                      : "bg-muted text-muted-foreground"
-                  )}>
-                    AI
-                  </span>
-                )}
-                {isPaidUser && (
-                  <span className="px-1.5 py-0.5 text-[10px] bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-600 dark:text-yellow-400 rounded-md font-medium flex items-center gap-1">
-                    <Sparkles className="w-2.5 h-2.5" />
-                    PRO
-                  </span>
-                )}
                 {isStreaming && isLast && !message.content && (
                   <div className="flex items-center">
-                    <span className={cn(
-                      "px-2 py-0.5 text-xs rounded-full",
-                      isPaidUser 
-                        ? "bg-gradient-to-r from-primary/20 to-accent/20 text-primary" 
-                        : "bg-primary/10 text-primary"
-                    )}>
+                    <span className="px-2 py-0.5 text-xs rounded-full bg-primary/10 text-primary">
                       Thinking
                     </span>
                     <ThinkingTimer isActive={true} />
@@ -222,12 +180,7 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
                 )}
                 {isStreaming && isLast && message.content && (
                   <div className="flex items-center">
-                    <span className={cn(
-                      "px-2 py-0.5 text-xs rounded-full",
-                      isPaidUser 
-                        ? "bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-500" 
-                        : "bg-green-500/10 text-green-500"
-                    )}>
+                    <span className="px-2 py-0.5 text-xs rounded-full bg-green-500/10 text-green-500">
                       Writing
                     </span>
                   </div>
