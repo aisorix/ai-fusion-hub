@@ -203,8 +203,111 @@ const Pricing = () => {
           </span>
         </div>
 
-        {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 lg:gap-8">
+        {/* Pricing Cards - Mobile: Horizontal Scroll */}
+        <div className="flex md:hidden overflow-x-auto gap-4 pb-4 snap-x snap-mandatory -mx-4 px-4 scrollbar-hide">
+          {plans.map((plan, planIndex) => (
+            <div
+              key={plan.name}
+              className={`relative ${plan.cardStyle} rounded-2xl ${
+                plan.popular ? 'shadow-glow' : ''
+              } overflow-hidden transition-all duration-500 flex-shrink-0 w-[280px] snap-center`}
+              style={{ animationDelay: `${planIndex * 100}ms` }}
+            >
+              {/* Popular Badge */}
+              {plan.badge && (
+                <div className="absolute top-0 left-0 right-0">
+                  <div className="gradient-primary text-center py-2 text-xs font-bold text-foreground flex items-center justify-center gap-1.5">
+                    <Sparkles className="w-3 h-3" />
+                    {plan.badge}
+                  </div>
+                </div>
+              )}
+
+              <div className={`p-5 ${plan.badge ? 'pt-11' : ''}`}>
+                {/* Plan Header */}
+                <div className="flex items-center gap-2.5 mb-4">
+                  <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center shadow-lg`}>
+                    <plan.icon className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-foreground">{plan.displayName}</h3>
+                    {plan.subtitle && <p className="text-[10px] text-muted-foreground">{plan.subtitle}</p>}
+                  </div>
+                </div>
+
+                {/* Price */}
+                <div className="mb-4">
+                  <div className="flex items-baseline gap-0.5">
+                    <span className="text-3xl font-black text-foreground">
+                      {formatPrice(isYearly ? Math.round((plan.yearlyPrice || plan.price * 12 * 0.8) / 12) : plan.price)}
+                    </span>
+                    <span className="text-muted-foreground text-xs">{t('perMonth')}</span>
+                  </div>
+                  {isYearly && plan.price > 0 && (
+                    <p className="text-[10px] text-green-600 dark:text-green-400 mt-0.5 font-medium">
+                      {language === 'en' ? 'Billed yearly' : 'বাৎসরিক বিল'}
+                    </p>
+                  )}
+                </div>
+
+                {/* AI Models */}
+                <div className="mb-4">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                    {plan.models.length} {t('aiModels')}
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {plan.models.slice(0, 4).map((model) => (
+                      <div key={model} className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-muted/50 border border-border/50">
+                        <span className={`w-1.5 h-1.5 rounded-full ${modelColors[model] || 'bg-primary'}`} />
+                        <span className="text-[10px] font-medium text-foreground">{model}</span>
+                      </div>
+                    ))}
+                    {plan.models.length > 4 && (
+                      <div className="px-1.5 py-0.5 rounded-md bg-primary/10 border border-primary/20">
+                        <span className="text-[10px] font-bold text-primary">+{plan.models.length - 4}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Features - Show first 6 on mobile */}
+                <div className="space-y-2 mb-5">
+                  {plan.features.slice(0, 6).map((feature, idx) => (
+                    <div key={idx} className="flex items-start gap-2">
+                      {feature.included ? (
+                        <div className="w-4 h-4 rounded-full bg-green-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Check className="w-2.5 h-2.5 text-green-600 dark:text-green-400" />
+                        </div>
+                      ) : (
+                        <div className="w-4 h-4 rounded-full bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <X className="w-2.5 h-2.5 text-muted-foreground/50" />
+                        </div>
+                      )}
+                      <span className={`text-xs ${feature.included ? 'text-foreground' : 'text-muted-foreground line-through'}`}>
+                        {feature.text}
+                      </span>
+                    </div>
+                  ))}
+                  {plan.features.length > 6 && (
+                    <p className="text-[10px] text-muted-foreground pl-6">+{plan.features.length - 6} more features</p>
+                  )}
+                </div>
+
+                {/* CTA Button */}
+                <Link
+                  to="/login"
+                  className={`w-full py-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 transition-all duration-500 ${plan.buttonStyle}`}
+                >
+                  {plan.buttonText}
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Tablet & Desktop: Grid layout */}
+        <div className="hidden md:grid md:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
           {plans.map((plan, planIndex) => (
             <div
               key={plan.name}
@@ -223,22 +326,22 @@ const Pricing = () => {
                 </div>
               )}
 
-              <div className={`p-6 sm:p-8 ${plan.badge ? 'pt-14' : ''}`}>
+              <div className={`p-5 lg:p-8 ${plan.badge ? 'pt-12 lg:pt-14' : ''}`}>
                 {/* Plan Header */}
-                <div className="flex items-center gap-3 mb-6">
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:shadow-glow transition-all duration-500`}>
-                    <plan.icon className="w-7 h-7 text-white" />
+                <div className="flex items-center gap-3 mb-5 lg:mb-6">
+                  <div className={`w-12 h-12 lg:w-14 lg:h-14 rounded-2xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:shadow-glow transition-all duration-500`}>
+                    <plan.icon className="w-6 h-6 lg:w-7 lg:h-7 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-foreground">{plan.displayName}</h3>
+                    <h3 className="text-lg lg:text-xl font-bold text-foreground">{plan.displayName}</h3>
                     {plan.subtitle && <p className="text-xs text-muted-foreground">{plan.subtitle}</p>}
                   </div>
                 </div>
 
                 {/* Price */}
-                <div className="mb-6">
+                <div className="mb-5 lg:mb-6">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl sm:text-5xl font-black text-foreground">
+                    <span className="text-4xl lg:text-5xl font-black text-foreground">
                       {formatPrice(isYearly ? Math.round((plan.yearlyPrice || plan.price * 12 * 0.8) / 12) : plan.price)}
                     </span>
                     <span className="text-muted-foreground text-sm">{t('perMonth')}</span>
@@ -251,7 +354,7 @@ const Pricing = () => {
                 </div>
 
                 {/* AI Models */}
-                <div className="mb-6">
+                <div className="mb-5 lg:mb-6">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
                     {plan.models.length} {t('aiModels')}
                   </p>
@@ -272,7 +375,7 @@ const Pricing = () => {
 
 
                 {/* Features */}
-                <div className="space-y-3 mb-8">
+                <div className="space-y-3 mb-6 lg:mb-8">
                   {plan.features.map((feature, idx) => (
                     <div key={idx} className="flex items-start gap-2.5">
                       {feature.included ? (
@@ -299,7 +402,7 @@ const Pricing = () => {
                 {/* CTA Button - Links to Login */}
                 <Link
                   to="/login"
-                  className={`w-full py-4 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-500 ${plan.buttonStyle}`}
+                  className={`w-full py-3.5 lg:py-4 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-500 ${plan.buttonStyle}`}
                 >
                   {plan.buttonText}
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
