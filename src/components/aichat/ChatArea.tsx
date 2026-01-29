@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 import { Settings, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { PlanBadge, type PlanType } from './PlanIcons';
+import { ModelIcon } from './ModelIcons';
 
 interface ChatAreaProps {
   onOpenVoiceMode?: () => void;
@@ -45,9 +45,6 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
       <header className="flex items-center justify-center py-2 sm:py-3 md:py-4 border-b border-border/50 px-2 sm:px-4">
         <div className="flex items-center gap-2">
           <ModelSelector />
-          {isPaidUser && (
-            <PlanBadge plan={user.plan as PlanType} />
-          )}
         </div>
       </header>
       

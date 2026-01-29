@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import MarkdownRenderer from './MarkdownRenderer';
 import SourcesWidget from './SourcesWidget';
 import WindowModelSelector from './WindowModelSelector';
+import { ModelIcon } from './ModelIcons';
 import { chatApi } from '@/services/api';
 import { toast } from '@/hooks/use-toast';
 import sorixLogo from '@/assets/logo.png';
@@ -454,33 +455,34 @@ const ChatWindowPanel = ({ window, canClose }: ChatWindowPanelProps) => {
                   onMouseEnter={() => isAssistant && setShowActionsFor(message.id)}
                   onMouseLeave={() => setShowActionsFor(null)}
                 >
-                  <div className="flex gap-2 sm:gap-3">
-                    <div className="flex-shrink-0">
-                      {message.role === 'user' ? (
-                        <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-secondary border border-border flex items-center justify-center">
-                          <User className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-muted-foreground" />
-                        </div>
-                      ) : (
-                        <div className={cn(
-                          'w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center bg-gradient-to-br text-white text-xs',
-                          getModelColor(currentModel.category)
-                        )}>
-                          {getCategoryIcon(currentModel.category)}
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1 sm:mb-1.5">
-                        <span className="text-[10px] sm:text-xs font-medium text-muted-foreground">
-                          {message.role === 'user' ? 'You' : (message.modelName || currentModel.name)}
-                        </span>
-                        {message.role === 'assistant' && message.modelName && (
-                          <span className="px-1 py-0.5 text-[8px] bg-muted text-muted-foreground rounded font-medium">
-                            AI
-                          </span>
+                    <div className="flex gap-2 sm:gap-3">
+                      <div className="flex-shrink-0">
+                        {message.role === 'user' ? (
+                          <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-secondary border border-border flex items-center justify-center">
+                            <User className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-muted-foreground" />
+                          </div>
+                        ) : (
+                          <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full overflow-hidden">
+                            <ModelIcon 
+                              modelId={message.modelId || window.modelId} 
+                              modelName={message.modelName || currentModel.name} 
+                              size="md" 
+                            />
+                          </div>
                         )}
                       </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 sm:mb-1.5">
+                          <span className="text-[10px] sm:text-xs font-medium text-foreground">
+                            {message.role === 'user' ? 'You' : (message.modelName || currentModel.name)}
+                          </span>
+                          {message.role === 'assistant' && window.isStreaming && isLastMessage && !message.content && (
+                            <span className="px-1.5 py-0.5 text-[8px] bg-primary/10 text-primary rounded-full animate-pulse">
+                              Thinking...
+                            </span>
+                          )}
+                        </div>
                       {message.role === 'user' ? (
                         <div>
                           {message.attachments && message.attachments.length > 0 && (
