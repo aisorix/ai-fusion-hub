@@ -24,7 +24,7 @@ const Login = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (user && !authLoading) {
-      navigate('/');
+      navigate('/dashboard');
     }
   }, [user, authLoading, navigate]);
 
@@ -69,7 +69,7 @@ const Login = () => {
         title: 'Welcome back!',
         description: 'You have successfully signed in.',
       });
-      navigate('/chat');
+      navigate('/dashboard');
     }
   };
 

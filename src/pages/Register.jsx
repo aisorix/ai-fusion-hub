@@ -29,7 +29,7 @@ const Register = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (user && !authLoading) {
-      navigate('/');
+      navigate('/dashboard');
     }
   }, [user, authLoading, navigate]);
 
@@ -98,7 +98,7 @@ const Register = () => {
         title: 'Account Created!',
         description: 'Welcome to AI Sorix! You are now signed in.',
       });
-      navigate('/');
+      navigate('/dashboard');
     }
   };
 
