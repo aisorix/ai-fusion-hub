@@ -162,66 +162,193 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-2 sm:p-4"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-start sm:items-center justify-center p-0 sm:p-4 overflow-y-auto"
         onClick={onClose}
       >
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          initial={{ opacity: 0, scale: 0.98, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
+          exit={{ opacity: 0, scale: 0.98, y: 10 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-background rounded-2xl border border-border w-full max-w-6xl max-h-[95vh] overflow-hidden"
+          className="bg-background sm:rounded-2xl border-0 sm:border border-border w-full max-w-6xl min-h-screen sm:min-h-0 sm:max-h-[95vh] overflow-hidden"
         >
           {/* Header */}
-          <div className="flex flex-col items-center justify-center p-4 sm:p-6 border-b border-border relative">
+          <div className="sticky top-0 bg-background z-10 flex flex-col items-center justify-center p-4 sm:p-6 border-b border-border relative">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-4">
-              <Sparkles className="w-4 h-4" />
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs sm:text-sm font-medium mb-3 sm:mb-4">
+              <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
               Unlock Premium Features
             </div>
             
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Choose Your Plan</h2>
-            <p className="text-sm text-muted-foreground mt-2">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground text-center">Choose Your Plan</h2>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-2 text-center px-4">
               Select the perfect plan for your AI needs
             </p>
             
             {/* Monthly/Yearly Toggle */}
-            <div className="flex items-center gap-4 mt-4">
+            <div className="flex items-center gap-3 sm:gap-4 mt-3 sm:mt-4">
               <span className={cn(
-                'text-sm font-medium transition-colors',
+                'text-xs sm:text-sm font-medium transition-colors',
                 !isYearly ? 'text-foreground' : 'text-muted-foreground'
               )}>
                 Monthly
               </span>
               <button
                 onClick={() => setIsYearly(!isYearly)}
-                className="relative w-14 h-7 rounded-full bg-muted p-1 transition-all"
+                className="relative w-12 sm:w-14 h-6 sm:h-7 rounded-full bg-muted p-1 transition-all"
               >
                 <div className={cn(
-                  'w-5 h-5 rounded-full bg-primary shadow-sm transition-all duration-300',
-                  isYearly ? 'translate-x-7' : 'translate-x-0'
+                  'w-4 sm:w-5 h-4 sm:h-5 rounded-full bg-primary shadow-sm transition-all duration-300',
+                  isYearly ? 'translate-x-6 sm:translate-x-7' : 'translate-x-0'
                 )} />
               </button>
               <span className={cn(
-                'text-sm font-medium transition-colors',
+                'text-xs sm:text-sm font-medium transition-colors flex items-center gap-1',
                 isYearly ? 'text-foreground' : 'text-muted-foreground'
               )}>
                 Yearly
+                <span className="hidden sm:inline px-1.5 py-0.5 bg-green-500/15 text-green-600 dark:text-green-400 text-[10px] font-bold rounded">
+                  -20%
+                </span>
               </span>
             </div>
             
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center hover:bg-muted transition-colors"
+              className="absolute top-3 sm:top-4 right-3 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center hover:bg-muted transition-colors"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
 
-          {/* Plans Grid */}
-          <div className="p-3 sm:p-6 overflow-y-auto max-h-[70vh]">
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+          {/* Plans Grid - Horizontal Scroll on Mobile */}
+          <div className="p-3 sm:p-4 md:p-6 overflow-y-auto sm:max-h-[70vh]">
+            {/* Mobile: Horizontal scrolling cards */}
+            <div className="flex sm:hidden overflow-x-auto gap-3 pb-4 snap-x snap-mandatory -mx-3 px-3 scrollbar-hide">
+              {plans.map((plan) => {
+                const isCurrentPlan = user.plan === plan.id;
+                const Icon = plan.icon;
+                const displayPrice = isYearly && plan.price > 0 
+                  ? Math.round(plan.yearlyPrice / 12) 
+                  : plan.price;
+                
+                return (
+                  <div
+                    key={plan.id}
+                    className={cn(
+                      'relative rounded-xl border transition-all duration-200 flex flex-col flex-shrink-0 w-[280px] snap-center',
+                      plan.popular ? 'border-primary shadow-lg ring-1 ring-primary/20' : 'border-border',
+                      isCurrentPlan && 'bg-muted/30'
+                    )}
+                  >
+                    {/* Badges */}
+                    {plan.popular && !isCurrentPlan && (
+                      <div className="absolute -top-0 left-0 right-0 flex justify-center">
+                        <div className="px-2 py-1 bg-primary/10 text-primary text-[10px] font-semibold rounded-b-lg flex items-center gap-1 border-x border-b border-primary/20">
+                          <Sparkles className="w-3 h-3" />
+                          Most Popular
+                        </div>
+                      </div>
+                    )}
+                    
+                    {isCurrentPlan && (
+                      <div className="absolute -top-0 left-0 right-0 flex justify-center">
+                        <div className="px-2 py-1 bg-muted text-muted-foreground text-[10px] font-medium rounded-b-lg border-x border-b border-border">
+                          Your Current Plan
+                        </div>
+                      </div>
+                    )}
+
+                    <div className={cn('p-4 flex flex-col flex-1', (plan.popular || isCurrentPlan) && 'pt-7')}>
+                      {/* Plan Header */}
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className={cn(
+                          'w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br',
+                          plan.iconGradient
+                        )}>
+                          <Icon className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-foreground text-sm">{plan.name}</h3>
+                          {plan.id === 'free' && (
+                            <p className="text-[10px] text-muted-foreground">Forever free</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Price */}
+                      <div className="mb-3">
+                        <div className="flex items-baseline gap-0.5">
+                          <span className="text-2xl font-black text-foreground">৳{displayPrice}</span>
+                          <span className="text-muted-foreground text-xs">/mo</span>
+                        </div>
+                      </div>
+
+                      {/* AI Models Count */}
+                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                        {plan.modelCount} AI MODELS
+                      </p>
+
+                      {/* Model Badges */}
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {plan.models.slice(0, 4).map((model) => (
+                          <div key={model} className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-muted/50 border border-border/50">
+                            <span className={cn('w-1.5 h-1.5 rounded-full', modelColors[model] || 'bg-primary')} />
+                            <span className="text-[10px] font-medium text-foreground">{model}</span>
+                          </div>
+                        ))}
+                        {plan.models.length > 4 && (
+                          <div className="flex items-center px-1.5 py-0.5 rounded-md bg-primary/10 border border-primary/20">
+                            <span className="text-[10px] font-bold text-primary">+{plan.models.length - 4}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Features - Show only first 5 on mobile */}
+                      <div className="space-y-1.5 mb-4 flex-1">
+                        {plan.features.slice(0, 6).map((feature, idx) => (
+                          <div key={idx} className="flex items-start gap-1.5">
+                            {feature.included ? (
+                              <Check className="w-3 h-3 text-emerald-500 flex-shrink-0 mt-0.5" />
+                            ) : (
+                              <X className="w-3 h-3 text-muted-foreground/40 flex-shrink-0 mt-0.5" />
+                            )}
+                            <span className={cn(
+                              'text-xs',
+                              feature.included ? 'text-foreground' : 'text-muted-foreground/60'
+                            )}>
+                              {feature.text}
+                            </span>
+                          </div>
+                        ))}
+                        {plan.features.length > 6 && (
+                          <p className="text-[10px] text-muted-foreground pl-4">+{plan.features.length - 6} more</p>
+                        )}
+                      </div>
+
+                      {/* CTA Button */}
+                      <button
+                        onClick={() => handleSelectPlan(plan.id)}
+                        disabled={isCurrentPlan}
+                        className={cn(
+                          'w-full py-2.5 rounded-lg font-semibold text-xs flex items-center justify-center gap-1.5 transition-all',
+                          isCurrentPlan
+                            ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                            : plan.buttonStyle
+                        )}
+                      >
+                        {isCurrentPlan ? 'Current Plan' : plan.buttonText}
+                        {!isCurrentPlan && <ArrowRight className="w-3 h-3" />}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Tablet & Desktop: Grid layout */}
+            <div className="hidden sm:grid sm:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
               {plans.map((plan) => {
                 const isCurrentPlan = user.plan === plan.id;
                 const Icon = plan.icon;
@@ -256,11 +383,11 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) 
                       </div>
                     )}
 
-                    <div className={cn('p-4 sm:p-5 flex flex-col flex-1', (plan.popular || isCurrentPlan) && 'pt-8')}>
+                    <div className={cn('p-4 md:p-5 flex flex-col flex-1', (plan.popular || isCurrentPlan) && 'pt-8')}>
                       {/* Plan Header */}
                       <div className="flex items-center gap-3 mb-4">
                         <div className={cn(
-                          'w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center bg-gradient-to-br',
+                          'w-10 h-10 md:w-11 md:h-11 rounded-xl flex items-center justify-center bg-gradient-to-br',
                           plan.iconGradient
                         )}>
                           <Icon className="w-5 h-5 text-white" />
@@ -276,7 +403,7 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) 
                       {/* Price */}
                       <div className="mb-4">
                         <div className="flex items-baseline gap-0.5">
-                          <span className="text-3xl sm:text-4xl font-black text-foreground">৳{displayPrice}</span>
+                          <span className="text-3xl md:text-4xl font-black text-foreground">৳{displayPrice}</span>
                           <span className="text-muted-foreground text-sm">/mo</span>
                         </div>
                       </div>
@@ -347,19 +474,19 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) 
             </div>
 
             {/* Footer - Powered by AI Models */}
-            <div className="mt-6 text-center">
-              <p className="text-sm text-muted-foreground mb-3">
+            <div className="mt-4 sm:mt-6 text-center">
+              <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
                 Powered by the best AI models
               </p>
-              <div className="flex flex-wrap justify-center gap-2">
+              <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
                 {['ChatGPT', 'Claude', 'DeepSeek', 'Gemini', 'Grok'].map((model) => (
-                  <div key={model} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-muted/50 border border-border/50">
-                    <span className={cn('w-2 h-2 rounded-full', modelColors[model] || 'bg-primary')} />
-                    <span className="text-xs font-medium text-foreground">{model}</span>
+                  <div key={model} className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full bg-muted/50 border border-border/50">
+                    <span className={cn('w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full', modelColors[model] || 'bg-primary')} />
+                    <span className="text-[10px] sm:text-xs font-medium text-foreground">{model}</span>
                   </div>
                 ))}
-                <div className="px-2.5 py-1.5 rounded-full bg-primary/10 border border-primary/20">
-                  <span className="text-xs font-bold text-primary">+10 more</span>
+                <div className="px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full bg-primary/10 border border-primary/20">
+                  <span className="text-[10px] sm:text-xs font-bold text-primary">+10 more</span>
                 </div>
               </div>
             </div>
