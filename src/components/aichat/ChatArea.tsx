@@ -62,11 +62,6 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
       {/* Input */}
       <div className="pb-2 sm:pb-3 md:pb-4 shrink-0">
         <ChatInput onSend={handleSend} disabled={isStreaming} onOpenVoiceMode={onOpenVoiceMode} />
-        {/* Disclaimer */}
-        <p className="text-center text-xs text-muted-foreground mt-2 flex items-center justify-center gap-1.5">
-          <span className="text-primary">✦</span>
-          Sorix can make mistakes. Check important info.
-        </p>
       </div>
       
       {/* Settings Modal */}
