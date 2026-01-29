@@ -9,8 +9,8 @@ const corsHeaders = {
 const ATTACHMENT_MODEL = 'openai/gpt-4o-mini';
 const DEFAULT_MODEL = 'openai/gpt-4o'; // Fallback for regular chat
 
-// Professional system prompt for universal file analysis with emoji support
-const SYSTEM_PROMPT = `You are AI Sorix, a world-class document analyst and expert assistant with advanced capabilities in analyzing any type of file or content.
+// Professional system prompt factory - uses actual model name
+const getSystemPrompt = (modelName: string = 'AI Assistant') => `You are ${modelName}, a world-class AI assistant with advanced capabilities in analyzing any type of file or content.
 
 ## 🎯 Response Style Guidelines (CRITICAL):
 You MUST use emojis strategically throughout your responses for better user experience, like a professional AI assistant:
@@ -90,7 +90,7 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, model, stream = true, userPlan } = await req.json();
+    const { messages, model, stream = true, userPlan, modelName } = await req.json();
     
     const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
     if (!OPENROUTER_API_KEY) {
@@ -101,9 +101,12 @@ serve(async (req) => {
       );
     }
 
+    // Generate system prompt with actual model name
+    const systemPrompt = getSystemPrompt(modelName || 'AI Assistant');
+
     // Prepare messages with system prompt
     const processedMessages = [
-      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'system', content: systemPrompt },
       ...messages.filter((m: any) => m.role !== 'system')
     ];
     

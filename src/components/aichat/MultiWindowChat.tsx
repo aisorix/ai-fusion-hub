@@ -250,7 +250,8 @@ const MultiWindowChat = () => {
               });
             }
           },
-          abortController.signal
+          abortController.signal,
+          modelName // Pass model name to API
         );
       } catch (err: any) {
         console.error(`Send error in window ${window.id}:`, err);

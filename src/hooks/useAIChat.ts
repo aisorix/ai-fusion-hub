@@ -334,11 +334,12 @@ export const useAIChat = () => {
                 });
               }
             },
-            abortControllerRef.current.signal
+            abortControllerRef.current.signal,
+            modelName // Pass model name to API
           );
         }
       } else {
-        const response = await chatApi.sendMessage(apiMessages, backendModel, user.plan);
+        const response = await chatApi.sendMessage(apiMessages, backendModel, user.plan, modelName);
         updateLastMessage(response.content);
         // Set citations if available
         if (response.citations && response.citations.length > 0) {
