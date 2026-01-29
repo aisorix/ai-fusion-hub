@@ -4,13 +4,16 @@ import { CheckCircle, ArrowRight, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useChatStore, type UserPlan } from '@/stores/chatStore';
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const { setUserPlan } = useChatStore();
   const [isVerifying, setIsVerifying] = useState(true);
   const [verified, setVerified] = useState(false);
+  const [planName, setPlanName] = useState<string>('');
 
   const tranId = searchParams.get('tran_id');
   const gateway = searchParams.get('gateway');
@@ -18,20 +21,36 @@ const PaymentSuccess = () => {
   useEffect(() => {
     const verifyPayment = async () => {
       try {
-        // For Stripe, verify the payment session
-        if (gateway === 'stripe' && tranId) {
-          // The webhook should have already processed the payment
-          // Just verify the user has an active subscription
-          const { data: { user } } = await supabase.auth.getUser();
-          if (user) {
-            // Small delay to allow webhook to process
-            await new Promise(resolve => setTimeout(resolve, 2000));
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setIsVerifying(false);
+          return;
+        }
+
+        // Wait for webhook to process
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        // Fetch the user's subscription from the database
+        const { data: subscription, error } = await supabase
+          .from('subscriptions')
+          .select('plan_id, status')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .maybeSingle();
+
+        if (subscription && subscription.plan_id) {
+          // Update the chatStore with the new plan
+          const validPlans: UserPlan[] = ['free', 'basic', 'pro', 'premium'];
+          const planId = subscription.plan_id as UserPlan;
+          
+          if (validPlans.includes(planId)) {
+            setUserPlan(planId);
+            setPlanName(getPlanDisplayName(planId));
             setVerified(true);
           }
-        } else if (tranId) {
-          // For SSLCommerz/bKash, the IPN should have processed
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          setVerified(true);
+        } else {
+          // No subscription found yet, might still be processing
+          console.log('No active subscription found yet');
         }
       } catch (error) {
         console.error('Verification error:', error);
@@ -41,7 +60,17 @@ const PaymentSuccess = () => {
     };
 
     verifyPayment();
-  }, [tranId, gateway]);
+  }, [tranId, gateway, setUserPlan]);
+
+  const getPlanDisplayName = (planId: string): string => {
+    const names: Record<string, string> = {
+      free: 'Free Trial',
+      basic: 'Sorix Basic',
+      pro: 'Sorix Pro',
+      premium: 'Sorix Premium',
+    };
+    return names[planId] || planId;
+  };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -70,10 +99,17 @@ const PaymentSuccess = () => {
         {isVerifying ? (
           <div className="flex items-center justify-center gap-2 text-muted-foreground mb-8">
             <Loader2 className="w-5 h-5 animate-spin" />
-            <span>{language === 'en' ? 'Verifying payment...' : 'পেমেন্ট যাচাই করা হচ্ছে...'}</span>
+            <span>{language === 'en' ? 'Verifying payment and activating your plan...' : 'পেমেন্ট যাচাই এবং প্ল্যান সক্রিয় করা হচ্ছে...'}</span>
           </div>
         ) : (
           <div className="glass-card rounded-xl p-6 mb-8">
+            {verified && planName && (
+              <div className="mb-4 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                <p className="text-green-600 dark:text-green-400 font-semibold">
+                  {language === 'en' ? `✓ ${planName} activated!` : `✓ ${planName} সক্রিয় করা হয়েছে!`}
+                </p>
+              </div>
+            )}
             <p className="text-sm text-muted-foreground mb-2">
               {language === 'en' ? 'Transaction ID' : 'ট্রানজেকশন আইডি'}
             </p>

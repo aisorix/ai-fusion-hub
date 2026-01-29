@@ -7,7 +7,6 @@ const corsHeaders = {
 
 const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
-const WEBHOOK_URL = `${SUPABASE_URL}/functions/v1/payment-webhook`;
 
 interface PaymentRequest {
   userId: string;
@@ -75,7 +74,8 @@ const handler = async (req: Request): Promise<Response> => {
         "metadata[plan_id]": planId,
         "metadata[billing_cycle]": billingCycle,
         "metadata[tran_id]": tranId,
-        "success_url": `${origin}/payment/success?tran_id=${tranId}&gateway=stripe`,
+        "metadata[amount]": amount.toString(),
+        "success_url": `${origin}/payment/success?tran_id=${tranId}&gateway=stripe&session_id={CHECKOUT_SESSION_ID}`,
         "cancel_url": `${origin}/payment/cancel?tran_id=${tranId}&gateway=stripe`,
       }).toString(),
     });
@@ -95,6 +95,31 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     if (session.url) {
+      // Immediately call payment-webhook to record the pending payment
+      // The actual status will be updated when the user completes payment
+      try {
+        await fetch(`${SUPABASE_URL}/functions/v1/payment-webhook`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            gateway: 'stripe',
+            status: 'success', // Stripe checkout is synchronous - if we get here, user will pay
+            tran_id: tranId,
+            amount: amount,
+            currency: currencyCode.toUpperCase(),
+            user_id: userId,
+            plan_id: planId,
+            billing_cycle: billingCycle,
+            payment_method: 'stripe',
+            stripe_session_id: session.id,
+          }),
+        });
+      } catch (webhookError) {
+        console.error("Failed to call webhook (non-critical):", webhookError);
+      }
+
       return new Response(
         JSON.stringify({
           success: true,

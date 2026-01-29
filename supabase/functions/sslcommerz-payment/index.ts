@@ -37,8 +37,8 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const body: PaymentRequest = await req.json();
-    const { userId, planId, planName, amount, currency, customerName, customerEmail, customerPhone, billingCycle } = body;
+    const body = await req.json();
+    const { userId, planId, planName, amount, currency, customerName, customerEmail, customerPhone, billingCycle, origin } = body;
 
     // Generate unique transaction ID
     const tranId = `SORIX_${planId.toUpperCase()}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -48,6 +48,8 @@ const handler = async (req: Request): Promise<Response> => {
       ? "https://sandbox.sslcommerz.com/gwprocess/v4/api.php"
       : "https://securepay.sslcommerz.com/gwprocess/v4/api.php";
 
+    const clientOrigin = origin || req.headers.get("origin") || "";
+
     // Prepare form data for SSLCommerz
     const formData = new URLSearchParams();
     formData.append("store_id", SSLCOMMERZ_STORE_ID);
@@ -55,16 +57,16 @@ const handler = async (req: Request): Promise<Response> => {
     formData.append("total_amount", amount.toString());
     formData.append("currency", currency === "৳" ? "BDT" : currency);
     formData.append("tran_id", tranId);
-    formData.append("success_url", `${req.headers.get("origin")}/payment/success?tran_id=${tranId}`);
-    formData.append("fail_url", `${req.headers.get("origin")}/payment/failed?tran_id=${tranId}`);
-    formData.append("cancel_url", `${req.headers.get("origin")}/payment/cancel?tran_id=${tranId}`);
+    formData.append("success_url", `${clientOrigin}/payment/success?tran_id=${tranId}&gateway=sslcommerz`);
+    formData.append("fail_url", `${clientOrigin}/payment/failed?tran_id=${tranId}&gateway=sslcommerz`);
+    formData.append("cancel_url", `${clientOrigin}/payment/cancel?tran_id=${tranId}&gateway=sslcommerz`);
     formData.append("ipn_url", WEBHOOK_URL);
     
     // Pass user and plan info via value_a, value_b, value_c, value_d fields for IPN
     formData.append("value_a", userId);
     formData.append("value_b", planId);
     formData.append("value_c", billingCycle);
-    formData.append("value_d", "sslcommerz");
+    formData.append("value_d", amount.toString());
     formData.append("cus_name", customerName);
     formData.append("cus_email", customerEmail);
     formData.append("cus_phone", customerPhone || "01700000000");

@@ -200,9 +200,9 @@ const handler = async (req: Request): Promise<Response> => {
       }
 
       case 'execute_payment': {
-        if (!paymentID) {
+        if (!paymentID || !userId || !planId || !amount || !billingCycle) {
           return new Response(
-            JSON.stringify({ success: false, error: "Payment ID required" }),
+            JSON.stringify({ success: false, error: "Missing required fields" }),
             { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
           );
         }
@@ -218,6 +218,29 @@ const handler = async (req: Request): Promise<Response> => {
         const result = await executePayment(token, paymentID);
         
         if (result.transactionStatus === "Completed") {
+          // Call webhook to record payment and update subscription
+          try {
+            await fetch(WEBHOOK_URL, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                gateway: 'bkash',
+                status: 'success',
+                tran_id: result.trxID || paymentID,
+                amount: parseFloat(result.amount) || amount,
+                currency: 'BDT',
+                user_id: userId,
+                plan_id: planId,
+                billing_cycle: billingCycle,
+                payment_method: 'bkash',
+              }),
+            });
+          } catch (webhookError) {
+            console.error("Failed to call webhook:", webhookError);
+          }
+
           return new Response(
             JSON.stringify({
               success: true,
