@@ -384,15 +384,6 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
 
         {/* Bottom Section */}
         <div className="p-3 border-t border-border space-y-1">
-          {/* Back to Home */}
-          <Link
-            to="/"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
-          >
-            <Home className="w-4 h-4" />
-            <span>Back to Home</span>
-          </Link>
-
           {/* Dark Mode Toggle */}
           <button
             onClick={toggleTheme}
@@ -436,6 +427,15 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Back to Home */}
+          <Link
+            to="/"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
+          >
+            <Home className="w-4 h-4" />
+            <span>Back to Home</span>
+          </Link>
         </div>
       </div>
 
