@@ -105,51 +105,36 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
       transition={{ duration: 0.2, ease: 'easeOut' }}
       className={cn(
         'group relative w-full',
-        isUser ? 'py-4' : 'py-6',
-        isAssistant && (theme === 'dark' ? 'bg-muted/20' : 'bg-muted/40'),
-        // Premium styling for paid users
-        isPaidUser && isAssistant && 'bg-gradient-to-r from-primary/5 via-transparent to-accent/5'
+        isUser ? 'py-3 sm:py-4' : 'py-4 sm:py-6',
+        isAssistant && (theme === 'dark' ? 'bg-muted/10' : 'bg-muted/30')
       )}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
-      <div className="max-w-3xl mx-auto px-4">
+      <div className="max-w-3xl mx-auto px-3 sm:px-4">
         {isUser ? (
-          // User message - premium bubble style for paid users
+          // User message - clean bubble style
           <div className="flex justify-end">
             <div className={cn(
-              'max-w-[85%] px-4 py-3 rounded-2xl relative overflow-hidden',
-              isPaidUser ? (
-                theme === 'dark' 
-                  ? 'bg-gradient-to-br from-primary/30 to-accent/20 border border-primary/40 shadow-lg shadow-primary/10' 
-                  : 'bg-gradient-to-br from-primary/20 to-accent/10 border border-primary/30 shadow-md'
-              ) : (
-                theme === 'dark' 
-                  ? 'bg-primary/20 border border-primary/30' 
-                  : 'bg-primary/10 border border-primary/20'
-              )
+              'max-w-[90%] sm:max-w-[85%] px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl',
+              theme === 'dark' 
+                ? 'bg-primary/20 text-foreground' 
+                : 'bg-primary/10 text-foreground'
             )}>
-              {/* Premium glow effect */}
-              {isPaidUser && (
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-shimmer" />
-              )}
-              <p className="whitespace-pre-wrap break-words leading-relaxed text-[15px] relative z-10">
+              <p className="whitespace-pre-wrap break-words leading-relaxed text-[15px]">
                 {message.content}
               </p>
               
               {/* Image Attachments */}
               {message.attachments && message.attachments.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3 relative z-10">
+                <div className="flex flex-wrap gap-2 mt-2">
                   {message.attachments.map((att, index) => (
                     att.type === 'image' && (
                       <img
                         key={index}
                         src={att.url}
                         alt="Attachment"
-                        className={cn(
-                          "max-w-[250px] max-h-[250px] rounded-xl cursor-pointer hover:opacity-90 transition-opacity border border-border",
-                          isPaidUser && "ring-2 ring-primary/20"
-                        )}
+                        className="max-w-[200px] sm:max-w-[250px] max-h-[200px] sm:max-h-[250px] rounded-xl cursor-pointer hover:opacity-90 transition-opacity"
                       />
                     )
                   ))}
@@ -159,18 +144,15 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
           </div>
         ) : (
           // Assistant message - shows real model icon and name
-          <div className="flex gap-4">
+          <div className="flex gap-3 sm:gap-4">
             {/* Model-specific Avatar Icon */}
-            <div className="flex-shrink-0">
-              <div className={cn(
-                "w-8 h-8 rounded-full flex items-center justify-center overflow-hidden",
-                isPaidUser && "ring-2 ring-primary/20"
-              )}>
+            <div className="flex-shrink-0 mt-0.5">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center overflow-hidden">
                 <ModelIcon 
                   modelId={messageModelId} 
                   modelName={messageModelName} 
                   size="lg" 
-                  showGlow={isPaidUser}
+                  showGlow={false}
                   theme={theme}
                 />
               </div>

@@ -14,10 +14,10 @@ const MessageList = () => {
       ref={containerRef}
       className={cn(
         'flex-1 overflow-y-auto',
-        'scrollbar-thin'
+        'scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent'
       )}
     >
-      <div className="divide-y divide-border/50">
+      <div className="divide-y divide-border/30">
         {messages.map((message, index) => (
           <MessageBubble
             key={message.id}
@@ -28,7 +28,7 @@ const MessageList = () => {
         ))}
       </div>
       {/* Bottom padding for input */}
-      <div className="h-4" />
+      <div className="h-2 sm:h-4" />
     </div>
   );
 };

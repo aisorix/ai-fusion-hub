@@ -41,8 +41,8 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
   
   return (
     <div className="flex-1 flex flex-col h-full min-w-0 bg-background">
-      {/* Header with Model Selector */}
-      <header className="flex items-center justify-center py-2 sm:py-3 md:py-4 border-b border-border/50 px-2 sm:px-4">
+      {/* Header with Model Selector - Desktop only (mobile has MobileHeader) */}
+      <header className="hidden md:flex items-center justify-center py-3 md:py-4 border-b border-border/50 px-4">
         <div className="flex items-center gap-2">
           <ModelSelector />
         </div>
@@ -64,8 +64,8 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
         </div>
       )}
       
-      {/* Input */}
-      <div className="pb-2 sm:pb-3 md:pb-4 shrink-0">
+      {/* Input - Full width on mobile */}
+      <div className="pb-2 sm:pb-3 md:pb-4 shrink-0 bg-background">
         <ChatInput onSend={handleSend} disabled={isStreaming} onOpenVoiceMode={onOpenVoiceMode} />
       </div>
       

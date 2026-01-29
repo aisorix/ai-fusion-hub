@@ -363,7 +363,7 @@ const ChatInput = ({ onSend, disabled, onOpenVoiceMode }: ChatInputProps) => {
   return (
     <div 
       ref={dropZoneRef}
-      className="w-full max-w-3xl mx-auto px-3 sm:px-4 relative"
+      className="w-full max-w-3xl mx-auto px-2 sm:px-4 relative"
       onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -509,13 +509,13 @@ const ChatInput = ({ onSend, disabled, onOpenVoiceMode }: ChatInputProps) => {
         )}
       </AnimatePresence>
       
-      {/* Input Container */}
+      {/* Input Container - ChatGPT style */}
       <div className={cn(
-        'relative flex items-end rounded-xl sm:rounded-2xl border transition-all duration-200',
-        'bg-card border-border',
-        'focus-within:border-primary/50 focus-within:shadow-glow',
-        'shadow-lg',
-        isDragOver && 'border-primary'
+        'relative flex items-end rounded-2xl sm:rounded-3xl border transition-all duration-200',
+        'bg-muted/40 border-border/50',
+        'focus-within:border-primary/40 focus-within:bg-muted/60',
+        'shadow-sm',
+        isDragOver && 'border-primary bg-primary/5'
       )}>
         {/* Plus Button */}
         <div className="relative">
@@ -523,12 +523,16 @@ const ChatInput = ({ onSend, disabled, onOpenVoiceMode }: ChatInputProps) => {
             onClick={() => setShowAttachMenu(!showAttachMenu)}
             disabled={isStreaming || disabled || isParsing}
             className={cn(
-              'p-2.5 sm:p-3 m-1 sm:m-1.5 rounded-lg sm:rounded-xl transition-all duration-200',
-              'hover:bg-accent text-muted-foreground hover:text-foreground',
-              'disabled:opacity-50 disabled:cursor-not-allowed'
+              'p-2 sm:p-2.5 m-1 rounded-full transition-all duration-200',
+              'hover:bg-background text-muted-foreground hover:text-foreground',
+              'disabled:opacity-50 disabled:cursor-not-allowed',
+              showAttachMenu && 'bg-background text-foreground'
             )}
           >
-            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+            <Plus className={cn(
+              'w-5 h-5 transition-transform duration-200',
+              showAttachMenu && 'rotate-45'
+            )} />
           </button>
           
           {/* Attachment Menu */}
@@ -638,7 +642,7 @@ const ChatInput = ({ onSend, disabled, onOpenVoiceMode }: ChatInputProps) => {
           className="hidden"
         />
         
-        {/* Textarea */}
+        {/* Textarea - ChatGPT style */}
         <TextareaAutosize
           ref={textareaRef}
           value={input}
@@ -648,66 +652,67 @@ const ChatInput = ({ onSend, disabled, onOpenVoiceMode }: ChatInputProps) => {
           placeholder={t.askAnything + '...'}
           disabled={isStreaming || disabled || isParsing}
           minRows={1}
-          maxRows={6}
+          maxRows={5}
           className={cn(
-            'flex-1 py-3 sm:py-4 px-1 sm:px-2 bg-transparent resize-none focus:outline-none',
-            'text-sm sm:text-base text-foreground placeholder:text-muted-foreground',
+            'flex-1 py-3 px-1 bg-transparent resize-none focus:outline-none',
+            'text-[15px] sm:text-base text-foreground placeholder:text-muted-foreground/70',
             'disabled:opacity-50 disabled:cursor-not-allowed'
           )}
         />
         
         {/* Right Actions */}
-        <div className="flex items-center gap-0.5 sm:gap-1 p-1 sm:p-1.5">
+        <div className="flex items-center gap-0.5 p-1">
           {/* Mic Button - Opens Live Voice Mode */}
-          <button
-            onClick={onOpenVoiceMode}
-            className={cn(
-              'p-2.5 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200',
-              'hover:bg-accent text-muted-foreground hover:text-primary',
-              'group relative'
-            )}
-            title="Live Voice Mode"
-          >
-            <Mic className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
-            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-          </button>
+          {!input.trim() && pendingAttachments.length === 0 && !isStreaming && (
+            <button
+              onClick={onOpenVoiceMode}
+              className={cn(
+                'p-2 sm:p-2.5 rounded-full transition-all duration-200',
+                'hover:bg-background text-muted-foreground hover:text-primary',
+                'relative'
+              )}
+              title="Live Voice Mode"
+            >
+              <Mic className="w-5 h-5" />
+              <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-green-500 rounded-full" />
+            </button>
+          )}
           
           {/* Send/Stop Button */}
           <button
             onClick={isStreaming ? () => {} : handleSend}
             disabled={disabled || isParsing || (!isStreaming && !input.trim() && pendingAttachments.length === 0)}
             className={cn(
-              'p-2.5 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-200',
+              'p-2 sm:p-2.5 rounded-full transition-all duration-200',
               input.trim() || pendingAttachments.length > 0 || isStreaming
-                ? 'bg-gradient-to-r from-primary to-accent text-primary-foreground hover:shadow-glow'
-                : 'bg-muted text-muted-foreground',
-              'disabled:opacity-50 disabled:cursor-not-allowed'
+                ? 'bg-foreground text-background hover:opacity-90'
+                : 'bg-muted text-muted-foreground opacity-50',
+              'disabled:opacity-30 disabled:cursor-not-allowed'
             )}
           >
             {isParsing ? (
-              <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : isStreaming ? (
-              <Square className="w-4 h-4 sm:w-5 sm:h-5" />
+              <Square className="w-4 h-4" />
             ) : (
-              <Send className="w-4 h-4 sm:w-5 sm:h-5" />
+              <Send className="w-5 h-5" />
             )}
           </button>
         </div>
       </div>
       
-      {/* Disclaimer */}
-      <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-2 sm:mt-3 pb-1 sm:pb-2">
-        <Sparkles className="w-3 h-3 text-primary" />
-        <p className="text-[10px] sm:text-xs text-muted-foreground">
+      {/* Disclaimer - Minimal on mobile */}
+      <div className="flex items-center justify-center gap-1.5 mt-2 pb-1 sm:pb-2">
+        <p className="text-[10px] sm:text-xs text-muted-foreground/60 text-center">
           {isHealthMode 
-            ? '🏥 Health Mode Active - AI provides general info only. Always consult professionals.'
+            ? '🏥 Health Mode Active - Always consult professionals'
             : t.sorixCanMakeMistakes
           }
         </p>
         {isHealthMode && (
           <button
             onClick={() => setHealthMode(false)}
-            className="text-[10px] sm:text-xs text-rose-500 hover:text-rose-600 font-medium ml-1"
+            className="text-[10px] sm:text-xs text-rose-500 hover:text-rose-600 font-medium"
           >
             Disable
           </button>
