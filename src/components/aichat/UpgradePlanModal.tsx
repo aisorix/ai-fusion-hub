@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check, Sparkles, Zap, Crown, Gift, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useChatStore, type UserPlan } from '@/stores/chatStore';
+import { useLanguage } from '@/contexts/LanguageContext';
+import PaymentModal from '@/components/PaymentModal';
 
 interface UpgradePlanModalProps {
   isOpen: boolean;
@@ -147,11 +149,27 @@ const plans: PlanData[] = [
 
 const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) => {
   const { user, setUserPlan } = useChatStore();
+  const { language } = useLanguage();
   const [isYearly, setIsYearly] = useState(false);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<PlanData | null>(null);
 
-  const handleSelectPlan = (planId: UserPlan) => {
-    setUserPlan(planId);
-    onClose();
+  const handleSelectPlan = (plan: PlanData) => {
+    // Free plan doesn't need payment
+    if (plan.id === 'free') {
+      setUserPlan(plan.id);
+      onClose();
+      return;
+    }
+    
+    // For paid plans, open payment modal
+    setSelectedPlan(plan);
+    setPaymentModalOpen(true);
+  };
+
+  const handlePaymentClose = () => {
+    setPaymentModalOpen(false);
+    setSelectedPlan(null);
   };
 
   if (!isOpen) return null;
@@ -329,7 +347,7 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) 
 
                       {/* CTA Button */}
                       <button
-                        onClick={() => handleSelectPlan(plan.id)}
+                        onClick={() => handleSelectPlan(plan)}
                         disabled={isCurrentPlan}
                         className={cn(
                           'w-full py-2.5 rounded-lg font-semibold text-xs flex items-center justify-center gap-1.5 transition-all',
@@ -455,7 +473,7 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) 
 
                       {/* CTA Button */}
                       <button
-                        onClick={() => handleSelectPlan(plan.id)}
+                        onClick={() => handleSelectPlan(plan)}
                         disabled={isCurrentPlan}
                         className={cn(
                           'w-full py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all',
@@ -493,6 +511,20 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) 
           </div>
         </motion.div>
       </motion.div>
+
+      {/* Payment Modal */}
+      <PaymentModal
+        isOpen={paymentModalOpen}
+        onClose={handlePaymentClose}
+        plan={selectedPlan ? {
+          name: selectedPlan.id,
+          displayName: selectedPlan.name,
+          price: selectedPlan.price,
+          yearlyPrice: selectedPlan.yearlyPrice,
+        } : null}
+        isYearly={isYearly}
+        language={language}
+      />
     </AnimatePresence>
   );
 };
