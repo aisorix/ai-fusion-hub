@@ -109,18 +109,22 @@ const handler = async (req: Request): Promise<Response> => {
     if (contentType.includes("application/json")) {
       callbackData = await req.json();
     } else if (contentType.includes("application/x-www-form-urlencoded")) {
+      // Handle SSLCommerz IPN format
       const formData = await req.formData();
+      const status = formData.get("status") as string;
+      const sslStatus = status === "VALID" || status === "VALIDATED" ? 'success' : 'failed';
+      
       callbackData = {
-        gateway: (formData.get("gateway") as 'sslcommerz' | 'bkash') || 'sslcommerz',
-        status: formData.get("status") as 'success' | 'failed' | 'cancelled',
+        gateway: 'sslcommerz',
+        status: sslStatus,
         tran_id: formData.get("tran_id") as string,
         val_id: formData.get("val_id") as string,
-        amount: parseFloat(formData.get("amount") as string) || 0,
+        amount: parseFloat(formData.get("amount") as string) || parseFloat(formData.get("value_d") as string) || 0,
         currency: formData.get("currency") as string || 'BDT',
-        user_id: formData.get("user_id") as string,
-        plan_id: formData.get("plan_id") as string,
-        billing_cycle: (formData.get("billing_cycle") as 'monthly' | 'yearly') || 'monthly',
-        payment_method: formData.get("payment_method") as string,
+        user_id: formData.get("value_a") as string, // userId passed in value_a
+        plan_id: formData.get("value_b") as string, // planId passed in value_b
+        billing_cycle: (formData.get("value_c") as 'monthly' | 'yearly') || 'monthly', // billingCycle in value_c
+        payment_method: formData.get("card_type") as string || 'sslcommerz',
       };
     } else {
       throw new Error("Unsupported content type");
@@ -166,6 +170,8 @@ const handler = async (req: Request): Promise<Response> => {
         .eq('user_id', callbackData.user_id)
         .maybeSingle();
 
+      let subscriptionId: string | null = null;
+
       if (existingSub) {
         // Update existing subscription
         const { error: updateError } = await supabase
@@ -178,11 +184,6 @@ const handler = async (req: Request): Promise<Response> => {
             billing_cycle: callbackData.billing_cycle,
             current_period_start: now.toISOString(),
             current_period_end: periodEnd.toISOString(),
-            payment_method: paymentMethod,
-            transaction_id: callbackData.tran_id,
-            paused_at: null,
-            cancelled_at: null,
-            updated_at: now.toISOString(),
           })
           .eq('id', existingSub.id);
 
@@ -190,10 +191,11 @@ const handler = async (req: Request): Promise<Response> => {
           console.error("Error updating subscription:", updateError);
           throw updateError;
         }
+        subscriptionId = existingSub.id;
         console.log("Subscription updated:", existingSub.id);
       } else {
         // Create new subscription
-        const { error: insertError } = await supabase
+        const { data: newSub, error: insertError } = await supabase
           .from('subscriptions')
           .insert({
             user_id: callbackData.user_id,
@@ -204,14 +206,15 @@ const handler = async (req: Request): Promise<Response> => {
             billing_cycle: callbackData.billing_cycle,
             current_period_start: now.toISOString(),
             current_period_end: periodEnd.toISOString(),
-            payment_method: paymentMethod,
-            transaction_id: callbackData.tran_id,
-          });
+          })
+          .select('id')
+          .single();
 
         if (insertError) {
           console.error("Error creating subscription:", insertError);
           throw insertError;
         }
+        subscriptionId = newSub?.id || null;
         console.log("New subscription created");
       }
 
@@ -220,13 +223,15 @@ const handler = async (req: Request): Promise<Response> => {
         .from('payment_history')
         .insert({
           user_id: callbackData.user_id,
+          subscription_id: subscriptionId,
+          transaction_id: callbackData.tran_id,
+          payment_method: paymentMethod,
           amount: callbackData.amount,
           currency: currency,
           status: 'completed',
           plan_id: callbackData.plan_id,
           billing_cycle: callbackData.billing_cycle,
-          payment_method: paymentMethod,
-          transaction_id: callbackData.tran_id,
+          gateway_response: { gateway: callbackData.gateway, val_id: callbackData.val_id },
         });
 
       if (historyError) {
@@ -257,13 +262,14 @@ const handler = async (req: Request): Promise<Response> => {
         .from('payment_history')
         .insert({
           user_id: callbackData.user_id,
+          transaction_id: callbackData.tran_id,
+          payment_method: paymentMethod,
           amount: callbackData.amount,
           currency: currency,
-          status: callbackData.status === 'cancelled' ? 'cancelled' : 'failed',
+          status: callbackData.status === 'cancelled' ? 'failed' : 'failed',
           plan_id: callbackData.plan_id,
           billing_cycle: callbackData.billing_cycle,
-          payment_method: paymentMethod,
-          transaction_id: callbackData.tran_id,
+          gateway_response: { gateway: callbackData.gateway, status: callbackData.status },
         });
 
       if (historyError) {
