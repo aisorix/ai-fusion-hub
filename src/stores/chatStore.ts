@@ -18,6 +18,8 @@ export interface Message {
   content: string;
   attachments?: Attachment[] | null;
   citations?: string[] | null; // URLs from Perplexity/search models
+  modelId?: string; // ID of the model used for this message
+  modelName?: string; // Display name of the model used
   createdAt: string;
 }
 

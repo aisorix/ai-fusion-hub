@@ -110,6 +110,9 @@ const MultiWindowChat = () => {
     
     // Add user message and empty assistant message to all windows
     chatWindows.forEach(window => {
+      const model = models.find(m => m.id === window.modelId);
+      const modelName = model?.name || 'Sorix AI';
+      
       const userMessage = {
         id: `${Date.now()}-${window.id}-user`,
         role: 'user' as const,
@@ -123,6 +126,8 @@ const MultiWindowChat = () => {
         id: `${Date.now()}-${window.id}-assistant`,
         role: 'assistant' as const,
         content: '',
+        modelId: window.modelId,
+        modelName: modelName,
         createdAt: new Date().toISOString()
       };
       addWindowMessage(window.id, assistantMessage);
@@ -467,8 +472,13 @@ const ChatWindowPanel = ({ window, canClose }: ChatWindowPanelProps) => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 sm:mb-1.5">
                         <span className="text-[10px] sm:text-xs font-medium text-muted-foreground">
-                          {message.role === 'user' ? 'You' : currentModel.name}
+                          {message.role === 'user' ? 'You' : (message.modelName || currentModel.name)}
                         </span>
+                        {message.role === 'assistant' && message.modelName && (
+                          <span className="px-1 py-0.5 text-[8px] bg-muted text-muted-foreground rounded font-medium">
+                            AI
+                          </span>
+                        )}
                       </div>
                       {message.role === 'user' ? (
                         <div>

@@ -157,11 +157,16 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
             
             {/* Content */}
             <div className="flex-1 min-w-0 space-y-2">
-              {/* Role Label */}
+              {/* Role Label with Model Name */}
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-foreground">
-                  Sorix AI
+                  {message.modelName || 'Sorix AI'}
                 </span>
+                {message.modelName && (
+                  <span className="px-1.5 py-0.5 text-[10px] bg-muted text-muted-foreground rounded-md font-medium">
+                    AI
+                  </span>
+                )}
                 {isStreaming && isLast && !message.content && (
                   <div className="flex items-center">
                     <span className="px-2 py-0.5 text-xs bg-primary/10 text-primary rounded-full">
