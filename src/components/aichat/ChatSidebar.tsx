@@ -383,11 +383,11 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
         </ScrollArea>
 
         {/* Bottom Section */}
-        <div className="p-3 border-t border-border space-y-2">
+        <div className="p-3 border-t border-border space-y-1">
           {/* Back to Home */}
           <Link
             to="/"
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
           >
             <Home className="w-4 h-4" />
             <span>Back to Home</span>
@@ -396,26 +396,22 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
           {/* Dark Mode Toggle */}
           <button
             onClick={toggleTheme}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
           >
             {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
           </button>
 
-          {/* User Profile with Plan Icon */}
+          {/* User Profile */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors">
-                {isPaidUser ? (
-                  <PlanIcon plan={user.plan as PlanType} size="sm" />
-                ) : (
-                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-[10px]">
-                    {userInitials}
-                  </div>
-                )}
+              <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors">
+                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-xs">
+                  {userInitials}
+                </div>
                 <div className="flex-1 text-left min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{userName}</p>
-                  <p className="text-[10px] text-muted-foreground truncate">{userEmail}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">{userEmail}</p>
                 </div>
                 <MoreHorizontal className="w-4 h-4 text-muted-foreground shrink-0" />
               </button>
