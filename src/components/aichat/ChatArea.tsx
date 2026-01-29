@@ -38,32 +38,9 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
   
   return (
     <div className="flex-1 flex flex-col h-full bg-background min-w-0">
-      {/* Header with Model Selector and Settings */}
-      <header className="flex items-center justify-between py-2 sm:py-3 md:py-4 border-b border-border/50 px-2 sm:px-4">
-        <div className="w-10" /> {/* Spacer for centering */}
+      {/* Header with Model Selector */}
+      <header className="flex items-center justify-center py-2 sm:py-3 md:py-4 border-b border-border/50 px-2 sm:px-4">
         <ModelSelector />
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowSettings(true)}
-            className={cn(
-              'w-9 h-9 rounded-lg flex items-center justify-center transition-colors',
-              'hover:bg-muted text-muted-foreground hover:text-foreground'
-            )}
-            title="Settings"
-          >
-            <Settings className="w-5 h-5" />
-          </button>
-          <button
-            onClick={handleSignOut}
-            className={cn(
-              'w-9 h-9 rounded-lg flex items-center justify-center transition-colors',
-              'hover:bg-destructive/10 text-muted-foreground hover:text-destructive'
-            )}
-            title="Sign Out"
-          >
-            <LogOut className="w-5 h-5" />
-          </button>
-        </div>
       </header>
       
       {/* Main Content */}
