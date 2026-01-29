@@ -68,6 +68,10 @@ export const translations = {
     suggestExplain: 'Explain',
     suggestBrainstorm: 'Brainstorm',
     suggestCreate: 'Create',
+    
+    // Chat input
+    askAnything: 'Ask anything',
+    sorixCanMakeMistakes: 'Sorix can make mistakes. Consider verifying important information.',
   },
   
   bn: {
@@ -136,6 +140,10 @@ export const translations = {
     suggestExplain: 'ব্যাখ্যা করুন',
     suggestBrainstorm: 'আইডিয়া',
     suggestCreate: 'তৈরি করুন',
+    
+    // Chat input
+    askAnything: 'যেকোনো কিছু জিজ্ঞাসা করুন',
+    sorixCanMakeMistakes: 'সোরিক্স ভুল করতে পারে। গুরুত্বপূর্ণ তথ্য যাচাই করুন।',
   },
 } as const;
 

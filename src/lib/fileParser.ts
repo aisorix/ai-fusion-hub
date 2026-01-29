@@ -28,6 +28,9 @@ export type FileType =
   | 'md'
   | 'yaml'
   | 'image'
+  | 'text'
+  | 'code'
+  | 'data'
   | 'unknown';
 
 export interface ParsedFile {
@@ -38,6 +41,50 @@ export interface ParsedFile {
   content: string;
   isImage: boolean;
 }
+
+// Get color for file type icons
+export const getFileColor = (type: FileType): string => {
+  const colors: Record<string, string> = {
+    pdf: 'text-red-500',
+    doc: 'text-blue-500',
+    docx: 'text-blue-500',
+    txt: 'text-gray-500',
+    csv: 'text-green-500',
+    json: 'text-amber-500',
+    xml: 'text-orange-500',
+    html: 'text-orange-500',
+    js: 'text-yellow-500',
+    ts: 'text-blue-600',
+    jsx: 'text-cyan-500',
+    tsx: 'text-cyan-600',
+    css: 'text-pink-500',
+    scss: 'text-pink-600',
+    py: 'text-blue-500',
+    java: 'text-red-600',
+    cpp: 'text-blue-700',
+    c: 'text-blue-700',
+    go: 'text-cyan-600',
+    rust: 'text-orange-600',
+    rb: 'text-red-500',
+    php: 'text-purple-500',
+    sql: 'text-blue-500',
+    md: 'text-gray-600',
+    yaml: 'text-purple-500',
+    image: 'text-green-500',
+    text: 'text-gray-500',
+    code: 'text-blue-500',
+    data: 'text-amber-500',
+    unknown: 'text-gray-400',
+  };
+  return colors[type] || colors.unknown;
+};
+
+// Format file size for display
+export const formatFileSize = (bytes: number): string => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
 
 const FILE_TYPE_MAP: Record<string, FileType> = {
   '.pdf': 'pdf',

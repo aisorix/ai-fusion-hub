@@ -1,5 +1,6 @@
 // Project AI hook for project-specific AI conversations
 // Handles project management and message persistence
+// NOTE: Uses 'any' type assertions until types are regenerated after migration
 
 import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -44,7 +45,8 @@ export const useProjectAI = () => {
     
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      // Use type assertion since types aren't regenerated yet
+      const { data, error } = await (supabase as any)
         .from('projects')
         .select('*')
         .eq('user_id', user.id)
@@ -54,11 +56,14 @@ export const useProjectAI = () => {
       setProjects((data || []) as DbProject[]);
     } catch (error: any) {
       console.error('Error fetching projects:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load projects',
-        variant: 'destructive',
-      });
+      // Only show toast if it's not a "table doesn't exist" error
+      if (!error.message?.includes('does not exist')) {
+        toast({
+          title: 'Error',
+          description: 'Failed to load projects',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +79,7 @@ export const useProjectAI = () => {
     if (!user) return null;
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('projects')
         .insert({
           user_id: user.id,
@@ -115,7 +120,7 @@ export const useProjectAI = () => {
     updates: Partial<DbProject>
   ): Promise<boolean> => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('projects')
         .update(updates)
         .eq('id', projectId);
@@ -145,7 +150,7 @@ export const useProjectAI = () => {
   // Delete a project
   const deleteProject = useCallback(async (projectId: string): Promise<boolean> => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('projects')
         .delete()
         .eq('id', projectId);
@@ -181,7 +186,7 @@ export const useProjectAI = () => {
     setIsLoading(true);
     
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('project_messages')
         .select('*')
         .eq('project_id', project.id)
@@ -191,11 +196,14 @@ export const useProjectAI = () => {
       setMessages((data || []) as ProjectMessage[]);
     } catch (error: any) {
       console.error('Error loading project messages:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load project messages',
-        variant: 'destructive',
-      });
+      // Only show toast if it's not a "table doesn't exist" error
+      if (!error.message?.includes('does not exist')) {
+        toast({
+          title: 'Error',
+          description: 'Failed to load project messages',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsLoading(false);
     }
