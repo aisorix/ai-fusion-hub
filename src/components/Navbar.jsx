@@ -98,6 +98,17 @@ const Navbar = () => {
 
             {/* Right Side: Theme + Language + Auth */}
             <div className="hidden lg:flex items-center gap-3">
+              {/* Chat Icon for logged-in users */}
+              {user && (
+                <Link
+                  to="/chat"
+                  className="p-2.5 rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-primary"
+                  title="Go to Chat"
+                >
+                  <MessageSquare className="w-5 h-5" />
+                </Link>
+              )}
+              
               {/* Theme Toggle */}
               <ThemeToggle />
 
