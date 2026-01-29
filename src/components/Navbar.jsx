@@ -153,6 +153,12 @@ const Navbar = () => {
                     </div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
+                      <Link to="/chat" className="flex items-center gap-2 cursor-pointer">
+                        <MessageSquare className="w-4 h-4" />
+                        Go to Chat
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
                       <Link to="/reviews" className="flex items-center gap-2 cursor-pointer">
                         <User className="w-4 h-4" />
                         My Reviews
@@ -315,6 +321,14 @@ const Navbar = () => {
                           </p>
                         </div>
                       </div>
+                      <Link
+                        to="/chat"
+                        className="flex items-center justify-center gap-2 w-full py-3.5 gradient-primary text-foreground font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                        Go to Chat
+                      </Link>
                       <Link
                         to="/reviews"
                         className="flex items-center justify-center gap-2 w-full py-3.5 border-2 border-border text-foreground font-semibold rounded-xl hover:bg-muted transition-all"

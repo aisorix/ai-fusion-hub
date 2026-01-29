@@ -3,12 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, Search, LayoutGrid, Sparkles, FolderKanban, Moon, Sun,
   ChevronDown, ChevronRight, LogOut, Settings, HelpCircle, Crown,
-  MessageSquare, Leaf, Heart, BookOpen, PanelLeftClose, PanelLeft, MoreHorizontal
+  MessageSquare, Leaf, Heart, BookOpen, PanelLeftClose, PanelLeft, MoreHorizontal, Home
 } from 'lucide-react';
 import { useChatStore } from '@/stores/chatStore';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import sorixLogo from '@/assets/logo.png';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
@@ -150,13 +150,13 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
       <div className="w-64 h-full bg-card border-r border-border flex flex-col">
         {/* Header */}
         <div className="p-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <img src={sorixLogo} alt="AI Sorix" className="w-8 h-8" />
             <div>
               <h1 className="font-bold text-foreground text-sm">AI Sorix</h1>
               <p className="text-[10px] text-muted-foreground">Premium AI Platform</p>
             </div>
-          </div>
+          </Link>
           <button
             onClick={toggleSidebarCollapse}
             className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
@@ -371,6 +371,15 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
 
         {/* Bottom Section */}
         <div className="p-3 border-t border-border space-y-2">
+          {/* Back to Home */}
+          <Link
+            to="/"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
+          >
+            <Home className="w-4 h-4" />
+            <span>Back to Home</span>
+          </Link>
+
           {/* Dark Mode Toggle */}
           <button
             onClick={toggleTheme}
