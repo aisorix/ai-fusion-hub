@@ -26,10 +26,10 @@ const Register = () => {
     confirmPassword: ''
   });
 
-  // Redirect if already logged in
+  // Redirect if already logged in - redirect to /chat
   useEffect(() => {
     if (user && !authLoading) {
-      navigate('/dashboard');
+      navigate('/chat');
     }
   }, [user, authLoading, navigate]);
 
@@ -98,7 +98,7 @@ const Register = () => {
         title: 'Account Created!',
         description: 'Welcome to AI Sorix! You are now signed in.',
       });
-      navigate('/dashboard');
+      navigate('/chat');
     }
   };
 
