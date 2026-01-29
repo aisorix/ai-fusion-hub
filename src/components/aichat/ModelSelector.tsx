@@ -8,7 +8,7 @@ import { ModelIcon } from './ModelIcons';
 
 const ModelSelector = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { selectedModel, models, setSelectedModel, user, isModelLocked } = useChatStore();
+  const { selectedModel, models, setSelectedModel, user, isModelLocked, theme } = useChatStore();
   const isMobile = useIsMobile();
   
   const currentModel = models.find(m => m.id === selectedModel) || models[0];
@@ -49,7 +49,7 @@ const ModelSelector = () => {
       >
         {/* Model Icon instead of generic sparkle */}
         <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg overflow-hidden flex items-center justify-center">
-          <ModelIcon modelId={currentModel.id} modelName={currentModel.name} size="md" showGlow={isPaidUser} />
+          <ModelIcon modelId={currentModel.id} modelName={currentModel.name} size="md" showGlow={isPaidUser} theme={theme} />
         </div>
         <span className={cn(
           "font-medium text-xs sm:text-sm max-w-[100px] sm:max-w-none truncate",
@@ -165,6 +165,7 @@ const ModelSelector = () => {
                             isLocked={false}
                             requiredPlan={null}
                             onSelect={() => handleSelect(model.id, false)}
+                            theme={theme}
                           />
                         ))}
                       </div>
@@ -190,6 +191,7 @@ const ModelSelector = () => {
                               isLocked={locked}
                               requiredPlan={requiredPlan}
                               onSelect={() => handleSelect(model.id, locked)}
+                              theme={theme}
                             />
                           );
                         })}
@@ -245,6 +247,7 @@ const ModelSelector = () => {
                           isLocked={false}
                           requiredPlan={null}
                           onSelect={() => handleSelect(model.id, false)}
+                          theme={theme}
                         />
                       ))}
                     </div>
@@ -267,6 +270,7 @@ const ModelSelector = () => {
                             isLocked={locked}
                             requiredPlan={requiredPlan}
                             onSelect={() => handleSelect(model.id, locked)}
+                            theme={theme}
                           />
                         );
                       })}
@@ -311,10 +315,11 @@ interface ModelItemProps {
   isLocked: boolean;
   requiredPlan: string | null;
   onSelect: () => void;
+  theme: 'light' | 'dark';
 }
 
 // Mobile Model Item - Larger touch targets with model icons
-const MobileModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect }: ModelItemProps) => (
+const MobileModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect, theme }: ModelItemProps) => (
   <button
     onClick={onSelect}
     disabled={isLocked}
@@ -329,7 +334,7 @@ const MobileModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect }
   >
     {/* Model Icon */}
     <div className="flex-shrink-0">
-      <ModelIcon modelId={model.id} modelName={model.name} size="md" />
+      <ModelIcon modelId={model.id} modelName={model.name} size="md" theme={theme} />
     </div>
 
     <div className="flex-1 min-w-0">
@@ -364,7 +369,7 @@ const MobileModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect }
 );
 
 // Desktop Model Item - Compact with model icons
-const DesktopModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect }: ModelItemProps) => (
+const DesktopModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect, theme }: ModelItemProps) => (
   <button
     onClick={onSelect}
     disabled={isLocked}
@@ -379,7 +384,7 @@ const DesktopModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect 
   >
     {/* Model Icon */}
     <div className="flex-shrink-0">
-      <ModelIcon modelId={model.id} modelName={model.name} size="sm" />
+      <ModelIcon modelId={model.id} modelName={model.name} size="sm" theme={theme} />
     </div>
     
     <div className="flex-1 min-w-0">

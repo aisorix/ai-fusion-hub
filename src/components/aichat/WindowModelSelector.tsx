@@ -14,7 +14,7 @@ interface WindowModelSelectorProps {
 
 const WindowModelSelector = ({ windowId, currentModelId }: WindowModelSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { chatWindows, setWindowModel, models, isModelLocked, user } = useChatStore();
+  const { chatWindows, setWindowModel, models, isModelLocked, user, theme } = useChatStore();
   
   const window = chatWindows.find(w => w.id === windowId);
   const modelId = currentModelId || window?.modelId;
@@ -33,7 +33,7 @@ const WindowModelSelector = ({ windowId, currentModelId }: WindowModelSelectorPr
           isPaidUser && 'border border-primary/20 hover:border-primary/40'
         )}
       >
-        <ModelIcon modelId={currentModel.id} modelName={currentModel.name} size="sm" showGlow={isPaidUser} />
+        <ModelIcon modelId={currentModel.id} modelName={currentModel.name} size="sm" showGlow={isPaidUser} theme={theme} />
         <span className="font-medium truncate max-w-[100px]">{currentModel.name}</span>
         <ChevronDown className={cn(
           'w-3 h-3 text-muted-foreground transition-transform',
@@ -66,7 +66,7 @@ const WindowModelSelector = ({ windowId, currentModelId }: WindowModelSelectorPr
                       : 'hover:bg-muted'
                   )}
                 >
-                  <ModelIcon modelId={model.id} modelName={model.name} size="sm" />
+                  <ModelIcon modelId={model.id} modelName={model.name} size="sm" theme={theme} />
                   <span className="flex-1 truncate">{model.name}</span>
                   {modelId === model.id && <Check className="w-4 h-4 text-primary" />}
                 </button>
