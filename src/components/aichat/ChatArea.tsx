@@ -1,0 +1,58 @@
+import React from 'react';
+import { useChatStore } from '@/stores/chatStore';
+import { useAIChat } from '@/hooks/useAIChat';
+import MessageList from './MessageList';
+import ChatInput from './ChatInput';
+import ModelSelector from './ModelSelector';
+import EmptyState from './EmptyState';
+import { cn } from '@/lib/utils';
+
+interface ChatAreaProps {
+  onOpenVoiceMode?: () => void;
+}
+
+const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
+  const { activeChatId, chats, user } = useChatStore();
+  const { sendMessage, isStreaming, error } = useAIChat();
+  
+  // Derive messages from active chat
+  const messages = chats.find(c => c.id === activeChatId)?.messages || [];
+  
+  const handleSend = async (content: string) => {
+    await sendMessage(content);
+  };
+  
+  const showEmptyState = !activeChatId || messages.length === 0;
+  
+  return (
+    <div className="flex-1 flex flex-col h-full bg-background min-w-0">
+      {/* Header with Model Selector */}
+      <header className="flex items-center justify-center py-2 sm:py-3 md:py-4 border-b border-border/50 px-2 sm:px-4">
+        <ModelSelector />
+      </header>
+      
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+        {showEmptyState ? (
+          <EmptyState userName={user.name.split(' ')[0]} />
+        ) : (
+          <MessageList />
+        )}
+      </div>
+      
+      {/* Error Display */}
+      {error && (
+        <div className="mx-4 mb-2 px-4 py-2 bg-destructive/10 text-destructive text-sm rounded-lg">
+          {error}
+        </div>
+      )}
+      
+      {/* Input */}
+      <div className="pb-2 sm:pb-3 md:pb-4 shrink-0">
+        <ChatInput onSend={handleSend} disabled={isStreaming} onOpenVoiceMode={onOpenVoiceMode} />
+      </div>
+    </div>
+  );
+};
+
+export default ChatArea;
