@@ -172,17 +172,20 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) 
     setSelectedPlan(null);
   };
 
-  if (!isOpen) return null;
+  if (!isOpen && !paymentModalOpen) return null;
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-start sm:items-center justify-center p-0 sm:p-4 overflow-y-auto"
-        onClick={onClose}
-      >
+    <>
+      {/* Upgrade Modal */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-start sm:items-center justify-center p-0 sm:p-4 overflow-y-auto"
+            onClick={onClose}
+          >
         <motion.div
           initial={{ opacity: 0, scale: 0.98, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -509,10 +512,12 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) 
               </div>
             </div>
           </div>
+          </motion.div>
         </motion.div>
-      </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Payment Modal */}
+      {/* Payment Modal - Outside AnimatePresence for proper rendering */}
       <PaymentModal
         isOpen={paymentModalOpen}
         onClose={handlePaymentClose}
@@ -525,7 +530,7 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) 
         isYearly={isYearly}
         language={language}
       />
-    </AnimatePresence>
+    </>
   );
 };
 

@@ -153,7 +153,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto z-[200]">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
             {language === 'en' ? 'Complete Your Purchase' : 'আপনার ক্রয় সম্পন্ন করুন'}
