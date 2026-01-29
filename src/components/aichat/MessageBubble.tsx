@@ -7,7 +7,9 @@ import {
   Share,
   Volume2,
   User,
-  MoreHorizontal
+  MoreHorizontal,
+  Crown,
+  Sparkles
 } from 'lucide-react';
 import copy from 'copy-to-clipboard';
 import MarkdownRenderer from './MarkdownRenderer';
@@ -15,7 +17,7 @@ import ExportDropdown from './ExportDropdown';
 import SourcesWidget from './SourcesWidget';
 import { useChatStore, type Message } from '@/stores/chatStore';
 import { cn } from '@/lib/utils';
-import sorixLogo from '@/assets/logo.png';
+import { ModelIcon } from './ModelIcons';
 
 // Emoji reactions for rating AI responses
 const EMOJI_REACTIONS = [
@@ -63,11 +65,13 @@ interface MessageBubbleProps {
 }
 
 const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps) => {
-  const { theme, openShareModal, chats, activeChatId } = useChatStore();
+  const { theme, openShareModal, chats, activeChatId, user } = useChatStore();
   const [copied, setCopied] = useState(false);
   const [selectedReactions, setSelectedReactions] = useState<Set<string>>(new Set());
   const [showActions, setShowActions] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  
+  const isPaidUser = user.plan !== 'free';
 
   const handleReaction = useCallback((key: string) => {
     setSelectedReactions(prev => {
@@ -101,35 +105,50 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
       className={cn(
         'group relative w-full',
         isUser ? 'py-4' : 'py-6',
-        isAssistant && (theme === 'dark' ? 'bg-muted/20' : 'bg-muted/40')
+        isAssistant && (theme === 'dark' ? 'bg-muted/20' : 'bg-muted/40'),
+        // Premium styling for paid users
+        isPaidUser && isAssistant && 'bg-gradient-to-r from-primary/5 via-transparent to-accent/5'
       )}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
       <div className="max-w-3xl mx-auto px-4">
         {isUser ? (
-          // User message - compact bubble style
+          // User message - premium bubble style for paid users
           <div className="flex justify-end">
             <div className={cn(
-              'max-w-[85%] px-4 py-3 rounded-2xl',
-              theme === 'dark' 
-                ? 'bg-primary/20 border border-primary/30' 
-                : 'bg-primary/10 border border-primary/20'
+              'max-w-[85%] px-4 py-3 rounded-2xl relative overflow-hidden',
+              isPaidUser ? (
+                theme === 'dark' 
+                  ? 'bg-gradient-to-br from-primary/30 to-accent/20 border border-primary/40 shadow-lg shadow-primary/10' 
+                  : 'bg-gradient-to-br from-primary/20 to-accent/10 border border-primary/30 shadow-md'
+              ) : (
+                theme === 'dark' 
+                  ? 'bg-primary/20 border border-primary/30' 
+                  : 'bg-primary/10 border border-primary/20'
+              )
             )}>
-              <p className="whitespace-pre-wrap break-words leading-relaxed text-[15px]">
+              {/* Premium glow effect */}
+              {isPaidUser && (
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-shimmer" />
+              )}
+              <p className="whitespace-pre-wrap break-words leading-relaxed text-[15px] relative z-10">
                 {message.content}
               </p>
               
               {/* Image Attachments */}
               {message.attachments && message.attachments.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3">
+                <div className="flex flex-wrap gap-2 mt-3 relative z-10">
                   {message.attachments.map((att, index) => (
                     att.type === 'image' && (
                       <img
                         key={index}
                         src={att.url}
                         alt="Attachment"
-                        className="max-w-[250px] max-h-[250px] rounded-xl cursor-pointer hover:opacity-90 transition-opacity border border-border"
+                        className={cn(
+                          "max-w-[250px] max-h-[250px] rounded-xl cursor-pointer hover:opacity-90 transition-opacity border border-border",
+                          isPaidUser && "ring-2 ring-primary/20"
+                        )}
                       />
                     )
                   ))}
@@ -138,38 +157,64 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
             </div>
           </div>
         ) : (
-          // Assistant message - full width with avatar
+          // Assistant message - enhanced with model icon
           <div className="flex gap-4">
-            {/* Avatar */}
+            {/* Model Avatar with Icon */}
             <div className="flex-shrink-0">
               <div className={cn(
-                'w-8 h-8 rounded-full flex items-center justify-center overflow-hidden',
-                'bg-gradient-to-br from-primary/30 to-accent/30',
-                'border border-primary/30 shadow-sm'
+                'w-8 h-8 rounded-full flex items-center justify-center overflow-hidden relative',
+                isPaidUser && 'ring-2 ring-primary/30 ring-offset-2 ring-offset-background'
               )}>
-                <img 
-                  src={sorixLogo} 
-                  alt="AI" 
-                  className="w-5 h-5 object-contain"
+                <ModelIcon 
+                  modelId={message.modelId} 
+                  modelName={message.modelName} 
+                  size="lg"
+                  showGlow={isPaidUser}
                 />
+                {/* Premium badge for paid users */}
+                {isPaidUser && (
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center border border-background">
+                    <Crown className="w-1.5 h-1.5 text-white" />
+                  </div>
+                )}
               </div>
             </div>
             
             {/* Content */}
             <div className="flex-1 min-w-0 space-y-2">
-              {/* Role Label with Model Name */}
+              {/* Role Label with Model Name and Icon */}
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-foreground">
+                <ModelIcon modelId={message.modelId} modelName={message.modelName} size="xs" />
+                <span className={cn(
+                  "text-sm font-semibold",
+                  isPaidUser ? "bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text" : "text-foreground"
+                )}>
                   {message.modelName || 'Sorix AI'}
                 </span>
                 {message.modelName && (
-                  <span className="px-1.5 py-0.5 text-[10px] bg-muted text-muted-foreground rounded-md font-medium">
+                  <span className={cn(
+                    "px-1.5 py-0.5 text-[10px] rounded-md font-medium",
+                    isPaidUser 
+                      ? "bg-gradient-to-r from-primary/20 to-accent/20 text-primary border border-primary/30" 
+                      : "bg-muted text-muted-foreground"
+                  )}>
                     AI
+                  </span>
+                )}
+                {isPaidUser && (
+                  <span className="px-1.5 py-0.5 text-[10px] bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-600 dark:text-yellow-400 rounded-md font-medium flex items-center gap-1">
+                    <Sparkles className="w-2.5 h-2.5" />
+                    PRO
                   </span>
                 )}
                 {isStreaming && isLast && !message.content && (
                   <div className="flex items-center">
-                    <span className="px-2 py-0.5 text-xs bg-primary/10 text-primary rounded-full">
+                    <span className={cn(
+                      "px-2 py-0.5 text-xs rounded-full",
+                      isPaidUser 
+                        ? "bg-gradient-to-r from-primary/20 to-accent/20 text-primary" 
+                        : "bg-primary/10 text-primary"
+                    )}>
                       Thinking
                     </span>
                     <ThinkingTimer isActive={true} />
@@ -177,7 +222,12 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
                 )}
                 {isStreaming && isLast && message.content && (
                   <div className="flex items-center">
-                    <span className="px-2 py-0.5 text-xs bg-green-500/10 text-green-500 rounded-full">
+                    <span className={cn(
+                      "px-2 py-0.5 text-xs rounded-full",
+                      isPaidUser 
+                        ? "bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-500" 
+                        : "bg-green-500/10 text-green-500"
+                    )}>
                       Writing
                     </span>
                   </div>

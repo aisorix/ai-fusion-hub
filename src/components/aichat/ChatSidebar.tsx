@@ -145,15 +145,33 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
     );
   }
 
+  const isPaidUser = user.plan !== 'free';
+
   return (
     <>
-      <div className="w-64 h-full bg-card border-r border-border flex flex-col">
+      <div className={cn(
+        "w-64 h-full bg-card border-r flex flex-col",
+        isPaidUser 
+          ? "border-primary/20 bg-gradient-to-b from-card via-card to-primary/5" 
+          : "border-border"
+      )}>
         {/* Header */}
         <div className="p-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <img src={sorixLogo} alt="AI Sorix" className="w-8 h-8" />
+            <img src={sorixLogo} alt="AI Sorix" className={cn(
+              "w-8 h-8",
+              isPaidUser && "drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]"
+            )} />
             <div>
-              <h1 className="font-bold text-foreground text-sm">AI Sorix</h1>
+              <h1 className="font-bold text-foreground text-sm flex items-center gap-1.5">
+                AI Sorix
+                {isPaidUser && (
+                  <span className="px-1 py-0.5 text-[8px] bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-600 dark:text-yellow-400 rounded font-semibold flex items-center gap-0.5">
+                    <Crown className="w-2 h-2" />
+                    PRO
+                  </span>
+                )}
+              </h1>
               <p className="text-[10px] text-muted-foreground">Premium AI Platform</p>
             </div>
           </Link>
@@ -165,14 +183,20 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
           </button>
         </div>
 
-        {/* New Chat Button */}
+        {/* New Chat Button - Enhanced for paid users */}
         <div className="px-3">
           <Button
             onClick={onNewChat}
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
+            className={cn(
+              "w-full gap-2 transition-all",
+              isPaidUser 
+                ? "bg-gradient-to-r from-primary via-primary to-accent text-primary-foreground hover:shadow-lg hover:shadow-primary/30" 
+                : "bg-primary hover:bg-primary/90 text-primary-foreground"
+            )}
           >
             <Plus className="w-4 h-4" />
             New chat
+            {isPaidUser && <Sparkles className="w-3 h-3 ml-auto opacity-70" />}
           </Button>
         </div>
 

@@ -442,3 +442,61 @@ textarea {
   --tw-prose-links: hsl(199 89% 35%);
   --tw-prose-code: hsl(199 89% 30%);
 }
+
+/* Shimmer animation for premium UI effects */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite ease-in-out;
+}
+
+/* Premium glow pulse for paid users */
+@keyframes premium-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px hsl(var(--primary) / 0.5), 0 0 60px hsl(var(--accent) / 0.3);
+  }
+}
+
+.animate-premium-glow {
+  animation: premium-glow 3s infinite ease-in-out;
+}
+
+/* Premium gradient border animation */
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.premium-border {
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--primary)));
+  background-size: 200% 100%;
+  animation: gradient-shift 3s ease-in-out infinite;
+}
+
+/* Gradient text animation for premium users */
+@keyframes gradient-text-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient {
+  animation: gradient-text-shift 3s ease-in-out infinite;
+}
