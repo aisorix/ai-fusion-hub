@@ -12,7 +12,8 @@ export const chatApi = {
     onDelta: (text: string) => void,
     onDone: (citations?: string[]) => void,
     onError: (error: Error) => void,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    modelName?: string
   ) => {
     try {
       const response = await fetch(
@@ -23,7 +24,7 @@ export const chatApi = {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({ messages, model, stream: true, userPlan }),
+          body: JSON.stringify({ messages, model, stream: true, userPlan, modelName }),
           signal,
         }
       );
@@ -117,9 +118,9 @@ export const chatApi = {
   },
 
   // Non-streaming message
-  sendMessage: async (messages: Message[], model: string, userPlan: string): Promise<{ content: string; citations?: string[] }> => {
+  sendMessage: async (messages: Message[], model: string, userPlan: string, modelName?: string): Promise<{ content: string; citations?: string[] }> => {
     const { data, error } = await supabase.functions.invoke('chat', {
-      body: { messages, model, stream: false, userPlan }
+      body: { messages, model, stream: false, userPlan, modelName }
     });
 
     if (error) {
