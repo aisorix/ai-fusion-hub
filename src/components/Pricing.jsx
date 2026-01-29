@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Check, X, Sparkles, Gift, Zap, Crown, ArrowRight, Star, ShieldCheck, CreditCard } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo, QwenLogo, LlamaLogo, PerplexityLogo, KimiLogo, MistralLogo, SorixLogo } from './AIModelLogos';
 
 // Payment method logos
 import sslcommerzLogo from '../assets/sslcommerz.png';
@@ -14,6 +13,23 @@ import bracBankLogo from '../assets/brac-bank.png';
 import mastercardLogo from '../assets/mastercard.png';
 import visaLogo from '../assets/visa.png';
 import amexLogo from '../assets/amex.png';
+
+// Model colors for badges (using colored dots like the reference)
+const modelColors = {
+  'ChatGPT': 'bg-emerald-500',
+  'GPT-4o': 'bg-emerald-500',
+  'Claude': 'bg-amber-500',
+  'DeepSeek': 'bg-blue-500',
+  'Gemini': 'bg-blue-400',
+  'Grok': 'bg-rose-500',
+  'Qwen': 'bg-violet-500',
+  'Llama': 'bg-indigo-500',
+  'Perplexity': 'bg-teal-500',
+  'Kimi-k1': 'bg-purple-500',
+  'Kimi-k2': 'bg-purple-600',
+  'Mistral': 'bg-orange-500',
+  'Sorix': 'bg-cyan-500',
+};
 
 const Pricing = () => {
   const [isYearly, setIsYearly] = useState(false);
@@ -34,24 +50,21 @@ const Pricing = () => {
       icon: Gift,
       gradient: 'from-slate-500 to-slate-600',
       cardStyle: 'glass-card',
-      models: [
-        { name: 'DeepSeek', Logo: DeepSeekLogo },
-        { name: 'Gemini', Logo: GeminiLogo },
-        { name: 'Sorix', Logo: SorixLogo },
-      ],
-      tokens: '80K',
+      models: ['GPT-4o', 'DeepSeek', 'Gemini'],
+      tokens: '5K',
       features: [
-        { text: language === 'en' ? 'Web Search (Limited)' : 'ওয়েব সার্চ (সীমিত)', included: true },
+        { text: '5K Tokens', subtext: '/month', included: true },
+        { text: t('webSearch'), included: false },
+        { text: t('projects'), included: false },
         { text: t('voiceAI'), included: false },
         { text: language === 'en' ? 'File Upload' : 'ফাইল আপলোড', included: false },
         { text: language === 'en' ? 'Image Gen' : 'ইমেজ জেন', included: false },
         { text: t('memory'), included: false },
-        { text: t('projects'), included: false },
         { text: sorixLegendsLabel, included: false },
         { text: sorixHealthLabel, included: true },
         { text: sorixAgroLabel, included: true },
       ],
-      buttonText: language === 'en' ? 'Start Free' : 'ফ্রি শুরু করুন',
+      buttonText: language === 'en' ? 'Current Plan' : 'বর্তমান প্ল্যান',
       buttonStyle: 'bg-muted hover:bg-muted/80 text-foreground',
     },
     {
@@ -62,15 +75,10 @@ const Pricing = () => {
       icon: Zap,
       gradient: 'from-cyan-500 to-blue-500',
       cardStyle: 'futuristic-card',
-      models: [
-        { name: 'ChatGPT', Logo: ChatGPTLogo },
-        { name: 'Qwen', Logo: QwenLogo },
-        { name: 'DeepSeek', Logo: DeepSeekLogo },
-        { name: 'Gemini', Logo: GeminiLogo },
-        { name: 'Llama', Logo: LlamaLogo },
-      ],
+      models: ['ChatGPT', 'Qwen', 'DeepSeek', 'Gemini', 'Llama'],
       tokens: '800K',
       features: [
+        { text: '800K Tokens', subtext: '/month', included: true },
         { text: language === 'en' ? 'Web Search (Basic)' : 'ওয়েব সার্চ (বেসিক)', included: true },
         { text: `${t('voiceAIBasic')}`, subtext: '10 min/day', included: true },
         { text: language === 'en' ? 'File Upload: PDF/DOC' : 'ফাইল আপলোড: PDF/DOC', subtext: language === 'en' ? 'Max 5mb' : 'সর্বোচ্চ ৫MB', included: true },
@@ -82,7 +90,7 @@ const Pricing = () => {
         { text: sorixAgroLabel, included: true },
       ],
       buttonText: language === 'en' ? 'Get Started' : 'শুরু করুন',
-      buttonStyle: 'border-2 border-primary/50 text-primary hover:bg-primary/10',
+      buttonStyle: 'border-2 border-foreground/20 text-foreground hover:bg-muted',
     },
     {
       name: 'pro',
@@ -94,17 +102,10 @@ const Pricing = () => {
       cardStyle: 'futuristic-card neon-border',
       badge: t('mostPopular'),
       popular: true,
-      models: [
-        { name: 'ChatGPT', Logo: ChatGPTLogo },
-        { name: 'Qwen', Logo: QwenLogo },
-        { name: 'DeepSeek', Logo: DeepSeekLogo },
-        { name: 'Gemini', Logo: GeminiLogo },
-        { name: 'Llama', Logo: LlamaLogo },
-        { name: 'Perplexity', Logo: PerplexityLogo },
-        { name: 'Kimi-k1', Logo: KimiLogo },
-      ],
+      models: ['ChatGPT', 'Qwen', 'DeepSeek', 'Gemini', 'Llama', 'Claude', 'Grok', 'Perplexity'],
       tokens: '1.5M',
       features: [
+        { text: '1.5M Tokens', subtext: '/month', included: true },
         { text: language === 'en' ? 'Web Search (Pro)' : 'ওয়েব সার্চ (প্রো)', included: true },
         { text: t('voiceAIHigh'), included: true },
         { text: language === 'en' ? 'File Upload: PDF/DOC' : 'ফাইল আপলোড: PDF/DOC', subtext: language === 'en' ? 'Max 10mb' : 'সর্বোচ্চ ১০MB', included: true },
@@ -116,7 +117,7 @@ const Pricing = () => {
         { text: sorixAgroLabel, included: true },
       ],
       buttonText: language === 'en' ? 'Get Pro' : 'প্রো নিন',
-      buttonStyle: 'gradient-primary text-foreground shadow-glow hover:shadow-glow-lg',
+      buttonStyle: 'bg-primary text-primary-foreground shadow-glow hover:shadow-glow-lg',
     },
     {
       name: 'premium',
@@ -126,20 +127,10 @@ const Pricing = () => {
       icon: Crown,
       gradient: 'from-amber-500 to-orange-500',
       cardStyle: 'futuristic-card',
-      models: [
-        { name: 'ChatGPT', Logo: ChatGPTLogo },
-        { name: 'Claude', Logo: ClaudeLogo },
-        { name: 'DeepSeek', Logo: DeepSeekLogo },
-        { name: 'Gemini', Logo: GeminiLogo },
-        { name: 'Grok', Logo: GrokLogo },
-        { name: 'Qwen', Logo: QwenLogo },
-        { name: 'Llama', Logo: LlamaLogo },
-        { name: 'Perplexity', Logo: PerplexityLogo },
-        { name: 'Kimi-k2', Logo: KimiLogo },
-        { name: 'Mistral', Logo: MistralLogo },
-      ],
+      models: ['ChatGPT', 'Claude', 'DeepSeek', 'Gemini', 'Grok', 'Qwen', 'Llama', 'Sorix', 'Mistral', 'Perplexity'],
       tokens: '3M',
       features: [
+        { text: '3M Tokens', subtext: '/month', included: true },
         { text: language === 'en' ? 'Web Search (Premium)' : 'ওয়েব সার্চ (প্রিমিয়াম)', included: true },
         { text: t('voiceAIUnlimited'), included: true },
         { text: language === 'en' ? 'File Upload: PDF/DOC' : 'ফাইল আপলোড: PDF/DOC', subtext: language === 'en' ? 'Max 15mb' : 'সর্বোচ্চ ১৫MB', included: true },
@@ -152,7 +143,7 @@ const Pricing = () => {
         { text: sorixAgroLabel, included: true },
       ],
       buttonText: language === 'en' ? 'Go Premium' : 'প্রিমিয়াম নিন',
-      buttonStyle: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg hover:shadow-xl',
+      buttonStyle: 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-lg hover:shadow-xl',
     },
   ];
 
@@ -266,9 +257,9 @@ const Pricing = () => {
                   </p>
                   <div className="flex flex-wrap gap-1.5">
                     {plan.models.slice(0, 5).map((model) => (
-                      <div key={model.name} className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-muted/50 border border-border/50">
-                        <model.Logo className="w-3.5 h-3.5" />
-                        <span className="text-xs font-medium text-foreground">{model.name}</span>
+                      <div key={model} className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-muted/50 border border-border/50">
+                        <span className={`w-2 h-2 rounded-full ${modelColors[model] || 'bg-primary'}`} />
+                        <span className="text-xs font-medium text-foreground">{model}</span>
                       </div>
                     ))}
                     {plan.models.length > 5 && (
@@ -279,12 +270,6 @@ const Pricing = () => {
                   </div>
                 </div>
 
-                {/* Tokens */}
-                <div className="flex items-center gap-2 mb-6 p-3.5 rounded-xl glass-card">
-                  <Zap className="w-5 h-5 text-primary" />
-                  <span className="text-sm font-bold text-foreground">{plan.tokens} {t('tokens')}</span>
-                  <span className="text-xs text-muted-foreground">/ {language === 'en' ? 'month' : 'মাস'}</span>
-                </div>
 
                 {/* Features */}
                 <div className="space-y-3 mb-8">
@@ -327,27 +312,17 @@ const Pricing = () => {
         {/* Footer Note */}
         <div className="mt-16 sm:mt-20 text-center">
           <p className="text-sm text-muted-foreground mb-8">
-            {language === 'en' ? 'All plans include access to Sorix Health & Sorix Agro' : 'সব প্ল্যানে সোরিক্স হেলথ ও সোরিক্স অ্যাগ্রো অন্তর্ভুক্ত'}
+            {language === 'en' ? 'Powered by the best AI models' : 'সেরা AI মডেলগুলো দ্বারা চালিত'}
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            {[
-              { name: 'ChatGPT', Logo: ChatGPTLogo },
-              { name: 'Claude', Logo: ClaudeLogo },
-              { name: 'DeepSeek', Logo: DeepSeekLogo },
-              { name: 'Gemini', Logo: GeminiLogo },
-              { name: 'Grok', Logo: GrokLogo },
-              { name: 'Qwen', Logo: QwenLogo },
-              { name: 'Llama', Logo: LlamaLogo },
-              { name: 'Perplexity', Logo: PerplexityLogo },
-              { name: 'Mistral', Logo: MistralLogo },
-            ].map((model) => (
-              <div key={model.name} className="flex items-center gap-2 px-3 py-2 rounded-full glass-card hover:border-primary/30 transition-all duration-300">
-                <model.Logo className="w-4 h-4" />
-                <span className="text-xs font-medium text-foreground">{model.name}</span>
+            {['ChatGPT', 'Claude', 'DeepSeek', 'Gemini', 'Grok'].map((model) => (
+              <div key={model} className="flex items-center gap-2 px-3 py-2 rounded-full glass-card hover:border-primary/30 transition-all duration-300">
+                <span className={`w-2 h-2 rounded-full ${modelColors[model] || 'bg-primary'}`} />
+                <span className="text-xs font-medium text-foreground">{model}</span>
               </div>
             ))}
             <div className="px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-              <span className="text-xs font-bold text-primary">+3 more</span>
+              <span className="text-xs font-bold text-primary">+10 more</span>
             </div>
           </div>
         </div>
