@@ -551,7 +551,19 @@ export const useChatStore = create<ChatState>()(
       name: 'sorix-chat-storage',
       partialize: (state) => ({
         theme: state.theme,
-        chats: state.chats,
+        // Strip large base64 attachments from chats to prevent localStorage quota errors
+        chats: state.chats.map(chat => ({
+          ...chat,
+          messages: chat.messages.map(msg => ({
+            ...msg,
+            // Remove attachment URLs (base64 data) but keep metadata for display
+            attachments: msg.attachments?.map(att => ({
+              ...att,
+              url: att.type === 'image' ? '' : att.url, // Clear base64 for images
+              parsedContent: undefined, // Don't persist parsed content
+            }))
+          }))
+        })),
         activeChatId: state.activeChatId,
         selectedModel: state.selectedModel,
         language: state.language,

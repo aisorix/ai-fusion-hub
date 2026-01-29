@@ -203,6 +203,9 @@ const ChatInput = ({ onSend, disabled, onOpenVoiceMode }: ChatInputProps) => {
         
         if (fileType === 'image' || file.type.startsWith('image/')) {
           const parsed = await parseFile(file);
+          if (!parsed.content || parsed.content.length === 0) {
+            throw new Error('Failed to read image data');
+          }
           addAttachment({
             type: 'image',
             url: parsed.content,
@@ -215,8 +218,10 @@ const ChatInput = ({ onSend, disabled, onOpenVoiceMode }: ChatInputProps) => {
         } else {
           const parsed = await parseFile(file);
           
-          if (parsed.content.includes('[Error parsing file')) {
-            toast.error(`Failed to parse ${file.name}`);
+          if (parsed.content.includes('[Error parsing file') || parsed.content.includes('Unable to')) {
+            toast.error(`Could not extract text from ${file.name}. Try a different format.`, { duration: 5000 });
+          } else if (parsed.content.length < 10) {
+            toast.error(`${file.name} appears to be empty or unreadable`, { duration: 5000 });
           } else {
             addAttachment({
               type: 'file',
@@ -231,7 +236,12 @@ const ChatInput = ({ onSend, disabled, onOpenVoiceMode }: ChatInputProps) => {
         }
       } catch (error) {
         console.error('Error processing file:', error);
-        toast.error(`Failed to process ${file.name}`);
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+        if (errorMsg.includes('quota') || errorMsg.includes('storage')) {
+          toast.error(`Storage full. Please clear browser data or use smaller files.`, { duration: 6000 });
+        } else {
+          toast.error(`Failed to process ${file.name}: ${errorMsg}`, { duration: 5000 });
+        }
       }
       
       processedCount++;
