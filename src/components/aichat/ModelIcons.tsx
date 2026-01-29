@@ -2,181 +2,169 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-// Get provider-specific icon component with professional styling
-export const getModelIcon = (modelId: string, modelName?: string): React.ReactNode => {
+// Import actual brand icons
+import perplexityIcon from '@/assets/icons/perplexity.png';
+import openaiIcon from '@/assets/icons/openai.png';
+import deepseekIcon from '@/assets/icons/deepseek.png';
+import grokIcon from '@/assets/icons/grok.png';
+import metaIcon from '@/assets/icons/meta.png';
+import qwenIcon from '@/assets/icons/qwen.png';
+import claudeIcon from '@/assets/icons/claude.png';
+import kimiIcon from '@/assets/icons/kimi.png';
+import mistralIcon from '@/assets/icons/mistral.png';
+
+// Model icon configuration with theme support
+interface IconConfig {
+  icon: string;
+  name: string;
+  // Whether the icon needs inversion in dark mode (for icons with white/light backgrounds)
+  invertInDark?: boolean;
+  // Whether the icon needs inversion in light mode (for icons with dark backgrounds)
+  invertInLight?: boolean;
+  // Custom background for the icon container
+  bgLight?: string;
+  bgDark?: string;
+}
+
+const getIconConfig = (modelId: string, modelName?: string): IconConfig => {
   const name = (modelName || modelId).toLowerCase();
   
-  // OpenAI / GPT models - Green theme
-  if (name.includes('gpt') || name.includes('openai')) {
-    return (
-      <svg viewBox="0 0 24 24" className="w-full h-full">
-        <circle cx="12" cy="12" r="11" fill="url(#gpt-gradient)" />
-        <path d="M22.28 9.82a5.98 5.98 0 0 0-.52-4.91 6.05 6.05 0 0 0-6.51-2.9A6.07 6.07 0 0 0 4.98 4.18a5.98 5.98 0 0 0-4 2.9 6.05 6.05 0 0 0 .74 7.1 5.98 5.98 0 0 0 .51 4.91 6.05 6.05 0 0 0 6.51 2.9A5.98 5.98 0 0 0 13.26 24a6.06 6.06 0 0 0 5.77-4.21 5.99 5.99 0 0 0 4-2.9 6.06 6.06 0 0 0-.75-7.07z" fill="#10A37F" transform="scale(0.4) translate(18, 18)" />
-        <defs>
-          <linearGradient id="gpt-gradient" x1="0" y1="0" x2="24" y2="24">
-            <stop stopColor="#10A37F" />
-            <stop offset="1" stopColor="#1A7F64" />
-          </linearGradient>
-        </defs>
-      </svg>
-    );
+  // OpenAI / GPT models
+  if (name.includes('gpt') || name.includes('openai') || name.includes('chatgpt')) {
+    return {
+      icon: openaiIcon,
+      name: 'ChatGPT',
+      invertInDark: true, // Black icon on white bg -> invert in dark
+      bgLight: 'bg-white',
+      bgDark: 'bg-zinc-800',
+    };
   }
   
-  // Claude / Anthropic models - Orange/Amber theme
+  // Claude / Anthropic models
   if (name.includes('claude') || name.includes('anthropic')) {
-    return (
-      <svg viewBox="0 0 24 24" className="w-full h-full">
-        <circle cx="12" cy="12" r="11" fill="url(#claude-gradient)" />
-        <text x="12" y="16" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold" fontFamily="system-ui">C</text>
-        <defs>
-          <linearGradient id="claude-gradient" x1="0" y1="0" x2="24" y2="24">
-            <stop stopColor="#D97706" />
-            <stop offset="1" stopColor="#B45309" />
-          </linearGradient>
-        </defs>
-      </svg>
-    );
+    return {
+      icon: claudeIcon,
+      name: 'Claude',
+      bgLight: 'bg-white',
+      bgDark: 'bg-zinc-800',
+    };
   }
   
-  // Gemini / Google models - Multi-color gradient
+  // Gemini / Google models
   if (name.includes('gemini') || name.includes('google')) {
-    return (
-      <svg viewBox="0 0 24 24" className="w-full h-full">
-        <path d="M12 2C12 8.627 17.373 14 24 14C17.373 14 12 19.373 12 26C12 19.373 6.627 14 0 14C6.627 14 12 8.627 12 2Z" fill="url(#gemini-gradient)" transform="scale(0.85) translate(1.5, 1)" />
-        <defs>
-          <linearGradient id="gemini-gradient" x1="0" y1="12" x2="24" y2="12">
-            <stop stopColor="#4285F4" />
-            <stop offset="0.5" stopColor="#9B72CB" />
-            <stop offset="1" stopColor="#D96570" />
-          </linearGradient>
-        </defs>
-      </svg>
-    );
+    return {
+      icon: '', // Will use SVG for Gemini
+      name: 'Gemini',
+      bgLight: 'bg-white',
+      bgDark: 'bg-zinc-800',
+    };
   }
   
-  // Grok / xAI models - Black/White theme
+  // Grok / xAI models
   if (name.includes('grok') || name.includes('xai')) {
-    return (
-      <svg viewBox="0 0 24 24" className="w-full h-full">
-        <circle cx="12" cy="12" r="11" fill="#000000" />
-        <circle cx="12" cy="12" r="10" fill="none" stroke="#333" strokeWidth="0.5" />
-        <text x="12" y="16" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold" fontFamily="system-ui">𝕏</text>
-      </svg>
-    );
+    return {
+      icon: grokIcon,
+      name: 'Grok',
+      invertInLight: true, // White icon on black bg -> invert in light
+      bgLight: 'bg-zinc-900',
+      bgDark: 'bg-zinc-800',
+    };
   }
   
-  // DeepSeek models - Purple/Blue theme
+  // DeepSeek models
   if (name.includes('deepseek')) {
-    return (
-      <svg viewBox="0 0 24 24" className="w-full h-full">
-        <circle cx="12" cy="12" r="11" fill="url(#deepseek-gradient)" />
-        <path d="M8 12h8M12 8v8M9 9l6 6M15 9l-6 6" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.9" />
-        <defs>
-          <linearGradient id="deepseek-gradient" x1="0" y1="0" x2="24" y2="24">
-            <stop stopColor="#7C3AED" />
-            <stop offset="1" stopColor="#4F46E5" />
-          </linearGradient>
-        </defs>
-      </svg>
-    );
+    return {
+      icon: deepseekIcon,
+      name: 'DeepSeek',
+      bgLight: 'bg-white',
+      bgDark: 'bg-zinc-800',
+    };
   }
   
-  // Perplexity / Search models - Teal theme
+  // Perplexity / Sonar models
   if (name.includes('perplexity') || name.includes('sonar')) {
-    return (
-      <svg viewBox="0 0 24 24" className="w-full h-full">
-        <rect width="24" height="24" rx="6" fill="url(#perplexity-gradient)" />
-        <path d="M12 6v12M6 12h12M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-        <defs>
-          <linearGradient id="perplexity-gradient" x1="0" y1="0" x2="24" y2="24">
-            <stop stopColor="#20B2AA" />
-            <stop offset="1" stopColor="#008B8B" />
-          </linearGradient>
-        </defs>
-      </svg>
-    );
+    return {
+      icon: perplexityIcon,
+      name: 'Perplexity',
+      invertInLight: true, // White icon on black bg -> invert in light
+      bgLight: 'bg-zinc-900',
+      bgDark: 'bg-zinc-800',
+    };
   }
   
-  // LLaMA / Meta models - Blue theme
+  // LLaMA / Meta models
   if (name.includes('llama') || name.includes('meta')) {
-    return (
-      <svg viewBox="0 0 24 24" className="w-full h-full">
-        <circle cx="12" cy="12" r="11" fill="url(#llama-gradient)" />
-        <text x="12" y="16" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold" fontFamily="system-ui">Lλ</text>
-        <defs>
-          <linearGradient id="llama-gradient" x1="0" y1="0" x2="24" y2="24">
-            <stop stopColor="#0668E1" />
-            <stop offset="1" stopColor="#0552B5" />
-          </linearGradient>
-        </defs>
-      </svg>
-    );
+    return {
+      icon: metaIcon,
+      name: 'LLaMA',
+      bgLight: 'bg-white',
+      bgDark: 'bg-zinc-800',
+    };
   }
   
-  // Qwen models - Indigo/Purple theme
+  // Qwen models
   if (name.includes('qwen')) {
-    return (
-      <svg viewBox="0 0 24 24" className="w-full h-full">
-        <circle cx="12" cy="12" r="11" fill="url(#qwen-gradient)" />
-        <text x="12" y="16" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold" fontFamily="system-ui">Q</text>
-        <defs>
-          <linearGradient id="qwen-gradient" x1="0" y1="0" x2="24" y2="24">
-            <stop stopColor="#6366F1" />
-            <stop offset="1" stopColor="#4F46E5" />
-          </linearGradient>
-        </defs>
-      </svg>
-    );
+    return {
+      icon: qwenIcon,
+      name: 'Qwen',
+      bgLight: 'bg-white',
+      bgDark: 'bg-zinc-800',
+    };
   }
   
-  // Kimi / Moonshot models - Red/Pink theme
+  // Kimi / Moonshot models
   if (name.includes('kimi') || name.includes('moonshot')) {
-    return (
-      <svg viewBox="0 0 24 24" className="w-full h-full">
-        <circle cx="12" cy="12" r="11" fill="url(#kimi-gradient)" />
-        <text x="12" y="16" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold" fontFamily="system-ui">K</text>
-        <defs>
-          <linearGradient id="kimi-gradient" x1="0" y1="0" x2="24" y2="24">
-            <stop stopColor="#FF6B6B" />
-            <stop offset="1" stopColor="#EE5A5A" />
-          </linearGradient>
-        </defs>
-      </svg>
-    );
+    return {
+      icon: kimiIcon,
+      name: 'Kimi',
+      bgLight: 'bg-white',
+      bgDark: 'bg-zinc-800',
+    };
   }
   
-  // Mistral / Codestral models - Orange theme
+  // Mistral / Codestral models
   if (name.includes('mistral') || name.includes('codestral')) {
-    return (
-      <svg viewBox="0 0 24 24" className="w-full h-full">
-        <rect width="24" height="24" rx="6" fill="url(#mistral-gradient)" />
-        <rect x="5" y="7" width="3.5" height="10" rx="1" fill="white" />
-        <rect x="10.25" y="5" width="3.5" height="14" rx="1" fill="white" />
-        <rect x="15.5" y="7" width="3.5" height="10" rx="1" fill="white" />
-        <defs>
-          <linearGradient id="mistral-gradient" x1="0" y1="0" x2="24" y2="24">
-            <stop stopColor="#FF7000" />
-            <stop offset="1" stopColor="#E65C00" />
-          </linearGradient>
-        </defs>
-      </svg>
-    );
+    return {
+      icon: mistralIcon,
+      name: 'Mistral',
+      bgLight: 'bg-white',
+      bgDark: 'bg-zinc-800',
+    };
   }
   
-  // Default Sorix AI icon - Cyan/Blue gradient
-  return (
-    <svg viewBox="0 0 24 24" className="w-full h-full">
-      <circle cx="12" cy="12" r="11" fill="url(#sorix-gradient)" />
-      <text x="12" y="16" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold" fontFamily="system-ui">S</text>
-      <defs>
-        <linearGradient id="sorix-gradient" x1="0" y1="0" x2="24" y2="24">
-          <stop stopColor="#06B6D4" />
-          <stop offset="1" stopColor="#3B82F6" />
-        </linearGradient>
-      </defs>
-    </svg>
-  );
+  // Default Sorix AI
+  return {
+    icon: '',
+    name: 'Sorix AI',
+    bgLight: 'bg-gradient-to-br from-cyan-400 to-blue-500',
+    bgDark: 'bg-gradient-to-br from-cyan-500 to-blue-600',
+  };
 };
+
+// Gemini SVG Icon Component
+const GeminiIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={cn("w-full h-full", className)}>
+    <defs>
+      <linearGradient id="gemini-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#4285F4" />
+        <stop offset="50%" stopColor="#9B72CB" />
+        <stop offset="100%" stopColor="#D96570" />
+      </linearGradient>
+    </defs>
+    <path 
+      d="M12 2C12 8.627 17.373 14 24 14C17.373 14 12 19.373 12 26C12 19.373 6.627 14 0 14C6.627 14 12 8.627 12 2Z" 
+      fill="url(#gemini-gradient)" 
+      transform="scale(0.85) translate(1.5, 1)"
+    />
+  </svg>
+);
+
+// Default Sorix Icon
+const SorixIcon = ({ className }: { className?: string }) => (
+  <div className={cn("w-full h-full flex items-center justify-center text-white font-bold text-sm", className)}>
+    S
+  </div>
+);
 
 interface ModelIconProps {
   modelId?: string;
@@ -184,6 +172,7 @@ interface ModelIconProps {
   size?: 'xs' | 'sm' | 'md' | 'lg';
   className?: string;
   showGlow?: boolean;
+  theme?: 'light' | 'dark';
 }
 
 const sizeClasses = {
@@ -193,23 +182,67 @@ const sizeClasses = {
   lg: 'w-8 h-8',
 };
 
+const imageSizeClasses = {
+  xs: 'w-3 h-3',
+  sm: 'w-4 h-4',
+  md: 'w-5 h-5',
+  lg: 'w-6 h-6',
+};
+
 export const ModelIcon = ({ 
   modelId = '', 
   modelName = '', 
   size = 'sm', 
   className,
-  showGlow = false 
+  showGlow = false,
+  theme
 }: ModelIconProps) => {
+  const config = getIconConfig(modelId, modelName);
+  const name = (modelName || modelId).toLowerCase();
+  const isGemini = name.includes('gemini') || name.includes('google');
+  const isSorix = !config.icon && !isGemini;
+  
+  // Determine current theme from document if not provided
+  const isDarkMode = theme === 'dark' || 
+    (typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
+  
   return (
     <div className={cn(
-      'relative flex-shrink-0 rounded-full overflow-hidden',
+      'relative flex-shrink-0 rounded-full overflow-hidden flex items-center justify-center',
       sizeClasses[size],
-      showGlow && 'after:absolute after:inset-0 after:rounded-full after:bg-primary/30 after:blur-md after:scale-150 after:-z-10',
+      isDarkMode ? config.bgDark : config.bgLight,
+      showGlow && 'ring-2 ring-primary/30 shadow-lg shadow-primary/20',
       className
     )}>
-      {getModelIcon(modelId, modelName)}
+      {isGemini ? (
+        <GeminiIcon className={imageSizeClasses[size]} />
+      ) : isSorix ? (
+        <SorixIcon />
+      ) : (
+        <img 
+          src={config.icon} 
+          alt={config.name}
+          className={cn(
+            'object-contain',
+            imageSizeClasses[size],
+            // Apply inversion based on theme
+            isDarkMode && config.invertInDark && 'invert',
+            !isDarkMode && config.invertInLight && 'invert'
+          )}
+        />
+      )}
     </div>
   );
+};
+
+// Export a function to get model icon for use in other components
+export const getModelIconElement = (
+  modelId: string, 
+  modelName?: string, 
+  size: 'xs' | 'sm' | 'md' | 'lg' = 'sm',
+  theme?: 'light' | 'dark'
+): React.ReactNode => {
+  return <ModelIcon modelId={modelId} modelName={modelName} size={size} theme={theme} />;
 };
 
 export default ModelIcon;

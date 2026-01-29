@@ -13,7 +13,7 @@ interface EmptyStateProps {
 }
 
 const EmptyState = ({ userName }: EmptyStateProps) => {
-  const { language, user, selectedModel, models } = useChatStore();
+  const { language, user, selectedModel, models, theme } = useChatStore();
   const t = translations[language as keyof typeof translations] || translations.en;
   const isBn = language === 'bn';
   const isPaidUser = user.plan !== 'free';
@@ -61,6 +61,7 @@ const EmptyState = ({ userName }: EmptyStateProps) => {
               size="lg" 
               className="w-full h-full"
               showGlow={isPaidUser}
+              theme={theme}
             />
           </div>
         </div>
@@ -81,7 +82,7 @@ const EmptyState = ({ userName }: EmptyStateProps) => {
           transition={{ delay: 0.3 }}
           className="mt-3 flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border/50"
         >
-          <ModelIcon modelId={selectedModel} modelName={currentModel.name} size="xs" />
+          <ModelIcon modelId={selectedModel} modelName={currentModel.name} size="xs" theme={theme} />
           <span className="text-xs font-medium text-muted-foreground">{currentModel.name}</span>
           {isPaidUser && <PlanBadge plan={user.plan as PlanType} />}
         </motion.div>
@@ -112,7 +113,7 @@ const EmptyState = ({ userName }: EmptyStateProps) => {
         ))}
       </motion.div>
 
-      {/* Features Banner */}
+      {/* Features Banner with Model Icons */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -120,19 +121,19 @@ const EmptyState = ({ userName }: EmptyStateProps) => {
         className="mt-6 sm:mt-8 md:mt-12 flex flex-wrap items-center justify-center gap-3 sm:gap-4 md:gap-6 text-xs sm:text-sm px-2 text-muted-foreground"
       >
         <div className="flex items-center gap-1.5 sm:gap-2">
-          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-500" />
+          <ModelIcon modelId="chatgpt" modelName="ChatGPT" size="xs" theme={theme} />
           <span>ChatGPT</span>
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2">
-          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-purple-500" />
+          <ModelIcon modelId="claude" modelName="Claude" size="xs" theme={theme} />
           <span>Claude</span>
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2">
-          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-blue-500" />
+          <ModelIcon modelId="gemini" modelName="Gemini" size="xs" theme={theme} />
           <span>Gemini</span>
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2">
-          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-primary" />
+          <ModelIcon modelId="deepseek" modelName="DeepSeek" size="xs" theme={theme} />
           <span>{isBn ? '+১০ আরও' : '+10 more'}</span>
         </div>
         {isPaidUser && (

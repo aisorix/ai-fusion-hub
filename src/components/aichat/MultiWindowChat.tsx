@@ -466,7 +466,8 @@ const ChatWindowPanel = ({ window, canClose }: ChatWindowPanelProps) => {
                             <ModelIcon 
                               modelId={message.modelId || window.modelId} 
                               modelName={message.modelName || currentModel.name} 
-                              size="md" 
+                              size="md"
+                              theme={theme}
                             />
                           </div>
                         )}

@@ -171,6 +171,7 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
                   modelName={messageModelName} 
                   size="lg" 
                   showGlow={isPaidUser}
+                  theme={theme}
                 />
               </div>
             </div>
