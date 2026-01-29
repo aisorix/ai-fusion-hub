@@ -4,7 +4,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { useChatStore } from '@/stores/chatStore';
 import ChatArea from '@/components/aichat/ChatArea';
 import ShareModal from '@/components/aichat/ShareModal';
@@ -13,7 +13,7 @@ import { Loader2 } from 'lucide-react';
 
 const ChatPage = () => {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  const { user, isLoading: loading, isAuthenticated } = useAuth();
   const { theme } = useChatStore();
   
   // Apply theme
@@ -24,10 +24,10 @@ const ChatPage = () => {
   
   // Redirect to login if not authenticated
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && !isAuthenticated) {
       navigate('/login');
     }
-  }, [user, loading, navigate]);
+  }, [isAuthenticated, loading, navigate]);
   
   if (loading) {
     return (
@@ -37,7 +37,7 @@ const ChatPage = () => {
     );
   }
   
-  if (!user) {
+  if (!isAuthenticated) {
     return null;
   }
   
