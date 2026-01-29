@@ -384,15 +384,6 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
 
         {/* Bottom Section */}
         <div className="p-3 border-t border-border space-y-1">
-          {/* Dark Mode Toggle */}
-          <button
-            onClick={toggleTheme}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
-          >
-            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
-          </button>
-
           {/* User Profile */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -407,7 +398,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                 <MoreHorizontal className="w-4 h-4 text-muted-foreground shrink-0" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent align="end" className="w-56 bg-popover border border-border shadow-lg z-50">
               <DropdownMenuItem onClick={() => setShowUpgradeModal(true)}>
                 <Crown className="w-4 h-4 mr-2 text-primary" />
                 Upgrade Plan
@@ -427,6 +418,15 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Dark Mode Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
+          </button>
 
           {/* Back to Home */}
           <Link
