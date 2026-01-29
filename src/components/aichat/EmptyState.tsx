@@ -5,7 +5,8 @@ import sorixLogo from '@/assets/logo.png';
 import { cn } from '@/lib/utils';
 import { useChatStore } from '@/stores/chatStore';
 import { translations } from '@/lib/translations';
-import { PlanIcon, PlanBadge, type PlanType } from './PlanIcons';
+import { ModelIcon } from './ModelIcons';
+import { PlanBadge, type PlanType } from './PlanIcons';
 
 interface EmptyStateProps {
   userName: string;
@@ -50,14 +51,18 @@ const EmptyState = ({ userName }: EmptyStateProps) => {
         transition={{ duration: 0.5 }}
         className="flex flex-col items-center text-center mb-6 sm:mb-8 md:mb-10"
       >
-        {/* Logo */}
+        {/* Logo with Model Icon */}
         <div className="relative mb-4 sm:mb-5 md:mb-6">
           <div className="absolute inset-0 rounded-full blur-2xl scale-150 bg-gradient-to-r from-primary/30 to-accent/30" />
-          <img 
-            src={sorixLogo} 
-            alt="AI Sorix" 
-            className="relative w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 object-contain animate-float"
-          />
+          <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20">
+            <ModelIcon 
+              modelId={selectedModel} 
+              modelName={currentModel.name} 
+              size="lg" 
+              className="w-full h-full"
+              showGlow={isPaidUser}
+            />
+          </div>
         </div>
 
         {/* Greeting text */}
@@ -69,17 +74,17 @@ const EmptyState = ({ userName }: EmptyStateProps) => {
           {isBn ? 'আজ কী অন্বেষণ করতে চান?' : 'What would you like to explore today?'}
         </p>
 
-        {/* Current Plan Display for paid users */}
-        {isPaidUser && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 }}
-            className="mt-4"
-          >
-            <PlanIcon plan={user.plan as PlanType} size="md" showLabel />
-          </motion.div>
-        )}
+        {/* Current Model Display */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+          className="mt-3 flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border/50"
+        >
+          <ModelIcon modelId={selectedModel} modelName={currentModel.name} size="xs" />
+          <span className="text-xs font-medium text-muted-foreground">{currentModel.name}</span>
+          {isPaidUser && <PlanBadge plan={user.plan as PlanType} />}
+        </motion.div>
       </motion.div>
 
       {/* Quick Suggestions */}

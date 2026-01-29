@@ -14,7 +14,7 @@ import ExportDropdown from './ExportDropdown';
 import SourcesWidget from './SourcesWidget';
 import { useChatStore, type Message } from '@/stores/chatStore';
 import { cn } from '@/lib/utils';
-import sorixLogo from '@/assets/logo.png';
+import { ModelIcon } from './ModelIcons';
 
 // Emoji reactions for rating AI responses
 const EMOJI_REACTIONS = [
@@ -62,13 +62,17 @@ interface MessageBubbleProps {
 }
 
 const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps) => {
-  const { theme, openShareModal, chats, activeChatId, user } = useChatStore();
+  const { theme, openShareModal, chats, activeChatId, user, selectedModel, models } = useChatStore();
   const [copied, setCopied] = useState(false);
   const [selectedReactions, setSelectedReactions] = useState<Set<string>>(new Set());
   const [showActions, setShowActions] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   
   const isPaidUser = user.plan !== 'free';
+  
+  // Get model info - use message's stored model or fallback to current selected
+  const messageModelId = message.modelId || selectedModel;
+  const messageModelName = message.modelName || models.find(m => m.id === messageModelId)?.name || 'Sorix AI';
 
   const handleReaction = useCallback((key: string) => {
     setSelectedReactions(prev => {
@@ -154,21 +158,29 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
             </div>
           </div>
         ) : (
-          // Assistant message - clean simple style
+          // Assistant message - shows real model icon and name
           <div className="flex gap-4">
-            {/* Simple Sorix Logo Avatar */}
+            {/* Model-specific Avatar Icon */}
             <div className="flex-shrink-0">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center overflow-hidden">
-                <img src={sorixLogo} alt="Sorix AI" className="w-5 h-5 object-contain" />
+              <div className={cn(
+                "w-8 h-8 rounded-full flex items-center justify-center overflow-hidden",
+                isPaidUser && "ring-2 ring-primary/20"
+              )}>
+                <ModelIcon 
+                  modelId={messageModelId} 
+                  modelName={messageModelName} 
+                  size="lg" 
+                  showGlow={isPaidUser}
+                />
               </div>
             </div>
             
             {/* Content */}
             <div className="flex-1 min-w-0 space-y-2">
-              {/* Simple Role Label */}
+              {/* Model Name Label */}
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-foreground">
-                  Sorix AI
+                  {messageModelName}
                 </span>
                 {isStreaming && isLast && !message.content && (
                   <div className="flex items-center">
