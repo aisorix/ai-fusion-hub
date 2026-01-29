@@ -1,134 +1,108 @@
 // Health Analysis API Service
-// Handles health document analysis with streaming support
+// Routes to specialized health analysis edge function
 
-import { supabase } from '@/integrations/supabase/client';
-
-export interface HealthMessage {
-  role: 'user' | 'assistant' | 'system';
-  content: string | any[];
-}
+type Message = { role: 'user' | 'assistant' | 'system'; content: string | any[] };
 
 export type HealthAnalysisType = 'general' | 'prescription' | 'lab_report' | 'veterinary';
 
-// Get the Supabase URL from environment
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-
 export const healthApi = {
-  /**
-   * Send a health analysis request with streaming response
-   */
-  async sendMessageStream(
-    messages: HealthMessage[],
+  // Stream health analysis message
+  sendMessageStream: async (
+    messages: Message[],
     analysisType: HealthAnalysisType,
-    onChunk: (chunk: string) => void,
-    onComplete: () => void,
+    onDelta: (text: string) => void,
+    onDone: () => void,
     onError: (error: Error) => void,
     signal?: AbortSignal
-  ): Promise<void> {
+  ) => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/health-analysis`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token || ''}`,
-        },
-        body: JSON.stringify({
-          messages,
-          analysisType,
-          stream: true,
-        }),
-        signal,
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/health-analysis`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ 
+            messages, 
+            stream: true, 
+            analysisType 
+          }),
+          signal,
+        }
+      );
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP error ${response.status}`);
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || `HTTP error: ${response.status}`);
       }
 
-      const reader = response.body?.getReader();
-      if (!reader) {
+      if (!response.body) {
         throw new Error('No response body');
       }
 
+      const reader = response.body.getReader();
       const decoder = new TextDecoder();
+      let textBuffer = '';
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
+        
+        textBuffer += decoder.decode(value, { stream: true });
 
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
 
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            
-            if (data === '[DONE]') {
-              onComplete();
-              return;
-            }
+          if (line.endsWith('\r')) line = line.slice(0, -1);
+          if (line.startsWith(':') || line.trim() === '') continue;
+          if (!line.startsWith('data: ')) continue;
 
-            try {
-              const parsed = JSON.parse(data);
-              
-              if (parsed.content) {
-                onChunk(parsed.content);
-              }
-              
-              if (parsed.error) {
-                throw new Error(parsed.error);
-              }
-            } catch (e) {
-              // If it's not JSON, treat it as plain text
-              if (data && !data.startsWith('{')) {
-                onChunk(data);
-              }
-            }
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === '[DONE]') {
+            onDone();
+            return;
+          }
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) onDelta(content);
+          } catch {
+            textBuffer = line + '\n' + textBuffer;
+            break;
           }
         }
       }
 
-      onComplete();
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
-        onComplete();
+      // Final flush
+      if (textBuffer.trim()) {
+        for (let raw of textBuffer.split('\n')) {
+          if (!raw) continue;
+          if (raw.endsWith('\r')) raw = raw.slice(0, -1);
+          if (raw.startsWith(':') || raw.trim() === '') continue;
+          if (!raw.startsWith('data: ')) continue;
+          const jsonStr = raw.slice(6).trim();
+          if (jsonStr === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) onDelta(content);
+          } catch { /* ignore */ }
+        }
+      }
+
+      onDone();
+    } catch (error) {
+      if ((error as Error).name === 'AbortError') {
+        onDone();
         return;
       }
-      onError(error);
+      onError(error as Error);
     }
-  },
-
-  /**
-   * Send a health analysis request with non-streaming response
-   */
-  async sendMessage(
-    messages: HealthMessage[],
-    analysisType: HealthAnalysisType
-  ): Promise<string> {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/health-analysis`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session?.access_token || ''}`,
-      },
-      body: JSON.stringify({
-        messages,
-        analysisType,
-        stream: false,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `HTTP error ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.content || '';
   },
 };
 
