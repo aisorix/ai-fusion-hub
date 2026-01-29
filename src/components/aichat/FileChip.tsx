@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { X, Image, FileText, FileCode, FileJson, File, FileType } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -31,7 +31,7 @@ const getIcon = (type: ParsedFileType) => {
   }
 };
 
-const FileChip: React.FC<FileChipProps> = ({ name, type, size, previewUrl, onRemove }) => {
+const FileChip = forwardRef<HTMLDivElement, FileChipProps>(({ name, type, size, previewUrl, onRemove }, ref) => {
   const Icon = getIcon(type);
   const colorClass = getFileColor(type);
   const isImage = type === 'image';
@@ -43,6 +43,7 @@ const FileChip: React.FC<FileChipProps> = ({ name, type, size, previewUrl, onRem
 
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, scale: 0.9, y: 10 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.9, y: -10 }}
@@ -92,6 +93,8 @@ const FileChip: React.FC<FileChipProps> = ({ name, type, size, previewUrl, onRem
       </button>
     </motion.div>
   );
-};
+});
+
+FileChip.displayName = 'FileChip';
 
 export default FileChip;
