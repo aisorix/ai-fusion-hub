@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Check, X, Sparkles, Gift, Zap, Crown, ArrowRight, Star, ShieldCheck, CreditCard } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '@/hooks/useAuth';
+import PaymentModal from './PaymentModal';
 
 // Payment method logos
 import sslcommerzLogo from '../assets/sslcommerz.png';
@@ -33,7 +35,11 @@ const modelColors = {
 
 const Pricing = () => {
   const [isYearly, setIsYearly] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
   const { t, language } = useLanguage();
+  const { isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
 
   const sorixHealthLabel = language === 'en' ? 'Sorix Health' : 'সোরিক্স হেলথ';
   const sorixAgroLabel = language === 'en' ? 'Sorix Agro' : 'সোরিক্স অ্যাগ্রো';
@@ -66,6 +72,7 @@ const Pricing = () => {
       ],
       buttonText: language === 'en' ? 'Current Plan' : 'বর্তমান প্ল্যান',
       buttonStyle: 'bg-muted hover:bg-muted/80 text-foreground',
+      isFree: true,
     },
     {
       name: 'basic',
@@ -152,6 +159,36 @@ const Pricing = () => {
       return `৳${price.toLocaleString('bn-BD')}`;
     }
     return `৳${price.toLocaleString()}`;
+  };
+
+  const handlePlanSelect = (plan) => {
+    if (plan.isFree) {
+      // Free plan - just go to chat if logged in
+      if (isAuthenticated) {
+        navigate('/chat');
+      } else {
+        navigate('/login');
+      }
+      return;
+    }
+
+    // Paid plans - check authentication first
+    if (!isAuthenticated) {
+      // Store selected plan in sessionStorage and redirect to login
+      sessionStorage.setItem('selectedPlan', JSON.stringify({
+        name: plan.name,
+        displayName: plan.displayName,
+        price: plan.price,
+        yearlyPrice: plan.yearlyPrice,
+        isYearly,
+      }));
+      navigate('/login', { state: { returnTo: '/#pricing', message: language === 'en' ? 'Please login to continue with your purchase' : 'ক্রয় চালিয়ে যেতে লগইন করুন' } });
+      return;
+    }
+
+    // User is authenticated - show payment modal
+    setSelectedPlan(plan);
+    setShowPaymentModal(true);
   };
 
   return (
@@ -294,13 +331,13 @@ const Pricing = () => {
                 </div>
 
                 {/* CTA Button */}
-                <Link
-                  to="/login"
+                <button
+                  onClick={() => handlePlanSelect(plan)}
                   className={`w-full py-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 transition-all duration-500 ${plan.buttonStyle}`}
                 >
                   {plan.buttonText}
                   <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
+                </button>
               </div>
             </div>
           ))}
@@ -399,14 +436,14 @@ const Pricing = () => {
                   ))}
                 </div>
 
-                {/* CTA Button - Links to Login */}
-                <Link
-                  to="/login"
+                {/* CTA Button - Opens Payment Modal if logged in, otherwise redirects to login */}
+                <button
+                  onClick={() => handlePlanSelect(plan)}
                   className={`w-full py-3.5 lg:py-4 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-500 ${plan.buttonStyle}`}
                 >
                   {plan.buttonText}
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
+                </button>
               </div>
             </div>
           ))}
@@ -587,6 +624,18 @@ const Pricing = () => {
           </div>
         </div>
       </div>
+
+      {/* Payment Modal */}
+      <PaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => {
+          setShowPaymentModal(false);
+          setSelectedPlan(null);
+        }}
+        plan={selectedPlan}
+        isYearly={isYearly}
+        language={language}
+      />
     </section>
   );
 };

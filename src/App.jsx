@@ -23,6 +23,9 @@ import ResetPassword from "./pages/ResetPassword";
 import ChatDashboard from "./pages/admin/ChatDashboard";
 import ChatPage from "./pages/ChatPage";
 import Dashboard from "./pages/Dashboard";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailed from "./pages/PaymentFailed";
+import PaymentCancel from "./pages/PaymentCancel";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +62,11 @@ const App = () => (
               <Route path="/about-sorix-lab" element={<AboutSorixLab />} />
               <Route path="/reviews" element={<Reviews />} />
               <Route path="/admin/chat" element={<ChatDashboard />} />
+              {/* Payment Callback Routes */}
+              <Route path="/payment/success" element={<PaymentSuccess />} />
+              <Route path="/payment/failed" element={<PaymentFailed />} />
+              <Route path="/payment/cancel" element={<PaymentCancel />} />
+              <Route path="/payment/bkash/callback" element={<PaymentSuccess />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
