@@ -43,18 +43,18 @@ const EmptyState = ({ userName }: EmptyStateProps) => {
   ];
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-6 sm:py-8 overflow-auto bg-background">
+    <div className="flex-1 flex flex-col items-center justify-center px-4 py-6 sm:py-8 overflow-auto bg-background">
       {/* Logo + Greeting Combined */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex flex-col items-center text-center mb-6 sm:mb-8 md:mb-10"
+        className="flex flex-col items-center text-center mb-6 sm:mb-8"
       >
         {/* Logo with Model Icon */}
-        <div className="relative mb-4 sm:mb-5 md:mb-6">
-          <div className="absolute inset-0 rounded-full blur-2xl scale-150 bg-gradient-to-r from-primary/30 to-accent/30" />
-          <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20">
+        <div className="relative mb-4 sm:mb-5">
+          <div className="absolute inset-0 rounded-full blur-2xl scale-150 bg-gradient-to-r from-primary/20 to-accent/20" />
+          <div className="relative w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16">
             <ModelIcon 
               modelId={selectedModel} 
               modelName={currentModel.name} 
@@ -67,12 +67,12 @@ const EmptyState = ({ userName }: EmptyStateProps) => {
         </div>
 
         {/* Greeting text */}
-        <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight mb-1.5 sm:mb-2">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight mb-1">
           {isBn ? 'হ্যালো, ' : 'Hello, '}
-          <span className="gradient-text">{userName}</span>
+          <span className="text-primary">{userName}</span>
         </h1>
-        <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xs sm:max-w-sm md:max-w-md px-2">
-          {isBn ? 'আজ কী অন্বেষণ করতে চান?' : 'What would you like to explore today?'}
+        <p className="text-muted-foreground text-sm sm:text-base max-w-xs sm:max-w-sm px-2">
+          {isBn ? 'আজ কী অন্বেষণ করতে চান?' : 'How can I help you today?'}
         </p>
 
         {/* Current Model Display */}
@@ -80,20 +80,20 @@ const EmptyState = ({ userName }: EmptyStateProps) => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
-          className="mt-3 flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border/50"
+          className="mt-3 flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/40 border border-border/50"
         >
           <ModelIcon modelId={selectedModel} modelName={currentModel.name} size="xs" theme={theme} />
-          <span className="text-xs font-medium text-muted-foreground">{currentModel.name}</span>
+          <span className="text-xs text-muted-foreground">{currentModel.name}</span>
           {isPaidUser && <PlanBadge plan={user.plan as PlanType} />}
         </motion.div>
       </motion.div>
 
-      {/* Quick Suggestions */}
+      {/* Quick Suggestions - 2x2 grid on mobile */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 w-full max-w-xs sm:max-w-lg md:max-w-2xl"
+        className="grid grid-cols-2 gap-2 sm:gap-3 w-full max-w-xs sm:max-w-md"
       >
         {suggestions.map((item, index) => (
           <motion.button
@@ -101,11 +101,11 @@ const EmptyState = ({ userName }: EmptyStateProps) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.3 + index * 0.1 }}
-            whileHover={{ scale: 1.02, y: -2 }}
+            whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl sm:rounded-2xl transition-all duration-200 bg-card border border-border hover:border-primary/50 hover:shadow-glow group"
+            className="flex flex-col items-center gap-2 p-3 sm:p-4 rounded-xl sm:rounded-2xl transition-all duration-200 bg-muted/30 border border-border/50 hover:bg-muted/50 hover:border-primary/30 group"
           >
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center transition-all duration-200 bg-gradient-to-br from-primary/10 to-accent/10 group-hover:from-primary/20 group-hover:to-accent/20">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center transition-all duration-200 bg-primary/10 group-hover:bg-primary/20">
               <item.icon className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             </div>
             <span className="text-xs sm:text-sm font-medium text-foreground">{item.label}</span>
@@ -113,32 +113,29 @@ const EmptyState = ({ userName }: EmptyStateProps) => {
         ))}
       </motion.div>
 
-      {/* Features Banner with Model Icons */}
+      {/* Features Banner with Model Icons - Hidden on mobile for cleaner look */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.6 }}
-        className="mt-6 sm:mt-8 md:mt-12 flex flex-wrap items-center justify-center gap-3 sm:gap-4 md:gap-6 text-xs sm:text-sm px-2 text-muted-foreground"
+        className="hidden sm:flex mt-8 flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground"
       >
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-2">
           <ModelIcon modelId="chatgpt" modelName="ChatGPT" size="xs" theme={theme} />
           <span>ChatGPT</span>
         </div>
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-2">
           <ModelIcon modelId="claude" modelName="Claude" size="xs" theme={theme} />
           <span>Claude</span>
         </div>
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-2">
           <ModelIcon modelId="gemini" modelName="Gemini" size="xs" theme={theme} />
           <span>Gemini</span>
         </div>
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-2">
           <ModelIcon modelId="deepseek" modelName="DeepSeek" size="xs" theme={theme} />
           <span>{isBn ? '+১০ আরও' : '+10 more'}</span>
         </div>
-        {isPaidUser && (
-          <PlanBadge plan={user.plan as PlanType} />
-        )}
       </motion.div>
     </div>
   );
