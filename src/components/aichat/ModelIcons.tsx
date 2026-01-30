@@ -12,6 +12,7 @@ import qwenIcon from '@/assets/icons/qwen.png';
 import claudeIcon from '@/assets/icons/claude.png';
 import kimiIcon from '@/assets/icons/kimi.png';
 import mistralIcon from '@/assets/icons/mistral.png';
+import geminiIcon from '@/assets/icons/gemini.png';
 
 // Model icon configuration with theme support
 interface IconConfig {
@@ -53,7 +54,7 @@ const getIconConfig = (modelId: string, modelName?: string): IconConfig => {
   // Gemini / Google models
   if (name.includes('gemini') || name.includes('google')) {
     return {
-      icon: '', // Will use SVG for Gemini
+      icon: geminiIcon,
       name: 'Gemini',
       bgLight: 'bg-white',
       bgDark: 'bg-zinc-800',
@@ -141,24 +142,6 @@ const getIconConfig = (modelId: string, modelName?: string): IconConfig => {
   };
 };
 
-// Gemini SVG Icon Component
-const GeminiIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={cn("w-full h-full", className)}>
-    <defs>
-      <linearGradient id="gemini-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#4285F4" />
-        <stop offset="50%" stopColor="#9B72CB" />
-        <stop offset="100%" stopColor="#D96570" />
-      </linearGradient>
-    </defs>
-    <path 
-      d="M12 2C12 8.627 17.373 14 24 14C17.373 14 12 19.373 12 26C12 19.373 6.627 14 0 14C6.627 14 12 8.627 12 2Z" 
-      fill="url(#gemini-gradient)" 
-      transform="scale(0.85) translate(1.5, 1)"
-    />
-  </svg>
-);
-
 // Default Sorix Icon
 const SorixIcon = ({ className }: { className?: string }) => (
   <div className={cn("w-full h-full flex items-center justify-center text-white font-bold text-sm", className)}>
@@ -199,8 +182,7 @@ export const ModelIcon = ({
 }: ModelIconProps) => {
   const config = getIconConfig(modelId, modelName);
   const name = (modelName || modelId).toLowerCase();
-  const isGemini = name.includes('gemini') || name.includes('google');
-  const isSorix = !config.icon && !isGemini;
+  const isSorix = !config.icon;
   
   // Determine current theme from document if not provided
   const isDarkMode = theme === 'dark' || 
@@ -214,9 +196,7 @@ export const ModelIcon = ({
       showGlow && 'ring-2 ring-primary/30 shadow-lg shadow-primary/20',
       className
     )}>
-      {isGemini ? (
-        <GeminiIcon className={imageSizeClasses[size]} />
-      ) : isSorix ? (
+      {isSorix ? (
         <SorixIcon />
       ) : (
         <img 

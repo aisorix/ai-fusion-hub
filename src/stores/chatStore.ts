@@ -41,6 +41,7 @@ export interface Model {
   description: string;
   category: ModelCategory;
   plans: UserPlan[]; // Plans that have access to this model
+  multiplier: number; // Token multiplier (1x, 2x, 3x, etc.)
   icon?: string;
 }
 
@@ -152,6 +153,7 @@ interface ChatState {
   setSelectedModel: (modelId: string) => void;
   getAvailableModels: () => Model[];
   isModelLocked: (modelId: string) => boolean;
+  getModelMultiplier: (modelId: string) => number;
   
   // Share Modal
   shareModalOpen: boolean;
@@ -174,41 +176,92 @@ interface ChatState {
   setOpenRouterKey: (key: string) => void;
 }
 
-// Comprehensive model list with backend IDs and plan access
+// ============================================
+// MODEL DEFINITIONS BY PLAN WITH MULTIPLIERS
+// ============================================
+
+// 🆓 FREE PLAN MODELS (5k Tokens/Month)
+const freeModels: Model[] = [
+  { id: 'gpt-4o', name: 'GPT-4o', backendId: 'openai/gpt-4o-mini', description: 'Smart AI assistant', category: 'chat', plans: ['free', 'basic', 'pro', 'premium'], multiplier: 1 },
+  { id: 'deepseek-v31', name: 'DeepSeek V3.1', backendId: 'deepseek/deepseek-chat-v3.1', description: 'Advanced reasoning', category: 'chat', plans: ['free', 'basic', 'pro', 'premium'], multiplier: 1 },
+  { id: 'gemini-3-flash', name: 'Gemini 3 Flash', backendId: 'google/gemini-3-flash-preview', description: 'Google fast model', category: 'chat', plans: ['free', 'basic', 'pro', 'premium'], multiplier: 5 },
+];
+
+// 📦 BASIC PLAN MODELS (800k Tokens/Month)
+const basicModels: Model[] = [
+  { id: 'gpt5-1-mini', name: 'GPT-5.1 mini', backendId: 'openai/gpt-5-mini', description: 'Fast and efficient', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 4 },
+  { id: 'gpt5-nano', name: 'GPT-5 nano', backendId: 'openai/gpt-5-nano', description: 'Ultra-fast responses', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
+  { id: 'gemini-3-flash-basic', name: 'Gemini 3 Flash', backendId: 'google/gemini-3-flash-preview', description: 'Next-gen Gemini', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 5 },
+  { id: 'gemini-3', name: 'Gemini 3', backendId: 'google/gemini-3-flash-preview', description: 'Google flagship', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 5 },
+  { id: 'grok-4', name: 'Grok 4', backendId: 'x-ai/grok-3-mini', description: 'xAI smart model', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 2 },
+  { id: 'grok-4-fast', name: 'Grok 4 Fast', backendId: 'x-ai/grok-4-fast', description: 'Fast xAI model', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
+  { id: 'deepseek-v31-basic', name: 'DeepSeek V3.1', backendId: 'deepseek/deepseek-chat-v3.1', description: 'Latest DeepSeek', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 2 },
+  { id: 'deepseek-v32', name: 'DeepSeek V3.2', backendId: 'deepseek/deepseek-v3.2', description: 'Newest DeepSeek', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
+  { id: 'llama-31', name: 'LLaMA 3.1', backendId: 'meta-llama/llama-3.1-70b-instruct', description: 'Meta open-source', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1.5 },
+  { id: 'llama-33', name: 'LLaMA 3.3', backendId: 'meta-llama/llama-3.3-70b-instruct', description: 'Latest LLaMA', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
+  { id: 'qwen3-coder', name: 'Qwen 3 Coder', backendId: 'qwen/qwen3-coder', description: 'Code specialist', category: 'code', plans: ['basic', 'pro', 'premium'], multiplier: 2 },
+  { id: 'qwen3-vl', name: 'Qwen 3 VL', backendId: 'qwen/qwen3-vl-30b-a3b-instruct', description: 'Vision-language', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1.5 },
+];
+
+// ⚡ PRO PLAN MODELS (1.5M Tokens/Month)
+const proModels: Model[] = [
+  { id: 'qwen3-pro', name: 'Qwen 3 Pro', backendId: 'qwen/qwen3-235b-a22b-2507', description: 'Professional Qwen', category: 'chat', plans: ['pro', 'premium'], multiplier: 1 },
+  { id: 'qwen3-coder-pro', name: 'Qwen 3 Coder', backendId: 'qwen/qwen3-coder', description: 'Code specialist', category: 'code', plans: ['pro', 'premium'], multiplier: 2 },
+  { id: 'qwen3-vl-pro', name: 'Qwen 3 VL', backendId: 'qwen/qwen3-vl-30b-a3b-instruct', description: 'Vision-language', category: 'chat', plans: ['pro', 'premium'], multiplier: 1 },
+  { id: 'gpt5-1-mini-pro', name: 'GPT-5.1 mini', backendId: 'openai/gpt-5-mini', description: 'Fast and efficient', category: 'chat', plans: ['pro', 'premium'], multiplier: 3 },
+  { id: 'gpt5-nano-pro', name: 'GPT-5 nano', backendId: 'openai/gpt-5-nano', description: 'Ultra-fast responses', category: 'chat', plans: ['pro', 'premium'], multiplier: 1 },
+  { id: 'gpt5-1', name: 'GPT-5.1', backendId: 'openai/gpt-5.1', description: 'Enhanced GPT model', category: 'chat', plans: ['pro', 'premium'], multiplier: 20 },
+  { id: 'gpt5-2', name: 'GPT-5.2', backendId: 'openai/gpt-5.2', description: 'Flagship reasoning', category: 'chat', plans: ['pro', 'premium'], multiplier: 30 },
+  { id: 'gemini-3-flash-pro', name: 'Gemini 3 Flash', backendId: 'google/gemini-3-flash-preview', description: 'Next-gen Gemini', category: 'chat', plans: ['pro', 'premium'], multiplier: 5 },
+  { id: 'gemini-3-pro', name: 'Gemini 3', backendId: 'google/gemini-3-flash-preview', description: 'Google flagship', category: 'chat', plans: ['pro', 'premium'], multiplier: 5 },
+  { id: 'gemini-25-pro', name: 'Gemini 2.5 Pro', backendId: 'google/gemini-2.5-pro', description: 'Professional Gemini', category: 'chat', plans: ['pro', 'premium'], multiplier: 20 },
+  { id: 'grok-4-pro', name: 'Grok 4', backendId: 'x-ai/grok-3-mini', description: 'xAI smart model', category: 'chat', plans: ['pro', 'premium'], multiplier: 2 },
+  { id: 'grok-4-fast-pro', name: 'Grok 4 Fast', backendId: 'x-ai/grok-4-fast', description: 'Fast xAI model', category: 'chat', plans: ['pro', 'premium'], multiplier: 1 },
+  { id: 'grok-41-fast', name: 'Grok 4.1 fast', backendId: 'x-ai/grok-4.1-fast', description: 'Latest xAI model', category: 'chat', plans: ['pro', 'premium'], multiplier: 1 },
+  { id: 'perplexity-sonar', name: 'Perplexity Sonar', backendId: 'perplexity/sonar', description: 'Web search powered', category: 'search', plans: ['pro', 'premium'], multiplier: 3 },
+  { id: 'deepseek-v31-pro', name: 'DeepSeek V3.1', backendId: 'deepseek/deepseek-chat-v3.1', description: 'Latest DeepSeek', category: 'chat', plans: ['pro', 'premium'], multiplier: 2 },
+  { id: 'deepseek-v32-pro', name: 'DeepSeek V3.2', backendId: 'deepseek/deepseek-v3.2', description: 'Newest DeepSeek', category: 'chat', plans: ['pro', 'premium'], multiplier: 1 },
+  { id: 'llama-31-pro', name: 'LLaMA 3.1', backendId: 'meta-llama/llama-3.1-70b-instruct', description: 'Meta open-source', category: 'chat', plans: ['pro', 'premium'], multiplier: 2 },
+  { id: 'llama-33-pro', name: 'LLaMA 3.3', backendId: 'meta-llama/llama-3.3-70b-instruct', description: 'Latest LLaMA', category: 'chat', plans: ['pro', 'premium'], multiplier: 1 },
+  { id: 'llama-4-maverick', name: 'Llama 4 Maverick', backendId: 'meta-llama/llama-4-maverick', description: 'Latest Llama 4', category: 'chat', plans: ['pro', 'premium'], multiplier: 2 },
+  { id: 'llama-4-scout', name: 'Llama 4 Scout', backendId: 'meta-llama/llama-4-scout', description: 'Llama 4 Scout', category: 'chat', plans: ['pro', 'premium'], multiplier: 1 },
+];
+
+// 👑 PREMIUM PLAN MODELS (3M Tokens/Month)
+const premiumModels: Model[] = [
+  { id: 'qwen3-pro-prem', name: 'Qwen 3 Pro', backendId: 'qwen/qwen3-235b-a22b-2507', description: 'Professional Qwen', category: 'chat', plans: ['premium'], multiplier: 1 },
+  { id: 'qwen3-coder-prem', name: 'Qwen 3 Coder', backendId: 'qwen/qwen3-coder', description: 'Code specialist', category: 'code', plans: ['premium'], multiplier: 2 },
+  { id: 'qwen3-vl-prem', name: 'Qwen 3 VL', backendId: 'qwen/qwen3-vl-30b-a3b-instruct', description: 'Vision-language', category: 'chat', plans: ['premium'], multiplier: 1 },
+  { id: 'gpt5-1-mini-prem', name: 'GPT-5.1 mini', backendId: 'openai/gpt-5-mini', description: 'Fast and efficient', category: 'chat', plans: ['premium'], multiplier: 3 },
+  { id: 'gpt5-nano-prem', name: 'GPT-5 nano', backendId: 'openai/gpt-5-nano', description: 'Ultra-fast responses', category: 'chat', plans: ['premium'], multiplier: 1 },
+  { id: 'gpt5-1-prem', name: 'GPT-5.1', backendId: 'openai/gpt-5.1', description: 'Enhanced GPT model', category: 'chat', plans: ['premium'], multiplier: 15 },
+  { id: 'gpt5-2-prem', name: 'GPT-5.2', backendId: 'openai/gpt-5.2', description: 'Flagship reasoning', category: 'chat', plans: ['premium'], multiplier: 20 },
+  { id: 'claude-sonnet-45', name: 'Claude Sonnet 4.5', backendId: 'anthropic/claude-sonnet-4.5', description: 'Anthropic Sonnet', category: 'chat', plans: ['premium'], multiplier: 25 },
+  { id: 'claude-opus-45', name: 'Claude Opus 4.5', backendId: 'anthropic/claude-opus-4.5', description: 'Anthropic Opus', category: 'chat', plans: ['premium'], multiplier: 40 },
+  { id: 'gemini-3-flash-prem', name: 'Gemini 3 Flash', backendId: 'google/gemini-3-flash-preview', description: 'Next-gen Gemini', category: 'chat', plans: ['premium'], multiplier: 5 },
+  { id: 'gemini-3-prem', name: 'Gemini 3', backendId: 'google/gemini-3-flash-preview', description: 'Google flagship', category: 'chat', plans: ['premium'], multiplier: 5 },
+  { id: 'gemini-25-pro-prem', name: 'Gemini 2.5 Pro', backendId: 'google/gemini-2.5-pro', description: 'Professional Gemini', category: 'chat', plans: ['premium'], multiplier: 15 },
+  { id: 'grok-4-prem', name: 'Grok 4', backendId: 'x-ai/grok-3-mini', description: 'xAI smart model', category: 'chat', plans: ['premium'], multiplier: 1 },
+  { id: 'grok-4-fast-prem', name: 'Grok 4 Fast', backendId: 'x-ai/grok-4-fast', description: 'Fast xAI model', category: 'chat', plans: ['premium'], multiplier: 1 },
+  { id: 'grok-41-fast-prem', name: 'Grok 4.1 fast', backendId: 'x-ai/grok-4.1-fast', description: 'Latest xAI model', category: 'chat', plans: ['premium'], multiplier: 1 },
+  { id: 'perplexity-sonar-pro', name: 'Perplexity Sonar Pro', backendId: 'perplexity/sonar', description: 'Web search powered', category: 'search', plans: ['premium'], multiplier: 2 },
+  { id: 'perplexity-research', name: 'Perplexity Research Pro', backendId: 'perplexity/sonar-deep-research', description: 'Deep research', category: 'search', plans: ['premium'], multiplier: 12 },
+  { id: 'deepseek-v31-prem', name: 'DeepSeek V3.1', backendId: 'deepseek/deepseek-chat-v3.1', description: 'Latest DeepSeek', category: 'chat', plans: ['premium'], multiplier: 1 },
+  { id: 'deepseek-v32-prem', name: 'DeepSeek V3.2', backendId: 'deepseek/deepseek-v3.2', description: 'Newest DeepSeek', category: 'chat', plans: ['premium'], multiplier: 1 },
+  { id: 'llama-31-prem', name: 'LLaMA 3.1', backendId: 'meta-llama/llama-3.1-70b-instruct', description: 'Meta open-source', category: 'chat', plans: ['premium'], multiplier: 1 },
+  { id: 'llama-33-prem', name: 'LLaMA 3.3', backendId: 'meta-llama/llama-3.3-70b-instruct', description: 'Latest LLaMA', category: 'chat', plans: ['premium'], multiplier: 1 },
+  { id: 'llama-4-maverick-prem', name: 'Llama 4 Maverick', backendId: 'meta-llama/llama-4-maverick', description: 'Latest Llama 4', category: 'chat', plans: ['premium'], multiplier: 1 },
+  { id: 'llama-4-scout-prem', name: 'Llama 4 Scout', backendId: 'meta-llama/llama-4-scout', description: 'Llama 4 Scout', category: 'chat', plans: ['premium'], multiplier: 1 },
+  { id: 'kimi-k25', name: 'Kimi-K2.5', backendId: 'moonshotai/kimi-k2.5', description: 'Advanced Moonshot', category: 'chat', plans: ['premium'], multiplier: 5 },
+  { id: 'mistral-large-3', name: 'Mistral Large 3', backendId: 'mistralai/mistral-large-2512', description: 'Mistral flagship', category: 'chat', plans: ['premium'], multiplier: 3 },
+];
+
+// Combine all models - each plan sees appropriate models
 const allModels: Model[] = [
-  // 🆓 FREE PLAN MODELS
-  { id: 'gpt-4o', name: 'GPT-4o', backendId: 'openai/gpt-4o-mini', description: 'Smart AI assistant', category: 'chat', plans: ['free', 'basic', 'pro', 'premium'] },
-  { id: 'deepseek', name: 'DeepSeek', backendId: 'deepseek/deepseek-chat', description: 'Advanced reasoning', category: 'chat', plans: ['free', 'basic', 'pro', 'premium'] },
-  { id: 'gemini-25-flash', name: 'Gemini 2.5 Flash', backendId: 'google/gemini-2.5-flash-lite-preview-09-2025', description: 'Google fast model', category: 'chat', plans: ['free', 'basic', 'pro', 'premium'] },
-  
-  // 📦 BASIC PLAN MODELS
-  { id: 'gpt5-mini', name: 'GPT-5 mini', backendId: 'openai/gpt-4o-mini', description: 'Fast and efficient', category: 'chat', plans: ['basic', 'pro', 'premium'] },
-  { id: 'gpt5-nano', name: 'GPT-5 nano', backendId: 'openai/gpt-4o-mini', description: 'Ultra-fast responses', category: 'chat', plans: ['basic', 'pro', 'premium'] },
-  { id: 'gemini-3-flash', name: 'Gemini 3 Flash', backendId: 'google/gemini-2.0-flash-001', description: 'Next-gen Gemini', category: 'chat', plans: ['basic', 'pro', 'premium'] },
-  { id: 'grok-4', name: 'Grok 4', backendId: 'x-ai/grok-3-mini', description: 'xAI smart model', category: 'chat', plans: ['basic', 'pro', 'premium'] },
-  { id: 'deepseek-v3', name: 'DeepSeek V3', backendId: 'deepseek/deepseek-v3', description: 'Latest DeepSeek', category: 'chat', plans: ['basic', 'pro', 'premium'] },
-  { id: 'llama-smart', name: 'LLaMA Smart', backendId: 'meta-llama/llama-3.1-8b-instruct', description: 'Smart open-source', category: 'chat', plans: ['basic', 'pro', 'premium'] },
-  { id: 'qwen-flash', name: 'Qwen Flash', backendId: 'qwen/qwen-2.5-7b-instruct', description: 'Fast Qwen model', category: 'code', plans: ['basic', 'pro', 'premium'] },
-  
-  // ⚡ PRO PLAN MODELS
-  { id: 'perplexity', name: 'Perplexity', backendId: 'perplexity/sonar', description: 'Web search powered', category: 'search', plans: ['pro', 'premium'] },
-  { id: 'qwen-pro', name: 'Qwen Pro', backendId: 'qwen/qwen-2.5-coder-32b-instruct', description: 'Professional coding', category: 'code', plans: ['pro', 'premium'] },
-  { id: 'gpt5-1', name: 'GPT-5.1', backendId: 'openai/gpt-4o-mini', description: 'Enhanced GPT model', category: 'chat', plans: ['pro', 'premium'] },
-  { id: 'gpt5-2', name: 'GPT-5.2', backendId: 'openai/o1-mini', description: 'Flagship reasoning', category: 'chat', plans: ['pro', 'premium'] },
-  { id: 'gemini-25-pro', name: 'Gemini 2.5 Pro', backendId: 'google/gemini-1.5-pro', description: 'Professional Gemini', category: 'chat', plans: ['pro', 'premium'] },
-  { id: 'grok-4-fast', name: 'Grok 4 fast', backendId: 'x-ai/grok-4-fast', description: 'Fast xAI model', category: 'chat', plans: ['pro', 'premium'] },
-  { id: 'deepseek-chat', name: 'DeepSeek Chat', backendId: 'deepseek/deepseek-v3', description: 'DeepSeek conversational', category: 'chat', plans: ['pro', 'premium'] },
-  { id: 'deepseek-reasoner', name: 'DeepSeek Reasoner', backendId: 'deepseek/deepseek-r1', description: 'Deep reasoning', category: 'chat', plans: ['pro', 'premium'] },
-  { id: 'llama-pro', name: 'LLaMA Pro', backendId: 'meta-llama/llama-3.3-70b-instruct', description: 'Professional LLaMA', category: 'chat', plans: ['pro', 'premium'] },
-  
-  // 👑 PREMIUM PLAN MODELS
-  { id: 'claude-sonnet-45', name: 'Claude Sonnet 4.5', backendId: 'anthropic/claude-sonnet-4.5', description: 'Anthropic Sonnet', category: 'chat', plans: ['premium'] },
-  { id: 'claude-opus-45', name: 'Claude Opus 4.5', backendId: 'anthropic/claude-haiku-4.5', description: 'Anthropic Opus', category: 'chat', plans: ['premium'] },
-  { id: 'gemini-3-pro', name: 'Gemini 3 Pro (Experimental)', backendId: 'google/gemini-2.0-pro-exp-02-05', description: 'Cutting-edge Gemini', category: 'chat', plans: ['premium'] },
-  { id: 'grok-41-fast', name: 'Grok 4.1 fast', backendId: 'x-ai/grok-4.1-fast', description: 'Latest xAI model', category: 'chat', plans: ['premium'] },
-  { id: 'llama-ultra', name: 'LLaMA Ultra', backendId: 'meta-llama/llama-3.3-70b-instruct', description: 'Maximum capability', category: 'chat', plans: ['premium'] },
-  { id: 'kimi-k2', name: 'Kimi-K2', backendId: 'moonshotai/kimi-k2', description: 'Advanced Moonshot', category: 'chat', plans: ['premium'] },
-  { id: 'mistral-codestral', name: 'Mistral Codestral', backendId: 'mistralai/codestral-2508', description: 'Mistral code expert', category: 'code', plans: ['premium'] },
+  ...freeModels,
+  ...basicModels,
+  ...proModels,
+  ...premiumModels,
 ];
 
 // Plan token limits
@@ -237,6 +290,19 @@ const syncUserTokenLimit = (user: User): User => {
   return user;
 };
 
+// Helper to get models by plan hierarchy
+const getModelsForPlan = (plan: UserPlan): Model[] => {
+  return allModels.filter(m => m.plans.includes(plan));
+};
+
+// Default model for each plan
+const defaultModelByPlan: Record<UserPlan, string> = {
+  free: 'gpt-4o',
+  basic: 'gpt5-nano',
+  pro: 'gpt5-nano-pro',
+  premium: 'gpt5-nano-prem',
+};
+
 export const useChatStore = create<ChatState>()(
   persist(
     (set, get) => ({
@@ -258,7 +324,7 @@ export const useChatStore = create<ChatState>()(
       // Multi-Window Chat
       chatWindows: [
         { id: '1', modelId: 'gpt-4o', messages: [], isStreaming: false },
-        { id: '2', modelId: 'gemini-25-flash', messages: [], isStreaming: false },
+        { id: '2', modelId: 'gemini-3-flash', messages: [], isStreaming: false },
       ],
       addChatWindow: () => set((state) => {
         if (state.chatWindows.length >= 4) return state;
@@ -322,7 +388,8 @@ export const useChatStore = create<ChatState>()(
           ...state.user,
           plan,
           tokensLimit: planTokenLimits[plan],
-        }
+        },
+        selectedModel: defaultModelByPlan[plan],
       })),
       
       // Projects
@@ -521,12 +588,16 @@ export const useChatStore = create<ChatState>()(
       },
       getAvailableModels: () => {
         const state = get();
-        return allModels.filter(m => m.plans.includes(state.user.plan));
+        return getModelsForPlan(state.user.plan);
       },
       isModelLocked: (modelId) => {
         const state = get();
         const model = allModels.find(m => m.id === modelId);
         return model ? !model.plans.includes(state.user.plan) : true;
+      },
+      getModelMultiplier: (modelId) => {
+        const model = allModels.find(m => m.id === modelId);
+        return model?.multiplier || 1;
       },
       
       // Share Modal

@@ -310,6 +310,7 @@ interface ModelItemProps {
     id: string;
     name: string;
     description: string;
+    multiplier?: number;
   };
   isSelected: boolean;
   isLocked: boolean;
@@ -318,7 +319,7 @@ interface ModelItemProps {
   theme: 'light' | 'dark';
 }
 
-// Mobile Model Item - Larger touch targets with model icons
+// Mobile Model Item - Larger touch targets with model icons and multiplier
 const MobileModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect, theme }: ModelItemProps) => (
   <button
     onClick={onSelect}
@@ -345,6 +346,17 @@ const MobileModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect, 
         )}>
           {model.name}
         </span>
+        {/* Multiplier Badge */}
+        {model.multiplier && model.multiplier > 1 && (
+          <span className={cn(
+            'px-1.5 py-0.5 rounded text-[10px] font-bold',
+            model.multiplier >= 20 ? 'bg-red-500/15 text-red-400' :
+            model.multiplier >= 5 ? 'bg-orange-500/15 text-orange-400' :
+            'bg-yellow-500/15 text-yellow-500'
+          )}>
+            {model.multiplier}x
+          </span>
+        )}
         {isLocked && requiredPlan && (
           <span className={cn(
             'px-1.5 py-0.5 rounded text-[10px] font-medium',
@@ -368,7 +380,7 @@ const MobileModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect, 
   </button>
 );
 
-// Desktop Model Item - Compact with model icons
+// Desktop Model Item - Compact with model icons and multiplier
 const DesktopModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect, theme }: ModelItemProps) => (
   <button
     onClick={onSelect}
@@ -395,6 +407,17 @@ const DesktopModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect,
         )}>
           {model.name}
         </span>
+        {/* Multiplier Badge */}
+        {model.multiplier && model.multiplier > 1 && (
+          <span className={cn(
+            'px-1 py-0.5 rounded text-[9px] font-bold',
+            model.multiplier >= 20 ? 'bg-red-500/15 text-red-400' :
+            model.multiplier >= 5 ? 'bg-orange-500/15 text-orange-400' :
+            'bg-yellow-500/15 text-yellow-500'
+          )}>
+            {model.multiplier}x
+          </span>
+        )}
         {isLocked && requiredPlan && (
           <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-muted text-muted-foreground">
             {requiredPlan}
