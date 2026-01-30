@@ -1,5 +1,5 @@
 // AI Chat hook for the main chat interface
-// Handles message sending, streaming, and state management
+// Handles message sending, streaming, smart routing, and state management
 
 import { useCallback, useRef } from 'react';
 import { useChatStore } from '@/stores/chatStore';
@@ -7,6 +7,7 @@ import { chatApi } from '@/services/api';
 import { healthApi } from '@/services/healthApi';
 import { toast } from '@/hooks/use-toast';
 import { formatFileForPrompt } from '@/lib/fileParser';
+import { shouldApplySmartRouting, WORKER_MODEL_ID } from '@/lib/smartRouting';
 
 // Estimate tokens: ~4 characters per token (rough approximation)
 const estimateTokens = (text: string): number => {
@@ -18,6 +19,7 @@ const estimateTokens = (text: string): number => {
 
 export const useAIChat = () => {
   const abortControllerRef = useRef<AbortController | null>(null);
+  const hasShownMultiplierWarningRef = useRef<string | null>(null);
   
   const {
     activeChatId,
@@ -40,7 +42,8 @@ export const useAIChat = () => {
     setError,
     clearAttachments,
     createNewChat,
-    setUser
+    setUser,
+    getModelMultiplier
   } = useChatStore();
   
   // Derive messages from active chat for proper reactivity
@@ -49,12 +52,27 @@ export const useAIChat = () => {
   // Get the backend model ID for the selected model
   const getBackendModelId = useCallback(() => {
     const model = models.find(m => m.id === selectedModel);
-    return model?.backendId || 'openai/gpt-4o';
+    return model?.backendId || 'openai/gpt-4o-mini';
   }, [models, selectedModel]);
 
-  // Update token usage with warnings
-  const updateTokenUsage = useCallback((inputTokens: number, outputTokens: number) => {
-    const totalTokens = inputTokens + outputTokens;
+  // Show warning toast for high-multiplier models
+  const showMultiplierWarning = useCallback((modelName: string, multiplier: number) => {
+    // Only show once per model selection
+    if (hasShownMultiplierWarningRef.current === selectedModel) return;
+    hasShownMultiplierWarningRef.current = selectedModel;
+    
+    toast({
+      title: "⚡ Super-Intelligence Model",
+      description: `This is a super-intelligence model. It consumes tokens ${multiplier}x faster. Switch to GPT-5 nano for longer chats.`,
+      variant: "default",
+      duration: 5000,
+    });
+  }, [selectedModel]);
+
+  // Update token usage with warnings and multiplier support
+  const updateTokenUsage = useCallback((inputTokens: number, outputTokens: number, multiplier: number = 1) => {
+    const baseTokens = inputTokens + outputTokens;
+    const totalTokens = Math.ceil(baseTokens * multiplier);
     const newUsage = Math.min(user.tokensUsed + totalTokens, user.tokensLimit);
     const prevPercent = user.tokensLimit > 0 ? (user.tokensUsed / user.tokensLimit) * 100 : 0;
     const newPercent = user.tokensLimit > 0 ? (newUsage / user.tokensLimit) * 100 : 0;
@@ -82,7 +100,7 @@ export const useAIChat = () => {
       tokensUsed: newUsage
     });
     
-    console.log(`Token usage: +${totalTokens} (input: ${inputTokens}, output: ${outputTokens}), total: ${newUsage}/${user.tokensLimit} (${newPercent.toFixed(1)}%)`);
+    console.log(`Token usage: +${totalTokens} (base: ${baseTokens}, multiplier: ${multiplier}x), total: ${newUsage}/${user.tokensLimit} (${newPercent.toFixed(1)}%)`);
   }, [user, setUser]);
 
   // Build multimodal content for GPT-4o vision
@@ -113,7 +131,7 @@ export const useAIChat = () => {
     return content;
   }, []);
   
-  // Send message with streaming
+  // Send message with streaming and smart routing
   const sendMessage = useCallback(async (content: string, useStreaming = true) => {
     if (!content.trim() && pendingAttachments.length === 0) return;
 
@@ -130,6 +148,32 @@ export const useAIChat = () => {
       chatId = newChat.id;
     }
     
+    // Get current model info
+    const currentModel = models.find(m => m.id === selectedModel);
+    const modelName = currentModel?.name || 'Sorix AI';
+    let activeMultiplier = currentModel?.multiplier || 1;
+    let activeBackendId = currentModel?.backendId || 'openai/gpt-4o-mini';
+    let wasSmartRouted = false;
+
+    // Show warning for high-multiplier models (>1x)
+    if (activeMultiplier > 1) {
+      showMultiplierWarning(modelName, activeMultiplier);
+    }
+
+    // Build conversation history for smart routing check
+    const currentMessages = useChatStore.getState().chats.find(c => c.id === chatId)?.messages || [];
+    const conversationHistory = currentMessages
+      .slice(-10)
+      .map(m => ({ role: m.role, content: m.content }));
+
+    // Apply smart routing for simple queries on premium models
+    if (activeMultiplier > 1 && shouldApplySmartRouting(activeMultiplier, content, conversationHistory)) {
+      console.log(`🧠 Smart Routing: Downgrading ${modelName} to Worker Model for simple query`);
+      activeBackendId = WORKER_MODEL_ID;
+      activeMultiplier = 1;
+      wasSmartRouted = true;
+    }
+    
     const userMessage = {
       id: Date.now().toString(),
       role: 'user' as const,
@@ -140,10 +184,6 @@ export const useAIChat = () => {
     
     addMessage(userMessage);
     clearAttachments();
-    
-    // Get current model name for assistant message
-    const currentModel = models.find(m => m.id === selectedModel);
-    const modelName = currentModel?.name || 'Sorix AI';
     
     const assistantMessage = {
       id: (Date.now() + 1).toString(),
@@ -159,7 +199,6 @@ export const useAIChat = () => {
     setError(null);
 
     // Build messages array for API (last 20 messages for context)
-    const currentMessages = useChatStore.getState().chats.find(c => c.id === chatId)?.messages || [];
     const contextMessages = currentMessages
       .slice(-20)
       .filter(m => m.role === 'user' || m.role === 'assistant')
@@ -233,9 +272,10 @@ export const useAIChat = () => {
 
     // Always use GPT-4o-mini for file/image attachments
     const hasAttachments = imageAttachments.length > 0 || documentAttachments.length > 0;
-    const backendModel = hasAttachments ? 'openai/gpt-4o-mini' : getBackendModelId();
+    const backendModel = hasAttachments ? 'openai/gpt-4o-mini' : activeBackendId;
+    const finalMultiplier = hasAttachments ? 1 : activeMultiplier;
     
-    console.log(`Sending message with model: ${backendModel}${hasAttachments ? ' (forced for attachments)' : ''}, images: ${imageAttachments.length}, docs: ${documentAttachments.length}, estimated input tokens: ${inputTokens}`);
+    console.log(`Sending message with model: ${backendModel}${hasAttachments ? ' (forced for attachments)' : wasSmartRouted ? ' (smart routed)' : ''}, multiplier: ${finalMultiplier}x, images: ${imageAttachments.length}, docs: ${documentAttachments.length}`);
 
     // Create abort controller
     abortControllerRef.current = new AbortController();
@@ -257,7 +297,18 @@ export const useAIChat = () => {
             () => {
               setStreaming(false);
               const outputTokens = estimateTokens(fullResponse);
-              updateTokenUsage(inputTokens, outputTokens);
+              updateTokenUsage(inputTokens, outputTokens, finalMultiplier);
+              
+              // Show optimization toast if smart routed
+              if (wasSmartRouted) {
+                toast({
+                  title: "✨ Optimized Response",
+                  description: "Simple query detected. Token deduction reduced to 1x.",
+                  variant: "default",
+                  duration: 3000,
+                });
+              }
+              
               console.log('🏥 Health analysis complete, response length:', fullResponse.length);
             },
             (err) => {
@@ -290,9 +341,20 @@ export const useAIChat = () => {
                 setLastMessageCitations(citations);
                 console.log(`📚 Added ${citations.length} citations to message`);
               }
-              // Estimate output tokens and update usage
+              // Estimate output tokens and update usage with multiplier
               const outputTokens = estimateTokens(fullResponse);
-              updateTokenUsage(inputTokens, outputTokens);
+              updateTokenUsage(inputTokens, outputTokens, finalMultiplier);
+              
+              // Show optimization toast if smart routed
+              if (wasSmartRouted) {
+                toast({
+                  title: "✨ Optimized Response",
+                  description: "Simple query detected. Token deduction reduced to 1x.",
+                  variant: "default",
+                  duration: 3000,
+                });
+              }
+              
               console.log('Streaming complete, response length:', fullResponse.length);
             },
             (err) => {
@@ -347,9 +409,19 @@ export const useAIChat = () => {
         }
         setStreaming(false);
         
-        // Estimate output tokens and update usage
+        // Estimate output tokens and update usage with multiplier
         const outputTokens = estimateTokens(response.content);
-        updateTokenUsage(inputTokens, outputTokens);
+        updateTokenUsage(inputTokens, outputTokens, finalMultiplier);
+        
+        // Show optimization toast if smart routed
+        if (wasSmartRouted) {
+          toast({
+            title: "✨ Optimized Response",
+            description: "Simple query detected. Token deduction reduced to 1x.",
+            variant: "default",
+            duration: 3000,
+          });
+        }
       }
     } catch (err: any) {
       console.error('Send message error:', err);
@@ -380,7 +452,7 @@ export const useAIChat = () => {
         }
       }
     }
-  }, [activeChatId, pendingAttachments, selectedModel, models, user, addMessage, updateLastMessage, setLastMessageCitations, setStreaming, setError, clearAttachments, createNewChat, getBackendModelId, updateTokenUsage, buildMultimodalContent, isHealthMode, healthAnalysisType]);
+  }, [activeChatId, pendingAttachments, selectedModel, models, user, addMessage, updateLastMessage, setLastMessageCitations, setStreaming, setError, clearAttachments, createNewChat, updateTokenUsage, buildMultimodalContent, isHealthMode, healthAnalysisType, showMultiplierWarning, getModelMultiplier]);
   
   // Stop streaming
   const stopStreaming = useCallback(() => {
