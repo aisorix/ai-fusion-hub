@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X, ChevronDown, Globe, User, LogOut, MessageSquare } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useEffect, useRef } from 'react';
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -208,8 +209,18 @@ const Navbar = () => {
               )}
             </div>
 
-            {/* Mobile Menu Toggle */}
+            {/* Mobile/Tablet Menu Toggle + Chat Icon */}
             <div className="flex lg:hidden items-center gap-2 relative z-10">
+              {/* Chat Icon for mobile/tablet */}
+              {user && (
+                <Link
+                  to="/chat"
+                  className="p-2.5 rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-primary"
+                  title="Go to Chat"
+                >
+                  <MessageSquare className="w-5 h-5" />
+                </Link>
+              )}
               <ThemeToggle />
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -360,7 +371,7 @@ const Navbar = () => {
                       )}
                       <button
                         onClick={handleSignOut}
-                        className="flex items-center justify-center gap-2 w-full py-3.5 bg-destructive/10 border-2 border-destructive/30 text-destructive font-semibold rounded-xl hover:bg-destructive/20 transition-all"
+                        className="flex items-center justify-center gap-2 w-full py-3.5 border-2 border-destructive/30 text-destructive font-semibold rounded-xl hover:bg-destructive/10 transition-all"
                       >
                         <LogOut className="w-4 h-4" />
                         Sign Out
@@ -370,14 +381,14 @@ const Navbar = () => {
                     <>
                       <Link
                         to="/login"
-                        className="block w-full text-center py-3.5 border-2 border-border text-foreground font-semibold rounded-xl hover:bg-muted transition-all"
+                        className="flex items-center justify-center w-full py-3.5 border-2 border-border text-foreground font-semibold rounded-xl hover:bg-muted transition-all"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         {t('login')}
                       </Link>
                       <Link
                         to="/register"
-                        className="block w-full text-center py-3.5 gradient-primary text-foreground font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
+                        className="flex items-center justify-center w-full py-3.5 gradient-primary text-foreground font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         {t('register')}

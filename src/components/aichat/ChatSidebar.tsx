@@ -107,46 +107,94 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
 
   const userName = authUser?.user_metadata?.full_name || user.name;
   const userEmail = authUser?.email || user.email;
+  const isPaidUser = user.plan !== 'free';
 
+  // Collapsed sidebar view
   if (sidebarCollapsed) {
     return (
       <div className="w-14 h-full bg-card border-r border-border flex flex-col items-center py-4 gap-2">
+        {/* Expand button */}
         <button
           onClick={toggleSidebarCollapse}
           className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors mb-2"
         >
           <PanelLeft className="w-5 h-5 text-muted-foreground" />
         </button>
+        
+        {/* New Chat */}
         <button
           onClick={onNewChat}
           className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center hover:opacity-90 transition-opacity"
         >
           <Plus className="w-5 h-5" />
         </button>
+        
+        {/* Search */}
         <button className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
           <Search className="w-5 h-5" />
         </button>
+        
+        {/* Multi-Window */}
         <button 
           onClick={() => setViewMode(viewMode === 'single' ? 'multi' : 'single')}
-          className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
+          className={cn(
+            "w-10 h-10 rounded-lg flex items-center justify-center transition-colors",
+            viewMode === 'multi' ? 'bg-primary/10 text-primary' : 'hover:bg-muted text-muted-foreground'
+          )}
         >
           <LayoutGrid className="w-5 h-5" />
         </button>
+        
+        {/* Spacer */}
         <div className="flex-1" />
+        
+        {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
           className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
         >
           {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
-        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
-          {userInitials}
-        </div>
+        
+        {/* Home */}
+        <Link
+          to="/"
+          className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
+        >
+          <Home className="w-5 h-5" />
+        </Link>
+        
+        {/* User Avatar */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm hover:bg-primary/20 transition-colors">
+              {userInitials}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" side="right" className="w-56 bg-popover border border-border shadow-lg z-50">
+            <div className="px-3 py-2">
+              <p className="text-sm font-medium text-foreground truncate">{userName}</p>
+              <p className="text-xs text-muted-foreground truncate">{userEmail}</p>
+            </div>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => setShowUpgradeModal(true)}>
+              <Crown className="w-4 h-4 mr-2 text-primary" />
+              Upgrade Plan
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setShowSettings(true)}>
+              <Settings className="w-4 h-4 mr-2" />
+              Settings
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+              <LogOut className="w-4 h-4 mr-2" />
+              Log Out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     );
   }
-
-  const isPaidUser = user.plan !== 'free';
 
   return (
     <>

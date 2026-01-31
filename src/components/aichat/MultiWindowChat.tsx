@@ -335,7 +335,7 @@ const MultiWindowChat = () => {
           userPlan={user.plan}
         />
         <p className="text-[10px] sm:text-xs text-center mt-2 text-muted-foreground">
-          Responses are sent to all windows simultaneously
+          Compare responses from multiple AI models side by side • Responses are sent to all windows simultaneously
         </p>
       </div>
 
