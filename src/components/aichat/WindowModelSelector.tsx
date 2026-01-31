@@ -1,8 +1,8 @@
 // Window Model Selector with Model Icons
-// For multi-window chat mode
+// For multi-window chat mode - no duplicate models, no multiplier badges
 
 import React, { useState } from 'react';
-import { ChevronDown, Check, Crown } from 'lucide-react';
+import { ChevronDown, Check } from 'lucide-react';
 import { useChatStore } from '@/stores/chatStore';
 import { cn } from '@/lib/utils';
 import { ModelIcon } from './ModelIcons';
@@ -14,14 +14,15 @@ interface WindowModelSelectorProps {
 
 const WindowModelSelector = ({ windowId, currentModelId }: WindowModelSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { chatWindows, setWindowModel, models, isModelLocked, user, theme } = useChatStore();
+  const { chatWindows, setWindowModel, models, user, theme } = useChatStore();
   
   const window = chatWindows.find(w => w.id === windowId);
   const modelId = currentModelId || window?.modelId;
-  const currentModel = models.find(m => m.id === modelId) || models[0];
-  const isPaidUser = user.plan !== 'free';
   
-  const availableModels = models.filter(m => !isModelLocked(m.id));
+  // Get available models for current plan (no duplicates)
+  const availableModels = models.filter(m => m.plans.includes(user.plan));
+  const currentModel = availableModels.find(m => m.id === modelId) || availableModels[0];
+  const isPaidUser = user.plan !== 'free';
   
   return (
     <div className="relative">
@@ -33,8 +34,8 @@ const WindowModelSelector = ({ windowId, currentModelId }: WindowModelSelectorPr
           isPaidUser && 'border border-primary/20 hover:border-primary/40'
         )}
       >
-        <ModelIcon modelId={currentModel.id} modelName={currentModel.name} size="sm" showGlow={isPaidUser} theme={theme} />
-        <span className="font-medium truncate max-w-[100px]">{currentModel.name}</span>
+        <ModelIcon modelId={currentModel?.id || ''} modelName={currentModel?.name || ''} size="sm" showGlow={isPaidUser} theme={theme} />
+        <span className="font-medium truncate max-w-[100px]">{currentModel?.name || 'Select'}</span>
         <ChevronDown className={cn(
           'w-3 h-3 text-muted-foreground transition-transform',
           isOpen && 'rotate-180'

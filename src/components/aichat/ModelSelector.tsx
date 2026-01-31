@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, Lock, Check, Sparkles, X, Zap, Crown } from 'lucide-react';
+import { ChevronDown, Lock, Check, X, Zap, Crown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useChatStore } from '@/stores/chatStore';
 import { cn } from '@/lib/utils';
@@ -11,12 +11,12 @@ const ModelSelector = () => {
   const { selectedModel, models, setSelectedModel, user, isModelLocked, theme } = useChatStore();
   const isMobile = useIsMobile();
   
-  const currentModel = models.find(m => m.id === selectedModel) || models[0];
-  const isPaidUser = user.plan !== 'free';
+  // Get available models for current plan (no duplicates)
+  const availableModels = models.filter(m => m.plans.includes(user.plan));
+  const lockedModels = models.filter(m => !m.plans.includes(user.plan));
   
-  // Keep models in original order from store (free models are already ordered correctly)
-  const freeModels = models.filter(m => m.plans.includes('free'));
-  const otherModels = models.filter(m => !m.plans.includes('free'));
+  const currentModel = models.find(m => m.id === selectedModel) || availableModels[0];
+  const isPaidUser = user.plan !== 'free';
 
   const getRequiredPlan = (model: typeof models[0]) => {
     if (model.plans.includes('free')) return null;
@@ -34,7 +34,7 @@ const ModelSelector = () => {
   
   return (
     <div className="relative">
-      {/* Trigger Button - Enhanced for paid users */}
+      {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
@@ -47,14 +47,13 @@ const ModelSelector = () => {
             : 'border-border/60'
         )}
       >
-        {/* Model Icon instead of generic sparkle */}
         <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg overflow-hidden flex items-center justify-center">
-          <ModelIcon modelId={currentModel.id} modelName={currentModel.name} size="md" showGlow={isPaidUser} theme={theme} />
+          <ModelIcon modelId={currentModel?.id || ''} modelName={currentModel?.name || ''} size="md" showGlow={isPaidUser} theme={theme} />
         </div>
         <span className={cn(
           "font-medium text-xs sm:text-sm max-w-[100px] sm:max-w-none truncate",
           isPaidUser && "bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text"
-        )}>{currentModel.name}</span>
+        )}>{currentModel?.name || 'Select Model'}</span>
         {isPaidUser && (
           <span className="hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-600 dark:text-yellow-400 rounded-md font-medium">
             <Crown className="w-2.5 h-2.5" />
@@ -148,56 +147,20 @@ const ModelSelector = () => {
                 </div>
 
                 {/* Models List */}
-                <div className="overflow-y-auto max-h-[calc(85vh-200px)] overscroll-contain">
-                  {/* Free Models */}
-                  {freeModels.length > 0 && (
-                    <div className="px-4 pt-4 pb-2">
-                      <div className="px-1 pb-2 text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                        Free Models
-                      </div>
-                      <div className="space-y-1">
-                        {freeModels.map((model) => (
-                          <MobileModelItem
-                            key={model.id}
-                            model={model}
-                            isSelected={selectedModel === model.id}
-                            isLocked={false}
-                            requiredPlan={null}
-                            onSelect={() => handleSelect(model.id, false)}
-                            theme={theme}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Premium Models */}
-                  {otherModels.length > 0 && (
-                    <div className="px-4 pt-3 pb-6">
-                      <div className="px-1 pb-2 text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                        Premium Models
-                      </div>
-                      <div className="space-y-1">
-                        {otherModels.map((model) => {
-                          const locked = isModelLocked(model.id);
-                          const requiredPlan = getRequiredPlan(model);
-                          return (
-                            <MobileModelItem
-                              key={model.id}
-                              model={model}
-                              isSelected={selectedModel === model.id}
-                              isLocked={locked}
-                              requiredPlan={requiredPlan}
-                              onSelect={() => handleSelect(model.id, locked)}
-                              theme={theme}
-                            />
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
+                <div className="overflow-y-auto max-h-[calc(85vh-200px)] overscroll-contain p-4">
+                  <div className="space-y-1">
+                    {availableModels.map((model) => (
+                      <MobileModelItem
+                        key={model.id}
+                        model={model}
+                        isSelected={selectedModel === model.id}
+                        isLocked={false}
+                        requiredPlan={null}
+                        onSelect={() => handleSelect(model.id, false)}
+                        theme={theme}
+                      />
+                    ))}
+                  </div>
                 </div>
 
                 {/* Safe Area Padding for iOS */}
@@ -211,7 +174,7 @@ const ModelSelector = () => {
                 exit={{ opacity: 0, y: -8, scale: 0.96 }}
                 transition={{ duration: 0.15, ease: 'easeOut' }}
                 className={cn(
-                  'absolute left-0 top-full mt-2 w-[340px] z-50',
+                  'absolute left-0 top-full mt-2 w-[320px] z-50',
                   'rounded-xl shadow-2xl shadow-black/20 overflow-hidden',
                   'bg-popover/95 border border-border/80 backdrop-blur-xl'
                 )}
@@ -232,50 +195,18 @@ const ModelSelector = () => {
                   </div>
                 </div>
 
-                <div className="max-h-[60vh] overflow-y-auto scrollbar-thin">
-                  {/* Free Models Section */}
-                  {freeModels.length > 0 && (
-                    <div className="p-1.5">
-                      <div className="px-2.5 py-1.5 text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider">
-                        Free Models
-                      </div>
-                      {freeModels.map((model) => (
-                        <DesktopModelItem
-                          key={model.id}
-                          model={model}
-                          isSelected={selectedModel === model.id}
-                          isLocked={false}
-                          requiredPlan={null}
-                          onSelect={() => handleSelect(model.id, false)}
-                          theme={theme}
-                        />
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Other Models Section */}
-                  {otherModels.length > 0 && (
-                    <div className="p-1.5 border-t border-border/30">
-                      <div className="px-2.5 py-1.5 text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider">
-                        Premium Models
-                      </div>
-                      {otherModels.map((model) => {
-                        const locked = isModelLocked(model.id);
-                        const requiredPlan = getRequiredPlan(model);
-                        return (
-                          <DesktopModelItem
-                            key={model.id}
-                            model={model}
-                            isSelected={selectedModel === model.id}
-                            isLocked={locked}
-                            requiredPlan={requiredPlan}
-                            onSelect={() => handleSelect(model.id, locked)}
-                            theme={theme}
-                          />
-                        );
-                      })}
-                    </div>
-                  )}
+                <div className="max-h-[60vh] overflow-y-auto scrollbar-thin p-1.5">
+                  {availableModels.map((model) => (
+                    <DesktopModelItem
+                      key={model.id}
+                      model={model}
+                      isSelected={selectedModel === model.id}
+                      isLocked={false}
+                      requiredPlan={null}
+                      onSelect={() => handleSelect(model.id, false)}
+                      theme={theme}
+                    />
+                  ))}
                 </div>
 
                 {/* Token Usage Footer */}
@@ -319,7 +250,7 @@ interface ModelItemProps {
   theme: 'light' | 'dark';
 }
 
-// Mobile Model Item - Larger touch targets with model icons and multiplier
+// Mobile Model Item
 const MobileModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect, theme }: ModelItemProps) => (
   <button
     onClick={onSelect}
@@ -333,7 +264,6 @@ const MobileModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect, 
           : 'bg-muted/30 active:bg-muted/50 border border-transparent'
     )}
   >
-    {/* Model Icon */}
     <div className="flex-shrink-0">
       <ModelIcon modelId={model.id} modelName={model.name} size="md" theme={theme} />
     </div>
@@ -346,17 +276,6 @@ const MobileModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect, 
         )}>
           {model.name}
         </span>
-        {/* Multiplier Badge */}
-        {model.multiplier && model.multiplier > 1 && (
-          <span className={cn(
-            'px-1.5 py-0.5 rounded text-[10px] font-bold',
-            model.multiplier >= 20 ? 'bg-red-500/15 text-red-400' :
-            model.multiplier >= 5 ? 'bg-orange-500/15 text-orange-400' :
-            'bg-yellow-500/15 text-yellow-500'
-          )}>
-            {model.multiplier}x
-          </span>
-        )}
         {isLocked && requiredPlan && (
           <span className={cn(
             'px-1.5 py-0.5 rounded text-[10px] font-medium',
@@ -380,7 +299,7 @@ const MobileModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect, 
   </button>
 );
 
-// Desktop Model Item - Compact with model icons and multiplier
+// Desktop Model Item
 const DesktopModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect, theme }: ModelItemProps) => (
   <button
     onClick={onSelect}
@@ -394,7 +313,6 @@ const DesktopModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect,
           : 'hover:bg-accent/50'
     )}
   >
-    {/* Model Icon */}
     <div className="flex-shrink-0">
       <ModelIcon modelId={model.id} modelName={model.name} size="sm" theme={theme} />
     </div>
@@ -407,17 +325,6 @@ const DesktopModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect,
         )}>
           {model.name}
         </span>
-        {/* Multiplier Badge */}
-        {model.multiplier && model.multiplier > 1 && (
-          <span className={cn(
-            'px-1 py-0.5 rounded text-[9px] font-bold',
-            model.multiplier >= 20 ? 'bg-red-500/15 text-red-400' :
-            model.multiplier >= 5 ? 'bg-orange-500/15 text-orange-400' :
-            'bg-yellow-500/15 text-yellow-500'
-          )}>
-            {model.multiplier}x
-          </span>
-        )}
         {isLocked && requiredPlan && (
           <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-muted text-muted-foreground">
             {requiredPlan}

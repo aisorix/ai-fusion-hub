@@ -6,7 +6,7 @@ import {
   RotateCcw,
   Share,
   Volume2,
-  Bot
+  Pencil
 } from 'lucide-react';
 import copy from 'copy-to-clipboard';
 import MarkdownRenderer from './MarkdownRenderer';
@@ -67,6 +67,8 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
   const [selectedReactions, setSelectedReactions] = useState<Set<string>>(new Set());
   const [showActions, setShowActions] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(message.content);
   
   const isPaidUser = user.plan !== 'free';
   
@@ -97,6 +99,16 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }, [message.content]);
+
+  const handleEdit = useCallback(() => {
+    setIsEditing(true);
+    setEditContent(message.content);
+  }, [message.content]);
+
+  const handleCancelEdit = useCallback(() => {
+    setIsEditing(false);
+    setEditContent(message.content);
+  }, [message.content]);
   
   return (
     <motion.div
@@ -113,31 +125,89 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
     >
       <div className="max-w-3xl mx-auto px-3 sm:px-4">
         {isUser ? (
-          // User message - clean bubble style
+          // User message - clean bubble style with edit/copy
           <div className="flex justify-end">
-            <div className={cn(
-              'max-w-[90%] sm:max-w-[85%] px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl',
-              theme === 'dark' 
-                ? 'bg-primary/20 text-foreground' 
-                : 'bg-primary/10 text-foreground'
-            )}>
-              <p className="whitespace-pre-wrap break-words leading-relaxed text-[15px]">
-                {message.content}
-              </p>
-              
-              {/* Image Attachments */}
-              {message.attachments && message.attachments.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {message.attachments.map((att, index) => (
-                    att.type === 'image' && (
-                      <img
-                        key={index}
-                        src={att.url}
-                        alt="Attachment"
-                        className="max-w-[200px] sm:max-w-[250px] max-h-[200px] sm:max-h-[250px] rounded-xl cursor-pointer hover:opacity-90 transition-opacity"
-                      />
-                    )
-                  ))}
+            <div className="relative max-w-[90%] sm:max-w-[85%]">
+              {/* Edit/Copy buttons for user messages */}
+              <AnimatePresence>
+                {showActions && !isEditing && (
+                  <motion.div
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 10 }}
+                    className="absolute -left-20 top-1/2 -translate-y-1/2 flex items-center gap-1"
+                  >
+                    <button
+                      onClick={handleEdit}
+                      className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                      title="Edit"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={handleCopy}
+                      className={cn(
+                        "p-1.5 rounded-lg hover:bg-muted transition-colors",
+                        copied ? "text-green-500" : "text-muted-foreground hover:text-foreground"
+                      )}
+                      title="Copy"
+                    >
+                      {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {isEditing ? (
+                <div className="flex flex-col gap-2">
+                  <textarea
+                    value={editContent}
+                    onChange={(e) => setEditContent(e.target.value)}
+                    className="w-full min-w-[200px] px-3.5 py-2.5 rounded-2xl bg-muted border border-border text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    rows={3}
+                    autoFocus
+                  />
+                  <div className="flex justify-end gap-2">
+                    <button
+                      onClick={handleCancelEdit}
+                      className="px-3 py-1.5 text-xs rounded-lg border border-border hover:bg-muted transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => setIsEditing(false)}
+                      className="px-3 py-1.5 text-xs rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className={cn(
+                  'px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl',
+                  theme === 'dark' 
+                    ? 'bg-primary/20 text-foreground' 
+                    : 'bg-primary/10 text-foreground'
+                )}>
+                  <p className="whitespace-pre-wrap break-words leading-relaxed text-[15px]">
+                    {message.content}
+                  </p>
+                  
+                  {/* Image Attachments */}
+                  {message.attachments && message.attachments.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {message.attachments.map((att, index) => (
+                        att.type === 'image' && (
+                          <img
+                            key={index}
+                            src={att.url}
+                            alt="Attachment"
+                            className="max-w-[200px] sm:max-w-[250px] max-h-[200px] sm:max-h-[250px] rounded-xl cursor-pointer hover:opacity-90 transition-opacity"
+                          />
+                        )
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
