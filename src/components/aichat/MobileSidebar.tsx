@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, Search, LayoutGrid, Sparkles, FolderKanban, Moon, Sun,
-  ChevronDown, LogOut, Settings, HelpCircle, Crown,
-  MessageSquare, Leaf, Heart, BookOpen, Home, X
+  ChevronDown, LogOut, Settings, Crown,
+  MessageSquare, Leaf, Heart, BookOpen, Home
 } from 'lucide-react';
 import { useChatStore } from '@/stores/chatStore';
 import { cn } from '@/lib/utils';
@@ -342,8 +342,26 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             </div>
           </ScrollArea>
 
-          {/* Bottom Section */}
-          <div className="p-3 border-t border-border space-y-1 mt-auto">
+          {/* Bottom Section - Redesigned */}
+          <div className="p-3 border-t border-border space-y-2 mt-auto">
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              <span>Dark mode</span>
+              <div className={cn(
+                'ml-auto w-10 h-5 rounded-full transition-colors relative',
+                theme === 'dark' ? 'bg-primary' : 'bg-muted'
+              )}>
+                <div className={cn(
+                  'absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform',
+                  theme === 'dark' ? 'translate-x-5' : 'translate-x-0.5'
+                )} />
+              </div>
+            </button>
+
             {/* User Profile */}
             <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-muted/50">
               <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-sm">
@@ -351,59 +369,48 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground truncate">{userName}</p>
-                <p className="text-[11px] text-muted-foreground truncate">{userEmail}</p>
+                <p className="text-[11px] text-muted-foreground truncate flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                  {userEmail}
+                </p>
               </div>
-            </div>
-
-            {/* Action buttons */}
-            <div className="grid grid-cols-2 gap-1">
-              <button
-                onClick={() => {
-                  setShowUpgradeModal(true);
-                  onClose();
-                }}
-                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
-              >
-                <Crown className="w-4 h-4 text-primary" />
-                <span>Upgrade</span>
-              </button>
               <button
                 onClick={() => {
                   setShowSettings(true);
                   onClose();
                 }}
-                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
+                className="p-2 rounded-lg hover:bg-muted transition-colors"
               >
-                <Settings className="w-4 h-4" />
-                <span>Settings</span>
+                <Settings className="w-4 h-4 text-muted-foreground" />
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-1">
+            {/* Action buttons row */}
+            <div className="flex items-center gap-2">
               <button
-                onClick={toggleTheme}
-                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
+                onClick={() => {
+                  setShowUpgradeModal(true);
+                  onClose();
+                }}
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors border border-border"
               >
-                {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-                <span>{theme === 'dark' ? 'Light' : 'Dark'}</span>
+                <Crown className="w-4 h-4 text-primary" />
+                <span>Upgrade</span>
               </button>
               <Link
                 to="/"
                 onClick={onClose}
-                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
+                className="p-2.5 rounded-lg hover:bg-muted transition-colors border border-border"
               >
                 <Home className="w-4 h-4" />
-                <span>Home</span>
               </Link>
+              <button
+                onClick={handleSignOut}
+                className="p-2.5 rounded-lg text-destructive hover:bg-destructive/10 transition-colors border border-border"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
             </div>
-
-            <button
-              onClick={handleSignOut}
-              className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-destructive hover:bg-destructive/10 transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Log Out</span>
-            </button>
           </div>
         </SheetContent>
       </Sheet>
