@@ -133,22 +133,18 @@ const ModelSelector = () => {
               onClick={() => setIsOpen(false)}
             />
             
-            {/* Mobile: Bottom Sheet / Desktop: Dropdown */}
+            {/* Mobile: Centered Modal / Desktop: Dropdown */}
             {isMobile ? (
               <motion.div
-                initial={{ opacity: 0, y: '100%' }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: '100%' }}
-                transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-                className="fixed inset-x-0 bottom-0 z-50 max-h-[85vh] rounded-t-3xl overflow-hidden bg-background border-t border-border shadow-2xl"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 400 }}
+                className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 max-h-[80vh] rounded-2xl overflow-hidden bg-background border border-border shadow-2xl"
               >
-                {/* Drag Handle */}
-                <div className="flex justify-center pt-3 pb-1">
-                  <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
-                </div>
-
+                {/* No drag handle for centered modal */}
                 {/* Header */}
-                <div className="flex items-center justify-between px-5 py-3 border-b border-border/50">
+                <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
                   <div>
                     <h3 className="text-lg font-semibold text-foreground">Choose Model</h3>
                     <p className="text-xs text-muted-foreground mt-0.5">Token multiplier affects usage calculation</p>
@@ -202,7 +198,7 @@ const ModelSelector = () => {
                 </div>
 
                 {/* Models List */}
-                <div className="overflow-y-auto max-h-[calc(85vh-200px)] overscroll-contain p-4 space-y-4">
+                <div className="overflow-y-auto max-h-[calc(80vh-180px)] overscroll-contain p-4 space-y-4">
                   {/* Free Models */}
                   {freeModels.length > 0 && (
                     <ModelSection

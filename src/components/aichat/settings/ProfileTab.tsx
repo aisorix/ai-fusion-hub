@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Camera, ChevronDown, User, Check } from 'lucide-react';
+import { Camera, ChevronDown, User, Check, LogOut } from 'lucide-react';
 import { useChatStore } from '@/stores/chatStore';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const COUNTRY_CODES = [
@@ -12,6 +14,8 @@ const COUNTRY_CODES = [
 
 const ProfileTab = () => {
   const { user } = useChatStore();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
   
   const [fullName, setFullName] = useState(user?.name || 'Sorix User');
   const [countryCode, setCountryCode] = useState('+1');
@@ -29,6 +33,11 @@ const ProfileTab = () => {
   
   const handleUpdateProfile = () => {
     setHasChanges(false);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/login');
   };
   
   return (
@@ -177,6 +186,20 @@ const ProfileTab = () => {
           <p className="text-[10px] sm:text-xs mt-1 text-muted-foreground">
             Email cannot be changed
           </p>
+        </div>
+
+        {/* Logout Button */}
+        <div className="pt-2">
+          <button
+            onClick={handleSignOut}
+            className={cn(
+              'w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-medium text-sm sm:text-base transition-all duration-200',
+              'bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20'
+            )}
+          >
+            <LogOut className="w-4 h-4" />
+            Sign Out
+          </button>
         </div>
       </div>
       
