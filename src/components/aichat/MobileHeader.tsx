@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, Plus } from 'lucide-react';
+import { PanelLeft } from 'lucide-react';
 import { useChatStore } from '@/stores/chatStore';
 import { Button } from '@/components/ui/button';
 import ModelSelector from './ModelSelector';
@@ -16,34 +16,24 @@ const MobileHeader = ({ onOpenSidebar, onNewChat }: MobileHeaderProps) => {
 
   return (
     <header className={cn(
-      'flex items-center justify-between px-3 py-2 border-b md:hidden',
+      'flex items-center justify-center px-3 py-2 border-b md:hidden relative',
       'bg-background/95 backdrop-blur-md',
       isPaidUser ? 'border-primary/20' : 'border-border'
     )}>
-      {/* Left: Menu button */}
+      {/* Left: Sidebar toggle button */}
       <Button
-        variant="ghost"
+        variant="outline"
         size="icon"
         onClick={onOpenSidebar}
-        className="h-9 w-9 shrink-0"
+        className="h-9 w-9 shrink-0 absolute left-3 border-border"
       >
-        <Menu className="h-5 w-5" />
+        <PanelLeft className="h-5 w-5" />
       </Button>
 
       {/* Center: Model selector */}
-      <div className="flex-1 flex justify-center px-2">
+      <div className="flex justify-center">
         <ModelSelector />
       </div>
-
-      {/* Right: New chat button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onNewChat}
-        className="h-9 w-9 shrink-0"
-      >
-        <Plus className="h-5 w-5" />
-      </Button>
     </header>
   );
 };

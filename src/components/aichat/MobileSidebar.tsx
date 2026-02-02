@@ -385,7 +385,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
               </button>
             </div>
 
-            {/* Action buttons row */}
+            {/* Action buttons row - Removed logout, kept upgrade and home */}
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
@@ -400,16 +400,11 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
               <Link
                 to="/"
                 onClick={onClose}
-                className="p-2.5 rounded-lg hover:bg-muted transition-colors border border-border"
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors border border-border"
               >
                 <Home className="w-4 h-4" />
+                <span>Home</span>
               </Link>
-              <button
-                onClick={handleSignOut}
-                className="p-2.5 rounded-lg text-destructive hover:bg-destructive/10 transition-colors border border-border"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
             </div>
           </div>
         </SheetContent>

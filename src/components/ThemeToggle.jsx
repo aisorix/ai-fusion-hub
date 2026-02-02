@@ -1,16 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sun, Moon, Monitor, ChevronDown } from 'lucide-react';
+import { useChatStore } from '@/stores/chatStore';
 
 const ThemeToggle = () => {
-  const [theme, setTheme] = useState('system');
+  const { theme: storeTheme, setTheme: setStoreTheme } = useChatStore();
+  const [theme, setTheme] = useState(storeTheme || 'system');
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  // Sync with store theme on mount and when store changes
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'system';
-    setTheme(savedTheme);
-    applyTheme(savedTheme);
-  }, []);
+    if (storeTheme) {
+      setTheme(storeTheme === 'dark' ? 'dark' : 'light');
+      applyTheme(storeTheme === 'dark' ? 'dark' : 'light');
+    } else {
+      const savedTheme = localStorage.getItem('theme') || 'system';
+      setTheme(savedTheme);
+      applyTheme(savedTheme);
+    }
+  }, [storeTheme]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -37,6 +45,14 @@ const ThemeToggle = () => {
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
     applyTheme(newTheme);
+    
+    // Sync with chat store
+    if (newTheme === 'dark' || (newTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      setStoreTheme('dark');
+    } else {
+      setStoreTheme('light');
+    }
+    
     setIsOpen(false);
   };
 
