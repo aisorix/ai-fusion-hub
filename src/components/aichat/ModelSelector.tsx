@@ -133,18 +133,22 @@ const ModelSelector = () => {
               onClick={() => setIsOpen(false)}
             />
             
-            {/* Mobile: Centered Modal / Desktop: Dropdown */}
+            {/* Mobile: Full Screen Modal / Desktop: Dropdown */}
             {isMobile ? (
               <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
                 transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-                className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 max-h-[80vh] rounded-2xl overflow-hidden bg-background border border-border shadow-2xl"
+                className="fixed inset-x-0 bottom-0 top-16 z-50 flex flex-col bg-background rounded-t-3xl shadow-2xl border-t border-border"
               >
-                {/* No drag handle for centered modal */}
+                {/* Drag Handle */}
+                <div className="flex justify-center py-3">
+                  <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
+                </div>
+
                 {/* Header */}
-                <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
+                <div className="flex items-center justify-between px-5 pb-3 border-b border-border/50">
                   <div>
                     <h3 className="text-lg font-semibold text-foreground">Choose Model</h3>
                     <p className="text-xs text-muted-foreground mt-0.5">Token multiplier affects usage calculation</p>
@@ -197,8 +201,8 @@ const ModelSelector = () => {
                   </div>
                 </div>
 
-                {/* Models List */}
-                <div className="overflow-y-auto max-h-[calc(80vh-180px)] overscroll-contain p-4 space-y-4">
+                {/* Models List - Scrollable */}
+                <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4">
                   {/* Free Models */}
                   {freeModels.length > 0 && (
                     <ModelSection
@@ -277,7 +281,7 @@ const ModelSelector = () => {
                 </div>
 
                 {/* Safe Area Padding for iOS */}
-                <div className="h-safe-area-inset-bottom" />
+                <div className="h-safe-area-inset-bottom pb-4" />
               </motion.div>
             ) : (
               /* Desktop Dropdown */
