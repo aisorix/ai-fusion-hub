@@ -25,11 +25,7 @@ const ChatPage = () => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const isMobile = useIsMobile();
   
-  // Apply theme
-  useEffect(() => {
-    document.documentElement.classList.remove('light', 'dark');
-    document.documentElement.classList.add(theme);
-  }, [theme]);
+  // Theme is now synchronized globally via ThemeSync component in App.jsx
   
   // Redirect to login if not authenticated
   useEffect(() => {

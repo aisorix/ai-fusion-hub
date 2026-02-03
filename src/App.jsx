@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -26,51 +27,68 @@ import Dashboard from "./pages/Dashboard";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailed from "./pages/PaymentFailed";
 import PaymentCancel from "./pages/PaymentCancel";
+import { useChatStore } from "./stores/chatStore";
 
 const queryClient = new QueryClient();
+
+// Theme synchronization component
+const ThemeSync = ({ children }) => {
+  const { theme } = useChatStore();
+  
+  useEffect(() => {
+    // Ensure theme is synced on mount and changes
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(theme);
+    document.documentElement.style.colorScheme = theme;
+  }, [theme]);
+  
+  return children;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <LanguageProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <ScrollToTop />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/chat" element={
-                <ProtectedRoute>
-                  <ChatPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/verify-email" element={<VerifyEmail />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/terms-of-service" element={<TermsOfService />} />
-              <Route path="/cookie-policy" element={<CookiePolicy />} />
-              <Route path="/refund-policy" element={<RefundPolicy />} />
-              <Route path="/about-sorix-lab" element={<AboutSorixLab />} />
-              <Route path="/reviews" element={<Reviews />} />
-              <Route path="/admin/chat" element={<ChatDashboard />} />
-              {/* Payment Callback Routes */}
-              <Route path="/payment/success" element={<PaymentSuccess />} />
-              <Route path="/payment/failed" element={<PaymentFailed />} />
-              <Route path="/payment/cancel" element={<PaymentCancel />} />
-              <Route path="/payment/bkash/callback" element={<PaymentSuccess />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
+        <ThemeSync>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <ScrollToTop />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/chat" element={
+                  <ProtectedRoute>
+                    <ChatPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
+                <Route path="/cookie-policy" element={<CookiePolicy />} />
+                <Route path="/refund-policy" element={<RefundPolicy />} />
+                <Route path="/about-sorix-lab" element={<AboutSorixLab />} />
+                <Route path="/reviews" element={<Reviews />} />
+                <Route path="/admin/chat" element={<ChatDashboard />} />
+                {/* Payment Callback Routes */}
+                <Route path="/payment/success" element={<PaymentSuccess />} />
+                <Route path="/payment/failed" element={<PaymentFailed />} />
+                <Route path="/payment/cancel" element={<PaymentCancel />} />
+                <Route path="/payment/bkash/callback" element={<PaymentSuccess />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </ThemeSync>
       </LanguageProvider>
     </AuthProvider>
   </QueryClientProvider>
