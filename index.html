@@ -2,95 +2,21 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>AI Sorix - Your AI Assistant</title>
-    <meta name="description" content="AI Sorix - Advanced AI chat assistant with multiple models" />
-    <meta name="author" content="Sorix Lab" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- TODO: Set the document title to the name of your application -->
+    <title>Lovable App</title>
+    <meta name="description" content="Lovable Generated Project" />
+    <meta name="author" content="Lovable" />
 
-    <meta property="og:title" content="AI Sorix - Your AI Assistant" />
-    <meta property="og:description" content="AI Sorix - Advanced AI chat assistant with multiple models" />
+    <!-- TODO: Update og:title to match your application name -->
+    <meta property="og:title" content="Lovable App" />
+    <meta property="og:description" content="Lovable Generated Project" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@SorixLab" />
+    <meta name="twitter:site" content="@Lovable" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-    
-    <!-- Prevent FOUC (Flash of Unstyled Content) - Apply theme BEFORE React loads -->
-    <script>
-      (function() {
-        try {
-          // Try to get theme from Zustand persist storage first
-          var stored = localStorage.getItem('chat-storage');
-          var theme = 'dark'; // Default to dark
-          
-          if (stored) {
-            var parsed = JSON.parse(stored);
-            if (parsed.state && parsed.state.theme) {
-              theme = parsed.state.theme;
-            }
-          }
-          
-          // Also check legacy theme storage
-          var legacyTheme = localStorage.getItem('theme');
-          if (legacyTheme === 'system') {
-            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-          } else if (legacyTheme === 'light' || legacyTheme === 'dark') {
-            theme = legacyTheme;
-          }
-          
-          // Apply theme class immediately
-          document.documentElement.classList.remove('light', 'dark');
-          document.documentElement.classList.add(theme);
-          
-          // Set color-scheme for native elements
-          document.documentElement.style.colorScheme = theme;
-        } catch (e) {
-          // Fallback to dark theme on error
-          document.documentElement.classList.add('dark');
-          document.documentElement.style.colorScheme = 'dark';
-        }
-      })();
-    </script>
-    
-    <!-- Prevent layout shift -->
-    <style>
-      html {
-        min-height: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-      body {
-        min-height: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        overflow-x: hidden;
-      }
-      #root {
-        min-height: 100%;
-        height: auto;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-      }
-      /* Initial loading state - prevents flash */
-      #root:empty {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        background: hsl(220 25% 6%);
-      }
-      .dark #root:empty {
-        background: hsl(220 25% 6%);
-      }
-      .light #root:empty {
-        background: hsl(220 20% 98%);
-      }
-    </style>
   </head>
 
   <body>
