@@ -520,6 +520,11 @@ const MobileModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect, 
       {isSelected && <Check className="w-3.5 h-3.5 text-primary-foreground" />}
     </div>
 
+    {/* Model Icon */}
+    <div className="flex-shrink-0">
+      <ModelIcon modelId={model.id} modelName={model.name} size="md" theme={theme} />
+    </div>
+
     <div className="flex-1 min-w-0">
       <div className="flex items-center gap-2">
         <span className={cn(
