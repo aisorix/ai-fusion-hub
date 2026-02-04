@@ -1,19 +1,19 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Menu, X, ChevronDown, Globe, User, LogOut, MessageSquare } from "lucide-react";
-import { useLanguage } from "../contexts/LanguageContext";
-import { useAuth } from "../contexts/AuthContext";
-import { useEmployeeRole } from "../hooks/useEmployeeRole";
-import ThemeToggle from "./ThemeToggle";
-import logo from "../assets/logo.png";
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Menu, X, ChevronDown, Globe, User, LogOut, MessageSquare } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
+import { useEmployeeRole } from '../hooks/useEmployeeRole';
+import ThemeToggle from './ThemeToggle';
+import logo from '../assets/logo.png';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useEffect, useRef } from "react";
+} from '@/components/ui/dropdown-menu';
+import { useEffect, useRef } from 'react';
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -30,23 +30,18 @@ const Navbar = () => {
   };
 
   const getUserInitials = () => {
-    if (!user) return "U";
-    const name = user.user_metadata?.full_name || user.email || "";
+    if (!user) return 'U';
+    const name = user.user_metadata?.full_name || user.email || '';
     if (user.user_metadata?.full_name) {
-      return name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2);
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
     }
     return name.charAt(0).toUpperCase();
   };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
@@ -55,31 +50,29 @@ const Navbar = () => {
         setLangDropdownOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // Close mobile menu when clicking outside
   useEffect(() => {
     if (mobileMenuOpen) {
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = 'unset';
     }
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = 'unset';
     };
   }, [mobileMenuOpen]);
 
   return (
     <>
-      <nav
-        className={`sticky top-0 z-50 transition-all duration-500 ${
-          scrolled
-            ? "bg-background shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.15)] border-b border-primary/10"
-            : "bg-background border-b border-transparent"
-        }`}
-      >
+      <nav className={`sticky top-0 z-50 transition-all duration-500 ${
+        scrolled 
+          ? 'bg-background shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.15)] border-b border-primary/10' 
+          : 'bg-background border-b border-transparent'
+      }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 sm:h-20 items-center">
             {/* Logo */}
@@ -90,29 +83,17 @@ const Navbar = () => {
 
             {/* Desktop Menu */}
             <div className="hidden lg:flex items-center gap-10">
-              <a
-                href="#Features"
-                className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all"
-              >
-                {t("features")}
+              <a href="#Features" className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all">
+                {t('features')}
               </a>
-              <a
-                href="#pricing"
-                className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all"
-              >
-                {t("pricing")}
+              <a href="#pricing" className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all">
+                {t('pricing')}
               </a>
-              <a
-                href="#faq"
-                className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all"
-              >
-                {t("faqs")}
+              <a href="#faq" className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all">
+                {t('faqs')}
               </a>
-              <a
-                href="#about"
-                className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all"
-              >
-                {t("aboutUs")}
+              <a href="#about" className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all">
+                {t('aboutUs')}
               </a>
             </div>
 
@@ -128,7 +109,7 @@ const Navbar = () => {
                   <MessageSquare className="w-5 h-5" />
                 </Link>
               )}
-
+              
               {/* Theme Toggle */}
               <ThemeToggle />
 
@@ -139,27 +120,21 @@ const Navbar = () => {
                   className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
                 >
                   <Globe className="w-4 h-4" />
-                  <span className="text-sm font-medium">{language === "en" ? "EN" : "বাং"}</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${langDropdownOpen ? "rotate-180" : ""}`} />
+                  <span className="text-sm font-medium">{language === 'en' ? 'EN' : 'বাং'}</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${langDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
-
+                
                 {langDropdownOpen && (
                   <div className="absolute top-full right-0 mt-2 bg-card border border-border rounded-xl shadow-xl overflow-hidden min-w-[120px] z-[60]">
                     <button
-                      onClick={() => {
-                        setLanguage("en");
-                        setLangDropdownOpen(false);
-                      }}
-                      className={`w-full px-4 py-3 text-left text-sm font-medium hover:bg-muted transition-colors flex items-center gap-2 ${language === "en" ? "text-primary bg-primary/5" : "text-foreground"}`}
+                      onClick={() => { setLanguage('en'); setLangDropdownOpen(false); }}
+                      className={`w-full px-4 py-3 text-left text-sm font-medium hover:bg-muted transition-colors flex items-center gap-2 ${language === 'en' ? 'text-primary bg-primary/5' : 'text-foreground'}`}
                     >
                       🇬🇧 English
                     </button>
                     <button
-                      onClick={() => {
-                        setLanguage("bn");
-                        setLangDropdownOpen(false);
-                      }}
-                      className={`w-full px-4 py-3 text-left text-sm font-medium hover:bg-muted transition-colors flex items-center gap-2 ${language === "bn" ? "text-primary bg-primary/5" : "text-foreground"}`}
+                      onClick={() => { setLanguage('bn'); setLangDropdownOpen(false); }}
+                      className={`w-full px-4 py-3 text-left text-sm font-medium hover:bg-muted transition-colors flex items-center gap-2 ${language === 'bn' ? 'text-primary bg-primary/5' : 'text-foreground'}`}
                     >
                       🇧🇩 বাংলা
                     </button>
@@ -182,9 +157,11 @@ const Navbar = () => {
                   <DropdownMenuContent align="end" className="w-56">
                     <div className="px-3 py-2">
                       <p className="text-sm font-medium text-foreground truncate">
-                        {user.user_metadata?.full_name || "User"}
+                        {user.user_metadata?.full_name || 'User'}
                       </p>
-                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {user.email}
+                      </p>
                     </div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
@@ -208,10 +185,7 @@ const Navbar = () => {
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={handleSignOut}
-                      className="text-destructive focus:text-destructive cursor-pointer"
-                    >
+                    <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive cursor-pointer">
                       <LogOut className="w-4 h-4 mr-2" />
                       Sign Out
                     </DropdownMenuItem>
@@ -223,13 +197,13 @@ const Navbar = () => {
                     to="/login"
                     className="px-5 py-2.5 border border-border rounded-xl font-semibold text-foreground hover:bg-muted transition-all duration-300"
                   >
-                    {t("login")}
+                    {t('login')}
                   </Link>
                   <Link
                     to="/register"
                     className="px-5 py-2.5 gradient-primary text-foreground font-semibold rounded-xl shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
                   >
-                    {t("register")}
+                    {t('register')}
                   </Link>
                 </>
               )}
@@ -268,7 +242,7 @@ const Navbar = () => {
       {mobileMenuOpen && (
         <>
           {/* Backdrop */}
-          <div
+          <div 
             className="lg:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] animate-fade-in"
             onClick={() => setMobileMenuOpen(false)}
           />
@@ -293,43 +267,43 @@ const Navbar = () => {
               <div className="px-5 py-6">
                 {/* Navigation Links */}
                 <div className="space-y-1">
-                  <a
-                    href="#Features"
+                  <a 
+                    href="#Features" 
                     className="flex items-center gap-3 py-3.5 px-4 rounded-xl hover:bg-muted text-foreground font-medium transition-all text-base border border-transparent hover:border-border/50"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <span className="w-2 h-2 rounded-full bg-primary/60" />
-                    {t("features")}
+                    {t('features')}
                   </a>
-                  <a
-                    href="#pricing"
+                  <a 
+                    href="#pricing" 
                     className="flex items-center gap-3 py-3.5 px-4 rounded-xl hover:bg-muted text-foreground font-medium transition-all text-base border border-transparent hover:border-border/50"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <span className="w-2 h-2 rounded-full bg-primary/60" />
-                    {t("pricing")}
+                    {t('pricing')}
                   </a>
-                  <a
-                    href="#faq"
+                  <a 
+                    href="#faq" 
                     className="flex items-center gap-3 py-3.5 px-4 rounded-xl hover:bg-muted text-foreground font-medium transition-all text-base border border-transparent hover:border-border/50"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <span className="w-2 h-2 rounded-full bg-primary/60" />
-                    {t("faqs")}
+                    {t('faqs')}
                   </a>
-                  <a
-                    href="#about"
+                  <a 
+                    href="#about" 
                     className="flex items-center gap-3 py-3.5 px-4 rounded-xl hover:bg-muted text-foreground font-medium transition-all text-base border border-transparent hover:border-border/50"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <span className="w-2 h-2 rounded-full bg-primary/60" />
-                    {t("aboutUs")}
+                    {t('aboutUs')}
                   </a>
                 </div>
-
+                
                 {/* Divider */}
                 <div className="h-px bg-border my-5" />
-
+                
                 {/* Language Toggle */}
                 <div className="bg-muted/50 rounded-xl p-4 border border-border/50">
                   <div className="flex items-center gap-3 mb-3">
@@ -338,14 +312,14 @@ const Navbar = () => {
                   </div>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => setLanguage("en")}
-                      className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${language === "en" ? "gradient-primary text-foreground shadow-md" : "bg-background text-foreground border border-border hover:bg-muted"}`}
+                      onClick={() => setLanguage('en')}
+                      className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${language === 'en' ? 'gradient-primary text-foreground shadow-md' : 'bg-background text-foreground border border-border hover:bg-muted'}`}
                     >
                       🇬🇧 English
                     </button>
                     <button
-                      onClick={() => setLanguage("bn")}
-                      className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${language === "bn" ? "gradient-primary text-foreground shadow-md" : "bg-background text-foreground border border-border hover:bg-muted"}`}
+                      onClick={() => setLanguage('bn')}
+                      className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${language === 'bn' ? 'gradient-primary text-foreground shadow-md' : 'bg-background text-foreground border border-border hover:bg-muted'}`}
                     >
                       🇧🇩 বাংলা
                     </button>
@@ -362,9 +336,11 @@ const Navbar = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-foreground truncate">
-                            {user.user_metadata?.full_name || "User"}
+                            {user.user_metadata?.full_name || 'User'}
                           </p>
-                          <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+                          <p className="text-sm text-muted-foreground truncate">
+                            {user.email}
+                          </p>
                         </div>
                       </div>
                       <Link
@@ -408,14 +384,14 @@ const Navbar = () => {
                         className="flex items-center justify-center w-full py-3.5 border-2 border-border text-foreground font-semibold rounded-xl hover:bg-muted transition-all"
                         onClick={() => setMobileMenuOpen(false)}
                       >
-                        {t("login")}
+                        {t('login')}
                       </Link>
                       <Link
                         to="/register"
                         className="flex items-center justify-center w-full py-3.5 gradient-primary text-foreground font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
                         onClick={() => setMobileMenuOpen(false)}
                       >
-                        {t("register")}
+                        {t('register')}
                       </Link>
                     </>
                   )}
