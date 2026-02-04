@@ -117,7 +117,7 @@ const Navbar = () => {
             </div>
 
             {/* Right Side: Theme + Language + Auth */}
-            <div className="hidden lg:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-3">
               {/* Chat Icon for logged-in users */}
               {user && (
                 <Link
