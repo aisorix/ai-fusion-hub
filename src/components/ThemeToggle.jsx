@@ -1,24 +1,23 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Sun, Moon, Monitor, ChevronDown } from "lucide-react";
-import { useChatStore } from "@/stores/chatStore";
+import React, { useState, useEffect, useRef } from 'react';
+import { Sun, Moon, Monitor, ChevronDown } from 'lucide-react';
+import { useChatStore } from '@/stores/chatStore';
 
 const ThemeToggle = () => {
   const { theme: storeTheme, setTheme: setStoreTheme } = useChatStore();
-  const [theme, setTheme] = useState(storeTheme || "system");
+  const [theme, setTheme] = useState(storeTheme || 'system');
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   // Sync with store theme on mount and when store changes
   useEffect(() => {
-    // if (storeTheme) {
-    //   setTheme(storeTheme === 'dark' ? 'dark' : 'light');
-    //   applyTheme(storeTheme === 'dark' ? 'dark' : 'light');
-    // } else {
-    //   const savedTheme = localStorage.getItem('theme') || 'system';
-    //   setTheme(savedTheme);
-    //   applyTheme(savedTheme);
-    // }
-    applyTheme("dark");
+    if (storeTheme) {
+      setTheme(storeTheme === 'dark' ? 'dark' : 'light');
+      applyTheme(storeTheme === 'dark' ? 'dark' : 'light');
+    } else {
+      const savedTheme = localStorage.getItem('theme') || 'system';
+      setTheme(savedTheme);
+      applyTheme(savedTheme);
+    }
   }, [storeTheme]);
 
   useEffect(() => {
@@ -27,43 +26,43 @@ const ThemeToggle = () => {
         setIsOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const applyTheme = (selectedTheme) => {
     const root = document.documentElement;
-
-    if (selectedTheme === "system") {
-      const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      root.classList.toggle("dark", systemDark);
+    
+    if (selectedTheme === 'system') {
+      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      root.classList.toggle('dark', systemDark);
     } else {
-      root.classList.toggle("dark", selectedTheme === "dark");
+      root.classList.toggle('dark', selectedTheme === 'dark');
     }
   };
 
   const handleThemeChange = (newTheme) => {
     setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
+    localStorage.setItem('theme', newTheme);
     applyTheme(newTheme);
-
+    
     // Sync with chat store
-    if (newTheme === "dark" || (newTheme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-      setStoreTheme("dark");
+    if (newTheme === 'dark' || (newTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      setStoreTheme('dark');
     } else {
-      setStoreTheme("light");
+      setStoreTheme('light');
     }
-
+    
     setIsOpen(false);
   };
 
   const themes = [
-    { id: "light", label: "Light", icon: Sun },
-    { id: "dark", label: "Dark", icon: Moon },
-    { id: "system", label: "System", icon: Monitor },
+    { id: 'light', label: 'Light', icon: Sun },
+    { id: 'dark', label: 'Dark', icon: Moon },
+    { id: 'system', label: 'System', icon: Monitor },
   ];
 
-  const currentTheme = themes.find((t) => t.id === theme);
+  const currentTheme = themes.find(t => t.id === theme);
   const CurrentIcon = currentTheme?.icon || Monitor;
 
   return (
@@ -74,7 +73,7 @@ const ThemeToggle = () => {
         aria-label="Toggle theme"
       >
         <CurrentIcon className="w-4 h-4" />
-        <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+        <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
@@ -84,7 +83,7 @@ const ThemeToggle = () => {
               key={id}
               onClick={() => handleThemeChange(id)}
               className={`w-full px-4 py-3 text-left text-sm font-medium hover:bg-muted transition-colors flex items-center gap-3 ${
-                theme === id ? "text-primary bg-primary/5" : "text-foreground"
+                theme === id ? 'text-primary bg-primary/5' : 'text-foreground'
               }`}
             >
               <Icon className="w-4 h-4" />
