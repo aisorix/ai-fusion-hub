@@ -1,41 +1,21 @@
 // Window Model Selector with Model Icons
-// For multi-window chat mode - shows exclusive models per tier (no duplicates)
+// For multi-window chat mode - shows all available models grouped by tier
 
 import React, { useState } from 'react';
-import { ChevronDown, Check, Lock, Zap, Star, Sparkles, Crown } from 'lucide-react';
+import { ChevronDown, Check, Lock, Zap } from 'lucide-react';
 import { useChatStore, type UserPlan, type Model } from '@/stores/chatStore';
 import { cn } from '@/lib/utils';
 import { ModelIcon } from './ModelIcons';
 import { toast } from 'sonner';
 
-// Get unique model names for a specific plan tier ONLY (exclusive to that tier)
-const getExclusiveModelsForTier = (models: Model[], tier: UserPlan): Model[] => {
-  const tierModels = models.filter(m => m.plans.includes(tier));
-  
-  // Remove duplicates by name within the tier
+// Get unique models by name to avoid duplicates
+const getUniqueModelsByName = (models: Model[]): Model[] => {
   const seen = new Set<string>();
-  return tierModels.filter(m => {
+  return models.filter(m => {
     if (seen.has(m.name)) return false;
     seen.add(m.name);
     return true;
   });
-};
-
-// Plan hierarchy for access checking
-const planHierarchy: UserPlan[] = ['free', 'basic', 'pro', 'premium'];
-
-// Get tier info helper
-const getTierInfo = (tier: UserPlan) => {
-  switch (tier) {
-    case 'free':
-      return { label: 'Free', icon: Star, color: 'text-emerald-500', dotColor: 'bg-emerald-500' };
-    case 'basic':
-      return { label: 'Basic', icon: Zap, color: 'text-blue-500', dotColor: 'bg-blue-500' };
-    case 'pro':
-      return { label: 'Pro', icon: Sparkles, color: 'text-purple-500', dotColor: 'bg-purple-500' };
-    case 'premium':
-      return { label: 'Premium', icon: Crown, color: 'text-amber-500', dotColor: 'bg-amber-500' };
-  }
 };
 
 interface WindowModelSelectorProps {
@@ -54,20 +34,21 @@ const WindowModelSelector = ({ windowId, currentModelId }: WindowModelSelectorPr
   const currentModel = models.find(m => m.id === modelId) || models.find(m => m.plans.includes(user.plan));
   const isPaidUser = user.plan !== 'free';
 
-  // Get exclusive models for each tier
-  const freeModels = getExclusiveModelsForTier(models, 'free');
-  const basicModels = getExclusiveModelsForTier(models, 'basic');
-  const proModels = getExclusiveModelsForTier(models, 'pro');
-  const premiumModels = getExclusiveModelsForTier(models, 'premium');
+  // Get all models grouped by tier
+  const freeModels = getUniqueModelsByName(models.filter(m => m.plans.includes('free')));
+  const basicModels = getUniqueModelsByName(models.filter(m => m.plans.includes('basic') && !m.plans.includes('free')));
+  const proModels = getUniqueModelsByName(models.filter(m => m.plans.includes('pro') && !m.plans.includes('basic')));
+  const premiumModels = getUniqueModelsByName(models.filter(m => m.plans.includes('premium') && !m.plans.includes('pro')));
 
   const isModelAccessible = (model: Model) => {
     return model.plans.includes(user.plan);
   };
 
-  const isTierAccessible = (tier: UserPlan) => {
-    const userIndex = planHierarchy.indexOf(user.plan);
-    const tierIndex = planHierarchy.indexOf(tier);
-    return userIndex >= tierIndex;
+  const getRequiredPlan = (model: Model): UserPlan | null => {
+    if (model.plans.includes('free')) return null;
+    if (model.plans.includes('basic')) return 'basic';
+    if (model.plans.includes('pro')) return 'pro';
+    return 'premium';
   };
 
   const handleSelect = (model: Model) => {
@@ -83,6 +64,15 @@ const WindowModelSelector = ({ windowId, currentModelId }: WindowModelSelectorPr
     
     setWindowModel(windowId, model.id);
     setIsOpen(false);
+  };
+
+  const getPlanColor = (plan: UserPlan) => {
+    switch (plan) {
+      case 'basic': return 'text-blue-400 bg-blue-500/15';
+      case 'pro': return 'text-purple-400 bg-purple-500/15';
+      case 'premium': return 'text-amber-400 bg-amber-500/15';
+      default: return 'text-muted-foreground bg-muted';
+    }
   };
   
   return (
@@ -116,62 +106,78 @@ const WindowModelSelector = ({ windowId, currentModelId }: WindowModelSelectorPr
             {/* Header */}
             <div className="px-3 py-2 border-b border-border/50 bg-muted/30 flex items-center justify-between">
               <span className="text-xs font-medium text-muted-foreground">Choose Model</span>
-              {(() => {
-                const info = getTierInfo(user.plan);
-                const Icon = info.icon;
-                return (
-                  <div className={cn('px-2 py-0.5 rounded-md text-[10px] font-medium flex items-center gap-1', info.color, 'bg-current/10')}>
-                    <Icon className="w-2.5 h-2.5" />
-                    {info.label}
-                  </div>
-                );
-              })()}
+              <div className={cn(
+                'px-2 py-0.5 rounded-md text-[10px] font-medium flex items-center gap-1',
+                user.plan === 'free' && 'bg-muted text-muted-foreground',
+                user.plan === 'basic' && 'bg-blue-500/15 text-blue-400',
+                user.plan === 'pro' && 'bg-purple-500/15 text-purple-400',
+                user.plan === 'premium' && 'bg-amber-500/15 text-amber-400'
+              )}>
+                <Zap className="w-2.5 h-2.5" />
+                {user.plan === 'free' ? 'Free' : user.plan.charAt(0).toUpperCase() + user.plan.slice(1)}
+              </div>
             </div>
 
-            <div className="max-h-80 overflow-y-auto">
+            <div className="max-h-80 overflow-y-auto p-2 space-y-3">
               {/* Free Models */}
-              <TierGroup
-                tier="free"
-                models={freeModels}
-                selectedModelId={modelId || ''}
-                onSelect={handleSelect}
-                theme={theme}
-                isAccessible={isTierAccessible('free')}
-                isModelAccessible={isModelAccessible}
-              />
+              {freeModels.length > 0 && (
+                <ModelGroup
+                  title="FREE"
+                  dotColor="bg-green-500"
+                  models={freeModels}
+                  selectedModelId={modelId || ''}
+                  onSelect={handleSelect}
+                  theme={theme}
+                  isAccessible={isModelAccessible}
+                  getRequiredPlan={getRequiredPlan}
+                  getPlanColor={getPlanColor}
+                />
+              )}
 
               {/* Basic Models */}
-              <TierGroup
-                tier="basic"
-                models={basicModels}
-                selectedModelId={modelId || ''}
-                onSelect={handleSelect}
-                theme={theme}
-                isAccessible={isTierAccessible('basic')}
-                isModelAccessible={isModelAccessible}
-              />
+              {basicModels.length > 0 && (
+                <ModelGroup
+                  title="BASIC"
+                  dotColor="bg-blue-500"
+                  models={basicModels}
+                  selectedModelId={modelId || ''}
+                  onSelect={handleSelect}
+                  theme={theme}
+                  isAccessible={isModelAccessible}
+                  getRequiredPlan={getRequiredPlan}
+                  getPlanColor={getPlanColor}
+                />
+              )}
 
               {/* Pro Models */}
-              <TierGroup
-                tier="pro"
-                models={proModels}
-                selectedModelId={modelId || ''}
-                onSelect={handleSelect}
-                theme={theme}
-                isAccessible={isTierAccessible('pro')}
-                isModelAccessible={isModelAccessible}
-              />
+              {proModels.length > 0 && (
+                <ModelGroup
+                  title="PRO"
+                  dotColor="bg-purple-500"
+                  models={proModels}
+                  selectedModelId={modelId || ''}
+                  onSelect={handleSelect}
+                  theme={theme}
+                  isAccessible={isModelAccessible}
+                  getRequiredPlan={getRequiredPlan}
+                  getPlanColor={getPlanColor}
+                />
+              )}
 
               {/* Premium Models */}
-              <TierGroup
-                tier="premium"
-                models={premiumModels}
-                selectedModelId={modelId || ''}
-                onSelect={handleSelect}
-                theme={theme}
-                isAccessible={isTierAccessible('premium')}
-                isModelAccessible={isModelAccessible}
-              />
+              {premiumModels.length > 0 && (
+                <ModelGroup
+                  title="PREMIUM"
+                  dotColor="bg-amber-500"
+                  models={premiumModels}
+                  selectedModelId={modelId || ''}
+                  onSelect={handleSelect}
+                  theme={theme}
+                  isAccessible={isModelAccessible}
+                  getRequiredPlan={getRequiredPlan}
+                  getPlanColor={getPlanColor}
+                />
+              )}
             </div>
           </div>
         </>
@@ -180,92 +186,74 @@ const WindowModelSelector = ({ windowId, currentModelId }: WindowModelSelectorPr
   );
 };
 
-// Tier Group Component
-interface TierGroupProps {
-  tier: UserPlan;
+// Model Group Component
+interface ModelGroupProps {
+  title: string;
+  dotColor: string;
   models: Model[];
   selectedModelId: string;
   onSelect: (model: Model) => void;
   theme: 'light' | 'dark';
-  isAccessible: boolean;
-  isModelAccessible: (model: Model) => boolean;
+  isAccessible: (model: Model) => boolean;
+  getRequiredPlan: (model: Model) => UserPlan | null;
+  getPlanColor: (plan: UserPlan) => string;
 }
 
-const TierGroup = ({ 
-  tier, 
+const ModelGroup = ({ 
+  title, 
+  dotColor, 
   models, 
   selectedModelId, 
   onSelect, 
   theme,
   isAccessible,
-  isModelAccessible
-}: TierGroupProps) => {
-  if (models.length === 0) return null;
-  
-  const tierInfo = getTierInfo(tier);
-  const Icon = tierInfo.icon;
-  
-  return (
-    <div className="border-b border-border/30 last:border-b-0">
-      {/* Tier Header */}
-      <div className={cn(
-        'flex items-center justify-between px-3 py-1.5 bg-muted/20',
-        !isAccessible && 'opacity-60'
-      )}>
-        <div className="flex items-center gap-1.5">
-          <div className={cn('w-1.5 h-1.5 rounded-full', tierInfo.dotColor)} />
-          <span className={cn('text-[10px] font-semibold uppercase tracking-wider', tierInfo.color)}>
-            {tierInfo.label}
-          </span>
-          <span className="text-[9px] text-muted-foreground">• {models.length}</span>
-        </div>
-        {!isAccessible && (
-          <div className="flex items-center gap-1 text-[9px] text-muted-foreground">
-            <Lock className="w-2.5 h-2.5" />
-          </div>
-        )}
-      </div>
-      
-      {/* Models */}
-      <div className="p-1.5 space-y-0.5">
-        {models.map((model) => {
-          const accessible = isModelAccessible(model);
-          const isSelected = selectedModelId === model.id;
-          
-          return (
-            <button
-              key={model.id}
-              onClick={() => onSelect(model)}
-              disabled={!accessible}
-              className={cn(
-                'w-full flex items-center gap-2 px-2.5 py-2 text-left text-sm transition-colors rounded-lg',
-                isSelected
-                  ? 'bg-primary/10 text-primary'
-                  : accessible
-                    ? 'hover:bg-muted'
-                    : 'opacity-40 cursor-not-allowed'
-              )}
-            >
-              <ModelIcon modelId={model.id} modelName={model.name} size="sm" theme={theme} />
-              <span className="flex-1 truncate font-medium text-xs">{model.name}</span>
-              {model.multiplier > 1 && (
-                <span className={cn(
-                  'px-1 py-0.5 rounded text-[8px] font-bold',
-                  model.multiplier >= 10 
-                    ? 'bg-amber-500/20 text-amber-500' 
-                    : 'bg-muted text-muted-foreground'
-                )}>
-                  {model.multiplier}x
-                </span>
-              )}
-              {isSelected && <Check className="w-3.5 h-3.5 text-primary flex-shrink-0" />}
-              {!accessible && <Lock className="w-3 h-3 text-muted-foreground flex-shrink-0" />}
-            </button>
-          );
-        })}
-      </div>
+  getRequiredPlan,
+  getPlanColor
+}: ModelGroupProps) => (
+  <div>
+    <div className="flex items-center gap-1.5 mb-1 px-1">
+      <div className={cn('w-1.5 h-1.5 rounded-full', dotColor)} />
+      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{title}</span>
     </div>
-  );
-};
+    <div className="space-y-0.5">
+      {models.map((model) => {
+        const accessible = isAccessible(model);
+        const requiredPlan = getRequiredPlan(model);
+        const isSelected = selectedModelId === model.id;
+        
+        return (
+          <button
+            key={model.id}
+            onClick={() => onSelect(model)}
+            disabled={!accessible}
+            className={cn(
+              'w-full flex items-center gap-2 px-2.5 py-2 text-left text-sm transition-colors rounded-lg',
+              isSelected
+                ? 'bg-primary/10 text-primary'
+                : accessible
+                  ? 'hover:bg-muted'
+                  : 'opacity-50 cursor-not-allowed'
+            )}
+          >
+            <ModelIcon modelId={model.id} modelName={model.name} size="sm" theme={theme} />
+            <span className="flex-1 truncate font-medium">{model.name}</span>
+            {model.multiplier >= 10 && (
+              <span className="px-1 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-500">
+                {model.multiplier}x
+              </span>
+            )}
+            {!accessible && requiredPlan && (
+              <span className={cn('px-1.5 py-0.5 rounded text-[9px] font-medium', getPlanColor(requiredPlan))}>
+                {requiredPlan.charAt(0).toUpperCase() + requiredPlan.slice(1)}
+              </span>
+            )}
+            {isSelected && <Check className="w-4 h-4 text-primary flex-shrink-0" />}
+            {!accessible && <Lock className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />}
+          </button>
+        );
+      })}
+    </div>
+  </div>
+);
 
 export default WindowModelSelector;
