@@ -89,7 +89,7 @@ const Navbar = () => {
             </a>
 
             {/* Desktop Menu */}
-            <div className="hidden md:flex items-center gap-10">
+            <div className="hidden lg:flex items-center gap-10">
               <a
                 href="#Features"
                 className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all"
@@ -117,7 +117,7 @@ const Navbar = () => {
             </div>
 
             {/* Right Side: Theme + Language + Auth */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-3">
               {/* Chat Icon for logged-in users */}
               {user && (
                 <Link
