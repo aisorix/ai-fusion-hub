@@ -56,7 +56,7 @@ const ChatPage = () => {
   
   return (
     <div className={cn(
-      'flex h-screen overflow-hidden transition-colors duration-200',
+       'flex h-[100dvh] overflow-hidden transition-colors duration-200',
       'bg-background text-foreground'
     )}>
       <Toaster
