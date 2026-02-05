@@ -199,7 +199,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
   return (
     <>
       <div className={cn(
-        "w-64 h-full bg-card border-r flex flex-col",
+         "w-64 h-full bg-card border-r flex flex-col overflow-hidden",
         isPaidUser 
           ? "border-primary/20 bg-gradient-to-b from-card via-card to-primary/5" 
           : "border-border"
