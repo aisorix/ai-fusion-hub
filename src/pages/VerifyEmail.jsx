@@ -73,7 +73,8 @@ const VerifyEmail = () => {
         description: 'Your account has been created successfully. Welcome to AI Sorix!',
       });
       
-      navigate('/');
+      // Redirect to chat after successful verification
+      navigate('/chat');
     } catch (error) {
       console.error('Verification error:', error);
       let errorMessage = 'Invalid or expired verification code. Please try again.';
