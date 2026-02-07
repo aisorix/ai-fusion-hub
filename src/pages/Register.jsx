@@ -71,11 +71,20 @@ const Register = () => {
 
     if (error) {
       let errorMessage = 'Failed to create account. Please try again.';
-      if (error.message.includes('already registered')) {
+      
+      // Handle specific error cases
+      if (error.message?.includes('already registered') || error.message?.includes('User already registered')) {
         errorMessage = 'This email is already registered. Please sign in instead.';
-      } else if (error.message.includes('Password')) {
+      } else if (error.message?.includes('rate limit') || error.message?.includes('429') || error.status === 429) {
+        errorMessage = 'Too many attempts. Please wait a few minutes before trying again.';
+      } else if (error.message?.includes('Password')) {
+        errorMessage = error.message;
+      } else if (error.message?.includes('Invalid email')) {
+        errorMessage = 'Please enter a valid email address.';
+      } else if (error.message) {
         errorMessage = error.message;
       }
+      
       toast({
         title: 'Registration Failed',
         description: errorMessage,
