@@ -8,10 +8,10 @@ const Footer = () => {
   const { t } = useLanguage();
 
   const socialLinks = [
-    { icon: Facebook, href: "https://facebook.com/aisorix", label: "Facebook" },
-    { icon: Instagram, href: "https://instagram.com/aisorix", label: "Instagram" },
+    { icon: Facebook, href: "https://facebook.com/profile.php?id=61586687081259", label: "Facebook" },
+    { icon: Instagram, href: "https://instagram.com/aisorix_", label: "Instagram" },
     { icon: Youtube, href: "https://youtube.com/@aisorix", label: "YouTube" },
-    { icon: Twitter, href: "https://twitter.com/aisorix", label: "Twitter" },
+    { icon: Twitter, href: "https://twitter.com/aisorix_", label: "Twitter" },
     { icon: Linkedin, href: "https://linkedin.com/company/aisorix", label: "LinkedIn" },
   ];
 
