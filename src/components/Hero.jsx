@@ -33,9 +33,10 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-[85vh] sm:min-h-screen flex items-center justify-center pt-6 sm:pt-10 md:pt-16 pb-10 sm:pb-16 md:pb-24 overflow-hidden">
+      <AnnouncementBanner />
       {/* Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-muted/30" />
-      <AnnouncementBanner />
+
       {/* Mesh Gradient Background */}
       <div className="absolute inset-0 gradient-mesh opacity-60" />
 
