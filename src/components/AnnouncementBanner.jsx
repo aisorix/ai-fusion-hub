@@ -6,7 +6,7 @@ const AnnouncementBanner = () => {
   const { language } = useLanguage();
 
   return (
-    <div className="bg-background gradient-mesh opacity-60">
+    <div className="gradient-mesh opacity-60">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 py-1.5">
         <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
           <Link
