@@ -1,16 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
-
 const AnnouncementBanner = () => {
   const { language } = useLanguage();
 
   return (
-    <div className="flex justify-center">
+    <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20">
       <div
-        className="inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 
+        className="inline-flex items-center gap-2 sm:gap-3 px-4 py-2
         rounded-full border border-primary/20 
-        bg-background/80 backdrop-blur-md shadow-md
+        bg-background/90 backdrop-blur-md shadow-md
         hover:shadow-lg transition-all duration-200"
       >
         <Link
