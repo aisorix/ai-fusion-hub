@@ -6,7 +6,7 @@ const AnnouncementBanner = () => {
   const { language } = useLanguage();
 
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
+    <div className="flex justify-center">
       <div
         className="inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 
         rounded-full border border-primary/20 
