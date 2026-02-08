@@ -266,7 +266,7 @@ const AboutSorixLab = () => {
           {/* Footer */}
           <div className="mt-10 sm:mt-12 pt-6 border-t border-border/50 flex flex-col sm:flex-row justify-between items-center gap-3 text-center sm:text-left">
             <p className="text-muted-foreground text-xs sm:text-sm">
-              © 2025 Sorixlab. {language === "en" ? "All rights reserved." : "সর্বস্বত্ব সংরক্ষিত।"}
+              © 2026 Sorixlab. {language === "en" ? "All rights reserved." : "সর্বস্বত্ব সংরক্ষিত।"}
             </p>
             <div className="flex items-center gap-4 text-xs sm:text-sm">
               <Link to="/privacy-policy" className="text-muted-foreground hover:text-primary transition-colors">
