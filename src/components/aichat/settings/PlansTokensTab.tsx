@@ -1,30 +1,40 @@
-import React, { useState } from 'react';
-import { Sparkles, Zap, Check, Heart, Leaf, Gamepad2, RotateCcw } from 'lucide-react';
-import { useChatStore, type UserPlan } from '@/stores/chatStore';
-import { cn } from '@/lib/utils';
-import { translations } from '@/lib/translations';
-import { toast } from '@/hooks/use-toast';
-import UpgradePlanModal from '../UpgradePlanModal';
+import React, { useState } from "react";
+import { Sparkles, Zap, Check, Heart, Leaf, Gamepad2, RotateCcw } from "lucide-react";
+import { useChatStore, type UserPlan } from "@/stores/chatStore";
+import { cn } from "@/lib/utils";
+import { translations } from "@/lib/translations";
+import { toast } from "@/hooks/use-toast";
+import UpgradePlanModal from "../UpgradePlanModal";
 
 // Helper to format token numbers
 const formatTokens = (tokens: number): string => {
-  if (tokens >= 1000000) return `${(tokens / 1000000).toFixed(1).replace('.0', '')}M`;
+  if (tokens >= 1000000) return `${(tokens / 1000000).toFixed(1).replace(".0", "")}M`;
   if (tokens >= 1000) return `${(tokens / 1000).toFixed(0)}K`;
   return tokens.toString();
 };
 
 const planFeatures: Record<UserPlan, { name: string; models: number; tokens: string; features: string[] }> = {
-  free: { name: 'Free Trial', models: 3, tokens: '5K', features: ['3 AI Models', 'Basic Chat Only'] },
-  basic: { name: 'Sorix Basic', models: 5, tokens: '800K', features: ['5 AI Models', 'Code Models', 'Sorix Health', 'Sorix Agro'] },
-  pro: { name: 'Sorix Pro', models: 7, tokens: '1.5M', features: ['7 AI Models', 'Perplexity', 'All Code Models'] },
-  premium: { name: 'Sorix Premium', models: 10, tokens: '3M', features: ['10 AI Models', 'Premium Search', 'All Models', 'Priority Support'] },
+  free: { name: "Free Trial", models: 3, tokens: "5K", features: ["3 AI Models", "Basic Chat Only"] },
+  basic: {
+    name: "Sorix Basic",
+    models: 5,
+    tokens: "800K",
+    features: ["5 AI Models", "Code Models", "Sorix Health", "Sorix Agro"],
+  },
+  pro: { name: "Sorix Pro", models: 7, tokens: "1.5M", features: ["7 AI Models", "Perplexity", "All Code Models"] },
+  premium: {
+    name: "Sorix Premium",
+    models: 10,
+    tokens: "3M",
+    features: ["10 AI Models", "Premium Search", "All Models", "Priority Support"],
+  },
 };
 
 const PlansTokensTab = () => {
   const { user, language, setUser } = useChatStore();
   const t = translations[language as keyof typeof translations] || translations.en;
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  
+
   const currentPlan = planFeatures[user.plan];
   const usagePercent = user.tokensLimit > 0 ? (user.tokensUsed / user.tokensLimit) * 100 : 0;
 
@@ -35,18 +45,16 @@ const PlansTokensTab = () => {
       description: "Your token usage has been reset to 0 for testing.",
     });
   };
-  
+
   return (
     <>
       <div className="h-full flex flex-col">
         {/* Header */}
         <div className="mb-4 sm:mb-6">
-          <h3 className="text-lg sm:text-xl font-bold text-foreground">Plans & Credits</h3>
-          <p className="text-xs sm:text-sm mt-1 text-muted-foreground">
-            Manage your subscription and token usage
-          </p>
+          <h3 className="text-lg sm:text-xl font-bold text-foreground">Plans & Tokens</h3>
+          <p className="text-xs sm:text-sm mt-1 text-muted-foreground">Manage your subscription and token usage</p>
         </div>
-        
+
         {/* Content */}
         <div className="flex-1 overflow-y-auto pr-1 sm:pr-2 space-y-3 sm:space-y-4">
           {/* Current Plan Card */}
@@ -64,33 +72,35 @@ const PlansTokensTab = () => {
               </div>
               <div className="text-right">
                 <p className="text-[10px] sm:text-xs text-muted-foreground">Monthly Limit</p>
-                <p className="font-medium text-sm sm:text-base text-foreground">{formatTokens(user.tokensLimit)} tokens</p>
+                <p className="font-medium text-sm sm:text-base text-foreground">
+                  {formatTokens(user.tokensLimit)} tokens
+                </p>
               </div>
             </div>
-            
+
             {/* Token Usage */}
             {user.tokensLimit > 0 && (
               <div className="mb-4 sm:mb-5">
                 <div className="flex items-center justify-between mb-1.5 sm:mb-2">
                   <span className="text-xs sm:text-sm font-medium text-foreground">Token usage</span>
-                <span className="text-xs sm:text-sm text-muted-foreground">
+                  <span className="text-xs sm:text-sm text-muted-foreground">
                     {formatTokens(user.tokensUsed)} / {formatTokens(user.tokensLimit)}
                   </span>
                 </div>
-                
+
                 <div className="h-2 sm:h-2.5 rounded-full overflow-hidden bg-muted">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-primary to-cyan-400 transition-all duration-500"
                     style={{ width: `${Math.min(usagePercent, 100)}%` }}
                   />
                 </div>
-                
+
                 {/* Reset Button for Testing */}
                 <button
                   onClick={handleResetUsage}
                   className={cn(
-                    'mt-2 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-all',
-                    'bg-muted hover:bg-accent text-muted-foreground hover:text-foreground'
+                    "mt-2 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-all",
+                    "bg-muted hover:bg-accent text-muted-foreground hover:text-foreground",
                   )}
                 >
                   <RotateCcw className="w-3 h-3" />
@@ -98,7 +108,7 @@ const PlansTokensTab = () => {
                 </button>
               </div>
             )}
-            
+
             {/* Features */}
             <div className="mb-4 sm:mb-5">
               <p className="text-xs sm:text-sm font-medium text-foreground mb-2 sm:mb-3">Included in your plan</p>
@@ -113,20 +123,20 @@ const PlansTokensTab = () => {
                 ))}
               </div>
             </div>
-            
+
             {/* Upgrade Button */}
-            <button 
+            <button
               onClick={() => setShowUpgradeModal(true)}
               className={cn(
-                'w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-medium text-sm sm:text-base transition-all duration-200',
-                'bg-primary text-primary-foreground',
-                'hover:bg-primary/90 hover:shadow-glow'
+                "w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-medium text-sm sm:text-base transition-all duration-200",
+                "bg-primary text-primary-foreground",
+                "hover:bg-primary/90 hover:shadow-glow",
               )}
             >
-              {user.plan === 'premium' ? 'Manage Plan' : 'Upgrade'}
+              {user.plan === "premium" ? "Manage Plan" : "Upgrade"}
             </button>
           </div>
-          
+
           {/* Sorix Tools Section */}
           <div className="rounded-xl border border-border bg-card p-3 sm:p-5">
             <h4 className="text-xs sm:text-sm font-semibold text-foreground mb-2 sm:mb-3">Free Tools for Everyone</h4>
@@ -143,7 +153,7 @@ const PlansTokensTab = () => {
                   Free
                 </span>
               </div>
-              
+
               <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg bg-muted/50">
                 <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-md sm:rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
                   <Leaf className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
@@ -156,7 +166,7 @@ const PlansTokensTab = () => {
                   Free
                 </span>
               </div>
-              
+
               <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg bg-muted/50 opacity-60">
                 <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-md sm:rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
                   <Gamepad2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
@@ -171,7 +181,7 @@ const PlansTokensTab = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Additional Info */}
           <div className="p-3 sm:p-4 rounded-xl bg-muted/50 border border-border">
             <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
@@ -188,18 +198,15 @@ const PlansTokensTab = () => {
           {/* Support Contact */}
           <div className="p-3 sm:p-4 rounded-xl bg-primary/5 border border-primary/20">
             <p className="text-xs sm:text-sm text-muted-foreground">
-              Questions about plans? Contact us at{' '}
-              <a 
-                href="mailto:support@aisorix.com" 
-                className="text-primary hover:underline font-medium"
-              >
+              Questions about plans? Contact us at{" "}
+              <a href="mailto:support@aisorix.com" className="text-primary hover:underline font-medium">
                 support@aisorix.com
               </a>
             </p>
           </div>
         </div>
       </div>
-      
+
       <UpgradePlanModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
     </>
   );
