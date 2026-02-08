@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -20,10 +19,8 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
   const [errors, setErrors] = useState({});
   const [showOtp, setShowOtp] = useState(false);
-  const [otpCode, setOtpCode] = useState('');
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -107,46 +104,9 @@ const Register = () => {
     } else {
       setShowOtp(true);
       toast({
-        title: 'Code Sent!',
-        description: 'Please check your email for a 6-digit verification code.',
+        title: 'Email Sent!',
+        description: 'Please check your email to verify your account.',
       });
-    }
-  };
-
-  const handleVerify = async (e) => {
-    e.preventDefault();
-    
-    if (otpCode.length !== 6) {
-      toast({
-        title: 'Invalid Code',
-        description: 'Please enter a 6-digit verification code.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setIsVerifying(true);
-    
-    const { error } = await supabase.auth.verifyOtp({
-      email: formData.email,
-      token: otpCode,
-      type: 'signup'
-    });
-    
-    setIsVerifying(false);
-
-    if (error) {
-      toast({
-        title: 'Verification Failed',
-        description: error.message || 'Invalid or expired code. Please try again.',
-        variant: 'destructive',
-      });
-    } else {
-      toast({
-        title: 'Verified Successfully!',
-        description: 'Welcome to AI Sorix!',
-      });
-      navigate('/chat');
     }
   };
 
@@ -168,8 +128,8 @@ const Register = () => {
       });
     } else {
       toast({
-        title: 'Code Resent!',
-        description: 'Please check your email for a new verification code.',
+        title: 'Email Resent!',
+        description: 'Please check your email for the verification link.',
       });
     }
   };
@@ -215,44 +175,28 @@ const Register = () => {
 
           <CardContent className="space-y-6">
             {showOtp ? (
-              /* OTP Verification Form */
-              <form onSubmit={handleVerify} className="space-y-6">
+              /* Email Verification Message */
+              <div className="space-y-6 text-center">
                 <div className="flex flex-col items-center space-y-4">
-                  <InputOTP
-                    maxLength={6}
-                    value={otpCode}
-                    onChange={(value) => setOtpCode(value)}
-                    className="gap-2"
-                  >
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} className="w-12 h-14 text-xl" />
-                      <InputOTPSlot index={1} className="w-12 h-14 text-xl" />
-                      <InputOTPSlot index={2} className="w-12 h-14 text-xl" />
-                      <InputOTPSlot index={3} className="w-12 h-14 text-xl" />
-                      <InputOTPSlot index={4} className="w-12 h-14 text-xl" />
-                      <InputOTPSlot index={5} className="w-12 h-14 text-xl" />
-                    </InputOTPGroup>
-                  </InputOTP>
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Mail className="w-8 h-8 text-primary" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-semibold text-foreground">Check your email</h3>
+                    <p className="text-sm text-muted-foreground">
+                      We've sent a verification link to
+                    </p>
+                    <p className="text-sm font-medium text-foreground">{formData.email}</p>
+                  </div>
                 </div>
 
-                <Button 
-                  type="submit" 
-                  className="w-full h-12 gradient-primary text-foreground font-semibold text-base hover:opacity-90 transition-opacity"
-                  disabled={isVerifying || otpCode.length !== 6}
-                >
-                  {isVerifying ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Verifying...
-                    </>
-                  ) : (
-                    'Verify Email'
-                  )}
-                </Button>
+                <p className="text-sm text-muted-foreground">
+                  Click the link in your email to verify your account and complete registration.
+                </p>
 
                 <div className="text-center space-y-2">
                   <p className="text-sm text-muted-foreground">
-                    Didn't receive the code?
+                    Didn't receive the email?
                   </p>
                   <Button
                     type="button"
@@ -261,7 +205,7 @@ const Register = () => {
                     disabled={isSubmitting}
                     className="text-primary font-semibold"
                   >
-                    {isSubmitting ? 'Sending...' : 'Resend Code'}
+                    {isSubmitting ? 'Sending...' : 'Resend Email'}
                   </Button>
                 </div>
 
@@ -270,14 +214,13 @@ const Register = () => {
                   variant="ghost"
                   onClick={() => {
                     setShowOtp(false);
-                    setOtpCode('');
                   }}
                   className="w-full text-muted-foreground"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Sign Up
                 </Button>
-              </form>
+              </div>
             ) : (
               /* Registration Form */
               <>
