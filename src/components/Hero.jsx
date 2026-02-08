@@ -3,6 +3,8 @@ import { ArrowUpRight, Sparkles, Zap, Shield, Play } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo, QwenLogo, LlamaLogo, PerplexityLogo, MistralLogo } from './AIModelLogos';
 import logo from '../assets/logo.png';
+import AnnouncementBanner from "@/components/AnnouncementBanner";
+
 
 const Hero = () => {
   const { t, language } = useLanguage();
@@ -27,7 +29,7 @@ const Hero = () => {
       
       {/* Mesh Gradient Background */}
       <div className="absolute inset-0 gradient-mesh opacity-60" />
-      
+    <AnnouncementBanner>
       {/* Animated Orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-primary/10 rounded-full blur-[100px] animate-pulse-slow" />
