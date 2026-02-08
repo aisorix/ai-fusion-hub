@@ -10,7 +10,8 @@ const AnnouncementBanner = () => {
         <div
           className="flex items-center gap-1.5 px-4 py-1.5
           rounded-full
-          bg-white/20 backdrop-blur-lg
+          bg-white/20 dark:bg-gray-800/30
+          backdrop-blur-lg
           shadow-md hover:shadow-lg
           text-[10px] sm:text-xs
           transition-all duration-300"
@@ -19,15 +20,15 @@ const AnnouncementBanner = () => {
             to="/about-sorix-lab"
             className="inline-flex items-center px-2 py-0.5 
               rounded-full text-[9px] sm:text-[10px] font-medium
-              bg-primary/10 text-primary
-              hover:bg-primary/20 transition"
+              bg-primary/10 dark:bg-primary/20 text-primary
+              hover:bg-primary/20 dark:hover:bg-primary/30 transition"
           >
             Built by Sorixlab
           </Link>
 
           <span className="hidden sm:inline-flex h-1 w-1 rounded-full bg-primary" />
 
-          <span className="whitespace-nowrap text-foreground/80">
+          <span className="whitespace-nowrap text-foreground/80 dark:text-foreground/70">
             {language === "en" ? "New: Grok 4.1 & Claude Opus 4.5" : "নতুন: Grok 4.1 ও Claude Opus 4.5"}
           </span>
         </div>
