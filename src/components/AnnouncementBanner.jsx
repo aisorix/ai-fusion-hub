@@ -5,21 +5,22 @@ const AnnouncementBanner = () => {
   const { language } = useLanguage();
 
   return (
-    <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 w-full max-w-[95%]">
+    <div className="absolute top-1 left-1/2 -translate-x-1/2 z-20">
       <div className="flex justify-center">
         <div
-          className="flex items-center gap-1.5 px-4 py-2
-          rounded-full border border-primary/20
-          bg-white/20 backdrop-blur-md shadow-lg
+          className="flex items-center gap-1.5 px-4 py-1.5
+          rounded-full
+          bg-white/20 backdrop-blur-lg
+          shadow-md hover:shadow-lg
           text-[10px] sm:text-xs
-          hover:shadow-xl transition-all duration-300"
+          transition-all duration-300"
         >
           <Link
             to="/about-sorix-lab"
             className="inline-flex items-center px-2 py-0.5 
               rounded-full text-[9px] sm:text-[10px] font-medium
-              border border-primary/30 bg-primary/10 text-primary
-              hover:bg-primary/20 hover:border-primary/40 transition"
+              bg-primary/10 text-primary
+              hover:bg-primary/20 transition"
           >
             Built by Sorixlab
           </Link>
