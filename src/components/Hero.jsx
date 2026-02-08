@@ -1,39 +1,51 @@
-import React from 'react';
-import { ArrowUpRight, Sparkles, Zap, Shield, Play } from 'lucide-react';
-import { useLanguage } from '../contexts/LanguageContext';
-import { ChatGPTLogo, ClaudeLogo, GeminiLogo, DeepSeekLogo, GrokLogo, QwenLogo, LlamaLogo, PerplexityLogo, MistralLogo } from './AIModelLogos';
-import logo from '../assets/logo.png';
+import React from "react";
+import { ArrowUpRight, Sparkles, Zap, Shield, Play } from "lucide-react";
+import { useLanguage } from "../contexts/LanguageContext";
+import {
+  ChatGPTLogo,
+  ClaudeLogo,
+  GeminiLogo,
+  DeepSeekLogo,
+  GrokLogo,
+  QwenLogo,
+  LlamaLogo,
+  PerplexityLogo,
+  MistralLogo,
+} from "./AIModelLogos";
+import logo from "../assets/logo.png";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
-
 
 const Hero = () => {
   const { t, language } = useLanguage();
 
   // All 10+ models available across plans - displayed in serial format
   const aiModels = [
-    { name: 'ChatGPT', Logo: ChatGPTLogo },
-    { name: 'Claude', Logo: ClaudeLogo },
-    { name: 'DeepSeek', Logo: DeepSeekLogo },
-    { name: 'Gemini', Logo: GeminiLogo },
-    { name: 'Grok', Logo: GrokLogo },
-    { name: 'Qwen', Logo: QwenLogo },
-    { name: 'Llama', Logo: LlamaLogo },
-    { name: 'Perplexity', Logo: PerplexityLogo },
-    { name: 'Mistral', Logo: MistralLogo },
+    { name: "ChatGPT", Logo: ChatGPTLogo },
+    { name: "Claude", Logo: ClaudeLogo },
+    { name: "DeepSeek", Logo: DeepSeekLogo },
+    { name: "Gemini", Logo: GeminiLogo },
+    { name: "Grok", Logo: GrokLogo },
+    { name: "Qwen", Logo: QwenLogo },
+    { name: "Llama", Logo: LlamaLogo },
+    { name: "Perplexity", Logo: PerplexityLogo },
+    { name: "Mistral", Logo: MistralLogo },
   ];
 
   return (
     <section className="relative min-h-[85vh] sm:min-h-screen flex items-center justify-center pt-6 sm:pt-10 md:pt-16 pb-10 sm:pb-16 md:pb-24 overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-muted/30" />
-      
+      <AnnouncementBanner></AnnouncementBanner>
       {/* Mesh Gradient Background */}
       <div className="absolute inset-0 gradient-mesh opacity-60" />
-    <AnnouncementBanner>
+
       {/* Animated Orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-primary/10 rounded-full blur-[100px] animate-pulse-slow" />
-        <div className="absolute bottom-1/4 right-1/4 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] bg-accent/10 rounded-full blur-[120px] animate-pulse-slow" style={{ animationDelay: '2s' }} />
+        <div
+          className="absolute bottom-1/4 right-1/4 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] bg-accent/10 rounded-full blur-[120px] animate-pulse-slow"
+          style={{ animationDelay: "2s" }}
+        />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[900px] h-[600px] sm:h-[900px] bg-gradient-radial from-primary/5 to-transparent rounded-full" />
       </div>
 
@@ -47,7 +59,7 @@ const Hero = () => {
               left: `${15 + i * 15}%`,
               top: `${20 + (i % 3) * 25}%`,
               animationDelay: `${i * 0.5}s`,
-              animationDuration: `${3 + i * 0.5}s`
+              animationDuration: `${3 + i * 0.5}s`,
             }}
           />
         ))}
@@ -58,23 +70,23 @@ const Hero = () => {
         <div className="flex justify-center mb-6 sm:mb-8">
           <div className="relative group">
             <div className="absolute inset-0 gradient-primary blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-500 scale-150" />
-            <img 
-              src={logo} 
-              alt="AI Sorix" 
-              className="relative w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 object-contain drop-shadow-2xl animate-float-slow" 
+            <img
+              src={logo}
+              alt="AI Sorix"
+              className="relative w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 object-contain drop-shadow-2xl animate-float-slow"
             />
           </div>
         </div>
 
         {/* Main Title with Animation */}
         <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center leading-tight tracking-tight max-w-5xl mx-auto px-2 font-display">
-          <span className="text-foreground block mb-2">{t('heroTitle1')}</span>
-          <span className="animated-gradient-text">{t('heroTitle2')}</span>
+          <span className="text-foreground block mb-2">{t("heroTitle1")}</span>
+          <span className="animated-gradient-text">{t("heroTitle2")}</span>
         </h1>
 
         {/* Description */}
         <p className="mt-4 sm:mt-6 text-sm sm:text-base md:text-lg text-muted-foreground text-center max-w-3xl mx-auto leading-relaxed px-2">
-          {t('heroDesc')}
+          {t("heroDesc")}
         </p>
 
         {/* CTA Buttons */}
@@ -84,7 +96,7 @@ const Hero = () => {
             className="group relative w-full sm:w-auto inline-flex items-center justify-center gap-2 sm:gap-3 gradient-primary text-foreground px-8 sm:px-10 py-4 sm:py-5 rounded-2xl font-bold text-base sm:text-lg shadow-glow hover:shadow-glow-lg transform hover:scale-105 hover:-translate-y-1 transition-all duration-500 overflow-hidden"
           >
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-            <span className="relative">{t('startFreeTrial')}</span>
+            <span className="relative">{t("startFreeTrial")}</span>
             <ArrowUpRight className="relative w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
           </a>
           <a
@@ -92,18 +104,18 @@ const Hero = () => {
             className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 sm:px-10 py-4 sm:py-5 rounded-2xl font-semibold text-base sm:text-lg glass-card hover:border-primary/30 transition-all duration-500 text-foreground hover-lift"
           >
             <Play className="w-4 h-4 text-primary" />
-            {t('viewPricing')}
+            {t("viewPricing")}
           </a>
         </div>
 
         {/* Trust Indicators with Glass Effect */}
         <div className="mt-8 sm:mt-12 flex flex-wrap justify-center items-center gap-3 sm:gap-4 md:gap-6 px-4">
-        {[
-            { icon: Sparkles, text: t('tokensMonth') },
-            { icon: Zap, text: language === 'en' ? '10 Premium AI Models' : '১০টি প্রিমিয়াম AI মডেল' },
-            { icon: Shield, text: t('securePrivate') }
+          {[
+            { icon: Sparkles, text: t("tokensMonth") },
+            { icon: Zap, text: language === "en" ? "10 Premium AI Models" : "১০টি প্রিমিয়াম AI মডেল" },
+            { icon: Shield, text: t("securePrivate") },
           ].map((item, i) => (
-            <div 
+            <div
               key={i}
               className="flex items-center gap-2 px-4 py-2 rounded-full glass-card text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all duration-300"
             >
