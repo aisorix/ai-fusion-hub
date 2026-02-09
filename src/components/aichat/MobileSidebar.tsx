@@ -359,14 +359,14 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
               </button>
             </div>
 
-            {/* Action buttons row - Removed logout, kept upgrade and home */}
-            <div className="flex items-center gap-2">
+            {/* Action buttons row - Natural Professional Gap */}
+            <div className="flex items-center gap-2.5">
               <button
                 onClick={() => {
                   setShowUpgradeModal(true);
                   onClose();
                 }}
-                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors border border-border"
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-foreground hover:bg-muted transition-all border border-border"
               >
                 <Crown className="w-4 h-4 text-primary" />
                 <span>Upgrade</span>
@@ -374,7 +374,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
               <Link
                 to="/"
                 onClick={onClose}
-                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors border border-border"
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-foreground hover:bg-muted transition-all border border-border"
               >
                 <Home className="w-4 h-4" />
                 <span>Home</span>
