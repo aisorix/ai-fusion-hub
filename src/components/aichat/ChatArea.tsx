@@ -40,8 +40,10 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
   const showEmptyState = !activeChatId || messages.length === 0;
 
   return (
-    // FIX 1: Added 'overflow-hidden'. This forces the app to NEVER scroll the whole page, keeping the input fixed.
-    <div className="flex flex-col h-[100dvh] w-full bg-background overflow-hidden">
+    // FIX 1: MOBILE KEYBOARD FIX
+    // - Mobile: 'fixed inset-0 z-50' forces the app to resize when the keyboard opens.
+    // - Desktop: 'md:static md:h-[100dvh]' keeps the layout you liked for PC/Tab.
+    <div className="flex flex-col w-full bg-background overflow-hidden fixed inset-0 z-50 md:static md:z-auto md:h-[100dvh]">
       {/* Header */}
       <header className="hidden md:flex items-center justify-center py-3 md:py-4 border-b border-border/50 px-4 shrink-0">
         <div className="flex items-center gap-2">
@@ -50,15 +52,14 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
       </header>
 
       {/* Main Content Area */}
-      {/* FIX 2: Removed 'overflow-y-auto'. This container is now just a layout wrapper (Frame).
-          It forces the child (MessageList) to fit exactly in the remaining space. */}
+      {/* Container is rigid (overflow-hidden) so MessageList handles scrolling */}
       <div className="flex-1 flex flex-col min-h-0 w-full overflow-hidden relative">
         {showEmptyState ? (
           <div className="flex-1 overflow-y-auto">
             <EmptyState userName={user.name.split(" ")[0]} />
           </div>
         ) : (
-          /* MessageList handles the scrolling internally now */
+          /* MessageList handles the scrolling internally */
           <MessageList />
         )}
       </div>
@@ -71,7 +72,7 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
       )}
 
       {/* Input - FIXED POSITION Logic */}
-      {/* FIX 3: 'shrink-0' ensures this never collapses. z-20 keeps it above messages. */}
+      {/* shrink-0 ensures this never collapses when keyboard opens */}
       <div className="shrink-0 bg-background border-t border-border/40 z-20">
         <div className="pb-2 sm:pb-3 md:pb-4 pt-2">
           <ChatInput onSend={handleSend} disabled={isStreaming} onOpenVoiceMode={onOpenVoiceMode} />

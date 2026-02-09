@@ -13,8 +13,7 @@ const MessageList = () => {
     <div
       ref={containerRef}
       className={cn(
-        // FIX: Added 'h-full w-full'. This is critical.
-        // It forces the scroll container to fill the parent frame exactly.
+        // FIX: 'h-full w-full' ensures it fills the available space exactly
         "flex-1 h-full w-full overflow-y-auto",
         "scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent",
       )}
