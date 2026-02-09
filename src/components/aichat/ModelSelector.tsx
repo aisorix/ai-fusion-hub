@@ -136,59 +136,54 @@ const ModelSelector = () => {
             {/* Mobile: Centered Modal / Desktop: Dropdown */}
             {isMobile ? (
               <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-                className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 max-h-[80vh] rounded-2xl overflow-hidden bg-background border border-border shadow-2xl"
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                transition={{ type: 'spring', damping: 28, stiffness: 350 }}
+                className="fixed inset-x-3 top-1/2 -translate-y-1/2 z-50 max-h-[85vh] rounded-3xl overflow-hidden bg-background border border-border/60 shadow-2xl"
               >
-                {/* No drag handle for centered modal */}
-                {/* Header */}
-                <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground">Choose Model</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">Token multiplier affects usage calculation</p>
-                  </div>
+                {/* Header with gradient accent */}
+                <div className="relative px-5 py-5 border-b border-border/40 bg-gradient-to-b from-muted/40 to-transparent">
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="p-2 -mr-2 rounded-full hover:bg-muted transition-colors"
+                    className="absolute right-4 top-4 p-2.5 rounded-xl bg-muted/60 hover:bg-muted transition-colors active:scale-95"
                   >
                     <X className="w-5 h-5 text-muted-foreground" />
                   </button>
+                  <h3 className="text-xl font-bold text-foreground">Choose Model</h3>
+                  <p className="text-sm text-muted-foreground mt-1">Select an AI model for your conversation</p>
                 </div>
 
-                {/* Current Plan Info */}
-                <div className="px-5 py-3 bg-muted/30 border-b border-border/30">
-                  <div className="flex items-center gap-3">
+                {/* Current Plan Card */}
+                <div className="mx-4 mt-4 p-4 rounded-2xl bg-gradient-to-br from-muted/50 to-muted/20 border border-border/40">
+                  <div className="flex items-center gap-4">
                     <div className={cn(
-                      'w-10 h-10 rounded-xl flex items-center justify-center',
-                      user.plan === 'free' && 'bg-muted',
-                      user.plan === 'basic' && 'bg-blue-500/15',
-                      user.plan === 'pro' && 'bg-purple-500/15',
-                      user.plan === 'premium' && 'bg-amber-500/15'
+                      'w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg',
+                      user.plan === 'free' && 'bg-muted border border-border',
+                      user.plan === 'basic' && 'bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/30',
+                      user.plan === 'pro' && 'bg-gradient-to-br from-purple-500/20 to-purple-600/10 border border-purple-500/30',
+                      user.plan === 'premium' && 'bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/30'
                     )}>
                       <Zap className={cn(
-                        'w-5 h-5',
+                        'w-7 h-7',
                         user.plan === 'free' && 'text-muted-foreground',
                         user.plan === 'basic' && 'text-blue-400',
                         user.plan === 'pro' && 'text-purple-400',
                         user.plan === 'premium' && 'text-amber-400'
                       )} />
                     </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-base font-semibold text-foreground">
                         {user.plan === 'free' ? 'Free Trial' : `Sorix ${user.plan.charAt(0).toUpperCase() + user.plan.slice(1)}`}
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        {(user.tokensUsed / 1000).toFixed(0)} / {(user.tokensLimit / 1000).toFixed(0)}K tokens
+                      <p className="text-sm text-muted-foreground mt-0.5">
+                        {(user.tokensUsed / 1000).toFixed(0)}K / {(user.tokensLimit / 1000).toFixed(0)}K tokens used
                       </p>
-                    </div>
-                    <div className="w-20">
-                      <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div className="mt-2 h-2 bg-muted rounded-full overflow-hidden">
                         <div 
                           className={cn(
-                            "h-full rounded-full transition-all",
-                            (user.tokensUsed / user.tokensLimit) > 0.8 ? "bg-destructive" : "bg-primary"
+                            "h-full rounded-full transition-all duration-500",
+                            (user.tokensUsed / user.tokensLimit) > 0.8 ? "bg-gradient-to-r from-destructive to-red-400" : "bg-gradient-to-r from-primary to-primary/70"
                           )}
                           style={{ width: `${Math.min((user.tokensUsed / user.tokensLimit) * 100, 100)}%` }}
                         />
@@ -197,8 +192,8 @@ const ModelSelector = () => {
                   </div>
                 </div>
 
-                {/* Models List */}
-                <div className="overflow-y-auto max-h-[calc(80vh-180px)] overscroll-contain p-4 space-y-4">
+                {/* Models List with improved spacing */}
+                <div className="overflow-y-auto max-h-[calc(85vh-280px)] overscroll-contain px-4 py-4 space-y-5">
                   {/* Free Models */}
                   {freeModels.length > 0 && (
                     <ModelSection
@@ -276,8 +271,8 @@ const ModelSelector = () => {
                   )}
                 </div>
 
-                {/* Safe Area Padding for iOS */}
-                <div className="h-safe-area-inset-bottom" />
+                {/* Safe Area Padding with gradient fade */}
+                <div className="h-6 bg-gradient-to-t from-background to-transparent" />
               </motion.div>
             ) : (
               /* Desktop Dropdown */
@@ -504,56 +499,57 @@ const MobileModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect, 
     onClick={onSelect}
     disabled={isLocked}
     className={cn(
-      'w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-150 text-left',
+      'w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all duration-200 text-left',
+      'active:scale-[0.98]',
       isSelected
-        ? 'bg-primary/10 border-2 border-primary/30'
+        ? 'bg-primary/10 border-2 border-primary/40 shadow-sm'
         : isLocked
-          ? 'opacity-60 bg-muted/20'
-          : 'bg-muted/30 active:bg-muted/50 border border-transparent'
+          ? 'opacity-50 bg-muted/20 border border-transparent'
+          : 'bg-muted/30 hover:bg-muted/50 border border-border/40'
     )}
   >
-    {/* Selection Radio */}
+    {/* Selection Radio - Larger for mobile */}
     <div className={cn(
-      'w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0',
-      isSelected ? 'border-primary bg-primary' : 'border-muted-foreground/40'
+      'w-7 h-7 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all',
+      isSelected ? 'border-primary bg-primary shadow-md' : 'border-muted-foreground/30'
     )}>
-      {isSelected && <Check className="w-3.5 h-3.5 text-primary-foreground" />}
+      {isSelected && <Check className="w-4 h-4 text-primary-foreground" />}
     </div>
 
-    {/* Model Icon */}
-    <div className="flex-shrink-0">
+    {/* Model Icon - Larger for mobile */}
+    <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
       <ModelIcon modelId={model.id} modelName={model.name} size="md" theme={theme} />
     </div>
 
     <div className="flex-1 min-w-0">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <span className={cn(
-          "font-medium text-sm",
+          "font-semibold text-base",
           isLocked ? "text-muted-foreground" : "text-foreground"
         )}>
           {model.name}
         </span>
         {/* Show multiplier badge only for heavy models (10x+) */}
         {model.multiplier >= 10 && (
-          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-600 dark:text-amber-400">
+          <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-amber-500/20 text-amber-600 dark:text-amber-400">
             {model.multiplier}x
           </span>
         )}
         {isLocked && requiredPlan && (
           <span className={cn(
-            'px-1.5 py-0.5 rounded text-[10px] font-medium',
+            'px-2 py-0.5 rounded-md text-xs font-medium',
             getPlanColor(requiredPlan)
           )}>
             {getPlanLabel(requiredPlan)}
           </span>
         )}
       </div>
-      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
         {model.description}
       </p>
     </div>
 
-    {isLocked && <Lock className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
+    {isLocked && <Lock className="w-5 h-5 text-muted-foreground flex-shrink-0" />}
   </button>
 );
 

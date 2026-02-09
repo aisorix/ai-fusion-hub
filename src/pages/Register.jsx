@@ -103,6 +103,7 @@ const Register = () => {
       });
     } else {
       setShowOtp(true);
+      sessionStorage.setItem('justRegistered', 'true');
       toast({
         title: 'Email Sent!',
         description: 'Please check your email to verify your account.',

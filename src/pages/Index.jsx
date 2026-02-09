@@ -1,4 +1,5 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
 import Hero from "@/components/Hero";
@@ -13,8 +14,20 @@ import ContactUs from "@/components/ContactUs";
 import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
 import { ChatWidget } from "@/components/chat/ChatWidget";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
+  const navigate = useNavigate();
+  const { user, isLoading } = useAuth();
+
+  // Redirect to /chat after email verification or OAuth
+  useEffect(() => {
+    const justRegistered = sessionStorage.getItem('justRegistered');
+    if (user && !isLoading && justRegistered) {
+      sessionStorage.removeItem('justRegistered');
+      navigate('/chat');
+    }
+  }, [user, isLoading, navigate]);
   const chatRef = useRef(null);
 
   const handleOpenChat = () => {

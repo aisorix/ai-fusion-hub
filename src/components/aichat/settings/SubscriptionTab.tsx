@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
-import useChatStore from '@/stores/chatStore';
+import { useChatStore } from '@/stores/chatStore';
 import UpgradePlanModal from '../UpgradePlanModal';
 import { supabase } from '@/integrations/supabase/client';
 
