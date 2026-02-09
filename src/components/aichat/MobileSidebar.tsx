@@ -127,6 +127,16 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             <SheetTitle>Navigation Menu</SheetTitle>
           </SheetHeader>
 
+          {/* 1st Picture-র মতো Sidebar Collapse Button (Handle style) */}
+          <button
+            onClick={onClose}
+            className="absolute -right-3 top-1/2 -translate-y-1/2 h-20 w-6 flex items-center justify-center z-50 group transition-all"
+          >
+            <div className="w-1.5 h-12 bg-border border border-border group-hover:bg-primary/50 rounded-full transition-colors flex items-center justify-center">
+              <div className="w-0.5 h-3 bg-muted-foreground/30 rounded-full" />
+            </div>
+          </button>
+
           {/* Header */}
           <div
             className={cn(
@@ -146,19 +156,19 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             </Link>
           </div>
 
-          {/* New Chat Button */}
-          <div className="px-3 pt-3">
+          {/* New Chat Button - Gap Reduced to pt-2 */}
+          <div className="px-3 pt-2">
             <Button
               onClick={handleNewChat}
-              className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground h-10"
             >
               <Plus className="w-4 h-4" />
               New chat
             </Button>
           </div>
 
-          {/* Search */}
-          <div className="px-3 mt-3">
+          {/* Search - Gap Reduced to mt-2 */}
+          <div className="px-3 mt-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -166,13 +176,13 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                 placeholder="Search chats"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-9 pl-9 pr-3 rounded-lg bg-muted/50 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full h-9 pl-9 pr-3 rounded-lg bg-muted/50 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/30"
               />
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="px-3 mt-3 space-y-1">
+          {/* Quick Actions - Gap Reduced to mt-2 and space-y-0.5 */}
+          <div className="px-3 mt-2 space-y-0.5">
             {/* Multi-Window Chat */}
             <button
               onClick={() => {
@@ -180,7 +190,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                 onClose();
               }}
               className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
+                "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
                 viewMode === "multi" ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
               )}
             >
