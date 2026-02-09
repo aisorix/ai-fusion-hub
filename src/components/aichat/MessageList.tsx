@@ -1,20 +1,13 @@
 import React from "react";
-
 import MessageBubble from "./MessageBubble";
-
 import useAutoScroll from "@/hooks/useAutoScroll";
-
 import { useChatStore } from "@/stores/chatStore";
-
 import { cn } from "@/lib/utils";
 
 const MessageList = () => {
   const { chats, activeChatId, isStreaming, theme } = useChatStore();
-
   const messages = chats.find((c) => c.id === activeChatId)?.messages || [];
-
   const { containerRef } = useAutoScroll(messages, isStreaming);
-
   return (
     <div
       ref={containerRef}
