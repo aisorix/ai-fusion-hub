@@ -1,26 +1,34 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  Plus, Search, LayoutGrid, Sparkles, FolderKanban, Moon, Sun,
-  ChevronDown, LogOut, Settings, Crown,
-  MessageSquare, Leaf, Heart, BookOpen, Home
-} from 'lucide-react';
-import { useChatStore } from '@/stores/chatStore';
-import { cn } from '@/lib/utils';
-import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
-import sorixLogo from '@/assets/logo.png';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
-import SettingsModal from './SettingsModal';
-import UpgradePlanModal from './UpgradePlanModal';
-import { PlanBadge, type PlanType } from './PlanIcons';
+  Plus,
+  Search,
+  LayoutGrid,
+  Sparkles,
+  FolderKanban,
+  Moon,
+  Sun,
+  ChevronDown,
+  LogOut,
+  Settings,
+  Crown,
+  MessageSquare,
+  Leaf,
+  Heart,
+  BookOpen,
+  Home,
+} from "lucide-react";
+import { useChatStore } from "@/stores/chatStore";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate, Link } from "react-router-dom";
+import sorixLogo from "@/assets/logo.png";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import SettingsModal from "./SettingsModal";
+import UpgradePlanModal from "./UpgradePlanModal";
+import { PlanBadge, type PlanType } from "./PlanIcons";
 
 interface MobileSidebarProps {
   isOpen: boolean;
@@ -31,26 +39,17 @@ interface MobileSidebarProps {
 const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   const navigate = useNavigate();
   const { signOut, user: authUser } = useAuth();
-  const {
-    theme,
-    toggleTheme,
-    chats,
-    activeChatId,
-    setActiveChat,
-    viewMode,
-    setViewMode,
-    user,
-    setProjectsModalOpen,
-  } = useChatStore();
+  const { theme, toggleTheme, chats, activeChatId, setActiveChat, viewMode, setViewMode, user, setProjectsModalOpen } =
+    useChatStore();
 
   const [showMoreTools, setShowMoreTools] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [showSettings, setShowSettings] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/login');
+    navigate("/login");
     onClose();
   };
 
@@ -65,9 +64,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   };
 
   // Filter chats by search
-  const filteredChats = chats.filter(chat =>
-    chat.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredChats = chats.filter((chat) => chat.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
   // Group chats by date
   const today = new Date();
@@ -75,48 +72,52 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   const weekAgo = new Date(today);
   weekAgo.setDate(weekAgo.getDate() - 7);
 
-  const todayChats = filteredChats.filter(c => new Date(c.createdAt) >= today);
-  const thisWeekChats = filteredChats.filter(c => {
+  const todayChats = filteredChats.filter((c) => new Date(c.createdAt) >= today);
+  const thisWeekChats = filteredChats.filter((c) => {
     const d = new Date(c.createdAt);
     return d < today && d >= weekAgo;
   });
-  const olderChats = filteredChats.filter(c => new Date(c.createdAt) < weekAgo);
+  const olderChats = filteredChats.filter((c) => new Date(c.createdAt) < weekAgo);
 
   const moreTools = [
     {
-      id: 'agro',
-      name: 'Sorix Agro',
-      description: 'AI-powered agricultural assistant',
+      id: "agro",
+      name: "Sorix Agro",
+      description: "AI-powered agricultural assistant",
       icon: Leaf,
-      color: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
-      comingSoon: true
+      color: "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
+      comingSoon: true,
     },
     {
-      id: 'health',
-      name: 'Sorix Health',
-      description: 'Your personal health companion',
+      id: "health",
+      name: "Sorix Health",
+      description: "Your personal health companion",
       icon: Heart,
-      color: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400',
-      comingSoon: true
+      color: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
+      comingSoon: true,
     },
     {
-      id: 'legends',
-      name: 'Sorix Legends',
-      description: 'Chat with historical legends',
+      id: "legends",
+      name: "Sorix Legends",
+      description: "Chat with historical legends",
       icon: BookOpen,
-      color: 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
-      comingSoon: true
+      color: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
+      comingSoon: true,
     },
   ];
 
   // Get user initials
   const userInitials = authUser?.email
     ? authUser.email.charAt(0).toUpperCase()
-    : user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+    : user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase();
 
   const userName = authUser?.user_metadata?.full_name || user.name;
   const userEmail = authUser?.email || user.email;
-  const isPaidUser = user.plan !== 'free';
+  const isPaidUser = user.plan !== "free";
 
   return (
     <>
@@ -125,12 +126,14 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
           <SheetHeader className="sr-only">
             <SheetTitle>Navigation Menu</SheetTitle>
           </SheetHeader>
-          
+
           {/* Header */}
-          <div className={cn(
-            'p-4 border-b flex items-center justify-between',
-            isPaidUser ? 'border-primary/20' : 'border-border'
-          )}>
+          <div
+            className={cn(
+              "p-4 border-b flex items-center justify-between",
+              isPaidUser ? "border-primary/20" : "border-border",
+            )}
+          >
             <Link to="/" className="flex items-center gap-2" onClick={onClose}>
               <img src={sorixLogo} alt="AI Sorix" className="w-8 h-8" />
               <div>
@@ -173,14 +176,12 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             {/* Multi-Window Chat */}
             <button
               onClick={() => {
-                setViewMode(viewMode === 'single' ? 'multi' : 'single');
+                setViewMode(viewMode === "single" ? "multi" : "single");
                 onClose();
               }}
               className={cn(
-                'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors',
-                viewMode === 'multi'
-                  ? 'bg-primary/10 text-primary'
-                  : 'text-foreground hover:bg-muted'
+                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
+                viewMode === "multi" ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
               )}
             >
               <LayoutGrid className="w-4 h-4" />
@@ -197,17 +198,16 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                   <Sparkles className="w-4 h-4 text-primary" />
                   <span>More Tools</span>
                 </div>
-                <ChevronDown className={cn(
-                  'w-4 h-4 transition-transform text-muted-foreground',
-                  showMoreTools && 'rotate-180'
-                )} />
+                <ChevronDown
+                  className={cn("w-4 h-4 transition-transform text-muted-foreground", showMoreTools && "rotate-180")}
+                />
               </button>
 
               <AnimatePresence>
                 {showMoreTools && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
+                    animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
@@ -217,7 +217,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                           key={tool.id}
                           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
                         >
-                          <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center', tool.color)}>
+                          <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", tool.color)}>
                             <tool.icon className="w-4 h-4" />
                           </div>
                           <div className="flex-1 text-left">
@@ -252,9 +252,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">PRO</span>
-                {user.plan === 'free' && (
-                  <span className="text-muted-foreground">🔒</span>
-                )}
+                {user.plan === "free" && <span className="text-muted-foreground">🔒</span>}
               </div>
             </button>
           </div>
@@ -269,15 +267,13 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                     Today
                   </h3>
                   <div className="space-y-0.5">
-                    {todayChats.map(chat => (
+                    {todayChats.map((chat) => (
                       <button
                         key={chat.id}
                         onClick={() => handleSelectChat(chat.id)}
                         className={cn(
-                          'w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-colors',
-                          activeChatId === chat.id
-                            ? 'bg-primary/10 text-primary'
-                            : 'text-foreground hover:bg-muted'
+                          "w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-colors",
+                          activeChatId === chat.id ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
                         )}
                       >
                         <MessageSquare className="w-4 h-4 shrink-0" />
@@ -295,15 +291,13 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                     This Week
                   </h3>
                   <div className="space-y-0.5">
-                    {thisWeekChats.map(chat => (
+                    {thisWeekChats.map((chat) => (
                       <button
                         key={chat.id}
                         onClick={() => handleSelectChat(chat.id)}
                         className={cn(
-                          'w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-colors',
-                          activeChatId === chat.id
-                            ? 'bg-primary/10 text-primary'
-                            : 'text-foreground hover:bg-muted'
+                          "w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-colors",
+                          activeChatId === chat.id ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
                         )}
                       >
                         <MessageSquare className="w-4 h-4 shrink-0" />
@@ -321,15 +315,13 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                     Older
                   </h3>
                   <div className="space-y-0.5">
-                    {olderChats.slice(0, 10).map(chat => (
+                    {olderChats.slice(0, 10).map((chat) => (
                       <button
                         key={chat.id}
                         onClick={() => handleSelectChat(chat.id)}
                         className={cn(
-                          'w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-colors',
-                          activeChatId === chat.id
-                            ? 'bg-primary/10 text-primary'
-                            : 'text-foreground hover:bg-muted'
+                          "w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-colors",
+                          activeChatId === chat.id ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
                         )}
                       >
                         <MessageSquare className="w-4 h-4 shrink-0" />
@@ -344,24 +336,6 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
 
           {/* Bottom Section - Redesigned */}
           <div className="p-3 border-t border-border space-y-2 mt-auto">
-            {/* Dark Mode Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
-            >
-              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              <span>Dark mode</span>
-              <div className={cn(
-                'ml-auto w-10 h-5 rounded-full transition-colors relative',
-                theme === 'dark' ? 'bg-primary' : 'bg-muted'
-              )}>
-                <div className={cn(
-                  'absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform',
-                  theme === 'dark' ? 'translate-x-5' : 'translate-x-0.5'
-                )} />
-              </div>
-            </button>
-
             {/* User Profile */}
             <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-muted/50">
               <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-sm">
