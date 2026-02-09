@@ -163,162 +163,168 @@ const ModelSelector = () => {
               onClick={() => setIsOpen(false)}
             />
 
-            {/* Mobile: Centered Modal (FIXED LAYOUT) */}
+            {/* Mobile: BOTTOM SHEET DESIGN (Slide up from bottom) */}
             {isMobile ? (
               <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="fixed left-4 right-4 top-1/2 -translate-y-1/2 z-[100] flex flex-col h-[85vh] max-h-[800px] rounded-3xl overflow-hidden bg-background border border-border/60 shadow-2xl"
+                className="fixed inset-x-0 bottom-0 z-[100] flex flex-col max-h-[85vh] rounded-t-[32px] overflow-hidden bg-background border-t border-border/60 shadow-[0_-8px_30px_rgba(0,0,0,0.12)]"
               >
-                {/* Header - Fixed Height */}
-                <div className="flex-none relative px-5 py-4 border-b border-border/40 bg-gradient-to-b from-muted/40 to-transparent">
-                  <button
-                    onClick={() => setIsOpen(false)}
-                    className="absolute right-4 top-4 p-2.5 rounded-xl bg-muted/60 hover:bg-muted transition-colors active:scale-95"
-                  >
-                    <X className="w-5 h-5 text-muted-foreground" />
-                  </button>
-                  <h3 className="text-xl font-bold text-foreground">Choose Model</h3>
-                  <p className="text-sm text-muted-foreground mt-0.5">Select an AI model for your conversation</p>
+                {/* Drag Handle Area */}
+                <div className="flex-none flex justify-center pt-3 pb-2 bg-background" onClick={() => setIsOpen(false)}>
+                  <div className="w-12 h-1.5 rounded-full bg-muted-foreground/20" />
                 </div>
 
-                {/* Current Plan Card - Fixed Height */}
-                <div className="flex-none px-4 pt-4 pb-2">
-                  <div className="p-4 rounded-2xl bg-gradient-to-br from-muted/50 to-muted/20 border border-border/40">
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={cn(
-                          "w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg shrink-0",
-                          user.plan === "free" && "bg-muted border border-border",
-                          user.plan === "basic" &&
-                            "bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/30",
-                          user.plan === "pro" &&
-                            "bg-gradient-to-br from-purple-500/20 to-purple-600/10 border border-purple-500/30",
-                          user.plan === "premium" &&
-                            "bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/30",
-                        )}
-                      >
-                        <Zap
+                {/* Header */}
+                <div className="flex-none px-6 pb-4 border-b border-border/40 bg-background">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-xl font-bold text-foreground">Choose Model</h3>
+                      <p className="text-sm text-muted-foreground mt-0.5">Select an AI model for your conversation</p>
+                    </div>
+                    <button
+                      onClick={() => setIsOpen(false)}
+                      className="p-2 rounded-full bg-muted/40 hover:bg-muted transition-colors"
+                    >
+                      <X className="w-5 h-5 text-muted-foreground" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Content Container with Scroll */}
+                <div className="flex-1 overflow-y-auto overscroll-contain bg-muted/5">
+                  {/* Current Plan Card */}
+                  <div className="px-4 py-4">
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-card to-muted/30 border border-border/60 shadow-sm">
+                      <div className="flex items-center gap-4">
+                        <div
                           className={cn(
-                            "w-6 h-6",
-                            user.plan === "free" && "text-muted-foreground",
-                            user.plan === "basic" && "text-blue-400",
-                            user.plan === "pro" && "text-purple-400",
-                            user.plan === "premium" && "text-amber-400",
+                            "w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm shrink-0",
+                            user.plan === "free" && "bg-muted border border-border",
+                            user.plan === "basic" && "bg-blue-500/10 border border-blue-500/20 text-blue-500",
+                            user.plan === "pro" && "bg-purple-500/10 border border-purple-500/20 text-purple-500",
+                            user.plan === "premium" && "bg-amber-500/10 border border-amber-500/20 text-amber-500",
                           )}
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-base font-semibold text-foreground truncate">
-                          {user.plan === "free"
-                            ? "Free Trial"
-                            : `Sorix ${user.plan.charAt(0).toUpperCase() + user.plan.slice(1)}`}
-                        </p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <div className="h-1.5 flex-1 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className={cn(
-                                "h-full rounded-full transition-all duration-500",
-                                user.tokensUsed / user.tokensLimit > 0.8 ? "bg-red-500" : "bg-primary",
-                              )}
-                              style={{ width: `${Math.min((user.tokensUsed / user.tokensLimit) * 100, 100)}%` }}
-                            />
+                        >
+                          <Zap className="w-6 h-6" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <p className="text-base font-semibold text-foreground truncate">
+                              {user.plan === "free"
+                                ? "Free Trial"
+                                : `Sorix ${user.plan.charAt(0).toUpperCase() + user.plan.slice(1)}`}
+                            </p>
+                            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-background border border-border">
+                              Current
+                            </span>
                           </div>
-                          <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-                            {(user.tokensUsed / 1000).toFixed(0)}k used
-                          </span>
+                          <div className="flex items-center gap-2 mt-2">
+                            <div className="h-1.5 flex-1 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className={cn(
+                                  "h-full rounded-full transition-all duration-500",
+                                  user.tokensUsed / user.tokensLimit > 0.8 ? "bg-red-500" : "bg-primary",
+                                )}
+                                style={{ width: `${Math.min((user.tokensUsed / user.tokensLimit) * 100, 100)}%` }}
+                              />
+                            </div>
+                            <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                              {(user.tokensUsed / 1000).toFixed(0)}k used
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Models List - SCROLLABLE AREA (Flex Grow) */}
-                <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 py-2 space-y-5 scrollbar-hide">
-                  {/* Free Models */}
-                  {freeModels.length > 0 && (
-                    <ModelSection
-                      title="FREE MODELS"
-                      titleColor="text-green-500"
-                      dotColor="bg-green-500"
-                      models={freeModels}
-                      selectedModelId={selectedModel}
-                      userPlan={user.plan}
-                      onSelect={handleSelect}
-                      theme={theme}
-                      isAccessible={isModelAccessible}
-                      getRequiredPlan={getRequiredPlan}
-                      getPlanLabel={getPlanLabel}
-                      getPlanColor={getPlanColor}
-                      isMobile={true}
-                    />
-                  )}
+                  {/* Models List */}
+                  <div className="px-4 pb-8 space-y-6">
+                    {/* Free Models */}
+                    {freeModels.length > 0 && (
+                      <ModelSection
+                        title="FREE MODELS"
+                        titleColor="text-green-500"
+                        dotColor="bg-green-500"
+                        models={freeModels}
+                        selectedModelId={selectedModel}
+                        userPlan={user.plan}
+                        onSelect={handleSelect}
+                        theme={theme}
+                        isAccessible={isModelAccessible}
+                        getRequiredPlan={getRequiredPlan}
+                        getPlanLabel={getPlanLabel}
+                        getPlanColor={getPlanColor}
+                        isMobile={true}
+                      />
+                    )}
 
-                  {/* Basic Models */}
-                  {basicModels.length > 0 && (
-                    <ModelSection
-                      title="BASIC MODELS"
-                      titleColor="text-blue-500"
-                      dotColor="bg-blue-500"
-                      models={basicModels}
-                      selectedModelId={selectedModel}
-                      userPlan={user.plan}
-                      onSelect={handleSelect}
-                      theme={theme}
-                      isAccessible={isModelAccessible}
-                      getRequiredPlan={getRequiredPlan}
-                      getPlanLabel={getPlanLabel}
-                      getPlanColor={getPlanColor}
-                      isMobile={true}
-                    />
-                  )}
+                    {/* Basic Models */}
+                    {basicModels.length > 0 && (
+                      <ModelSection
+                        title="BASIC MODELS"
+                        titleColor="text-blue-500"
+                        dotColor="bg-blue-500"
+                        models={basicModels}
+                        selectedModelId={selectedModel}
+                        userPlan={user.plan}
+                        onSelect={handleSelect}
+                        theme={theme}
+                        isAccessible={isModelAccessible}
+                        getRequiredPlan={getRequiredPlan}
+                        getPlanLabel={getPlanLabel}
+                        getPlanColor={getPlanColor}
+                        isMobile={true}
+                      />
+                    )}
 
-                  {/* Pro Models */}
-                  {proModels.length > 0 && (
-                    <ModelSection
-                      title="PRO MODELS"
-                      titleColor="text-purple-500"
-                      dotColor="bg-purple-500"
-                      models={proModels}
-                      selectedModelId={selectedModel}
-                      userPlan={user.plan}
-                      onSelect={handleSelect}
-                      theme={theme}
-                      isAccessible={isModelAccessible}
-                      getRequiredPlan={getRequiredPlan}
-                      getPlanLabel={getPlanLabel}
-                      getPlanColor={getPlanColor}
-                      isMobile={true}
-                    />
-                  )}
+                    {/* Pro Models */}
+                    {proModels.length > 0 && (
+                      <ModelSection
+                        title="PRO MODELS"
+                        titleColor="text-purple-500"
+                        dotColor="bg-purple-500"
+                        models={proModels}
+                        selectedModelId={selectedModel}
+                        userPlan={user.plan}
+                        onSelect={handleSelect}
+                        theme={theme}
+                        isAccessible={isModelAccessible}
+                        getRequiredPlan={getRequiredPlan}
+                        getPlanLabel={getPlanLabel}
+                        getPlanColor={getPlanColor}
+                        isMobile={true}
+                      />
+                    )}
 
-                  {/* Premium Models */}
-                  {premiumModels.length > 0 && (
-                    <ModelSection
-                      title="PREMIUM MODELS"
-                      titleColor="text-amber-500"
-                      dotColor="bg-amber-500"
-                      models={premiumModels}
-                      selectedModelId={selectedModel}
-                      userPlan={user.plan}
-                      onSelect={handleSelect}
-                      theme={theme}
-                      isAccessible={isModelAccessible}
-                      getRequiredPlan={getRequiredPlan}
-                      getPlanLabel={getPlanLabel}
-                      getPlanColor={getPlanColor}
-                      isMobile={true}
-                    />
-                  )}
+                    {/* Premium Models */}
+                    {premiumModels.length > 0 && (
+                      <ModelSection
+                        title="PREMIUM MODELS"
+                        titleColor="text-amber-500"
+                        dotColor="bg-amber-500"
+                        models={premiumModels}
+                        selectedModelId={selectedModel}
+                        userPlan={user.plan}
+                        onSelect={handleSelect}
+                        theme={theme}
+                        isAccessible={isModelAccessible}
+                        getRequiredPlan={getRequiredPlan}
+                        getPlanLabel={getPlanLabel}
+                        getPlanColor={getPlanColor}
+                        isMobile={true}
+                      />
+                    )}
 
-                  {/* Bottom Spacer */}
-                  <div className="h-6" />
+                    {/* Safe Area Spacer for iPhones */}
+                    <div className="h-8" />
+                  </div>
                 </div>
               </motion.div>
             ) : (
-              /* Desktop Dropdown */
+              /* Desktop Dropdown (Unchanged) */
               <motion.div
                 initial={{ opacity: 0, y: -8, scale: 0.96 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -368,7 +374,7 @@ const ModelSelector = () => {
                 </div>
 
                 <div className="max-h-[60vh] overflow-y-auto scrollbar-thin p-2 space-y-3">
-                  {/* Free Models */}
+                  {/* Desktop List Items */}
                   {freeModels.length > 0 && (
                     <ModelSection
                       title="FREE MODELS"
@@ -386,8 +392,6 @@ const ModelSelector = () => {
                       isMobile={false}
                     />
                   )}
-
-                  {/* Basic Models */}
                   {basicModels.length > 0 && (
                     <ModelSection
                       title="BASIC MODELS"
@@ -405,8 +409,6 @@ const ModelSelector = () => {
                       isMobile={false}
                     />
                   )}
-
-                  {/* Pro Models */}
                   {proModels.length > 0 && (
                     <ModelSection
                       title="PRO MODELS"
@@ -424,8 +426,6 @@ const ModelSelector = () => {
                       isMobile={false}
                     />
                   )}
-
-                  {/* Premium Models */}
                   {premiumModels.length > 0 && (
                     <ModelSection
                       title="PREMIUM MODELS"
@@ -539,7 +539,7 @@ interface ModelItemProps {
   getPlanColor: (plan: UserPlan) => string;
 }
 
-// Mobile Model Item
+// Mobile Model Item - DESIGN UPDATE: Better padding and visual hierarchy
 const MobileModelItem = ({
   model,
   isSelected,
@@ -554,27 +554,27 @@ const MobileModelItem = ({
     onClick={onSelect}
     disabled={isLocked}
     className={cn(
-      "w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all duration-200 text-left",
+      "w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all duration-200 text-left relative overflow-hidden",
       "active:scale-[0.98]",
       isSelected
         ? "bg-primary/10 border-2 border-primary/40 shadow-sm"
         : isLocked
-          ? "opacity-50 bg-muted/20 border border-transparent"
-          : "bg-muted/30 hover:bg-muted/50 border border-border/40",
+          ? "opacity-60 bg-muted/20 border border-transparent"
+          : "bg-card border border-border/40 shadow-sm",
     )}
   >
     {/* Selection Radio - Larger for mobile */}
     <div
       className={cn(
-        "w-7 h-7 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all",
+        "w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all",
         isSelected ? "border-primary bg-primary shadow-md" : "border-muted-foreground/30",
       )}
     >
-      {isSelected && <Check className="w-4 h-4 text-primary-foreground" />}
+      {isSelected && <Check className="w-3.5 h-3.5 text-primary-foreground" />}
     </div>
 
     {/* Model Icon - Larger for mobile */}
-    <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+    <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden bg-background border border-border/50">
       <ModelIcon modelId={model.id} modelName={model.name} size="md" theme={theme} />
     </div>
 
@@ -585,20 +585,25 @@ const MobileModelItem = ({
         </span>
         {/* Show multiplier badge only for heavy models (10x+) */}
         {model.multiplier >= 10 && (
-          <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-amber-500/20 text-amber-600 dark:text-amber-400">
+          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/20">
             {model.multiplier}x
           </span>
         )}
         {isLocked && requiredPlan && (
-          <span className={cn("px-2 py-0.5 rounded-md text-xs font-medium", getPlanColor(requiredPlan))}>
+          <span
+            className={cn(
+              "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide",
+              getPlanColor(requiredPlan),
+            )}
+          >
             {getPlanLabel(requiredPlan)}
           </span>
         )}
       </div>
-      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{model.description}</p>
+      <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">{model.description}</p>
     </div>
 
-    {isLocked && <Lock className="w-5 h-5 text-muted-foreground flex-shrink-0" />}
+    {isLocked && <Lock className="w-5 h-5 text-muted-foreground/50 flex-shrink-0 absolute right-4 top-4" />}
   </button>
 );
 
