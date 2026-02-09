@@ -40,8 +40,8 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
   const showEmptyState = !activeChatId || messages.length === 0;
 
   return (
-    // FIX 1: 'h-[100dvh]' ensures correct height on mobile browsers with dynamic toolbars
-    <div className="flex flex-col h-[100dvh] w-full bg-background">
+    // FIX 1: Added 'overflow-hidden'. This forces the app to NEVER scroll the whole page, keeping the input fixed.
+    <div className="flex flex-col h-[100dvh] w-full bg-background overflow-hidden">
       {/* Header */}
       <header className="hidden md:flex items-center justify-center py-3 md:py-4 border-b border-border/50 px-4 shrink-0">
         <div className="flex items-center gap-2">
@@ -49,17 +49,16 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
         </div>
       </header>
 
-      {/* Main Content (Scrollable Area Wrapper) */}
-      {/* FIX 2: Changed to 'overflow-hidden' and 'flex-col'. 
-          This container determines the viewport height but DOES NOT scroll. 
-          It forces MessageList to handle the scrolling internally. */}
-      <div className="flex-1 flex flex-col overflow-hidden min-h-0 w-full relative">
+      {/* Main Content Area */}
+      {/* FIX 2: Removed 'overflow-y-auto'. This container is now just a layout wrapper (Frame).
+          It forces the child (MessageList) to fit exactly in the remaining space. */}
+      <div className="flex-1 flex flex-col min-h-0 w-full overflow-hidden relative">
         {showEmptyState ? (
           <div className="flex-1 overflow-y-auto">
             <EmptyState userName={user.name.split(" ")[0]} />
           </div>
         ) : (
-          /* MessageList now takes the remaining space directly */
+          /* MessageList handles the scrolling internally now */
           <MessageList />
         )}
       </div>

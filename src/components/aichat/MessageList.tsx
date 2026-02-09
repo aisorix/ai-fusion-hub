@@ -13,8 +13,8 @@ const MessageList = () => {
     <div
       ref={containerRef}
       className={cn(
-        // FIX: Added 'h-full w-full' to ensure it fills the ChatArea parent.
-        // 'overflow-y-auto' makes THIS element the scroll container (required for auto-scroll).
+        // FIX: Added 'h-full w-full'. This is critical.
+        // It forces the scroll container to fill the parent frame exactly.
         "flex-1 h-full w-full overflow-y-auto",
         "scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent",
       )}
