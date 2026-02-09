@@ -14,7 +14,7 @@ import {
   Heart,
   BookOpen,
   Home,
-  PanelLeftClose, // ছবির মতো আইকনের জন্য এটি যোগ করা হয়েছে
+  PanelLeftClose, // ছবির মতো আইকনের জন্য
 } from "lucide-react";
 import { useChatStore } from "@/stores/chatStore";
 import { cn } from "@/lib/utils";
@@ -107,21 +107,25 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   return (
     <>
       <Sheet open={isOpen} onOpenChange={onClose}>
-        <SheetContent side="left" className="w-[280px] p-0 flex flex-col gap-0 border-r border-border">
+        {/* এখানে [&>button]:hidden ক্লাসটি যোগ করা হয়েছে ডিফল্ট ক্লোজ বাটন লুকানোর জন্য */}
+        <SheetContent
+          side="left"
+          className="w-[280px] p-0 flex flex-col gap-0 border-r border-border [&>button]:hidden"
+        >
           <SheetHeader className="sr-only">
             <SheetTitle>Navigation Menu</SheetTitle>
           </SheetHeader>
 
-          {/* Header - Padding কমানো হয়েছে এবং কলাপ্স বাটন যোগ করা হয়েছে */}
-          <div className={cn("p-3 flex items-center justify-between", isPaidUser ? "border-primary/20" : "")}>
+          {/* Header - আমাদের কাস্টম ক্লোজ বাটন এখানে আছে */}
+          <div className={cn("p-3 flex items-center justify-between", isPaidUser ? "border-primary/10" : "")}>
             <Link to="/" className="flex items-center gap-2" onClick={onClose}>
-              <img src={sorixLogo} alt="AI Sorix" className="w-8 h-8" />
+              <img src={sorixLogo} alt="AI Sorix" className="w-7 h-7" />
               <div className="leading-tight">
                 <h1 className="font-bold text-foreground text-[13px] flex items-center gap-1">
                   AI Sorix
                   {isPaidUser && <PlanBadge plan={user.plan as PlanType} />}
                 </h1>
-                <p className="text-[10px] text-muted-foreground">Premium AI Platform</p>
+                <p className="text-[9px] text-muted-foreground">Premium AI Platform</p>
               </div>
             </Link>
             <button
@@ -132,7 +136,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             </button>
           </div>
 
-          {/* New Chat Button - Gap কমানোর জন্য mt-1 ব্যবহার করা হয়েছে */}
+          {/* New Chat Button */}
           <div className="px-3 mt-1">
             <Button
               onClick={handleNewChat}
@@ -143,7 +147,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             </Button>
           </div>
 
-          {/* Search - mt-2 ব্যবহার করা হয়েছে */}
+          {/* Search */}
           <div className="px-3 mt-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -157,7 +161,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             </div>
           </div>
 
-          {/* Quick Actions - mt-2 এবং space-y-0.5 দিয়ে একদম ছবির মতো টাইট করা হয়েছে */}
+          {/* Quick Actions */}
           <div className="px-2 mt-2 space-y-0.5">
             <button
               onClick={() => {
@@ -232,7 +236,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             </button>
           </div>
 
-          {/* Chat History - mt-2 ব্যবহার করা হয়েছে */}
+          {/* Chat History */}
           <ScrollArea className="flex-1 mt-2">
             <div className="px-3 space-y-3 pb-4">
               {todayChats.length > 0 && (
@@ -259,7 +263,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                   </div>
                 </div>
               )}
-              {/* This Week and Older sections similarly updated... */}
+              {/* This Week and Older sections... */}
             </div>
           </ScrollArea>
 
