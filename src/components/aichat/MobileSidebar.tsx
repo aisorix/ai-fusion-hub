@@ -122,21 +122,32 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   return (
     <>
       <Sheet open={isOpen} onOpenChange={onClose}>
-        <SheetContent side="left" className="w-[300px] p-0 flex flex-col">
-          <SheetHeader className="sr-only">
-            <SheetTitle>Navigation Menu</SheetTitle>
-          </SheetHeader>
+  {/* এখানে overflow-visible যোগ করা হয়েছে যাতে বাটনটি সাইডবারের বাইরে দেখা যায় */}
+  <SheetContent side="left" className="w-[300px] p-0 flex flex-col relative overflow-visible">
+    
+    <SheetHeader className="sr-only">
+      <SheetTitle>Navigation Menu</SheetTitle>
+    </SheetHeader>
 
-          {/* 1st Picture-র মতো Sidebar Collapse Button (Handle style) */}
-          <button
-            onClick={onClose}
-            className="absolute -right-3 top-1/2 -translate-y-1/2 h-20 w-6 flex items-center justify-center z-50 group transition-all"
-          >
-            <div className="w-1.5 h-12 bg-border border border-border group-hover:bg-primary/50 rounded-full transition-colors flex items-center justify-center">
-              <div className="w-0.5 h-3 bg-muted-foreground/30 rounded-full" />
-            </div>
-          </button>
+    {/* ——— এইখানে বাটনটি থাকবে ——— */}
+    <button
+      onClick={onClose}
+      className="absolute -right-4 top-1/2 -translate-y-1/2 h-20 w-8 flex items-center justify-center z-50 group transition-all"
+    >
+      {/* ১ নম্বর ছবির মতো চিকন ভার্টিক্যাল হ্যান্ডেল */}
+      <div className="w-1.5 h-12 bg-border border border-border group-hover:bg-primary/50 rounded-full transition-colors flex items-center justify-center">
+         <div className="w-0.5 h-3 bg-muted-foreground/30 rounded-full" />
+      </div>
+    </button>
+    {/* ———————————————————————— */}
 
+    {/* এরপর আপনার বাকি সব কন্টেন্ট (Header, New Chat, etc.) */}
+    <div className="flex-1 flex flex-col">
+       {/* আপনার কোড... */}
+    </div>
+
+  </SheetContent>
+</Sheet>
           {/* Header */}
           <div
             className={cn(
@@ -156,19 +167,19 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             </Link>
           </div>
 
-          {/* New Chat Button - Gap Reduced to pt-2 */}
-          <div className="px-3 pt-2">
+          {/* New Chat Button */}
+          <div className="px-3 pt-3">
             <Button
               onClick={handleNewChat}
-              className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground h-10"
+              className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               <Plus className="w-4 h-4" />
               New chat
             </Button>
           </div>
 
-          {/* Search - Gap Reduced to mt-2 */}
-          <div className="px-3 mt-2">
+          {/* Search */}
+          <div className="px-3 mt-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -176,13 +187,13 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                 placeholder="Search chats"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-9 pl-9 pr-3 rounded-lg bg-muted/50 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/30"
+                className="w-full h-9 pl-9 pr-3 rounded-lg bg-muted/50 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
           </div>
 
-          {/* Quick Actions - Gap Reduced to mt-2 and space-y-0.5 */}
-          <div className="px-3 mt-2 space-y-0.5">
+          {/* Quick Actions */}
+          <div className="px-3 mt-3 space-y-1">
             {/* Multi-Window Chat */}
             <button
               onClick={() => {
@@ -190,7 +201,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                 onClose();
               }}
               className={cn(
-                "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
+                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
                 viewMode === "multi" ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
               )}
             >
