@@ -40,10 +40,10 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
   const showEmptyState = !activeChatId || messages.length === 0;
 
   return (
-    // FIX 1: Mobile e 'fixed inset-0' & 'h-[100dvh]' dewa hoyeche jate keyboard/address bar ashle layout na nare.
-    // Desktop (md) e 'static' & 'h-full' rakha hoyeche jate ager motoi thake.
-    <div className="fixed inset-0 z-0 flex flex-col h-[100dvh] bg-background md:static md:inset-auto md:h-full md:z-auto">
-      {/* Header with Model Selector - Desktop only (Your code remains same) */}
+    // FIX 1: 'h-[100dvh]' ব্যবহার করা হয়েছে। এটি মোবাইলের অ্যাড্রেস বার সহ পুরো হাইট ক্যালকুলেট করে।
+    // 'flex flex-col' নিশ্চিত করে যে ইনপুট বক্স সবসময় নিচে থাকবে।
+    <div className="flex flex-col h-[100dvh] w-full bg-background">
+      {/* Header - (NO CHANGE HERE as requested) */}
       <header className="hidden md:flex items-center justify-center py-3 md:py-4 border-b border-border/50 px-4 shrink-0">
         <div className="flex items-center gap-2">
           <ModelSelector />
@@ -51,14 +51,14 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
       </header>
 
       {/* Main Content (Scrollable Area) */}
-      {/* FIX 2: 'flex-1' & 'overflow-y-auto' ensures ONLY this part scrolls */}
-      <div className="flex-1 overflow-y-auto min-h-0 w-full scroll-smooth">
+      {/* FIX 2: 'flex-1' মানে এটি বাকি জায়গা নেবে। 'overflow-y-auto' মানে শুধু এই অংশটুকু স্ক্রল হবে। */}
+      <div className="flex-1 overflow-y-auto min-h-0 w-full">
         {showEmptyState ? (
           <EmptyState userName={user.name.split(" ")[0]} />
         ) : (
           <div className="flex flex-col min-h-full">
             <MessageList />
-            {/* Ektu space dewa holo jate last message input box er niche chapa na pore */}
+            {/* মেসেজ লিস্টের নিচে একটু ফাঁকা জায়গা, যাতে ইনপুট বক্সের সাথে লেগে না যায় */}
             <div className="h-4 shrink-0" />
           </div>
         )}
@@ -71,10 +71,10 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
         </div>
       )}
 
-      {/* Input - Fixed at Bottom */}
-      {/* FIX 3: 'shrink-0' ensures input box never disappears when chat is long */}
-      <div className="shrink-0 bg-background z-20 border-t border-border/40 md:border-t-0 w-full">
-        <div className="pb-2 sm:pb-3 md:pb-4 pt-2 md:pt-0">
+      {/* Input - FIXED POSITION Logic */}
+      {/* FIX 3: 'shrink-0' এবং 'z-20' দেওয়া হয়েছে। এটি ফ্লেক্স কন্টেইনারের একদম নিচে ফিক্সড থাকবে। */}
+      <div className="shrink-0 bg-background border-t border-border/40 z-20">
+        <div className="pb-2 sm:pb-3 md:pb-4 pt-2">
           <ChatInput onSend={handleSend} disabled={isStreaming} onOpenVoiceMode={onOpenVoiceMode} />
         </div>
       </div>
