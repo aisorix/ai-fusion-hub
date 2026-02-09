@@ -147,20 +147,20 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
           </div>
 
           {/* New Chat Button */}
-          <div className="px-3 pt-0.5">
+          <div className="px-3 pt-3">
             <Button
               onClick={handleNewChat}
               className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-5 h-5" />
               New chat
             </Button>
           </div>
 
           {/* Search */}
-          <div className="px-3 mt-0.5">
+          <div className="px-3 mt-3">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search chats"
@@ -172,7 +172,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
           </div>
 
           {/* Quick Actions */}
-          <div className="px-3 mt-0.5 space-y-1">
+          <div className="px-3 mt-3 space-y-1">
             {/* Multi-Window Chat */}
             <button
               onClick={() => {
@@ -184,7 +184,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                 viewMode === "multi" ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
               )}
             >
-              <LayoutGrid className="w-4 h-4" />
+              <LayoutGrid className="w-5 h-5" />
               <span>Multi-Window Chat</span>
             </button>
 
@@ -195,11 +195,11 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                 className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <Sparkles className="w-4 h-4 text-primary" />
+                  <Sparkles className="w-5 h-5 text-primary" />
                   <span>More Tools</span>
                 </div>
                 <ChevronDown
-                  className={cn("w-4 h-4 transition-transform text-muted-foreground", showMoreTools && "rotate-180")}
+                  className={cn("w-5 h-5 transition-transform text-muted-foreground", showMoreTools && "rotate-180")}
                 />
               </button>
 
