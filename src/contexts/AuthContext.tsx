@@ -39,8 +39,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } else if (data.session) {
             setSession(data.session);
             setUser(data.session.user);
-            // Clean up URL hash after successful auth
-            window.history.replaceState(null, '', window.location.pathname);
+            // Clean up URL hash and redirect to chat after OAuth
+            window.history.replaceState(null, '', '/chat');
+            window.location.href = '/chat';
           }
         } catch (err) {
           console.error('OAuth callback error:', err);

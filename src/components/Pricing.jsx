@@ -38,10 +38,12 @@ const Pricing = () => {
   const [isYearly, setIsYearly] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [activeCardIndex, setActiveCardIndex] = useState(2); // Default to Pro (index 2)
   const { t, language } = useLanguage();
   const { isAuthenticated, isLoading } = useAuth();
   const { currentPlan } = useSubscription();
   const navigate = useNavigate();
+  const scrollContainerRef = React.useRef(null);
 
   const sorixHealthLabel = language === 'en' ? 'Sorix Health' : 'সোরিক্স হেলথ';
   const sorixAgroLabel = language === 'en' ? 'Sorix Agro' : 'সোরিক্স অ্যাগ্রো';
@@ -242,8 +244,19 @@ const Pricing = () => {
           </span>
         </div>
 
-        {/* Pricing Cards - Mobile: Horizontal Scroll */}
-        <div className="flex md:hidden overflow-x-auto gap-4 pb-4 snap-x snap-mandatory -mx-4 px-4 scrollbar-hide">
+        {/* Pricing Cards - Mobile: Horizontal Scroll with Indicators */}
+        <div className="md:hidden">
+          <div 
+            ref={scrollContainerRef}
+            className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory -mx-4 px-4 scrollbar-hide"
+            onScroll={(e) => {
+              const container = e.target;
+              const scrollLeft = container.scrollLeft;
+              const cardWidth = 280 + 16; // card width + gap
+              const newIndex = Math.round(scrollLeft / cardWidth);
+              setActiveCardIndex(Math.min(Math.max(newIndex, 0), 3));
+            }}
+          >
           {plans.map((plan, planIndex) => {
             const isCurrentUserPlan = currentPlan === plan.name;
             return (
@@ -360,6 +373,29 @@ const Pricing = () => {
               </div>
             </div>
           )})}
+          </div>
+          
+          {/* Scroll Position Indicator Dots */}
+          <div className="flex justify-center gap-2 mt-4">
+            {plans.map((plan, index) => (
+              <button
+                key={plan.name}
+                onClick={() => {
+                  const container = scrollContainerRef.current;
+                  if (container) {
+                    const cardWidth = 280 + 16;
+                    container.scrollTo({ left: index * cardWidth, behavior: 'smooth' });
+                  }
+                }}
+                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                  activeCardIndex === index 
+                    ? 'bg-primary w-6' 
+                    : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                }`}
+                aria-label={`Go to ${plan.displayName} plan`}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Tablet & Desktop: Grid layout */}
