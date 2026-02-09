@@ -117,11 +117,11 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
           </SheetHeader>
 
           {/* Header - আমাদের কাস্টম ক্লোজ বাটন এখানে আছে */}
-          <div className={cn("p-3 flex items-center justify-between", isPaidUser ? "border-primary/20" : "")}>
+          <div className={cn("p-4 flex items-center justify-between", isPaidUser ? "border-primary/20" : "")}>
             <Link to="/" className="flex items-center gap-2" onClick={onClose}>
               <img src={sorixLogo} alt="AI Sorix" className="w-8 h-8" />
               <div className="leading-tight">
-                <h1 className="font-bold text-foreground text-[13px] flex items-center gap-1">
+                <h1 className="font-bold text-foreground text-[13px] flex items-center gap-1.5">
                   AI Sorix
                   {isPaidUser && <PlanBadge plan={user.plan as PlanType} />}
                 </h1>
