@@ -96,7 +96,6 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
       description: "AI-powered agricultural assistant",
       icon: Leaf,
       color: "bg-green-100 text-green-600",
-      comingSoon: true,
     },
     {
       id: "health",
@@ -104,7 +103,6 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
       description: "Your personal health companion",
       icon: Heart,
       color: "bg-red-100 text-red-600",
-      comingSoon: true,
     },
     {
       id: "legends",
@@ -112,7 +110,6 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
       description: "Chat with historical legends",
       icon: BookOpen,
       color: "bg-amber-100 text-amber-600",
-      comingSoon: true,
     },
   ];
 
