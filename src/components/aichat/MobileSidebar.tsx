@@ -17,6 +17,7 @@ import {
   Heart,
   BookOpen,
   Home,
+  ChevronLeft,
 } from "lucide-react";
 import { useChatStore } from "@/stores/chatStore";
 import { cn } from "@/lib/utils";
@@ -122,10 +123,20 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   return (
     <>
       <Sheet open={isOpen} onOpenChange={onClose}>
-        <SheetContent side="left" className="w-[300px] p-0 flex flex-col">
+        <SheetContent side="left" className="w-[300px] p-0 flex flex-col relative overflow-visible">
           <SheetHeader className="sr-only">
             <SheetTitle>Navigation Menu</SheetTitle>
           </SheetHeader>
+
+          {/* 1st Picture-র মতো Sidebar Collapse Button (Handle style) */}
+          <button
+            onClick={onClose}
+            className="absolute -right-3 top-1/2 -translate-y-1/2 h-20 w-6 flex items-center justify-center z-50 group transition-all"
+          >
+            <div className="w-1.5 h-12 bg-border border border-border group-hover:bg-primary/50 rounded-full transition-colors flex items-center justify-center">
+              <div className="w-0.5 h-3 bg-muted-foreground/30 rounded-full" />
+            </div>
+          </button>
 
           {/* Header */}
           <div
@@ -146,19 +157,19 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             </Link>
           </div>
 
-          {/* New Chat Button */}
+          {/* New Chat Button - Natural Spacing */}
           <div className="px-3 pt-3">
             <Button
               onClick={handleNewChat}
-              className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground h-10"
             >
               <Plus className="w-4 h-4" />
               New chat
             </Button>
           </div>
 
-          {/* Search */}
-          <div className="px-3 mt-3">
+          {/* Search - Natural Spacing */}
+          <div className="px-3 mt-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -166,14 +177,13 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                 placeholder="Search chats"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-9 pl-9 pr-3 rounded-lg bg-muted/50 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full h-9 pl-9 pr-3 rounded-lg bg-muted/50 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/30"
               />
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="px-3 mt-3 space-y-1">
-            {/* Multi-Window Chat */}
+          {/* Quick Actions - Natural Spacing (1st Picture style) */}
+          <div className="px-3 mt-2 space-y-0.5">
             <button
               onClick={() => {
                 setViewMode(viewMode === "single" ? "multi" : "single");
@@ -188,7 +198,6 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
               <span>Multi-Window Chat</span>
             </button>
 
-            {/* More Tools */}
             <div>
               <button
                 onClick={() => setShowMoreTools(!showMoreTools)}
@@ -211,7 +220,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className="py-1 space-y-1">
+                    <div className="py-1 space-y-0.5">
                       {moreTools.map((tool) => (
                         <button
                           key={tool.id}
@@ -238,7 +247,6 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
               </AnimatePresence>
             </div>
 
-            {/* Projects */}
             <button
               onClick={() => {
                 setProjectsModalOpen(true);
@@ -260,7 +268,6 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
           {/* Chat History */}
           <ScrollArea className="flex-1 mt-3">
             <div className="px-3 space-y-4 pb-4">
-              {/* Today */}
               {todayChats.length > 0 && (
                 <div>
                   <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">
@@ -284,7 +291,6 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                 </div>
               )}
 
-              {/* This Week */}
               {thisWeekChats.length > 0 && (
                 <div>
                   <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">
@@ -308,7 +314,6 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                 </div>
               )}
 
-              {/* Older */}
               {olderChats.length > 0 && (
                 <div>
                   <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">
@@ -334,9 +339,8 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             </div>
           </ScrollArea>
 
-          {/* Bottom Section - Redesigned */}
+          {/* Bottom Section - (Keep untouched as requested) */}
           <div className="p-3 border-t border-border space-y-2 mt-auto">
-            {/* User Profile */}
             <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-muted/50">
               <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-sm">
                 {userInitials}
@@ -359,7 +363,6 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
               </button>
             </div>
 
-            {/* Action buttons row - Removed logout, kept upgrade and home */}
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
@@ -384,7 +387,6 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
         </SheetContent>
       </Sheet>
 
-      {/* Modals */}
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
       <UpgradePlanModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
     </>
