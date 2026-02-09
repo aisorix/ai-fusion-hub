@@ -40,9 +40,9 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
   const showEmptyState = !activeChatId || messages.length === 0;
 
   return (
-    // FIX 1: 'h-[100dvh]' ব্যবহার করা হয়েছে। এটি মোবাইলের অ্যাড্রেস বার সহ পুরো হাইট ক্যালকুলেট করে।
-    // 'flex flex-col' নিশ্চিত করে যে ইনপুট বক্স সবসময় নিচে থাকবে।
-    <div className="flex flex-col h-[100dvh] w-full bg-background">
+    // FIX 1: 'fixed inset-0' ব্যবহার করা হয়েছে মোবাইলের জন্য। এটি স্ক্রিনের সাথে কন্টেইনারটি আটকে রাখে।
+    // 'md:static md:h-full' ডেস্কটপের জন্য আগের অবস্থা বজায় রাখে।
+    <div className="fixed inset-0 z-40 flex flex-col h-[100dvh] w-full bg-background md:static md:z-auto md:h-full">
       {/* Header - (NO CHANGE HERE as requested) */}
       <header className="hidden md:flex items-center justify-center py-3 md:py-4 border-b border-border/50 px-4 shrink-0">
         <div className="flex items-center gap-2">
@@ -51,14 +51,14 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
       </header>
 
       {/* Main Content (Scrollable Area) */}
-      {/* FIX 2: 'flex-1' মানে এটি বাকি জায়গা নেবে। 'overflow-y-auto' মানে শুধু এই অংশটুকু স্ক্রল হবে। */}
-      <div className="flex-1 overflow-y-auto min-h-0 w-full">
+      {/* 'flex-1 overflow-y-auto' নিশ্চিত করে শুধু এই অংশটিই স্ক্রল হবে */}
+      <div className="flex-1 overflow-y-auto min-h-0 w-full scroll-smooth">
         {showEmptyState ? (
           <EmptyState userName={user.name.split(" ")[0]} />
         ) : (
           <div className="flex flex-col min-h-full">
             <MessageList />
-            {/* মেসেজ লিস্টের নিচে একটু ফাঁকা জায়গা, যাতে ইনপুট বক্সের সাথে লেগে না যায় */}
+            {/* মেসেজ লিস্টের নিচে একটু ফাঁকা জায়গা */}
             <div className="h-4 shrink-0" />
           </div>
         )}
@@ -72,7 +72,7 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
       )}
 
       {/* Input - FIXED POSITION Logic */}
-      {/* FIX 3: 'shrink-0' এবং 'z-20' দেওয়া হয়েছে। এটি ফ্লেক্স কন্টেইনারের একদম নিচে ফিক্সড থাকবে। */}
+      {/* shrink-0 ensures input box never shrinks or gets pushed down */}
       <div className="shrink-0 bg-background border-t border-border/40 z-20">
         <div className="pb-2 sm:pb-3 md:pb-4 pt-2">
           <ChatInput onSend={handleSend} disabled={isStreaming} onOpenVoiceMode={onOpenVoiceMode} />
