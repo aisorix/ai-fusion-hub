@@ -122,32 +122,11 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   return (
     <>
       <Sheet open={isOpen} onOpenChange={onClose}>
-  {/* এখানে overflow-visible যোগ করা হয়েছে যাতে বাটনটি সাইডবারের বাইরে দেখা যায় */}
-  <SheetContent side="left" className="w-[300px] p-0 flex flex-col relative overflow-visible">
-    
-    <SheetHeader className="sr-only">
-      <SheetTitle>Navigation Menu</SheetTitle>
-    </SheetHeader>
+        <SheetContent side="left" className="w-[300px] p-0 flex flex-col">
+          <SheetHeader className="sr-only">
+            <SheetTitle>Navigation Menu</SheetTitle>
+          </SheetHeader>
 
-    {/* ——— এইখানে বাটনটি থাকবে ——— */}
-    <button
-      onClick={onClose}
-      className="absolute -right-4 top-1/2 -translate-y-1/2 h-20 w-8 flex items-center justify-center z-50 group transition-all"
-    >
-      {/* ১ নম্বর ছবির মতো চিকন ভার্টিক্যাল হ্যান্ডেল */}
-      <div className="w-1.5 h-12 bg-border border border-border group-hover:bg-primary/50 rounded-full transition-colors flex items-center justify-center">
-         <div className="w-0.5 h-3 bg-muted-foreground/30 rounded-full" />
-      </div>
-    </button>
-    {/* ———————————————————————— */}
-
-    {/* এরপর আপনার বাকি সব কন্টেন্ট (Header, New Chat, etc.) */}
-    <div className="flex-1 flex flex-col">
-       {/* আপনার কোড... */}
-    </div>
-
-  </SheetContent>
-</Sheet>
           {/* Header */}
           <div
             className={cn(
