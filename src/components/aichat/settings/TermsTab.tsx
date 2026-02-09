@@ -117,7 +117,6 @@ const TermsTab = () => {
 
   return (
     <div className="h-full flex flex-col">
-      {/* Header */}
       <div className="mb-4 sm:mb-6">
         <div className="flex items-center gap-2 sm:gap-3 mb-2">
           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
@@ -129,7 +128,6 @@ const TermsTab = () => {
           </div>
         </div>
 
-        {/* Last Updated Badge */}
         <div
           className={cn("inline-flex items-center gap-2 px-3 py-1.5 rounded-lg mt-3", "bg-muted border border-border")}
         >
@@ -140,7 +138,6 @@ const TermsTab = () => {
         </div>
       </div>
 
-      {/* Introduction Card */}
       <div
         className={cn(
           "p-4 rounded-xl mb-4 sm:mb-5",
@@ -153,7 +150,6 @@ const TermsTab = () => {
         </p>
       </div>
 
-      {/* Content - Accordion Sections */}
       <div className="flex-1 overflow-y-auto pr-1 sm:pr-2 space-y-2">
         {TERMS_SECTIONS.map((section) => {
           const Icon = section.icon;
@@ -211,7 +207,6 @@ const TermsTab = () => {
         })}
       </div>
 
-      {/* Contact Support */}
       <div className={cn("p-4 rounded-xl mb-4", "bg-muted/50 border border-border")}>
         <p className="text-xs text-muted-foreground">
           Have questions about these terms? Contact us at{" "}
@@ -221,7 +216,6 @@ const TermsTab = () => {
         </p>
       </div>
 
-      {/* Footer Actions */}
       <div className="pt-4 sm:pt-5 mt-auto border-t border-border">
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <button
