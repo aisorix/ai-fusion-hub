@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { createPortal } from "react-dom"; // IMPORTED PORTAL
+import { createPortal } from "react-dom";
 import { ChevronDown, Lock, Check, X, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useChatStore, type UserPlan, type Model } from "@/stores/chatStore";
@@ -41,10 +41,11 @@ const getUniqueModelsByName = (models: Model[]): Model[] => {
 
 const ModelSelector = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [mounted, setMounted] = useState(false); // To handle hydration
+  const [mounted, setMounted] = useState(false);
   const { selectedModel, models, setSelectedModel, user, theme } = useChatStore();
   const isMobile = useIsMobile();
 
+  // Hydration fix
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -118,6 +119,9 @@ const ModelSelector = () => {
     }
   };
 
+  // Prevent rendering portal on server
+  if (!mounted) return null;
+
   return (
     <div className="relative">
       {/* Trigger Button */}
@@ -156,313 +160,325 @@ const ModelSelector = () => {
         />
       </button>
 
-      {/* MODAL / DROPDOWN LOGIC */}
       <AnimatePresence>
-        {isOpen &&
-          mounted &&
-          (isMobile ? (
-            // MOBILE: Using Portal to force it to document body
-            createPortal(
+        {isOpen && (
+          <>
+            {/* MOBILE: Bottom Sheet using React Portal */}
+            {isMobile ? (
+              createPortal(
+                <>
+                  {/* Backdrop */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm"
+                    onClick={() => setIsOpen(false)}
+                  />
+
+                  {/* Bottom Sheet Container */}
+                  <motion.div
+                    initial={{ y: "100%" }}
+                    animate={{ y: 0 }}
+                    exit={{ y: "100%" }}
+                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                    className="fixed inset-x-0 bottom-0 z-[10000] flex flex-col max-h-[85vh] rounded-t-[32px] overflow-hidden bg-background border-t border-border/60 shadow-[0_-8px_30px_rgba(0,0,0,0.2)]"
+                  >
+                    {/* Drag Handle Area */}
+                    <div
+                      className="flex-none flex justify-center pt-3 pb-2 bg-background cursor-grab active:cursor-grabbing"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <div className="w-12 h-1.5 rounded-full bg-muted-foreground/20" />
+                    </div>
+
+                    {/* Header */}
+                    <div className="flex-none px-6 pb-4 border-b border-border/40 bg-background">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-xl font-bold text-foreground">Choose Model</h3>
+                          <p className="text-sm text-muted-foreground mt-0.5">
+                            Select an AI model for your conversation
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => setIsOpen(false)}
+                          className="p-2 rounded-full bg-muted/40 hover:bg-muted transition-colors"
+                        >
+                          <X className="w-5 h-5 text-muted-foreground" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Content Container with Scroll */}
+                    <div className="flex-1 overflow-y-auto overscroll-contain bg-muted/5">
+                      {/* Current Plan Card */}
+                      <div className="px-4 py-4">
+                        <div className="p-4 rounded-2xl bg-gradient-to-br from-card to-muted/30 border border-border/60 shadow-sm">
+                          <div className="flex items-center gap-4">
+                            <div
+                              className={cn(
+                                "w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm shrink-0",
+                                user.plan === "free" && "bg-muted border border-border",
+                                user.plan === "basic" && "bg-blue-500/10 border border-blue-500/20 text-blue-500",
+                                user.plan === "pro" && "bg-purple-500/10 border border-purple-500/20 text-purple-500",
+                                user.plan === "premium" && "bg-amber-500/10 border border-amber-500/20 text-amber-500",
+                              )}
+                            >
+                              <Zap className="w-6 h-6" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <p className="text-base font-semibold text-foreground truncate">
+                                  {user.plan === "free"
+                                    ? "Free Trial"
+                                    : `Sorix ${user.plan.charAt(0).toUpperCase() + user.plan.slice(1)}`}
+                                </p>
+                                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-background border border-border">
+                                  Current
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2 mt-2">
+                                <div className="h-1.5 flex-1 bg-muted rounded-full overflow-hidden">
+                                  <div
+                                    className={cn(
+                                      "h-full rounded-full transition-all duration-500",
+                                      user.tokensUsed / user.tokensLimit > 0.8 ? "bg-red-500" : "bg-primary",
+                                    )}
+                                    style={{ width: `${Math.min((user.tokensUsed / user.tokensLimit) * 100, 100)}%` }}
+                                  />
+                                </div>
+                                <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                                  {(user.tokensUsed / 1000).toFixed(0)}k used
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Models List */}
+                      <div className="px-4 pb-8 space-y-6">
+                        {/* Free Models */}
+                        {freeModels.length > 0 && (
+                          <ModelSection
+                            title="FREE MODELS"
+                            titleColor="text-green-500"
+                            dotColor="bg-green-500"
+                            models={freeModels}
+                            selectedModelId={selectedModel}
+                            userPlan={user.plan}
+                            onSelect={handleSelect}
+                            theme={theme}
+                            isAccessible={isModelAccessible}
+                            getRequiredPlan={getRequiredPlan}
+                            getPlanLabel={getPlanLabel}
+                            getPlanColor={getPlanColor}
+                            isMobile={true}
+                          />
+                        )}
+
+                        {/* Basic Models */}
+                        {basicModels.length > 0 && (
+                          <ModelSection
+                            title="BASIC MODELS"
+                            titleColor="text-blue-500"
+                            dotColor="bg-blue-500"
+                            models={basicModels}
+                            selectedModelId={selectedModel}
+                            userPlan={user.plan}
+                            onSelect={handleSelect}
+                            theme={theme}
+                            isAccessible={isModelAccessible}
+                            getRequiredPlan={getRequiredPlan}
+                            getPlanLabel={getPlanLabel}
+                            getPlanColor={getPlanColor}
+                            isMobile={true}
+                          />
+                        )}
+
+                        {/* Pro Models */}
+                        {proModels.length > 0 && (
+                          <ModelSection
+                            title="PRO MODELS"
+                            titleColor="text-purple-500"
+                            dotColor="bg-purple-500"
+                            models={proModels}
+                            selectedModelId={selectedModel}
+                            userPlan={user.plan}
+                            onSelect={handleSelect}
+                            theme={theme}
+                            isAccessible={isModelAccessible}
+                            getRequiredPlan={getRequiredPlan}
+                            getPlanLabel={getPlanLabel}
+                            getPlanColor={getPlanColor}
+                            isMobile={true}
+                          />
+                        )}
+
+                        {/* Premium Models */}
+                        {premiumModels.length > 0 && (
+                          <ModelSection
+                            title="PREMIUM MODELS"
+                            titleColor="text-amber-500"
+                            dotColor="bg-amber-500"
+                            models={premiumModels}
+                            selectedModelId={selectedModel}
+                            userPlan={user.plan}
+                            onSelect={handleSelect}
+                            theme={theme}
+                            isAccessible={isModelAccessible}
+                            getRequiredPlan={getRequiredPlan}
+                            getPlanLabel={getPlanLabel}
+                            getPlanColor={getPlanColor}
+                            isMobile={true}
+                          />
+                        )}
+
+                        {/* Safe Area Spacer for iPhones */}
+                        <div className="h-8" />
+                      </div>
+                    </div>
+                  </motion.div>
+                </>,
+                document.body,
+              )
+            ) : (
+              /* DESKTOP: Standard Dropdown */
               <>
-                {/* Backdrop */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm"
+                  className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[1px]"
                   onClick={() => setIsOpen(false)}
                 />
-
-                {/* Bottom Sheet */}
                 <motion.div
-                  initial={{ y: "100%" }}
-                  animate={{ y: 0 }}
-                  exit={{ y: "100%" }}
-                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                  className="fixed inset-x-0 bottom-0 z-[10000] flex flex-col max-h-[85vh] rounded-t-[32px] overflow-hidden bg-background border-t border-border/60 shadow-[0_-8px_30px_rgba(0,0,0,0.12)]"
+                  initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
+                  className={cn(
+                    "absolute left-0 top-full mt-2 w-[360px] z-50",
+                    "rounded-xl shadow-2xl shadow-black/20 overflow-hidden",
+                    "bg-popover/95 border border-border/80 backdrop-blur-xl",
+                  )}
                 >
-                  {/* Drag Handle Area */}
-                  <div
-                    className="flex-none flex justify-center pt-3 pb-2 bg-background"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <div className="w-12 h-1.5 rounded-full bg-muted-foreground/20" />
-                  </div>
-
-                  {/* Header */}
-                  <div className="flex-none px-6 pb-4 border-b border-border/40 bg-background">
+                  {/* Header with Plan Info */}
+                  <div className="px-4 py-3 border-b border-border/50 bg-muted/30">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-xl font-bold text-foreground">Choose Model</h3>
-                        <p className="text-sm text-muted-foreground mt-0.5">Select an AI model for your conversation</p>
+                        <span className="text-sm font-medium">Choose Model</span>
+                        <p className="text-[10px] text-muted-foreground">Token multiplier affects usage</p>
                       </div>
-                      <button
-                        onClick={() => setIsOpen(false)}
-                        className="p-2 rounded-full bg-muted/40 hover:bg-muted transition-colors"
-                      >
-                        <X className="w-5 h-5 text-muted-foreground" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Content Container with Scroll */}
-                  <div className="flex-1 overflow-y-auto overscroll-contain bg-muted/5">
-                    {/* Current Plan Card */}
-                    <div className="px-4 py-4">
-                      <div className="p-4 rounded-2xl bg-gradient-to-br from-card to-muted/30 border border-border/60 shadow-sm">
-                        <div className="flex items-center gap-4">
-                          <div
-                            className={cn(
-                              "w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm shrink-0",
-                              user.plan === "free" && "bg-muted border border-border",
-                              user.plan === "basic" && "bg-blue-500/10 border border-blue-500/20 text-blue-500",
-                              user.plan === "pro" && "bg-purple-500/10 border border-purple-500/20 text-purple-500",
-                              user.plan === "premium" && "bg-amber-500/10 border border-amber-500/20 text-amber-500",
-                            )}
-                          >
-                            <Zap className="w-6 h-6" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <p className="text-base font-semibold text-foreground truncate">
-                                {user.plan === "free"
-                                  ? "Free Trial"
-                                  : `Sorix ${user.plan.charAt(0).toUpperCase() + user.plan.slice(1)}`}
-                              </p>
-                              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-background border border-border">
-                                Current
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2 mt-2">
-                              <div className="h-1.5 flex-1 bg-muted rounded-full overflow-hidden">
-                                <div
-                                  className={cn(
-                                    "h-full rounded-full transition-all duration-500",
-                                    user.tokensUsed / user.tokensLimit > 0.8 ? "bg-red-500" : "bg-primary",
-                                  )}
-                                  style={{ width: `${Math.min((user.tokensUsed / user.tokensLimit) * 100, 100)}%` }}
-                                />
-                              </div>
-                              <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-                                {(user.tokensUsed / 1000).toFixed(0)}k used
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Models List */}
-                    <div className="px-4 pb-8 space-y-6">
-                      {/* Free Models */}
-                      {freeModels.length > 0 && (
-                        <ModelSection
-                          title="FREE MODELS"
-                          titleColor="text-green-500"
-                          dotColor="bg-green-500"
-                          models={freeModels}
-                          selectedModelId={selectedModel}
-                          userPlan={user.plan}
-                          onSelect={handleSelect}
-                          theme={theme}
-                          isAccessible={isModelAccessible}
-                          getRequiredPlan={getRequiredPlan}
-                          getPlanLabel={getPlanLabel}
-                          getPlanColor={getPlanColor}
-                          isMobile={true}
-                        />
-                      )}
-
-                      {/* Basic Models */}
-                      {basicModels.length > 0 && (
-                        <ModelSection
-                          title="BASIC MODELS"
-                          titleColor="text-blue-500"
-                          dotColor="bg-blue-500"
-                          models={basicModels}
-                          selectedModelId={selectedModel}
-                          userPlan={user.plan}
-                          onSelect={handleSelect}
-                          theme={theme}
-                          isAccessible={isModelAccessible}
-                          getRequiredPlan={getRequiredPlan}
-                          getPlanLabel={getPlanLabel}
-                          getPlanColor={getPlanColor}
-                          isMobile={true}
-                        />
-                      )}
-
-                      {/* Pro Models */}
-                      {proModels.length > 0 && (
-                        <ModelSection
-                          title="PRO MODELS"
-                          titleColor="text-purple-500"
-                          dotColor="bg-purple-500"
-                          models={proModels}
-                          selectedModelId={selectedModel}
-                          userPlan={user.plan}
-                          onSelect={handleSelect}
-                          theme={theme}
-                          isAccessible={isModelAccessible}
-                          getRequiredPlan={getRequiredPlan}
-                          getPlanLabel={getPlanLabel}
-                          getPlanColor={getPlanColor}
-                          isMobile={true}
-                        />
-                      )}
-
-                      {/* Premium Models */}
-                      {premiumModels.length > 0 && (
-                        <ModelSection
-                          title="PREMIUM MODELS"
-                          titleColor="text-amber-500"
-                          dotColor="bg-amber-500"
-                          models={premiumModels}
-                          selectedModelId={selectedModel}
-                          userPlan={user.plan}
-                          onSelect={handleSelect}
-                          theme={theme}
-                          isAccessible={isModelAccessible}
-                          getRequiredPlan={getRequiredPlan}
-                          getPlanLabel={getPlanLabel}
-                          getPlanColor={getPlanColor}
-                          isMobile={true}
-                        />
-                      )}
-
-                      {/* Safe Area Spacer for iPhones */}
-                      <div className="h-8" />
-                    </div>
-                  </div>
-                </motion.div>
-              </>,
-              document.body, // PORTAL TARGET
-            )
-          ) : (
-            /* Desktop Dropdown (No Portal needed usually, but logic kept same) */
-            <div className="absolute left-0 top-full mt-2 w-[360px] z-50">
-              <motion.div
-                initial={{ opacity: 0, y: -8, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -8, scale: 0.96 }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
-                className={cn(
-                  "rounded-xl shadow-2xl shadow-black/20 overflow-hidden",
-                  "bg-popover/95 border border-border/80 backdrop-blur-xl",
-                )}
-              >
-                {/* Header with Plan Info */}
-                <div className="px-4 py-3 border-b border-border/50 bg-muted/30">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-sm font-medium">Choose Model</span>
-                      <p className="text-[10px] text-muted-foreground">Token multiplier affects usage</p>
-                    </div>
-                    <div
-                      className={cn(
-                        "px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5",
-                        user.plan === "free" && "bg-muted text-muted-foreground",
-                        user.plan === "basic" && "bg-blue-500/15 text-blue-400",
-                        user.plan === "pro" && "bg-purple-500/15 text-purple-400",
-                        user.plan === "premium" && "bg-amber-500/15 text-amber-400",
-                      )}
-                    >
-                      <Zap className="w-3 h-3" />
-                      {user.plan === "free" ? "Free Trial" : user.plan.charAt(0).toUpperCase() + user.plan.slice(1)}
-                    </div>
-                  </div>
-                  {/* Token Progress */}
-                  <div className="mt-2 flex items-center gap-2">
-                    <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                       <div
                         className={cn(
-                          "h-full rounded-full transition-all",
-                          user.tokensUsed / user.tokensLimit > 0.8 ? "bg-destructive" : "bg-primary",
+                          "px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5",
+                          user.plan === "free" && "bg-muted text-muted-foreground",
+                          user.plan === "basic" && "bg-blue-500/15 text-blue-400",
+                          user.plan === "pro" && "bg-purple-500/15 text-purple-400",
+                          user.plan === "premium" && "bg-amber-500/15 text-amber-400",
                         )}
-                        style={{ width: `${Math.min((user.tokensUsed / user.tokensLimit) * 100, 100)}%` }}
-                      />
+                      >
+                        <Zap className="w-3 h-3" />
+                        {user.plan === "free" ? "Free Trial" : user.plan.charAt(0).toUpperCase() + user.plan.slice(1)}
+                      </div>
                     </div>
-                    <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-                      {(user.tokensUsed / 1000).toFixed(0)}K / {(user.tokensLimit / 1000).toFixed(0)}K
-                    </span>
+                    {/* Token Progress */}
+                    <div className="mt-2 flex items-center gap-2">
+                      <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className={cn(
+                            "h-full rounded-full transition-all",
+                            user.tokensUsed / user.tokensLimit > 0.8 ? "bg-destructive" : "bg-primary",
+                          )}
+                          style={{ width: `${Math.min((user.tokensUsed / user.tokensLimit) * 100, 100)}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                        {(user.tokensUsed / 1000).toFixed(0)}K / {(user.tokensLimit / 1000).toFixed(0)}K
+                      </span>
+                    </div>
                   </div>
-                </div>
 
-                <div className="max-h-[60vh] overflow-y-auto scrollbar-thin p-2 space-y-3">
-                  {/* Desktop List Items */}
-                  {freeModels.length > 0 && (
-                    <ModelSection
-                      title="FREE MODELS"
-                      titleColor="text-green-500"
-                      dotColor="bg-green-500"
-                      models={freeModels}
-                      selectedModelId={selectedModel}
-                      userPlan={user.plan}
-                      onSelect={handleSelect}
-                      theme={theme}
-                      isAccessible={isModelAccessible}
-                      getRequiredPlan={getRequiredPlan}
-                      getPlanLabel={getPlanLabel}
-                      getPlanColor={getPlanColor}
-                      isMobile={false}
-                    />
-                  )}
-                  {basicModels.length > 0 && (
-                    <ModelSection
-                      title="BASIC MODELS"
-                      titleColor="text-blue-500"
-                      dotColor="bg-blue-500"
-                      models={basicModels}
-                      selectedModelId={selectedModel}
-                      userPlan={user.plan}
-                      onSelect={handleSelect}
-                      theme={theme}
-                      isAccessible={isModelAccessible}
-                      getRequiredPlan={getRequiredPlan}
-                      getPlanLabel={getPlanLabel}
-                      getPlanColor={getPlanColor}
-                      isMobile={false}
-                    />
-                  )}
-                  {proModels.length > 0 && (
-                    <ModelSection
-                      title="PRO MODELS"
-                      titleColor="text-purple-500"
-                      dotColor="bg-purple-500"
-                      models={proModels}
-                      selectedModelId={selectedModel}
-                      userPlan={user.plan}
-                      onSelect={handleSelect}
-                      theme={theme}
-                      isAccessible={isModelAccessible}
-                      getRequiredPlan={getRequiredPlan}
-                      getPlanLabel={getPlanLabel}
-                      getPlanColor={getPlanColor}
-                      isMobile={false}
-                    />
-                  )}
-                  {premiumModels.length > 0 && (
-                    <ModelSection
-                      title="PREMIUM MODELS"
-                      titleColor="text-amber-500"
-                      dotColor="bg-amber-500"
-                      models={premiumModels}
-                      selectedModelId={selectedModel}
-                      userPlan={user.plan}
-                      onSelect={handleSelect}
-                      theme={theme}
-                      isAccessible={isModelAccessible}
-                      getRequiredPlan={getRequiredPlan}
-                      getPlanLabel={getPlanLabel}
-                      getPlanColor={getPlanColor}
-                      isMobile={false}
-                    />
-                  )}
-                </div>
-              </motion.div>
-            </div>
-          ))}
+                  <div className="max-h-[60vh] overflow-y-auto scrollbar-thin p-2 space-y-3">
+                    {/* Desktop List Items */}
+                    {freeModels.length > 0 && (
+                      <ModelSection
+                        title="FREE MODELS"
+                        titleColor="text-green-500"
+                        dotColor="bg-green-500"
+                        models={freeModels}
+                        selectedModelId={selectedModel}
+                        userPlan={user.plan}
+                        onSelect={handleSelect}
+                        theme={theme}
+                        isAccessible={isModelAccessible}
+                        getRequiredPlan={getRequiredPlan}
+                        getPlanLabel={getPlanLabel}
+                        getPlanColor={getPlanColor}
+                        isMobile={false}
+                      />
+                    )}
+                    {basicModels.length > 0 && (
+                      <ModelSection
+                        title="BASIC MODELS"
+                        titleColor="text-blue-500"
+                        dotColor="bg-blue-500"
+                        models={basicModels}
+                        selectedModelId={selectedModel}
+                        userPlan={user.plan}
+                        onSelect={handleSelect}
+                        theme={theme}
+                        isAccessible={isModelAccessible}
+                        getRequiredPlan={getRequiredPlan}
+                        getPlanLabel={getPlanLabel}
+                        getPlanColor={getPlanColor}
+                        isMobile={false}
+                      />
+                    )}
+                    {proModels.length > 0 && (
+                      <ModelSection
+                        title="PRO MODELS"
+                        titleColor="text-purple-500"
+                        dotColor="bg-purple-500"
+                        models={proModels}
+                        selectedModelId={selectedModel}
+                        userPlan={user.plan}
+                        onSelect={handleSelect}
+                        theme={theme}
+                        isAccessible={isModelAccessible}
+                        getRequiredPlan={getRequiredPlan}
+                        getPlanLabel={getPlanLabel}
+                        getPlanColor={getPlanColor}
+                        isMobile={false}
+                      />
+                    )}
+                    {premiumModels.length > 0 && (
+                      <ModelSection
+                        title="PREMIUM MODELS"
+                        titleColor="text-amber-500"
+                        dotColor="bg-amber-500"
+                        models={premiumModels}
+                        selectedModelId={selectedModel}
+                        userPlan={user.plan}
+                        onSelect={handleSelect}
+                        theme={theme}
+                        isAccessible={isModelAccessible}
+                        getRequiredPlan={getRequiredPlan}
+                        getPlanLabel={getPlanLabel}
+                        getPlanColor={getPlanColor}
+                        isMobile={false}
+                      />
+                    )}
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </>
+        )}
       </AnimatePresence>
     </div>
   );
