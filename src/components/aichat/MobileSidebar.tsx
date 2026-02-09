@@ -75,21 +75,18 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
       name: "Sorix Agro",
       icon: Leaf,
       color: "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
-      comingSoon: true,
     },
     {
       id: "health",
       name: "Sorix Health",
       icon: Heart,
       color: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
-      comingSoon: true,
     },
     {
       id: "legends",
       name: "Sorix Legends",
       icon: BookOpen,
       color: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
-      comingSoon: true,
     },
   ];
 
