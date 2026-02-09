@@ -63,10 +63,8 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
     onClose();
   };
 
-  // Filter chats by search
   const filteredChats = chats.filter((chat) => chat.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  // Group chats by date
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const weekAgo = new Date(today);
@@ -106,7 +104,6 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
     },
   ];
 
-  // Get user initials
   const userInitials = authUser?.email
     ? authUser.email.charAt(0).toUpperCase()
     : user.name
@@ -127,10 +124,10 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             <SheetTitle>Navigation Menu</SheetTitle>
           </SheetHeader>
 
-          {/* Header */}
+          {/* Header - Reduced Padding */}
           <div
             className={cn(
-              "p-4 border-b flex items-center justify-between",
+              "p-3 border-b flex items-center justify-between",
               isPaidUser ? "border-primary/20" : "border-border",
             )}
           >
@@ -146,19 +143,19 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             </Link>
           </div>
 
-          {/* New Chat Button */}
-          <div className="px-3 pt-3">
+          {/* New Chat Button - Reduced Top Padding (pt-3 to pt-2) */}
+          <div className="px-3 pt-2">
             <Button
               onClick={handleNewChat}
-              className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="w-full h-10 gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               <Plus className="w-5 h-5" />
               New chat
             </Button>
           </div>
 
-          {/* Search */}
-          <div className="px-3 mt-3">
+          {/* Search - Reduced Top Margin (mt-3 to mt-2) */}
+          <div className="px-3 mt-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
@@ -171,16 +168,15 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="px-3 mt-3 space-y-1">
-            {/* Multi-Window Chat */}
+          {/* Quick Actions - Reduced Spacing (mt-3 to mt-2, space-y-1 to space-y-0.5) */}
+          <div className="px-3 mt-2 space-y-0.5">
             <button
               onClick={() => {
                 setViewMode(viewMode === "single" ? "multi" : "single");
                 onClose();
               }}
               className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
+                "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
                 viewMode === "multi" ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
               )}
             >
@@ -188,11 +184,10 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
               <span>Multi-Window Chat</span>
             </button>
 
-            {/* More Tools */}
             <div>
               <button
                 onClick={() => setShowMoreTools(!showMoreTools)}
-                className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
+                className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <Sparkles className="w-5 h-5 text-primary" />
@@ -211,7 +206,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className="py-1 space-y-0.2">
+                    <div className="py-1 space-y-0.5">
                       {moreTools.map((tool) => (
                         <button
                           key={tool.id}
@@ -238,13 +233,12 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
               </AnimatePresence>
             </div>
 
-            {/* Projects */}
             <button
               onClick={() => {
                 setProjectsModalOpen(true);
                 onClose();
               }}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
+              className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
             >
               <div className="flex items-center gap-3">
                 <FolderKanban className="w-4 h-4" />
@@ -257,10 +251,9 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             </button>
           </div>
 
-          {/* Chat History */}
-          <ScrollArea className="flex-1 mt-3">
-            <div className="px-3 space-y-4 pb-4">
-              {/* Today */}
+          {/* Chat History - Reduced Top Margin (mt-3 to mt-2) */}
+          <ScrollArea className="flex-1 mt-2">
+            <div className="px-3 space-y-3 pb-4">
               {todayChats.length > 0 && (
                 <div>
                   <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">
@@ -272,7 +265,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                         key={chat.id}
                         onClick={() => handleSelectChat(chat.id)}
                         className={cn(
-                          "w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-colors",
+                          "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
                           activeChatId === chat.id ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
                         )}
                       >
@@ -284,7 +277,6 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                 </div>
               )}
 
-              {/* This Week */}
               {thisWeekChats.length > 0 && (
                 <div>
                   <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">
@@ -296,7 +288,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                         key={chat.id}
                         onClick={() => handleSelectChat(chat.id)}
                         className={cn(
-                          "w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-colors",
+                          "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
                           activeChatId === chat.id ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
                         )}
                       >
@@ -308,7 +300,6 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                 </div>
               )}
 
-              {/* Older */}
               {olderChats.length > 0 && (
                 <div>
                   <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">
@@ -320,7 +311,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                         key={chat.id}
                         onClick={() => handleSelectChat(chat.id)}
                         className={cn(
-                          "w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-colors",
+                          "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
                           activeChatId === chat.id ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
                         )}
                       >
@@ -334,10 +325,9 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             </div>
           </ScrollArea>
 
-          {/* Bottom Section - Redesigned */}
+          {/* Bottom Section */}
           <div className="p-3 border-t border-border space-y-2 mt-auto">
-            {/* User Profile */}
-            <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-muted/50">
+            <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted/50">
               <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-sm">
                 {userInitials}
               </div>
@@ -359,7 +349,6 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
               </button>
             </div>
 
-            {/* Action buttons row - Removed logout, kept upgrade and home */}
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
@@ -384,7 +373,6 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
         </SheetContent>
       </Sheet>
 
-      {/* Modals */}
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
       <UpgradePlanModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
     </>
