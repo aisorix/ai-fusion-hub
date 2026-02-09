@@ -1,27 +1,45 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Plus, Search, LayoutGrid, Sparkles, FolderKanban, Moon, Sun,
-  ChevronDown, ChevronRight, LogOut, Settings, HelpCircle, Crown,
-  MessageSquare, Leaf, Heart, BookOpen, PanelLeftClose, PanelLeft, MoreHorizontal, Home
-} from 'lucide-react';
-import { useChatStore } from '@/stores/chatStore';
-import { cn } from '@/lib/utils';
-import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
-import sorixLogo from '@/assets/logo.png';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Plus,
+  Search,
+  LayoutGrid,
+  Sparkles,
+  FolderKanban,
+  Moon,
+  Sun,
+  ChevronDown,
+  ChevronRight,
+  LogOut,
+  Settings,
+  HelpCircle,
+  Crown,
+  MessageSquare,
+  Leaf,
+  Heart,
+  BookOpen,
+  PanelLeftClose,
+  PanelLeft,
+  MoreHorizontal,
+  Home,
+} from "lucide-react";
+import { useChatStore } from "@/stores/chatStore";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate, Link } from "react-router-dom";
+import sorixLogo from "@/assets/logo.png";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import SettingsModal from './SettingsModal';
-import UpgradePlanModal from './UpgradePlanModal';
-import { PlanIcon, PlanBadge, type PlanType } from './PlanIcons';
+} from "@/components/ui/dropdown-menu";
+import SettingsModal from "./SettingsModal";
+import UpgradePlanModal from "./UpgradePlanModal";
+import { PlanIcon, PlanBadge, type PlanType } from "./PlanIcons";
 
 interface ChatSidebarProps {
   onNewChat: () => void;
@@ -44,21 +62,19 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
     user,
     setProjectsModalOpen,
   } = useChatStore();
-  
+
   const [showMoreTools, setShowMoreTools] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [showSettings, setShowSettings] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/login');
+    navigate("/login");
   };
 
   // Filter chats by search
-  const filteredChats = chats.filter(chat => 
-    chat.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredChats = chats.filter((chat) => chat.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
   // Group chats by date
   const today = new Date();
@@ -66,48 +82,52 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
   const weekAgo = new Date(today);
   weekAgo.setDate(weekAgo.getDate() - 7);
 
-  const todayChats = filteredChats.filter(c => new Date(c.createdAt) >= today);
-  const thisWeekChats = filteredChats.filter(c => {
+  const todayChats = filteredChats.filter((c) => new Date(c.createdAt) >= today);
+  const thisWeekChats = filteredChats.filter((c) => {
     const d = new Date(c.createdAt);
     return d < today && d >= weekAgo;
   });
-  const olderChats = filteredChats.filter(c => new Date(c.createdAt) < weekAgo);
+  const olderChats = filteredChats.filter((c) => new Date(c.createdAt) < weekAgo);
 
   const moreTools = [
-    { 
-      id: 'agro', 
-      name: 'Sorix Agro', 
-      description: 'AI-powered agricultural assistant',
+    {
+      id: "agro",
+      name: "Sorix Agro",
+      description: "AI-powered agricultural assistant",
       icon: Leaf,
-      color: 'bg-green-100 text-green-600',
-      comingSoon: true 
+      color: "bg-green-100 text-green-600",
+      comingSoon: true,
     },
-    { 
-      id: 'health', 
-      name: 'Sorix Health', 
-      description: 'Your personal health companion',
+    {
+      id: "health",
+      name: "Sorix Health",
+      description: "Your personal health companion",
       icon: Heart,
-      color: 'bg-red-100 text-red-600',
-      comingSoon: true 
+      color: "bg-red-100 text-red-600",
+      comingSoon: true,
     },
-    { 
-      id: 'legends', 
-      name: 'Sorix Legends', 
-      description: 'Chat with historical legends',
+    {
+      id: "legends",
+      name: "Sorix Legends",
+      description: "Chat with historical legends",
       icon: BookOpen,
-      color: 'bg-amber-100 text-amber-600',
-      comingSoon: true 
+      color: "bg-amber-100 text-amber-600",
+      comingSoon: true,
     },
   ];
 
   // Get user initials
-  const userInitials = authUser?.email 
+  const userInitials = authUser?.email
     ? authUser.email.charAt(0).toUpperCase()
-    : user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+    : user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase();
 
   const userName = authUser?.user_metadata?.full_name || user.name;
   const userEmail = authUser?.email || user.email;
-  const isPaidUser = user.plan !== 'free';
+  const isPaidUser = user.plan !== "free";
 
   // Collapsed sidebar view
   if (sidebarCollapsed) {
@@ -120,7 +140,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
         >
           <PanelLeft className="w-5 h-5 text-muted-foreground" />
         </button>
-        
+
         {/* New Chat */}
         <button
           onClick={onNewChat}
@@ -128,34 +148,26 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
         >
           <Plus className="w-5 h-5" />
         </button>
-        
+
         {/* Search */}
         <button className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
           <Search className="w-5 h-5" />
         </button>
-        
+
         {/* Multi-Window */}
-        <button 
-          onClick={() => setViewMode(viewMode === 'single' ? 'multi' : 'single')}
+        <button
+          onClick={() => setViewMode(viewMode === "single" ? "multi" : "single")}
           className={cn(
             "w-10 h-10 rounded-lg flex items-center justify-center transition-colors",
-            viewMode === 'multi' ? 'bg-primary/10 text-primary' : 'hover:bg-muted text-muted-foreground'
+            viewMode === "multi" ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground",
           )}
         >
           <LayoutGrid className="w-5 h-5" />
         </button>
-        
+
         {/* Spacer */}
         <div className="flex-1" />
-        
-        {/* Theme Toggle */}
-        <button
-          onClick={toggleTheme}
-          className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
-        >
-          {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-        </button>
-        
+
         {/* Home */}
         <Link
           to="/"
@@ -163,7 +175,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
         >
           <Home className="w-5 h-5" />
         </Link>
-        
+
         {/* User Avatar */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -198,12 +210,12 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
 
   return (
     <>
-      <div className={cn(
-         "w-64 h-full bg-card border-r flex flex-col overflow-hidden",
-        isPaidUser 
-          ? "border-primary/20 bg-gradient-to-b from-card via-card to-primary/5" 
-          : "border-border"
-      )}>
+      <div
+        className={cn(
+          "w-64 h-full bg-card border-r flex flex-col overflow-hidden",
+          isPaidUser ? "border-primary/20 bg-gradient-to-b from-card via-card to-primary/5" : "border-border",
+        )}
+      >
         {/* Header with Plan Icon */}
         <div className="p-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
@@ -211,9 +223,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             <div>
               <h1 className="font-bold text-foreground text-sm flex items-center gap-1.5">
                 AI Sorix
-                {isPaidUser && (
-                  <PlanBadge plan={user.plan as PlanType} />
-                )}
+                {isPaidUser && <PlanBadge plan={user.plan as PlanType} />}
               </h1>
               <p className="text-[10px] text-muted-foreground">Premium AI Platform</p>
             </div>
@@ -228,10 +238,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
 
         {/* New Chat Button */}
         <div className="px-3">
-          <Button
-            onClick={onNewChat}
-            className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
-          >
+          <Button onClick={onNewChat} className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
             <Plus className="w-4 h-4" />
             New chat
           </Button>
@@ -255,12 +262,10 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
         <div className="px-3 mt-4 space-y-1">
           {/* Multi-Window Chat */}
           <button
-            onClick={() => setViewMode(viewMode === 'single' ? 'multi' : 'single')}
+            onClick={() => setViewMode(viewMode === "single" ? "multi" : "single")}
             className={cn(
-              'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
-              viewMode === 'multi' 
-                ? 'bg-primary/10 text-primary' 
-                : 'text-foreground hover:bg-muted'
+              "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
+              viewMode === "multi" ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
             )}
           >
             <LayoutGrid className="w-4 h-4" />
@@ -277,17 +282,16 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                 <Sparkles className="w-4 h-4 text-primary" />
                 <span>More Tools</span>
               </div>
-              <ChevronDown className={cn(
-                'w-4 h-4 transition-transform text-muted-foreground',
-                showMoreTools && 'rotate-180'
-              )} />
+              <ChevronDown
+                className={cn("w-4 h-4 transition-transform text-muted-foreground", showMoreTools && "rotate-180")}
+              />
             </button>
-            
+
             <AnimatePresence>
               {showMoreTools && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
+                  animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   className="overflow-hidden"
                 >
@@ -297,7 +301,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                         key={tool.id}
                         className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
                       >
-                        <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center', tool.color)}>
+                        <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", tool.color)}>
                           <tool.icon className="w-4 h-4" />
                         </div>
                         <div className="flex-1 text-left">
@@ -340,9 +344,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             </div>
             <div className="flex items-center gap-1.5">
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">PRO</span>
-              {user.plan === 'free' && (
-                <span className="text-muted-foreground">🔒</span>
-              )}
+              {user.plan === "free" && <span className="text-muted-foreground">🔒</span>}
             </div>
           </button>
         </div>
@@ -357,15 +359,13 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                   Today
                 </h3>
                 <div className="space-y-0.5">
-                  {todayChats.map(chat => (
+                  {todayChats.map((chat) => (
                     <button
                       key={chat.id}
                       onClick={() => setActiveChat(chat.id)}
                       className={cn(
-                        'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors group',
-                        activeChatId === chat.id 
-                          ? 'bg-primary/10 text-primary' 
-                          : 'text-foreground hover:bg-muted'
+                        "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors group",
+                        activeChatId === chat.id ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
                       )}
                     >
                       <MessageSquare className="w-4 h-4 shrink-0" />
@@ -383,15 +383,13 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                   This Week
                 </h3>
                 <div className="space-y-0.5">
-                  {thisWeekChats.map(chat => (
+                  {thisWeekChats.map((chat) => (
                     <button
                       key={chat.id}
                       onClick={() => setActiveChat(chat.id)}
                       className={cn(
-                        'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors',
-                        activeChatId === chat.id 
-                          ? 'bg-primary/10 text-primary' 
-                          : 'text-foreground hover:bg-muted'
+                        "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
+                        activeChatId === chat.id ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
                       )}
                     >
                       <MessageSquare className="w-4 h-4 shrink-0" />
@@ -409,15 +407,13 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                   Older
                 </h3>
                 <div className="space-y-0.5">
-                  {olderChats.slice(0, 10).map(chat => (
+                  {olderChats.slice(0, 10).map((chat) => (
                     <button
                       key={chat.id}
                       onClick={() => setActiveChat(chat.id)}
                       className={cn(
-                        'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors',
-                        activeChatId === chat.id 
-                          ? 'bg-primary/10 text-primary' 
-                          : 'text-foreground hover:bg-muted'
+                        "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
+                        activeChatId === chat.id ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
                       )}
                     >
                       <MessageSquare className="w-4 h-4 shrink-0" />
