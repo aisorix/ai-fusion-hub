@@ -147,7 +147,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
           </div>
 
           {/* New Chat Button */}
-          <div className="px-3 pt-1">
+          <div className="px-3 pt-0.5">
             <Button
               onClick={handleNewChat}
               className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
@@ -158,7 +158,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
           </div>
 
           {/* Search */}
-          <div className="px-3 mt-1">
+          <div className="px-3 mt-0.5">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -172,7 +172,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
           </div>
 
           {/* Quick Actions */}
-          <div className="px-3 mt-1 space-y-1">
+          <div className="px-3 mt-0.5 space-y-1">
             {/* Multi-Window Chat */}
             <button
               onClick={() => {
@@ -211,7 +211,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className="py-1 space-y-0.5">
+                    <div className="py-1 space-y-0.2">
                       {moreTools.map((tool) => (
                         <button
                           key={tool.id}
