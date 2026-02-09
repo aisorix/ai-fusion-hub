@@ -373,6 +373,9 @@ const MultiWindowChat = () => {
           language={language}
           userPlan={user.plan}
         />
+        <p className="text-[10px] sm:text-xs text-center mt-2 text-muted-foreground">
+          Compare responses from multiple AI models side by side
+        </p>
       </div>
 
       {/* Live Voice Mode Overlay */}

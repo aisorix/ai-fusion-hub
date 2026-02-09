@@ -109,6 +109,10 @@ const SharedChatInput = ({
           {streaming ? <Square className="w-5 h-5" /> : <Send className="w-5 h-5" />}
         </button>
       </div>
+
+      <p className="text-center text-xs text-muted-foreground mt-3">
+        Compare responses from multiple AI models side by side
+      </p>
     </div>
   );
 };
