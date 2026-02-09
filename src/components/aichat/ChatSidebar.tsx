@@ -165,24 +165,8 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
           <LayoutGrid className="w-5 h-5" />
         </button>
 
-        {/* Home */}
-        <Link
-          to="/"
-          className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
-        >
-          <Home className="w-5 h-5" />
-        </Link>
-
         {/* Spacer */}
         <div className="flex-1" />
-
-        {/* Home */}
-        <Link
-          to="/"
-          className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
-        >
-          <Home className="w-5 h-5" />
-        </Link>
 
         {/* User Avatar */}
         <DropdownMenu>
@@ -212,6 +196,14 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        {/* Home */}
+        <Link
+          to="/"
+          className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
+        >
+          <Home className="w-5 h-5" />
+        </Link>
       </div>
     );
   }
