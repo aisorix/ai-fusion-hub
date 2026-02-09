@@ -40,21 +40,28 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
   const showEmptyState = !activeChatId || messages.length === 0;
 
   return (
-    // FIX 1: Changed h-full to h-[100dvh] for mobile address bar handling
-    <div className="flex-1 flex flex-col h-[100dvh] min-w-0 bg-background">
-      {/* Header with Model Selector - Desktop only (Your original code kept exactly same) */}
+    // FIX 1: Mobile e 'fixed inset-0' & 'h-[100dvh]' dewa hoyeche jate keyboard/address bar ashle layout na nare.
+    // Desktop (md) e 'static' & 'h-full' rakha hoyeche jate ager motoi thake.
+    <div className="fixed inset-0 z-0 flex flex-col h-[100dvh] bg-background md:static md:inset-auto md:h-full md:z-auto">
+      {/* Header with Model Selector - Desktop only (Your code remains same) */}
       <header className="hidden md:flex items-center justify-center py-3 md:py-4 border-b border-border/50 px-4 shrink-0">
         <div className="flex items-center gap-2">
           <ModelSelector />
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden min-h-0 relative">
-        {/* FIX 2: Wrapped content in a specific scrollable div */}
-        <div className="flex-1 overflow-y-auto w-full">
-          {showEmptyState ? <EmptyState userName={user.name.split(" ")[0]} /> : <MessageList />}
-        </div>
+      {/* Main Content (Scrollable Area) */}
+      {/* FIX 2: 'flex-1' & 'overflow-y-auto' ensures ONLY this part scrolls */}
+      <div className="flex-1 overflow-y-auto min-h-0 w-full scroll-smooth">
+        {showEmptyState ? (
+          <EmptyState userName={user.name.split(" ")[0]} />
+        ) : (
+          <div className="flex flex-col min-h-full">
+            <MessageList />
+            {/* Ektu space dewa holo jate last message input box er niche chapa na pore */}
+            <div className="h-4 shrink-0" />
+          </div>
+        )}
       </div>
 
       {/* Error Display */}
@@ -64,10 +71,10 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
         </div>
       )}
 
-      {/* Input - Full width on mobile */}
-      {/* FIX 3: Added shrink-0 and z-20 to keep it fixed at bottom */}
-      <div className="shrink-0 bg-background z-20 border-t border-border/40 sm:border-t-0">
-        <div className="pb-2 sm:pb-3 md:pb-4 pt-2 sm:pt-0">
+      {/* Input - Fixed at Bottom */}
+      {/* FIX 3: 'shrink-0' ensures input box never disappears when chat is long */}
+      <div className="shrink-0 bg-background z-20 border-t border-border/40 md:border-t-0 w-full">
+        <div className="pb-2 sm:pb-3 md:pb-4 pt-2 md:pt-0">
           <ChatInput onSend={handleSend} disabled={isStreaming} onOpenVoiceMode={onOpenVoiceMode} />
         </div>
       </div>
