@@ -110,9 +110,7 @@ const SharedChatInput = ({
         </button>
       </div>
 
-      <p className="text-center text-xs text-muted-foreground mt-3">
-        Compare responses from multiple AI models side by side
-      </p>
+      <p className="text-center text-xs text-muted-foreground mt-3"></p>
     </div>
   );
 };
