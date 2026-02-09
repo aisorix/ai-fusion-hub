@@ -40,10 +40,11 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
   const showEmptyState = !activeChatId || messages.length === 0;
 
   return (
-    // FIX 1: 'fixed inset-0' ব্যবহার করা হয়েছে মোবাইলের জন্য। এটি স্ক্রিনের সাথে কন্টেইনারটি আটকে রাখে।
-    // 'md:static md:h-full' ডেস্কটপের জন্য আগের অবস্থা বজায় রাখে।
-    <div className="fixed inset-0 z-40 flex flex-col h-[100dvh] w-full bg-background md:static md:z-auto md:h-full">
-      {/* Header - (NO CHANGE HERE as requested) */}
+    // FIX applied here:
+    // 1. Mobile: 'fixed inset-0 z-30 h-[100dvh]' -> এটি মোবাইলে স্ক্রিন লক করে রাখে, ইনপুট বক্স নিচে পালায় না।
+    // 2. Desktop (md): 'md:relative md:inset-auto md:h-full md:z-auto' -> এটি ডেস্কটপ/ট্যাবলেট ভিউ আগের মতোই রাখে।
+    <div className="fixed inset-0 z-30 flex flex-col h-[100dvh] w-full bg-background md:relative md:inset-auto md:h-full md:z-auto">
+      {/* Header - Desktop/Tab only (NO CHANGE - Unchanged as requested) */}
       <header className="hidden md:flex items-center justify-center py-3 md:py-4 border-b border-border/50 px-4 shrink-0">
         <div className="flex items-center gap-2">
           <ModelSelector />
@@ -51,7 +52,7 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
       </header>
 
       {/* Main Content (Scrollable Area) */}
-      {/* 'flex-1 overflow-y-auto' নিশ্চিত করে শুধু এই অংশটিই স্ক্রল হবে */}
+      {/* 'flex-1 overflow-y-auto' নিশ্চিত করে শুধু মেসেজ এরিয়া স্ক্রল হবে, পুরো পেজ নয় */}
       <div className="flex-1 overflow-y-auto min-h-0 w-full scroll-smooth">
         {showEmptyState ? (
           <EmptyState userName={user.name.split(" ")[0]} />
