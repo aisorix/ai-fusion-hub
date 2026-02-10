@@ -304,11 +304,6 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                         <div className="flex-1 text-left">
                           <div className="flex items-center gap-2">
                             <span className="text-sm">{tool.name}</span>
-                            {tool.comingSoon && (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/20 text-accent-foreground">
-                                COMING SOON
-                              </span>
-                            )}
                           </div>
                           <p className="text-[10px] text-muted-foreground">{tool.description}</p>
                         </div>
