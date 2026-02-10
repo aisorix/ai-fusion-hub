@@ -38,6 +38,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import SettingsModal from "./SettingsModal";
+import type { TabId } from "./SettingsModal";
 import UpgradePlanModal from "./UpgradePlanModal";
 import { PlanIcon, PlanBadge, type PlanType } from "./PlanIcons";
 
@@ -67,6 +68,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSettings, setShowSettings] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [settingsInitialTab, setSettingsInitialTab] = useState<TabId | undefined>(undefined);
 
   const handleSignOut = async () => {
     await signOut();
@@ -443,7 +445,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                 <Settings className="w-4 h-4 mr-2" />
                 Settings
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => { setSettingsInitialTab('help'); setShowSettings(true); }}>
                 <HelpCircle className="w-4 h-4 mr-2" />
                 Help & Support
               </DropdownMenuItem>
@@ -467,7 +469,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
       </div>
 
       {/* Modals */}
-      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
+      <SettingsModal isOpen={showSettings} onClose={() => { setShowSettings(false); setSettingsInitialTab(undefined); }} initialTab={settingsInitialTab} />
       <UpgradePlanModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
     </>
   );
