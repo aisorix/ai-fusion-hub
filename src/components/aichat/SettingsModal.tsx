@@ -24,6 +24,8 @@ import PlansTokensTab from './settings/PlansTokensTab';
 import ReportBugTab from './settings/ReportBugTab';
 import HelpCenterTab from './settings/HelpCenterTab';
 import TermsTab from './settings/TermsTab';
+import SubscriptionTab from './settings/SubscriptionTab';
+import PaymentHistoryTab from './settings/PaymentHistoryTab';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -59,9 +61,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
       case 'profile':
         return <ProfileTab />;
       case 'plans':
-      case 'subscription':
-      case 'payment':
         return <PlansTokensTab />;
+      case 'subscription':
+        return <SubscriptionTab />;
+      case 'payment':
+        return <PaymentHistoryTab />;
       case 'bug':
         return <ReportBugTab />;
       case 'help':
