@@ -1,84 +1,216 @@
-import React, { useState } from 'react';
-import { Camera, ChevronDown, User, Check, LogOut } from 'lucide-react';
-import { useChatStore } from '@/stores/chatStore';
+import React, { useState, useEffect, useRef } from 'react';
+import { Camera, ChevronDown, User, Check, LogOut, Trash2, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const COUNTRY_CODES = [
   { code: '+880', country: 'BD', flag: '🇧🇩' },
   { code: '+1', country: 'US', flag: '🇺🇸' },
   { code: '+44', country: 'UK', flag: '🇬🇧' },
   { code: '+91', country: 'IN', flag: '🇮🇳' },
+  { code: '+61', country: 'AU', flag: '🇦🇺' },
+  { code: '+81', country: 'JP', flag: '🇯🇵' },
+  { code: '+49', country: 'DE', flag: '🇩🇪' },
+  { code: '+33', country: 'FR', flag: '🇫🇷' },
+  { code: '+86', country: 'CN', flag: '🇨🇳' },
+  { code: '+971', country: 'AE', flag: '🇦🇪' },
 ];
 
 const ProfileTab = () => {
-  const { user } = useChatStore();
-  const { signOut } = useAuth();
+  const { user, signOut, session } = useAuth();
   const navigate = useNavigate();
-  
-  const [fullName, setFullName] = useState(user?.name || 'Sorix User');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [fullName, setFullName] = useState('');
   const [countryCode, setCountryCode] = useState('+1');
-  const [phone, setPhone] = useState('555-123-4567');
-  const [email] = useState(user?.email || 'user@sorix.ai');
+  const [phone, setPhone] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [countryOpen, setCountryOpen] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-  
-  const selectedCountry = COUNTRY_CODES.find(c => c.code === countryCode);
-  
-  const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setter(e.target.value);
-    setHasChanges(true);
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const email = user?.email || '';
+  const googleAvatar = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
+
+  // Load profile
+  useEffect(() => {
+    if (!user) return;
+    const loadProfile = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('full_name, avatar_url, phone, country_code')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (data) {
+        setFullName(data.full_name || user.user_metadata?.full_name || '');
+        setAvatarUrl(data.avatar_url || null);
+        setPhone(data.phone || '');
+        setCountryCode(data.country_code || '+1');
+      } else {
+        setFullName(user.user_metadata?.full_name || '');
+      }
+      setLoading(false);
+    };
+    loadProfile();
+  }, [user]);
+
+  const displayAvatar = avatarUrl || googleAvatar;
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `${user.id}/avatar.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('profile-avatars')
+        .upload(path, file, { upsert: true });
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('profile-avatars')
+        .getPublicUrl(path);
+      
+      // Add cache buster
+      const url = `${publicUrl}?t=${Date.now()}`;
+      setAvatarUrl(url);
+      
+      await supabase.from('profiles').update({ avatar_url: url }).eq('user_id', user.id);
+      toast.success('Profile picture updated');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to upload');
+    } finally {
+      setUploading(false);
+    }
   };
-  
-  const handleUpdateProfile = () => {
-    setHasChanges(false);
+
+  const handleUpdateProfile = async () => {
+    if (!user) return;
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          full_name: fullName, 
+          phone, 
+          country_code: countryCode 
+        })
+        .eq('user_id', user.id);
+      if (error) throw error;
+      setHasChanges(false);
+      toast.success('Profile updated successfully');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update profile');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!session) return;
+    setDeleting(true);
+    try {
+      const res = await supabase.functions.invoke('delete-account');
+      if (res.error) throw res.error;
+      await signOut();
+      navigate('/');
+      toast.success('Account deleted successfully');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to delete account');
+    } finally {
+      setDeleting(false);
+      setShowDeleteDialog(false);
+    }
   };
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/login');
   };
-  
+
+  const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setter(e.target.value);
+    setHasChanges(true);
+  };
+
+  const selectedCountry = COUNTRY_CODES.find(c => c.code === countryCode);
+
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
     <div className="h-full flex flex-col">
-      {/* Header */}
+      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+
       <div className="mb-4 sm:mb-6">
         <h3 className="text-lg sm:text-xl font-bold">Profile Information</h3>
-        <p className="text-xs sm:text-sm mt-1 text-muted-foreground">
-          Manage your basic profile details
-        </p>
+        <p className="text-xs sm:text-sm mt-1 text-muted-foreground">Manage your basic profile details</p>
       </div>
-      
-      {/* Content */}
+
       <div className="flex-1 overflow-y-auto pr-1 sm:pr-2 space-y-4 sm:space-y-5">
         {/* Profile Picture */}
         <div className="flex items-center gap-3 sm:gap-4">
           <div className="relative">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl flex items-center justify-center bg-gradient-to-br from-primary to-accent">
-              <User className="w-8 h-8 sm:w-10 sm:h-10 text-primary-foreground" />
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl flex items-center justify-center bg-gradient-to-br from-primary to-accent overflow-hidden">
+              {displayAvatar ? (
+                <img src={displayAvatar} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+              ) : (
+                <User className="w-8 h-8 sm:w-10 sm:h-10 text-primary-foreground" />
+              )}
             </div>
-            <button className={cn(
-              'absolute -bottom-1 -right-1 w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center',
-              'bg-card border-2 border-background',
-              'hover:bg-accent transition-all duration-200'
-            )}>
-              <Camera className="w-3 h-3 sm:w-4 sm:h-4" />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className={cn(
+                'absolute -bottom-1 -right-1 w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center',
+                'bg-card border-2 border-background',
+                'hover:bg-accent transition-all duration-200'
+              )}
+            >
+              {uploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Camera className="w-3 h-3 sm:w-4 sm:h-4" />}
             </button>
           </div>
           <div>
             <p className="font-medium text-sm sm:text-base">Profile picture</p>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              Click to upload a new photo
-            </p>
+            <p className="text-xs sm:text-sm text-muted-foreground">Click to upload a new photo</p>
           </div>
         </div>
-        
+
         {/* Full Name */}
         <div>
-          <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">
-            Full name
-          </label>
+          <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">Full name</label>
           <input
             type="text"
             value={fullName}
@@ -91,14 +223,11 @@ const ProfileTab = () => {
             )}
           />
         </div>
-        
+
         {/* Phone */}
         <div>
-          <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">
-            Phone
-          </label>
+          <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">Phone</label>
           <div className="flex gap-2">
-            {/* Country Code Selector */}
             <div className="relative">
               <button
                 onClick={() => setCountryOpen(!countryOpen)}
@@ -110,50 +239,30 @@ const ProfileTab = () => {
               >
                 <span className="text-base sm:text-lg">{selectedCountry?.flag}</span>
                 <span className="text-sm sm:text-base">{selectedCountry?.code}</span>
-                <ChevronDown className={cn(
-                  'w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-200 text-muted-foreground',
-                  countryOpen && 'rotate-180'
-                )} />
+                <ChevronDown className={cn('w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-200 text-muted-foreground', countryOpen && 'rotate-180')} />
               </button>
-              
               {countryOpen && (
                 <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setCountryOpen(false)}
-                  />
-                  <div className={cn(
-                    'absolute top-full left-0 mt-2 rounded-lg sm:rounded-xl shadow-xl z-20 overflow-hidden min-w-[120px] sm:min-w-[140px]',
-                    'bg-popover border border-border backdrop-blur-xl'
-                  )}>
+                  <div className="fixed inset-0 z-10" onClick={() => setCountryOpen(false)} />
+                  <div className={cn('absolute top-full left-0 mt-2 rounded-lg sm:rounded-xl shadow-xl z-20 overflow-hidden min-w-[120px] sm:min-w-[140px] max-h-48 overflow-y-auto', 'bg-popover border border-border backdrop-blur-xl')}>
                     {COUNTRY_CODES.map((country) => (
                       <button
                         key={country.code}
-                        onClick={() => {
-                          setCountryCode(country.code);
-                          setCountryOpen(false);
-                          setHasChanges(true);
-                        }}
+                        onClick={() => { setCountryCode(country.code); setCountryOpen(false); setHasChanges(true); }}
                         className={cn(
                           'w-full flex items-center gap-2 px-2.5 sm:px-3 py-2 sm:py-2.5 text-left transition-all duration-200 text-sm sm:text-base',
-                          countryCode === country.code
-                            ? 'bg-primary/10'
-                            : 'hover:bg-accent'
+                          countryCode === country.code ? 'bg-primary/10' : 'hover:bg-accent'
                         )}
                       >
                         <span className="text-base sm:text-lg">{country.flag}</span>
                         <span className="flex-1">{country.code}</span>
-                        {countryCode === country.code && (
-                          <Check className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
-                        )}
+                        {countryCode === country.code && <Check className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />}
                       </button>
                     ))}
                   </div>
                 </>
               )}
             </div>
-            
-            {/* Phone Number Input */}
             <input
               type="tel"
               value={phone}
@@ -168,55 +277,71 @@ const ProfileTab = () => {
             />
           </div>
         </div>
-        
+
         {/* Email */}
         <div>
-          <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">
-            Email
-          </label>
+          <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">Email</label>
           <input
             type="email"
             value={email}
             disabled
-            className={cn(
-              'w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl cursor-not-allowed text-sm sm:text-base',
-              'bg-muted/50 border border-border text-muted-foreground'
-            )}
+            className={cn('w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl cursor-not-allowed text-sm sm:text-base', 'bg-muted/50 border border-border text-muted-foreground')}
           />
-          <p className="text-[10px] sm:text-xs mt-1 text-muted-foreground">
-            Email cannot be changed
-          </p>
+          <p className="text-[10px] sm:text-xs mt-1 text-muted-foreground">Email cannot be changed</p>
         </div>
 
-        {/* Logout Button */}
+        {/* Sign Out */}
         <div className="pt-2">
-          <button
-            onClick={handleSignOut}
-            className={cn(
-              'w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-medium text-sm sm:text-base transition-all duration-200',
-              'bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20'
-            )}
-          >
+          <button onClick={handleSignOut} className={cn('w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-medium text-sm sm:text-base transition-all duration-200', 'bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20')}>
             <LogOut className="w-4 h-4" />
             Sign Out
           </button>
         </div>
+
+        {/* Delete Account */}
+        <div>
+          <button onClick={() => setShowDeleteDialog(true)} className={cn('w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-medium text-sm sm:text-base transition-all duration-200', 'bg-destructive text-destructive-foreground hover:bg-destructive/90')}>
+            <Trash2 className="w-4 h-4" />
+            Delete Account
+          </button>
+          <p className="text-[10px] sm:text-xs mt-1 text-muted-foreground text-center">This action is permanent and cannot be undone</p>
+        </div>
       </div>
-      
+
       {/* Update Button */}
       <div className="pt-4 sm:pt-6 mt-auto">
         <button
           onClick={handleUpdateProfile}
+          disabled={saving || !hasChanges}
           className={cn(
             'w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-medium text-sm sm:text-base transition-all duration-200',
             hasChanges
               ? 'bg-gradient-to-r from-primary to-accent text-primary-foreground hover:shadow-glow'
-              : 'bg-primary text-primary-foreground hover:shadow-glow'
+              : 'bg-primary/50 text-primary-foreground/50 cursor-not-allowed'
           )}
         >
-          Update Profile
+          {saving ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Update Profile'}
         </button>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Account</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete your account, all your data, projects, and subscription. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteAccount} disabled={deleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {deleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Delete Forever
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

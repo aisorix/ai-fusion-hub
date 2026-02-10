@@ -27,18 +27,25 @@ import TermsTab from './settings/TermsTab';
 import SubscriptionTab from './settings/SubscriptionTab';
 import PaymentHistoryTab from './settings/PaymentHistoryTab';
 
+export type TabId = 'general' | 'profile' | 'plans' | 'subscription' | 'payment' | 'bug' | 'help' | 'terms';
+
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialTab?: TabId;
 }
 
-type TabId = 'general' | 'profile' | 'plans' | 'subscription' | 'payment' | 'bug' | 'help' | 'terms';
-
-const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, initialTab }) => {
   const { language } = useChatStore();
   const t = translations[language as keyof typeof translations] || translations.en;
-  const [activeTab, setActiveTab] = useState<TabId | null>(null);
+  const [activeTab, setActiveTab] = useState<TabId | null>(initialTab || null);
   const isMobile = useIsMobile();
+
+  React.useEffect(() => {
+    if (isOpen && initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [isOpen, initialTab]);
 
   const accountTabs: { id: TabId; label: string; icon: typeof Settings }[] = [
     { id: 'general', label: t.general, icon: Sparkles },
