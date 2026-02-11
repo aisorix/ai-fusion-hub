@@ -12,10 +12,7 @@ const AboutSorixLab = () => {
       name: "Rakib Eslam",
       role: language === "en" ? "Founder & CEO" : "প্রতিষ্ঠাতা এবং সিইও",
       icon: Star,
-      description:
-        language === "en"
-          ? "Visionary leader driving AI innovation in Bangladesh"
-          : "বাংলাদেশে AI উদ্ভাবন চালিত দূরদর্শী নেতা",
+      description: language === "en" ? "Visionary leader driving AI innovation in Bangladesh" : "",
     },
     {
       name: "Shahadat Hossain",
