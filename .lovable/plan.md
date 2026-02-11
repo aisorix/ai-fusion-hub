@@ -1,94 +1,117 @@
 
 
-## Fix Help & Support Sidebar Action + Fully Functional Profile Tab
+## Sorix Health - Full Implementation Plan
 
-### Problem Summary
-1. **"Help & Support" in sidebar dropdown does nothing** -- the menu item has no `onClick` handler
-2. **Profile tab is not functional** -- no actual profile picture upload, no database save for name/phone, no account deletion, no display of Google profile picture
-3. **Profiles table missing phone fields** -- need `phone`, `country_code` columns
+### Overview
+Build a complete dedicated Sorix Health tool that opens as a separate view (like a new tab) when users click "Sorix Health" in the sidebar. It collects patient information, symptoms, and medical documents, then provides professional-grade analysis with visualizations. Free for all users with no token deduction.
 
----
+### Architecture
 
-### Changes
+The Health tool will be a new view mode within the chat page (similar to how multi-window chat works), triggered from the sidebar. It will have a multi-step wizard flow:
 
-#### 1. Database Migration: Add phone and country_code to profiles
-Add `phone` and `country_code` columns to the existing `profiles` table.
+```text
+Step 1: Intake Form          Step 2: Review Tests        Step 3: Analysis Results
++---------------------+     +---------------------+     +------------------------+
+| Describe Symptoms   |     | Review Extracted    |     | Analysis Results       |
+| Patient Info        | --> | Tests & Costs       | --> | Cost Summary Cards     |
+| Upload Prescription |     | Add/Remove/Edit     |     | Pie Chart Distribution |
+| [Analyze]           |     | [Confirm & Analyze] |     | Bar Chart Comparison   |
++---------------------+     +---------------------+     | Fairness Score         |
+                                                         | Test Detail Cards      |
+                                                         +------------------------+
+```
 
-#### 2. Create Storage Bucket for Avatars
-Create a `profile-avatars` storage bucket so users can upload profile pictures. Add RLS policies so users can upload/read their own avatars.
+### Files to Create
 
-#### 3. Fix "Help & Support" in ChatSidebar.tsx (line 446-449)
-Add an `onClick` handler that opens the Settings modal with the Help Center tab pre-selected. This requires:
-- Passing an `initialTab` prop to `SettingsModal`
-- Updating `SettingsModal` to accept and use `initialTab`
-- Setting `showSettings` with the correct initial tab from the dropdown
+#### 1. `src/pages/HealthPage.tsx` - Main Health Tool Page
+- New route `/health` (protected)
+- Full-page layout with sidebar integration
+- Manages the multi-step wizard state
 
-#### 4. Rewrite ProfileTab.tsx to be fully functional
-- **Load profile from database** on mount (query `profiles` table)
-- **Display Google avatar** from `auth.user.user_metadata.avatar_url` or uploaded avatar from storage
-- **Upload profile picture** using storage bucket, save URL to `profiles.avatar_url`
-- **Save name, phone, country code** to the `profiles` table on "Update Profile"
-- **Delete account** button with confirmation dialog that:
-  - Deletes user data from profiles/subscriptions
-  - Calls `supabase.auth.admin.deleteUser()` via an edge function (since client can't self-delete)
-  - Signs out and redirects to home
-- **Show user's Google profile picture** by default (from `user_metadata.avatar_url`), allow override with uploaded picture
+#### 2. `src/components/health/HealthIntakeForm.tsx` - Step 1: Data Collection
+- **Symptoms textarea** with placeholder examples
+- **Patient Information section**: Gender (Male/Female/Other), Age, Weight (kg/lbs), Height (cm/ft)
+- **Patient category**: Men, Women, Kids, Pregnant Women
+- **Upload section**: Drag-and-drop for images (JPG, PNG) and PDFs (max 10MB)
+- Supports prescription photos, lab reports, medical images
+- "Analyze" button to proceed
 
-#### 5. Create Edge Function: delete-account
-A backend function that:
-- Verifies the authenticated user
-- Deletes their profile, subscriptions, and other user data
-- Deletes the auth user via service role
-- Returns success
+#### 3. `src/components/health/HealthTestReview.tsx` - Step 2: Review Extracted Tests
+- Editable table of extracted tests with name and cost (BDT currency)
+- Add/Remove/Edit test entries
+- Total cost calculation
+- "Start Over" and "Confirm & Analyze" buttons
 
----
+#### 4. `src/components/health/HealthAnalysisResults.tsx` - Step 3: Results Display
+- **Analysis summary** text paragraph
+- **Cost summary cards**: Total Cost, Necessary Cost, Potential Savings (with color coding)
+- **Pie chart**: Test Category Distribution (Necessary/Optional/Unnecessary)
+- **Bar chart**: Cost Comparison (Total vs Necessary)
+- **Fairness Score**: 0-100 gauge with label (Poor/Fair/Good/Excellent)
+- **Test Detail Cards**: Each test with:
+  - Color-coded left border (red=unnecessary, orange=optional, green=necessary)
+  - Warning/info icon
+  - Test name, category badge, cost in BDT
+  - Explanation paragraph
+
+#### 5. `src/components/health/HealthChatMode.tsx` - Ongoing Chat After Analysis
+- After initial analysis, users can continue asking health questions
+- Chat interface specific to health context
+- Retains patient context from intake form
+
+#### 6. Update `supabase/functions/health-analysis/index.ts` - Edge Function
+- Switch to using the 3 specified models via OpenRouter:
+  - `deepseek/deepseek-r1-0528` (primary reasoning)
+  - `anthropic/claude-sonnet-4.5` (detailed analysis)
+  - `google/gemma-3-27b-it` (fast general)
+- Add a new endpoint mode for structured analysis (returns JSON for charts/cards)
+- Keep streaming mode for follow-up chat
+- Enhanced system prompt for structured output (test extraction, cost analysis, fairness scoring)
+
+### Files to Modify
+
+#### 7. `src/components/aichat/ChatSidebar.tsx`
+- Add `onClick` handler for "Sorix Health" tool button
+- Navigate to `/health` route when clicked
+
+#### 8. `src/App.jsx`
+- Add new route: `/health` -> `<HealthPage />` (protected)
+
+#### 9. `src/stores/chatStore.ts`
+- No changes needed for token deduction (health is free)
+
+### Key Design Decisions
+
+- **Futuristic UI**: Glassmorphism cards, gradient borders, animated transitions using framer-motion, neon accents matching the existing design system
+- **Free for everyone**: The health edge function will NOT trigger any token deduction logic
+- **3 AI models via OpenRouter**: The edge function will use the specified models. The primary model for analysis will be `deepseek/deepseek-r1-0528` for deep reasoning, with fallback to `google/gemma-3-27b-it`
+- **Image/PDF support**: Files are converted to base64 on the client side and sent to the edge function as multimodal content
+- **Structured JSON output**: The edge function returns structured JSON for test extraction, cost analysis, and visualization data, parsed on the frontend to render charts
 
 ### Technical Details
 
-**Database migration SQL:**
-```sql
-ALTER TABLE public.profiles
-  ADD COLUMN phone text,
-  ADD COLUMN country_code text DEFAULT '+1';
-```
+**Edge Function Changes:**
+- Add `mode: 'structured_analysis' | 'chat'` parameter
+- For structured analysis, use a system prompt that enforces JSON output with schema: `{ summary, tests: [{name, cost, category, explanation}], totalCost, necessaryCost, savings, fairnessScore, fairnessLabel, categoryDistribution }`
+- Model selection: Try `deepseek/deepseek-r1-0528` first, fallback to `anthropic/claude-sonnet-4.5`, then `google/gemma-3-27b-it`
+- No token deduction on the frontend for health requests
 
-**Storage bucket:**
-```sql
-INSERT INTO storage.buckets (id, name, public) VALUES ('profile-avatars', 'profile-avatars', true);
+**HealthIntakeForm fields:**
+- `symptoms: string` (textarea)
+- `gender: 'male' | 'female' | 'other'`
+- `patientCategory: 'men' | 'women' | 'kids' | 'pregnant'`
+- `age: number`
+- `weight: number`, `weightUnit: 'kg' | 'lbs'`
+- `height: number`, `heightUnit: 'cm' | 'ft'`
+- `files: File[]` (images and PDFs, max 10MB each)
 
-CREATE POLICY "Users can upload their own avatar"
-ON storage.objects FOR INSERT TO authenticated
-WITH CHECK (bucket_id = 'profile-avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
+**Recharts visualizations:**
+- PieChart for test category distribution
+- BarChart for cost comparison
+- Custom gauge component for fairness score (using Progress bar with color gradient)
 
-CREATE POLICY "Users can update their own avatar"
-ON storage.objects FOR UPDATE TO authenticated
-USING (bucket_id = 'profile-avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
+**Responsive design:**
+- Mobile-first with scroll-based layout
+- Cards stack vertically on mobile, grid on desktop
+- Sticky header with back button and step indicator
 
-CREATE POLICY "Anyone can view avatars"
-ON storage.objects FOR SELECT TO public
-USING (bucket_id = 'profile-avatars');
-```
-
-**SettingsModal.tsx changes:**
-- Add `initialTab?: TabId` prop
-- Use `useEffect` to set `activeTab` when `initialTab` changes
-- Export the `TabId` type for external use
-
-**ChatSidebar.tsx changes:**
-- Add state for `settingsInitialTab`
-- "Help & Support" onClick sets initial tab to `'help'` and opens settings
-- Pass `initialTab` to `SettingsModal`
-
-**ProfileTab.tsx rewrite:**
-- Use `useAuth()` from AuthContext to get the authenticated user
-- Fetch profile from `profiles` table on mount
-- Upload avatar to `profile-avatars/{userId}/avatar.png`
-- Update profile via `supabase.from('profiles').upsert()`
-- Add "Delete Account" with confirmation AlertDialog
-- Show Google profile picture from `user.user_metadata.avatar_url` as fallback
-
-**Edge function `delete-account`:**
-- Validates JWT, extracts user ID
-- Deletes from profiles, subscriptions, payment_history, projects, etc.
-- Uses service role to delete from `auth.users`
-- Returns 200 on success
