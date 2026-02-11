@@ -298,6 +298,11 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                     {moreTools.map((tool) => (
                       <button
                         key={tool.id}
+                        onClick={() => {
+                          if (tool.id === 'health') {
+                            navigate('/health');
+                          }
+                        }}
                         className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
                       >
                         <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", tool.color)}>
