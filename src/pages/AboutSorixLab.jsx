@@ -21,7 +21,7 @@ const AboutSorixLab = () => {
       name: "Shahadat Hossain",
       role: language === "en" ? "Supporting Developer" : "সহায়ক ডেভেলপার",
       icon: Code,
-      description: language === "en" ? "" : "AI Sorix প্ল্যাটফর্মের প্রযুক্তিগত স্থপতি",
+      description: language === "en" ? "" : "",
     },
   ];
 
