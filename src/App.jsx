@@ -23,6 +23,7 @@ import ResetPassword from "./pages/ResetPassword";
 import ChatDashboard from "./pages/admin/ChatDashboard";
 import ChatPage from "./pages/ChatPage";
 import Dashboard from "./pages/Dashboard";
+import HealthPage from "./pages/HealthPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailed from "./pages/PaymentFailed";
 import PaymentCancel from "./pages/PaymentCancel";
@@ -48,6 +49,11 @@ const App = () => (
               <Route path="/chat" element={
                 <ProtectedRoute>
                   <ChatPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/health" element={
+                <ProtectedRoute>
+                  <HealthPage />
                 </ProtectedRoute>
               } />
               <Route path="/login" element={<Login />} />
