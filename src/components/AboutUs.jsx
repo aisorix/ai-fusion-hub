@@ -1,7 +1,7 @@
-import React from 'react';
-import { Users, Target, Lightbulb, Globe, Rocket, Heart, Code, Briefcase, Star } from 'lucide-react';
-import { useLanguage } from '../contexts/LanguageContext';
-import logo from '../assets/logo.png';
+import React from "react";
+import { Users, Target, Lightbulb, Globe, Rocket, Heart, Code, Briefcase, Star } from "lucide-react";
+import { useLanguage } from "../contexts/LanguageContext";
+import logo from "../assets/logo.png";
 
 const AboutUs = () => {
   const { language } = useLanguage();
@@ -9,50 +9,54 @@ const AboutUs = () => {
   const values = [
     {
       icon: Lightbulb,
-      title: language === 'en' ? 'Innovation First' : 'উদ্ভাবন প্রথম',
-      description: language === 'en' 
-        ? 'We push boundaries to bring cutting-edge AI technology to everyone.' 
-        : 'আমরা সবার কাছে অত্যাধুনিক AI প্রযুক্তি পৌঁছে দিতে সীমানা ভাঙি।'
+      title: language === "en" ? "Innovation First" : "উদ্ভাবন প্রথম",
+      description:
+        language === "en"
+          ? "We push boundaries to bring cutting-edge AI technology to everyone."
+          : "আমরা সবার কাছে অত্যাধুনিক AI প্রযুক্তি পৌঁছে দিতে সীমানা ভাঙি।",
     },
     {
       icon: Users,
-      title: language === 'en' ? 'User Centric' : 'ব্যবহারকারী কেন্দ্রিক',
-      description: language === 'en' 
-        ? 'Every feature we build starts with understanding our users\' needs.' 
-        : 'প্রতিটি ফিচার তৈরি করি ব্যবহারকারীদের চাহিদা বুঝে।'
+      title: language === "en" ? "User Centric" : "ব্যবহারকারী কেন্দ্রিক",
+      description:
+        language === "en"
+          ? "Every feature we build starts with understanding our users' needs."
+          : "প্রতিটি ফিচার তৈরি করি ব্যবহারকারীদের চাহিদা বুঝে।",
     },
     {
       icon: Globe,
-      title: language === 'en' ? 'Local Focus' : 'স্থানীয় ফোকাস',
-      description: language === 'en' 
-        ? 'Built in Bangladesh, for Bangladesh, with local payment support.' 
-        : 'বাংলাদেশে তৈরি, বাংলাদেশের জন্য, স্থানীয় পেমেন্ট সাপোর্ট সহ।'
+      title: language === "en" ? "Local Focus" : "স্থানীয় ফোকাস",
+      description:
+        language === "en"
+          ? "Built in Bangladesh, for Bangladesh, with local payment support."
+          : "বাংলাদেশে তৈরি, বাংলাদেশের জন্য, স্থানীয় পেমেন্ট সাপোর্ট সহ।",
     },
     {
       icon: Heart,
-      title: language === 'en' ? 'Accessibility' : 'সহজলভ্যতা',
-      description: language === 'en' 
-        ? 'Making premium AI accessible and affordable for everyone.' 
-        : 'প্রিমিয়াম AI সবার জন্য সহজলভ্য ও সাশ্রয়ী করা।'
+      title: language === "en" ? "Accessibility" : "সহজলভ্যতা",
+      description:
+        language === "en"
+          ? "Making premium AI accessible and affordable for everyone."
+          : "প্রিমিয়াম AI সবার জন্য সহজলভ্য ও সাশ্রয়ী করা।",
     },
   ];
 
   const stats = [
-    { value: '10+', label: language === 'en' ? 'AI Models' : 'AI মডেল' },
-    { value: '10K+', label: language === 'en' ? 'Active Users' : 'সক্রিয় ব্যবহারকারী' },
-    { value: '1M+', label: language === 'en' ? 'Queries Processed' : 'কোয়েরি প্রসেসড' },
-    { value: '24/7', label: language === 'en' ? 'Support' : 'সাপোর্ট' },
+    { value: "10+", label: language === "en" ? "AI Models" : "AI মডেল" },
+    { value: "10K+", label: language === "en" ? "Active Users" : "সক্রিয় ব্যবহারকারী" },
+    { value: "1M+", label: language === "en" ? "Queries Processed" : "কোয়েরি প্রসেসড" },
+    { value: "24/7", label: language === "en" ? "Support" : "সাপোর্ট" },
   ];
 
   const teamMembers = [
     {
-      name: 'Rakib Eslam',
-      role: language === 'en' ? 'Founder' : 'প্রতিষ্ঠাতা',
+      name: "Rakib Eslam",
+      role: language === "en" ? "Founder & CEO" : "প্রতিষ্ঠাতা এবং সিইও",
       icon: Star,
     },
     {
-      name: 'Shahadat Hossain',
-      role: language === 'en' ? 'Lead Developer' : 'লিড ডেভেলপার',
+      name: "Shahadat Hossain",
+      role: language === "en" ? "Supporting Developer" : "সহায়ক ডেভেলপার",
       icon: Code,
     },
   ];
@@ -61,11 +65,14 @@ const AboutUs = () => {
     <section id="about" className="py-12 sm:py-16 md:py-20 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/20 to-background" />
-      
+
       {/* Decorative Orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/3 left-1/4 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px] animate-pulse-slow" />
-        <div className="absolute bottom-1/3 right-1/4 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[120px] animate-pulse-slow" style={{ animationDelay: '2s' }} />
+        <div
+          className="absolute bottom-1/3 right-1/4 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[120px] animate-pulse-slow"
+          style={{ animationDelay: "2s" }}
+        />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
@@ -73,19 +80,19 @@ const AboutUs = () => {
         <div className="text-center mb-10 sm:mb-12">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-primary text-sm font-semibold mb-6">
             <Target className="w-4 h-4" />
-            {language === 'en' ? 'About Us' : 'আমাদের সম্পর্কে'}
+            {language === "en" ? "About Us" : "আমাদের সম্পর্কে"}
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-foreground mb-4 font-display">
-            {language === 'en' ? 'Empowering Bangladesh' : 'বাংলাদেশকে শক্তিশালী করা'}
+            {language === "en" ? "Empowering Bangladesh" : "বাংলাদেশকে শক্তিশালী করা"}
             <br />
             <span className="animated-gradient-text">
-              {language === 'en' ? 'With AI Innovation' : 'AI উদ্ভাবনের মাধ্যমে'}
+              {language === "en" ? "With AI Innovation" : "AI উদ্ভাবনের মাধ্যমে"}
             </span>
           </h2>
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            {language === 'en' 
-              ? 'AI Sorix is Bangladesh\'s first unified AI platform, bringing together the world\'s most powerful AI models in one place. We\'re on a mission to democratize AI access for every Bangladeshi.' 
-              : 'AI Sorix হল বাংলাদেশের প্রথম ইউনিফাইড AI প্ল্যাটফর্ম, বিশ্বের সবচেয়ে শক্তিশালী AI মডেলগুলোকে এক জায়গায় একত্রিত করে। আমরা প্রতিটি বাংলাদেশীর জন্য AI অ্যাক্সেস গণতান্ত্রিক করার মিশনে আছি।'}
+            {language === "en"
+              ? "AI Sorix is Bangladesh's first unified AI platform, bringing together the world's most powerful AI models in one place. We're on a mission to democratize AI access for every Bangladeshi."
+              : "AI Sorix হল বাংলাদেশের প্রথম ইউনিফাইড AI প্ল্যাটফর্ম, বিশ্বের সবচেয়ে শক্তিশালী AI মডেলগুলোকে এক জায়গায় একত্রিত করে। আমরা প্রতিটি বাংলাদেশীর জন্য AI অ্যাক্সেস গণতান্ত্রিক করার মিশনে আছি।"}
           </p>
         </div>
 
@@ -101,16 +108,18 @@ const AboutUs = () => {
             <div className="flex items-center gap-3 mb-4 justify-center lg:justify-start">
               <Rocket className="w-6 h-6 text-primary" />
               <h3 className="text-2xl sm:text-3xl font-bold text-foreground">
-                {language === 'en' ? 'Our Mission' : 'আমাদের মিশন'}
+                {language === "en" ? "Our Mission" : "আমাদের মিশন"}
               </h3>
             </div>
             <p className="text-muted-foreground text-base sm:text-lg leading-relaxed mb-6">
-              {language === 'en' 
-                ? 'We believe everyone deserves access to powerful AI tools. AI Sorix was founded to break down barriers and make premium AI models accessible to students, professionals, and businesses in Bangladesh at affordable prices with local payment options.' 
-                : 'আমরা বিশ্বাস করি সবাই শক্তিশালী AI টুলস অ্যাক্সেস পাওয়ার যোগ্য। AI Sorix প্রতিষ্ঠিত হয়েছে বাধা ভেঙে বাংলাদেশের ছাত্র, পেশাদার এবং ব্যবসায়ীদের কাছে প্রিমিয়াম AI মডেল সাশ্রয়ী মূল্যে স্থানীয় পেমেন্ট অপশন সহ সহজলভ্য করতে।'}
+              {language === "en"
+                ? "We believe everyone deserves access to powerful AI tools. AI Sorix was founded to break down barriers and make premium AI models accessible to students, professionals, and businesses in Bangladesh at affordable prices with local payment options."
+                : "আমরা বিশ্বাস করি সবাই শক্তিশালী AI টুলস অ্যাক্সেস পাওয়ার যোগ্য। AI Sorix প্রতিষ্ঠিত হয়েছে বাধা ভেঙে বাংলাদেশের ছাত্র, পেশাদার এবং ব্যবসায়ীদের কাছে প্রিমিয়াম AI মডেল সাশ্রয়ী মূল্যে স্থানীয় পেমেন্ট অপশন সহ সহজলভ্য করতে।"}
             </p>
             <div className="glass-card inline-flex items-center gap-3 px-6 py-3 rounded-xl">
-              <span className="text-sm font-semibold text-foreground">📍 {language === 'en' ? 'Proudly Made in Bangladesh' : 'গর্বের সাথে বাংলাদেশে তৈরি'}</span>
+              <span className="text-sm font-semibold text-foreground">
+                📍 {language === "en" ? "Proudly Made in Bangladesh" : "গর্বের সাথে বাংলাদেশে তৈরি"}
+              </span>
             </div>
           </div>
         </div>
@@ -118,16 +127,14 @@ const AboutUs = () => {
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-12">
           {stats.map((stat, index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className="futuristic-card p-6 sm:p-8 rounded-2xl text-center group hover:-translate-y-2 transition-all duration-300"
             >
               <div className="text-3xl sm:text-4xl md:text-5xl font-black text-primary mb-2 group-hover:scale-110 transition-transform duration-300">
                 {stat.value}
               </div>
-              <div className="text-sm sm:text-base text-muted-foreground font-medium">
-                {stat.label}
-              </div>
+              <div className="text-sm sm:text-base text-muted-foreground font-medium">{stat.label}</div>
             </div>
           ))}
         </div>
@@ -135,19 +142,19 @@ const AboutUs = () => {
         {/* Values */}
         <div className="text-center mb-8">
           <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-            {language === 'en' ? 'Our Core Values' : 'আমাদের মূল মূল্যবোধ'}
+            {language === "en" ? "Our Core Values" : "আমাদের মূল মূল্যবোধ"}
           </h3>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            {language === 'en' 
-              ? 'The principles that guide everything we do at AI Sorix' 
-              : 'যে নীতিগুলো AI Sorix-এ আমাদের সব কাজ পরিচালনা করে'}
+            {language === "en"
+              ? "The principles that guide everything we do at AI Sorix"
+              : "যে নীতিগুলো AI Sorix-এ আমাদের সব কাজ পরিচালনা করে"}
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12">
           {values.map((value, index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className="futuristic-card p-6 rounded-2xl group hover:-translate-y-2 transition-all duration-300"
             >
               <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-glow transition-all duration-300">
@@ -158,7 +165,6 @@ const AboutUs = () => {
             </div>
           ))}
         </div>
-
       </div>
     </section>
   );
