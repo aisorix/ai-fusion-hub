@@ -10,7 +10,7 @@ const AboutSorixLab = () => {
   const teamMembers = [
     {
       name: "Rakib Eslam",
-      role: language === "en" ? "Founder & CEO" : "প্রতিষ্ঠাতা",
+      role: language === "en" ? "Founder & CEO" : "প্রতিষ্ঠাতা এবং সিইও",
       icon: Star,
       description:
         language === "en"
@@ -19,7 +19,7 @@ const AboutSorixLab = () => {
     },
     {
       name: "Shahadat Hossain",
-      role: language === "en" ? "Supporting Developer" : "ডেভেলপার",
+      role: language === "en" ? "Supporting Developer" : "সহায়ক ডেভেলপার",
       icon: Code,
       description: language === "en" ? "" : "AI Sorix প্ল্যাটফর্মের প্রযুক্তিগত স্থপতি",
     },
