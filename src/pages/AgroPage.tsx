@@ -1,73 +1,70 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Heart, Activity, FileText, Stethoscope, History, X } from 'lucide-react';
+import { ArrowLeft, Leaf, Bug, Sprout, History, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { AgroIntakeForm } from '@/components/agro';
+import { AgroAnalysisResults } from '@/components/agro';
+import { AgroChatMode } from '@/components/agro';
+import { AgroHistory } from '@/components/agro';
 import { supabase } from '@/integrations/supabase/client';
-import HealthHistory from '@/components/health/HealthHistory';
-import HealthIntakeForm from '@/components/health/HealthIntakeForm';
-import HealthTestReview from '@/components/health/HealthTestReview';
-import HealthAnalysisResults from '@/components/health/HealthAnalysisResults';
-import HealthChatMode from '@/components/health/HealthChatMode';
+import { useAuth } from '@/contexts/AuthContext';
 
-export interface PatientData {
-  symptoms: string;
-  gender: 'male' | 'female' | 'other';
-  patientCategory: 'men' | 'women' | 'kids' | 'pregnant';
-  age: number;
-  weight: number;
-  weightUnit: 'kg' | 'lbs';
-  height: number;
-  heightUnit: 'cm' | 'ft';
+export interface CropData {
+  cropType: string;
+  problemDescription: string;
+  region: string;
+  season: string;
+  landArea: string;
+  cropAge: string;
+  previousTreatments: string;
   files: File[];
   fileContents: { name: string; type: string; base64: string }[];
 }
 
-export interface ExtractedTest {
-  id: string;
+export interface Medicine {
   name: string;
+  type: string;
+  dosage: string;
+  applicationMethod: string;
+  frequency: string;
   cost: number;
-  category: 'necessary' | 'optional' | 'unnecessary';
-  explanation: string;
+  isBiological: boolean;
 }
 
-export interface AnalysisResult {
-  summary: string;
-  tests: ExtractedTest[];
-  totalCost: number;
-  necessaryCost: number;
-  savings: number;
-  fairnessScore: number;
-  fairnessLabel: string;
-  categoryDistribution: { name: string; value: number; color: string }[];
+export interface AgroResult {
+  diagnosis: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  severityScore: number;
+  causes: string[];
+  medicines: Medicine[];
+  preventionTips: string[];
+  alternativeTreatments: string[];
+  timeline: { treatmentDuration: string; expectedRecovery: string };
   detailedAnalysis: string;
 }
 
-type Step = 'intake' | 'review' | 'results' | 'chat';
+type Step = 'intake' | 'results' | 'chat';
 
 const stepConfig = [
-  { key: 'intake', label: 'Patient Info', icon: FileText },
-  { key: 'review', label: 'Review Tests', icon: Stethoscope },
-  { key: 'results', label: 'Analysis', icon: Activity },
+  { key: 'intake', label: 'Crop Info', icon: Sprout },
+  { key: 'results', label: 'Analysis', icon: Bug },
 ] as const;
 
-const HealthPage: React.FC = () => {
+const AgroPage: React.FC = () => {
   const { user: authUser } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>('intake');
-  const [patientData, setPatientData] = useState<PatientData | null>(null);
-  const [extractedTests, setExtractedTests] = useState<ExtractedTest[]>([]);
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [cropData, setCropData] = useState<CropData | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<AgroResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 
-  const handleIntakeSubmit = async (data: PatientData) => {
-    setPatientData(data);
+  const handleIntakeSubmit = async (data: CropData) => {
+    setCropData(data);
     setIsAnalyzing(true);
 
     try {
-      // Call edge function for structured analysis (test extraction)
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/health-analysis`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/agro-analysis`,
         {
           method: 'POST',
           headers: {
@@ -76,108 +73,44 @@ const HealthPage: React.FC = () => {
           },
           body: JSON.stringify({
             mode: 'structured_analysis',
-            patientData: {
-              symptoms: data.symptoms,
-              gender: data.gender,
-              patientCategory: data.patientCategory,
-              age: data.age,
-              weight: data.weight,
-              weightUnit: data.weightUnit,
-              height: data.height,
-              heightUnit: data.heightUnit,
+            cropData: {
+              cropType: data.cropType,
+              problemDescription: data.problemDescription,
+              region: data.region,
+              season: data.season,
+              landArea: data.landArea,
+              cropAge: data.cropAge,
+              previousTreatments: data.previousTreatments,
             },
             files: data.fileContents,
           }),
         }
       );
 
-      if (!response.ok) {
-        throw new Error('Analysis failed');
-      }
-
-      const result = await response.json();
-      
-      if (result.tests && result.tests.length > 0) {
-        setExtractedTests(result.tests.map((t: any, i: number) => ({
-          id: `test-${i}`,
-          name: t.name,
-          cost: t.cost || 0,
-          category: t.category || 'optional',
-          explanation: t.explanation || '',
-        })));
-        setCurrentStep('review');
-      } else {
-        // No tests extracted, go directly to results
-        setAnalysisResult(result);
-        setCurrentStep('results');
-        // Save to history
-        if (authUser) {
-          await supabase.from('analysis_history' as any).insert({
-            user_id: authUser.id,
-            tool: 'health',
-            title: `Health Analysis - ${patientData?.patientCategory || 'General'}`,
-            input_data: { symptoms: data.symptoms, gender: data.gender, patientCategory: data.patientCategory, age: data.age },
-            result_data: result,
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Analysis error:', error);
-      // Fallback: go to chat mode with patient context
-      setCurrentStep('chat');
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
-  const handleTestReviewConfirm = async (tests: ExtractedTest[]) => {
-    setExtractedTests(tests);
-    setIsAnalyzing(true);
-
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/health-analysis`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({
-            mode: 'detailed_analysis',
-            patientData: {
-              symptoms: patientData?.symptoms,
-              gender: patientData?.gender,
-              patientCategory: patientData?.patientCategory,
-              age: patientData?.age,
-              weight: patientData?.weight,
-              weightUnit: patientData?.weightUnit,
-              height: patientData?.height,
-              heightUnit: patientData?.heightUnit,
-            },
-            tests,
-            files: patientData?.fileContents || [],
-          }),
-        }
-      );
-
-      if (!response.ok) throw new Error('Detailed analysis failed');
+      if (!response.ok) throw new Error('Analysis failed');
 
       const result = await response.json();
       setAnalysisResult(result);
       setCurrentStep('results');
+
       // Save to history
       if (authUser) {
         await supabase.from('analysis_history' as any).insert({
           user_id: authUser.id,
-          tool: 'health',
-          title: `Health Analysis - ${patientData?.patientCategory || 'General'}`,
-          input_data: { symptoms: patientData?.symptoms, gender: patientData?.gender, patientCategory: patientData?.patientCategory },
+          tool: 'agro',
+          title: `${data.cropType} - ${result.diagnosis?.slice(0, 50) || 'Analysis'}`,
+          input_data: {
+            cropType: data.cropType,
+            problemDescription: data.problemDescription,
+            region: data.region,
+            season: data.season,
+          },
           result_data: result,
         });
       }
     } catch (error) {
-      console.error('Detailed analysis error:', error);
+      console.error('Analysis error:', error);
+      setCurrentStep('chat');
     } finally {
       setIsAnalyzing(false);
     }
@@ -185,14 +118,13 @@ const HealthPage: React.FC = () => {
 
   const handleStartOver = () => {
     setCurrentStep('intake');
-    setPatientData(null);
-    setExtractedTests([]);
+    setCropData(null);
     setAnalysisResult(null);
   };
 
   const handleLoadHistory = (inputData: any, resultData: any) => {
-    setPatientData(inputData as PatientData);
-    setAnalysisResult(resultData as AnalysisResult);
+    setCropData(inputData as CropData);
+    setAnalysisResult(resultData as AgroResult);
     setCurrentStep('results');
     setShowHistory(false);
   };
@@ -212,12 +144,12 @@ const HealthPage: React.FC = () => {
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-pink-600 flex items-center justify-center">
-                <Heart className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center">
+                <Leaf className="w-4 h-4 text-white" />
               </div>
               <div>
-                <h1 className="text-sm font-bold text-foreground">Sorix Health</h1>
-                <p className="text-[10px] text-muted-foreground">AI Medical Assistant • Free</p>
+                <h1 className="text-sm font-bold text-foreground">Sorix Agro</h1>
+                <p className="text-[10px] text-muted-foreground">AI Crop Doctor • Free</p>
               </div>
             </div>
           </div>
@@ -232,14 +164,14 @@ const HealthPage: React.FC = () => {
                 return (
                   <React.Fragment key={step.key}>
                     {i > 0 && (
-                      <div className={`w-8 h-0.5 rounded-full ${isPast ? 'bg-primary' : 'bg-border'}`} />
+                      <div className={`w-8 h-0.5 rounded-full ${isPast ? 'bg-emerald-500' : 'bg-border'}`} />
                     )}
                     <div
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                         isActive
-                          ? 'bg-primary/10 text-primary border border-primary/30'
+                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
                           : isPast
-                          ? 'bg-primary/5 text-primary/70'
+                          ? 'bg-emerald-500/5 text-emerald-500/70'
                           : 'text-muted-foreground'
                       }`}
                     >
@@ -259,7 +191,7 @@ const HealthPage: React.FC = () => {
                 <div
                   key={step.key}
                   className={`w-2 h-2 rounded-full transition-colors ${
-                    step.key === currentStep ? 'bg-primary' : i < activeStepIndex ? 'bg-primary/50' : 'bg-border'
+                    step.key === currentStep ? 'bg-emerald-500' : i < activeStepIndex ? 'bg-emerald-500/50' : 'bg-border'
                   }`}
                 />
               ))}
@@ -275,7 +207,7 @@ const HealthPage: React.FC = () => {
               <History className="w-4 h-4" />
             </button>
             <span className="text-xs px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium">
-              ✨ Free Forever
+              🌾 Free
             </span>
           </div>
         </div>
@@ -292,24 +224,7 @@ const HealthPage: React.FC = () => {
               exit={{ opacity: 0, x: -20 }}
               className="h-full"
             >
-              <HealthIntakeForm onSubmit={handleIntakeSubmit} isLoading={isAnalyzing} />
-            </motion.div>
-          )}
-
-          {currentStep === 'review' && (
-            <motion.div
-              key="review"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="h-full"
-            >
-              <HealthTestReview
-                tests={extractedTests}
-                onConfirm={handleTestReviewConfirm}
-                onStartOver={handleStartOver}
-                isLoading={isAnalyzing}
-              />
+              <AgroIntakeForm onSubmit={handleIntakeSubmit} isLoading={isAnalyzing} />
             </motion.div>
           )}
 
@@ -321,7 +236,7 @@ const HealthPage: React.FC = () => {
               exit={{ opacity: 0, x: -20 }}
               className="h-full"
             >
-              <HealthAnalysisResults
+              <AgroAnalysisResults
                 result={analysisResult}
                 onStartOver={handleStartOver}
                 onContinueChat={() => setCurrentStep('chat')}
@@ -337,8 +252,8 @@ const HealthPage: React.FC = () => {
               exit={{ opacity: 0, x: -20 }}
               className="h-full"
             >
-              <HealthChatMode
-                patientData={patientData}
+              <AgroChatMode
+                cropData={cropData}
                 analysisResult={analysisResult}
                 onStartOver={handleStartOver}
               />
@@ -372,7 +287,7 @@ const HealthPage: React.FC = () => {
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto">
-                <HealthHistory onLoad={handleLoadHistory} />
+                <AgroHistory onLoad={handleLoadHistory} />
               </div>
             </motion.div>
           </>
@@ -382,4 +297,4 @@ const HealthPage: React.FC = () => {
   );
 };
 
-export default HealthPage;
+export default AgroPage;

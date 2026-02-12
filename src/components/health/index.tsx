@@ -6,3 +6,4 @@ export { default as HealthIntakeForm } from './HealthIntakeForm';
 export { default as HealthTestReview } from './HealthTestReview';
 export { default as HealthAnalysisResults } from './HealthAnalysisResults';
 export { default as HealthChatMode } from './HealthChatMode';
+export { default as HealthHistory } from './HealthHistory';
