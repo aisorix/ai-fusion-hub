@@ -4,6 +4,7 @@ import { Menu, X, ChevronDown, Globe, User, LogOut, MessageSquare } from "lucide
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useEmployeeRole } from "../hooks/useEmployeeRole";
+import { useUserProfile } from "../hooks/useUserProfile";
 import ThemeToggle from "./ThemeToggle";
 import logo from "../assets/logo.png";
 import {
@@ -21,6 +22,7 @@ const Navbar = () => {
   const { language, setLanguage, t } = useLanguage();
   const { user, signOut, loading: authLoading } = useAuth();
   const { isEmployee } = useEmployeeRole();
+  const { avatarUrl } = useUserProfile();
   const langRef = useRef(null);
 
   const handleSignOut = async () => {
@@ -171,8 +173,12 @@ const Navbar = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="flex items-center gap-2 p-1 rounded-full hover:bg-muted/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 border border-transparent hover:border-border/50">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center text-primary font-semibold text-sm backdrop-blur-sm">
-                        {getUserInitials()}
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-primary/10 border-2 border-primary/30 flex items-center justify-center text-primary font-semibold text-sm backdrop-blur-sm">
+                        {avatarUrl ? (
+                          <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          getUserInitials()
+                        )}
                       </div>
                     </button>
                   </DropdownMenuTrigger>
@@ -332,8 +338,12 @@ const Navbar = () => {
                   {user ? (
                     <>
                       <div className="flex items-center gap-4 p-4 bg-primary/5 rounded-2xl border border-primary/10 backdrop-blur-sm">
-                        <div className="w-14 h-14 rounded-full bg-primary/20 border-2 border-primary/30 flex items-center justify-center text-primary text-xl font-bold">
-                          {getUserInitials()}
+                        <div className="w-14 h-14 rounded-full overflow-hidden bg-primary/20 border-2 border-primary/30 flex items-center justify-center text-primary text-xl font-bold">
+                          {avatarUrl ? (
+                            <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            getUserInitials()
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-bold text-foreground truncate text-lg">

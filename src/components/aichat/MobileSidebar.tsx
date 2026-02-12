@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import sorixLogo from "@/assets/logo.png";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -39,6 +40,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   const { signOut, user: authUser } = useAuth();
   const { theme, toggleTheme, chats, activeChatId, setActiveChat, viewMode, setViewMode, user, setProjectsModalOpen } =
     useChatStore();
+  const { avatarUrl } = useUserProfile();
 
   const [showMoreTools, setShowMoreTools] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -202,6 +204,10 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                       {moreTools.map((tool) => (
                         <button
                           key={tool.id}
+                          onClick={() => {
+                            if (tool.id === 'health') { navigate('/health'); onClose(); }
+                            if (tool.id === 'agro') { navigate('/agro'); onClose(); }
+                          }}
                           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground/80 hover:bg-muted/50 transition-colors"
                         >
                           <div className={cn("w-7 h-7 rounded-md flex items-center justify-center", tool.color)}>
@@ -267,8 +273,12 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
           {/* Bottom Section */}
           <div className="p-3 border-t border-border/50 space-y-2 bg-background/50">
             <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-muted/30">
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs">
-                {userInitials}
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-primary/20 flex items-center justify-center text-primary font-bold text-xs">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  userInitials
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-semibold text-foreground truncate">{userName}</p>

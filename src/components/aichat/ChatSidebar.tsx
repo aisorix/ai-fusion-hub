@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import sorixLogo from "@/assets/logo.png";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import {
@@ -63,6 +64,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
     user,
     setProjectsModalOpen,
   } = useChatStore();
+  const { avatarUrl } = useUserProfile();
 
   const [showMoreTools, setShowMoreTools] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -170,8 +172,12 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
         {/* User Avatar */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm hover:bg-primary/20 transition-colors">
-              {userInitials}
+            <button className="w-10 h-10 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm hover:bg-primary/20 transition-colors">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+              ) : (
+                userInitials
+              )}
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" side="right" className="w-56 bg-popover border border-border shadow-lg z-50">
@@ -299,9 +305,8 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                       <button
                         key={tool.id}
                         onClick={() => {
-                          if (tool.id === 'health') {
-                            navigate('/health');
-                          }
+                          if (tool.id === 'health') navigate('/health');
+                          if (tool.id === 'agro') navigate('/agro');
                         }}
                         className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
                       >
@@ -431,8 +436,12 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors">
-                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-xs">
-                  {userInitials}
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-primary/20 flex items-center justify-center text-primary font-semibold text-xs">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    userInitials
+                  )}
                 </div>
                 <div className="flex-1 text-left min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{userName}</p>
