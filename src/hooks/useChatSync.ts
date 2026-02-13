@@ -1,18 +1,77 @@
 // Cross-device chat sync hook
-// Syncs chats and token usage between Zustand (local) and database
+// Full bidirectional sync with Supabase Realtime
 
 import { useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useChatStore, type Chat } from '@/stores/chatStore';
+import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
 const SYNC_DEBOUNCE_MS = 2000;
+
+// Track which changes originated from this device to avoid echo
+let localChangeIds = new Set<string>();
+
+const cleanMessagesForDB = (messages: Chat['messages']) =>
+  messages.map(msg => ({
+    ...msg,
+    attachments: msg.attachments?.map(att => ({
+      ...att,
+      url: att.type === 'image' ? '' : att.url,
+      parsedContent: undefined,
+    })) || null,
+  }));
 
 export const useChatSync = (userId: string | null) => {
   const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isLoadingRef = useRef(false);
-  const lastSyncRef = useRef<string>('');
+  const initialLoadDone = useRef(false);
 
-  // Load chats from database on login
+  // ── Save a single chat to DB ──
+  const saveChatToDB = useCallback(async (chat: Chat) => {
+    if (!userId) return;
+    try {
+      localChangeIds.add(chat.id);
+      await supabase.from('user_chats').upsert({
+        id: chat.id,
+        user_id: userId,
+        title: chat.title,
+        messages: cleanMessagesForDB(chat.messages) as any,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'id' });
+      // Clear after a delay so realtime echo is suppressed
+      setTimeout(() => localChangeIds.delete(chat.id), 3000);
+    } catch (err) {
+      console.error('Failed to save chat to DB:', err);
+    }
+  }, [userId]);
+
+  // ── Delete a chat from DB ──
+  const deleteChatFromDB = useCallback(async (chatId: string) => {
+    if (!userId) return;
+    try {
+      localChangeIds.add(chatId);
+      await supabase.from('user_chats').delete().eq('id', chatId).eq('user_id', userId);
+      setTimeout(() => localChangeIds.delete(chatId), 3000);
+    } catch (err) {
+      console.error('Failed to delete chat from DB:', err);
+    }
+  }, [userId]);
+
+  // ── Save token usage ──
+  const saveTokensToDB = useCallback(async (tokensUsed: number) => {
+    if (!userId) return;
+    try {
+      await supabase
+        .from('subscriptions')
+        .update({ tokens_used: tokensUsed })
+        .eq('user_id', userId)
+        .eq('status', 'active');
+    } catch (err) {
+      console.error('Failed to save tokens to DB:', err);
+    }
+  }, [userId]);
+
+  // ── Load all chats from DB on login ──
   const loadChatsFromDB = useCallback(async () => {
     if (!userId || isLoadingRef.current) return;
     isLoadingRef.current = true;
@@ -23,7 +82,7 @@ export const useChatSync = (userId: string | null) => {
         .select('*')
         .eq('user_id', userId)
         .order('updated_at', { ascending: false })
-        .limit(50);
+        .limit(100);
 
       if (error) {
         console.error('Failed to load chats from DB:', error);
@@ -46,12 +105,10 @@ export const useChatSync = (userId: string | null) => {
         const mergedChats = [...chats, ...localOnlyChats].sort(
           (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
         );
-
         useChatStore.setState({ chats: mergedChats });
-        lastSyncRef.current = JSON.stringify(mergedChats.map(c => c.id));
       }
 
-      // Load token usage from subscriptions
+      // Load token usage
       const { data: sub } = await supabase
         .from('subscriptions')
         .select('tokens_used, plan_id')
@@ -71,82 +128,148 @@ export const useChatSync = (userId: string | null) => {
       console.error('Chat sync load error:', err);
     } finally {
       isLoadingRef.current = false;
+      initialLoadDone.current = true;
     }
   }, [userId]);
 
-  // Save a chat to database
-  const saveChatToDB = useCallback(async (chat: Chat) => {
-    if (!userId) return;
-
-    try {
-      // Strip base64 images from messages for storage
-      const cleanMessages = chat.messages.map(msg => ({
-        ...msg,
-        attachments: msg.attachments?.map(att => ({
-          ...att,
-          url: att.type === 'image' ? '' : att.url,
-          parsedContent: undefined,
-        })) || null,
-      }));
-
-      await supabase
-        .from('user_chats')
-        .upsert({
-          id: chat.id,
-          user_id: userId,
-          title: chat.title,
-          messages: cleanMessages as any,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: 'id' });
-    } catch (err) {
-      console.error('Failed to save chat to DB:', err);
-    }
-  }, [userId]);
-
-  // Save token usage to subscriptions
-  const saveTokensToDB = useCallback(async (tokensUsed: number) => {
-    if (!userId) return;
-
-    try {
-      await supabase
-        .from('subscriptions')
-        .update({ tokens_used: tokensUsed })
-        .eq('user_id', userId)
-        .eq('status', 'active');
-    } catch (err) {
-      console.error('Failed to save tokens to DB:', err);
-    }
-  }, [userId]);
-
-  // Subscribe to store changes and sync
+  // ── Main effect: load, subscribe to store changes, subscribe to Realtime ──
   useEffect(() => {
     if (!userId) return;
 
     // Initial load
     loadChatsFromDB();
 
-    // Subscribe to changes with debounce
-    const unsubscribe = useChatStore.subscribe((state, prevState) => {
-      // Sync chats when they change
+    // ─── Store subscription: detect local changes and push to DB ───
+    const unsubscribeStore = useChatStore.subscribe((state, prevState) => {
+      if (!initialLoadDone.current) return;
+
+      // Detect new chat created (exists in state but not in prev)
+      const newChats = state.chats.filter(
+        c => !prevState.chats.find(pc => pc.id === c.id)
+      );
+      for (const chat of newChats) {
+        saveChatToDB(chat);
+      }
+
+      // Detect deleted chats
+      const deletedChats = prevState.chats.filter(
+        pc => !state.chats.find(c => c.id === pc.id)
+      );
+      for (const chat of deletedChats) {
+        deleteChatFromDB(chat.id);
+      }
+
+      // Detect active chat content change (debounced)
       const activeChat = state.chats.find(c => c.id === state.activeChatId);
       const prevActiveChat = prevState.chats.find(c => c.id === prevState.activeChatId);
-      
-      if (activeChat && activeChat !== prevActiveChat) {
+      if (
+        activeChat &&
+        prevActiveChat &&
+        activeChat.id === prevActiveChat.id &&
+        (activeChat.messages.length !== prevActiveChat.messages.length ||
+         activeChat.title !== prevActiveChat.title ||
+         activeChat.updatedAt !== prevActiveChat.updatedAt)
+      ) {
         if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
         syncTimeoutRef.current = setTimeout(() => {
           saveChatToDB(activeChat);
         }, SYNC_DEBOUNCE_MS);
       }
 
-      // Sync token usage when it changes
+      // Sync token usage
       if (state.user.tokensUsed !== prevState.user.tokensUsed) {
         saveTokensToDB(state.user.tokensUsed);
       }
     });
 
+    // ─── Realtime: listen for changes from OTHER devices ───
+    const channel = supabase
+      .channel(`user-chats-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_chats',
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload: RealtimePostgresChangesPayload<any>) => {
+          const record = (payload.new as any) || {};
+          const oldRecord = (payload.old as any) || {};
+          const chatId = record.id || oldRecord.id;
+
+          // Skip if this change originated from this device
+          if (localChangeIds.has(chatId)) return;
+
+          const store = useChatStore.getState();
+
+          if (payload.eventType === 'INSERT') {
+            // Another device created a chat
+            const exists = store.chats.find(c => c.id === record.id);
+            if (!exists) {
+              const newChat: Chat = {
+                id: record.id,
+                title: record.title,
+                messages: record.messages || [],
+                createdAt: record.created_at,
+                updatedAt: record.updated_at,
+              };
+              useChatStore.setState({
+                chats: [newChat, ...store.chats],
+              });
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            // Another device updated a chat
+            const updatedChat: Chat = {
+              id: record.id,
+              title: record.title,
+              messages: record.messages || [],
+              createdAt: record.created_at,
+              updatedAt: record.updated_at,
+            };
+            useChatStore.setState({
+              chats: store.chats.map(c =>
+                c.id === record.id ? updatedChat : c
+              ),
+            });
+          } else if (payload.eventType === 'DELETE') {
+            // Another device deleted a chat
+            useChatStore.setState({
+              chats: store.chats.filter(c => c.id !== oldRecord.id),
+              activeChatId:
+                store.activeChatId === oldRecord.id
+                  ? store.chats.find(c => c.id !== oldRecord.id)?.id || null
+                  : store.activeChatId,
+            });
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'subscriptions',
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload: RealtimePostgresChangesPayload<any>) => {
+          const record = payload.new as any;
+          if (record && typeof record.tokens_used === 'number') {
+            const store = useChatStore.getState();
+            if (store.user.tokensUsed !== record.tokens_used) {
+              useChatStore.setState({
+                user: { ...store.user, tokensUsed: record.tokens_used },
+              });
+            }
+          }
+        }
+      )
+      .subscribe();
+
     return () => {
-      unsubscribe();
+      unsubscribeStore();
       if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
+      supabase.removeChannel(channel);
     };
-  }, [userId, loadChatsFromDB, saveChatToDB, saveTokensToDB]);
+  }, [userId, loadChatsFromDB, saveChatToDB, deleteChatFromDB, saveTokensToDB]);
 };
