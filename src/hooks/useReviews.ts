@@ -11,7 +11,6 @@ export interface Review {
   rating: number;
   verified: boolean;
   status: string;
-  user_id: string | null;
   created_at: string;
 }
 
@@ -28,8 +27,9 @@ export const useReviews = () => {
   return useQuery({
     queryKey: ["reviews"],
     queryFn: async (): Promise<Review[]> => {
+      // Use the reviews_public view to avoid exposing user_id
       const { data, error } = await supabase
-        .from("reviews")
+        .from("reviews_public" as any)
         .select("*")
         .order("created_at", { ascending: false });
 
@@ -38,7 +38,7 @@ export const useReviews = () => {
         throw error;
       }
 
-      return (data as Review[]) || [];
+      return (data as unknown as Review[]) || [];
     },
   });
 };
@@ -49,7 +49,7 @@ export const useReviewCount = () => {
     queryKey: ["reviews", "count"],
     queryFn: async (): Promise<number> => {
       const { count, error } = await supabase
-        .from("reviews")
+        .from("reviews_public" as any)
         .select("*", { count: "exact", head: true });
 
       if (error) {

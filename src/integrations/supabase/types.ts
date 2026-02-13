@@ -388,7 +388,42 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      reviews_public: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          location: string | null
+          name: string | null
+          rating: number | null
+          review: string | null
+          role: string | null
+          status: string | null
+          verified: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          location?: string | null
+          name?: string | null
+          rating?: number | null
+          review?: string | null
+          role?: string | null
+          status?: string | null
+          verified?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          location?: string | null
+          name?: string | null
+          rating?: number | null
+          review?: string | null
+          role?: string | null
+          status?: string | null
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
