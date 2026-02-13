@@ -8,6 +8,7 @@ import { healthApi } from '@/services/healthApi';
 import { toast } from '@/hooks/use-toast';
 import { formatFileForPrompt } from '@/lib/fileParser';
 import { shouldApplySmartRouting, getWorkerModelForPlan, resolveSmartAutoModel } from '@/lib/smartRouting';
+import { generateCacheKey, getCachedResponse, setCachedResponse, simulateCachedStreaming } from '@/lib/responseCache';
 
 // Estimate tokens: ~4 characters per token (rough approximation)
 const estimateTokens = (text: string): number => {
@@ -245,6 +246,31 @@ export const useAIChat = () => {
     console.log(`Sending message with model: ${backendModel}${hasAttachments ? ' (forced for attachments)' : wasSmartRouted ? ' (smart routed)' : ''}, multiplier: ${finalMultiplier}x`);
 
     abortControllerRef.current = new AbortController();
+
+    // --- Cache check for premium models (multiplier > 1) ---
+    const shouldCache = finalMultiplier > 1 && !hasAttachments && !isHealthMode;
+    const contextForCache = currentMessages.slice(-3).map(m => ({ role: m.role, content: m.content }));
+    const cacheKey = shouldCache ? generateCacheKey(userText, backendModel, contextForCache) : '';
+
+    if (shouldCache) {
+      const cached = getCachedResponse(cacheKey);
+      if (cached) {
+        console.log(`⚡ Cache HIT for ${backendModel} — serving cached response`);
+        simulateCachedStreaming(
+          cached.response,
+          (chunk) => updateLastMessage(chunk),
+          () => {
+            setStreaming(false);
+            if (cached.citations && cached.citations.length > 0) {
+              setLastMessageCitations(cached.citations);
+            }
+            updateTokenUsage(cached.inputTokens, cached.outputTokens, finalMultiplier);
+            if (!isSmartAuto && !hasAttachments) incrementDailyUsage(selectedModel);
+          }
+        );
+        return;
+      }
+    }
     
     try {
       if (useStreaming) {
@@ -280,6 +306,11 @@ export const useAIChat = () => {
               const outputTokens = estimateTokens(fullResponse);
               updateTokenUsage(inputTokens, outputTokens, finalMultiplier);
               if (!isSmartAuto && !hasAttachments) incrementDailyUsage(selectedModel);
+              // Store in cache for premium models
+              if (shouldCache && fullResponse) {
+                setCachedResponse(cacheKey, { response: fullResponse, citations: citations || undefined, inputTokens, outputTokens });
+                console.log(`💾 Cached response for ${backendModel}`);
+              }
             },
             (err) => {
               console.error('Streaming error:', err);
