@@ -55,17 +55,7 @@ export const useAIChat = () => {
     return model?.backendId || 'openai/gpt-4o-mini';
   }, [models, selectedModel]);
 
-  const showMultiplierWarning = useCallback((modelName: string, multiplier: number) => {
-    if (hasShownMultiplierWarningRef.current === selectedModel) return;
-    hasShownMultiplierWarningRef.current = selectedModel;
-    
-    toast({
-      title: "⚡ Super-Intelligence Model",
-      description: `This is a super-intelligence model. It consumes tokens ${multiplier}x faster. Switch to GPT-5 nano for longer chats.`,
-      variant: "default",
-      duration: 5000,
-    });
-  }, [selectedModel]);
+  // Multiplier warning removed - silent backend tracking only
 
   const updateTokenUsage = useCallback((inputTokens: number, outputTokens: number, multiplier: number = 1) => {
     const baseTokens = inputTokens + outputTokens;
@@ -147,11 +137,6 @@ export const useAIChat = () => {
       wasSmartRouted = true;
       console.log(`🧠 Smart Auto: Resolved to ${resolved.backendId} (${resolved.multiplier}x) for query`);
     } else {
-      // Show warning for high-multiplier models (>1x)
-      if (activeMultiplier > 1) {
-        showMultiplierWarning(modelName, activeMultiplier);
-      }
-
       // Apply smart routing for simple queries on premium models
       if (activeMultiplier > 1 && shouldApplySmartRouting(activeMultiplier, content, conversationHistory)) {
         console.log(`🧠 Smart Routing: Downgrading ${modelName} to Worker Model for simple query`);
@@ -161,15 +146,10 @@ export const useAIChat = () => {
       }
     }
 
-    // Check daily limit for the resolved model
+    // Check daily limit for the resolved model (silently block)
     if (!isSmartAuto) {
       const remaining = getDailyUsageRemaining(selectedModel);
       if (remaining !== null && remaining <= 0) {
-        toast({
-          title: "📊 Daily Limit Reached",
-          description: `You've used all daily messages for ${modelName}. Try another model or wait until tomorrow.`,
-          variant: "destructive",
-        });
         return;
       }
     }
@@ -280,15 +260,11 @@ export const useAIChat = () => {
               const outputTokens = estimateTokens(fullResponse);
               updateTokenUsage(inputTokens, outputTokens, finalMultiplier);
               if (!isSmartAuto && !hasAttachments) incrementDailyUsage(selectedModel);
-              if (wasSmartRouted) {
-                toast({ title: "✨ Optimized Response", description: "Simple query detected. Token deduction reduced to 1x.", variant: "default", duration: 3000 });
-              }
             },
             (err) => {
               console.error('Health analysis error:', err);
               setError(err.message || 'An error occurred');
               setStreaming(false);
-              toast({ title: "🏥 Health Analysis Error", description: err.message || 'An error occurred', variant: "destructive" });
             },
             abortControllerRef.current.signal
           );
@@ -304,9 +280,6 @@ export const useAIChat = () => {
               const outputTokens = estimateTokens(fullResponse);
               updateTokenUsage(inputTokens, outputTokens, finalMultiplier);
               if (!isSmartAuto && !hasAttachments) incrementDailyUsage(selectedModel);
-              if (wasSmartRouted) {
-                toast({ title: "✨ Optimized Response", description: "Simple query detected. Token deduction reduced to 1x.", variant: "default", duration: 3000 });
-              }
             },
             (err) => {
               console.error('Streaming error:', err);
@@ -340,9 +313,6 @@ export const useAIChat = () => {
         const outputTokens = estimateTokens(response.content);
         updateTokenUsage(inputTokens, outputTokens, finalMultiplier);
         if (!isSmartAuto && !hasAttachments) incrementDailyUsage(selectedModel);
-        if (wasSmartRouted) {
-          toast({ title: "✨ Optimized Response", description: "Simple query detected. Token deduction reduced to 1x.", variant: "default", duration: 3000 });
-        }
       }
     } catch (err: any) {
       console.error('Send message error:', err);
@@ -360,7 +330,7 @@ export const useAIChat = () => {
         }
       }
     }
-  }, [activeChatId, pendingAttachments, selectedModel, models, user, addMessage, updateLastMessage, setLastMessageCitations, setStreaming, setError, clearAttachments, createNewChat, updateTokenUsage, buildMultimodalContent, isHealthMode, healthAnalysisType, showMultiplierWarning, getModelMultiplier, getDailyUsageRemaining, incrementDailyUsage]);
+  }, [activeChatId, pendingAttachments, selectedModel, models, user, addMessage, updateLastMessage, setLastMessageCitations, setStreaming, setError, clearAttachments, createNewChat, updateTokenUsage, buildMultimodalContent, isHealthMode, healthAnalysisType, getModelMultiplier, getDailyUsageRemaining, incrementDailyUsage]);
   
   const stopStreaming = useCallback(() => {
     if (abortControllerRef.current) {
