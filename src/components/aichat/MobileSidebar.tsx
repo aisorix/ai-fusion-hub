@@ -7,6 +7,7 @@ import {
   Sparkles,
   FolderKanban,
   ChevronDown,
+  ChevronRight,
   Settings,
   Crown,
   MessageSquare,
@@ -136,7 +137,7 @@ const MobileChatItem = ({
 const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   const navigate = useNavigate();
   const { signOut, user: authUser } = useAuth();
-  const { theme, toggleTheme, chats, activeChatId, setActiveChat, deleteChat, updateChatTitle, viewMode, setViewMode, user, setProjectsModalOpen } =
+  const { theme, toggleTheme, chats, activeChatId, setActiveChat, deleteChat, updateChatTitle, viewMode, setViewMode, user, setProjectsModalOpen, historyCollapsed } =
     useChatStore();
   const { avatarUrl, fullName } = useUserProfile();
 
@@ -304,13 +305,15 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
           <div className="px-3 mt-2 flex items-center justify-between">
             <h3 className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest px-3">History</h3>
             <button
-              onClick={() => useChatStore.setState((s: any) => ({ historyCollapsed: !s.historyCollapsed }))}
+              onClick={() => useChatStore.setState({ historyCollapsed: !historyCollapsed })}
               className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground"
+              title={historyCollapsed ? "Show history" : "Hide history"}
             >
-              <ChevronDown className="w-3.5 h-3.5" />
+              {historyCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>
           </div>
           <ScrollArea className="flex-1 mt-1">
+            {!historyCollapsed && (
             <div className="px-3 space-y-3 pb-4">
               {todayChats.length > 0 && (
                 <div>
@@ -331,6 +334,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                 </div>
               )}
             </div>
+            )}
           </ScrollArea>
 
           {/* Bottom Section */}
