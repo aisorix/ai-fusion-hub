@@ -156,7 +156,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
     user,
     setProjectsModalOpen,
   } = useChatStore();
-  const { avatarUrl } = useUserProfile();
+  const { avatarUrl, fullName } = useUserProfile();
 
   const [showMoreTools, setShowMoreTools] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -193,7 +193,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
     ? authUser.email.charAt(0).toUpperCase()
     : user.name.split(" ").map((n) => n[0]).join("").toUpperCase();
 
-  const userName = authUser?.user_metadata?.full_name || user.name;
+  const userName = fullName || authUser?.user_metadata?.full_name || user.name;
   const userEmail = authUser?.email || user.email;
   const isPaidUser = user.plan !== "free";
 
