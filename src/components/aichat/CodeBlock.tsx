@@ -147,39 +147,45 @@ const CodeBlock = memo(({ language, children }: CodeBlockProps) => {
 
   const runJavaScript = useCallback((code: string): Promise<string> => {
     return new Promise((resolve) => {
-      const logs: string[] = [];
-      const originalConsole = { ...console };
-      
-      // Override console methods
-      const captureLog = (...args: any[]) => {
-        logs.push(args.map(arg => 
-          typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-        ).join(' '));
-      };
-      
-      console.log = captureLog;
-      console.info = captureLog;
-      console.warn = (...args) => logs.push(`⚠️ ${args.join(' ')}`);
-      console.error = (...args) => logs.push(`❌ ${args.join(' ')}`);
-      
-      try {
-        // Create a safe execution context
-        const result = new Function(`
-          'use strict';
-          ${code}
-        `)();
-        
-        if (result !== undefined) {
-          logs.push(`→ ${typeof result === 'object' ? JSON.stringify(result, null, 2) : result}`);
+      // Execute in a sandboxed iframe to prevent access to main page localStorage/cookies/DOM
+      const iframe = document.createElement('iframe');
+      iframe.sandbox.add('allow-scripts');
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+
+      const timeoutId = setTimeout(() => {
+        iframe.remove();
+        resolve('❌ Error: Execution timed out (5s limit)');
+      }, 5000);
+
+      const handleMessage = (event: MessageEvent) => {
+        if (event.source === iframe.contentWindow) {
+          clearTimeout(timeoutId);
+          window.removeEventListener('message', handleMessage);
+          iframe.remove();
+          resolve(event.data?.result || '✓ Code executed successfully (no output)');
         }
-        
-        resolve(logs.length > 0 ? logs.join('\n') : '✓ Code executed successfully (no output)');
-      } catch (err) {
-        resolve(`❌ Error: ${err instanceof Error ? err.message : String(err)}`);
-      } finally {
-        // Restore console
-        Object.assign(console, originalConsole);
-      }
+      };
+      window.addEventListener('message', handleMessage);
+
+      const sandboxCode = `
+        <script>
+          const logs = [];
+          const origLog = console.log;
+          console.log = (...args) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' '));
+          console.info = console.log;
+          console.warn = (...args) => logs.push('⚠️ ' + args.join(' '));
+          console.error = (...args) => logs.push('❌ ' + args.join(' '));
+          try {
+            const result = (function() { 'use strict'; ${code.replace(/<\/script>/gi, '<\\/script>')} })();
+            if (result !== undefined) logs.push('→ ' + (typeof result === 'object' ? JSON.stringify(result, null, 2) : result));
+            parent.postMessage({ result: logs.length > 0 ? logs.join('\\n') : '✓ Code executed successfully (no output)' }, '*');
+          } catch(e) {
+            parent.postMessage({ result: '❌ Error: ' + e.message }, '*');
+          }
+        </script>
+      `;
+      iframe.srcdoc = sandboxCode;
     });
   }, []);
 
