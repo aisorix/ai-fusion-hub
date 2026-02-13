@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,6 +27,29 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Validate user authentication
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Missing authorization" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Unauthorized" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     if (!STRIPE_SECRET_KEY) {
       console.error("STRIPE_SECRET_KEY not configured");
       return new Response(
@@ -39,6 +63,14 @@ const handler = async (req: Request): Promise<Response> => {
 
     const body: PaymentRequest = await req.json();
     const { userId, planId, planName, amount, currency, customerName, customerEmail, billingCycle, origin } = body;
+
+    // Validate userId matches authenticated user
+    if (userId !== user.id) {
+      return new Response(
+        JSON.stringify({ success: false, error: "User ID mismatch" }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
 
     // Convert amount to cents (Stripe uses smallest currency unit)
     const amountInCents = Math.round(amount * 100);
