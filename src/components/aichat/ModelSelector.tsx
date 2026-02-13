@@ -37,12 +37,6 @@ const ModelSelector = () => {
 
   const handleSelect = (model: Model) => {
     if (!isModelAccessible(model)) return;
-    if (model.multiplier >= 10) {
-      toast.warning(`This model uses ${model.multiplier}x tokens per message`, {
-        description: "Heavy AI model - tokens will be deducted at higher rate",
-        duration: 4000,
-      });
-    }
     setSelectedModel(model.id);
     setIsOpen(false);
   };
@@ -313,11 +307,6 @@ const MobileModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect, 
             {model.multiplier}x
           </span>
         )}
-        {dailyRemaining !== null && (
-          <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-bold", dailyRemaining > 0 ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive")}>
-            {dailyRemaining}/day
-          </span>
-        )}
         {isLocked && requiredPlan && (
           <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide", getPlanColor(requiredPlan))}>
             {getPlanLabel(requiredPlan)}
@@ -348,11 +337,6 @@ const DesktopModelItem = ({ model, isSelected, isLocked, requiredPlan, onSelect,
         {model.multiplier > 1 && (
           <span className={cn("px-1 py-0.5 rounded text-[9px] font-bold", model.multiplier >= 10 ? "bg-amber-500/20 text-amber-600 dark:text-amber-400" : "bg-muted text-muted-foreground")}>
             {model.multiplier}x
-          </span>
-        )}
-        {dailyRemaining !== null && (
-          <span className={cn("px-1 py-0.5 rounded text-[9px] font-bold", dailyRemaining > 0 ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive")}>
-            {dailyRemaining}/day
           </span>
         )}
         {isLocked && requiredPlan && (

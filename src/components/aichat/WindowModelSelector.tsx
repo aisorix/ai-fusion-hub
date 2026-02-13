@@ -40,12 +40,6 @@ const WindowModelSelector = ({ windowId, currentModelId }: WindowModelSelectorPr
 
   const handleSelect = (model: Model) => {
     if (!isModelAccessible(model)) return;
-    if (model.multiplier >= 10) {
-      toast.warning(`This model uses ${model.multiplier}x tokens per message`, {
-        description: 'Heavy AI model - tokens will be deducted at higher rate',
-        duration: 4000,
-      });
-    }
     setWindowModel(windowId, model.id);
     setIsOpen(false);
   };
@@ -160,11 +154,6 @@ const ModelGroup = ({ title, dotColor, models, selectedModelId, onSelect, theme,
             {model.multiplier > 1 && (
               <span className={cn("px-1 py-0.5 rounded text-[9px] font-bold", model.multiplier >= 10 ? "bg-amber-500/20 text-amber-500" : "bg-muted text-muted-foreground")}>
                 {model.multiplier}x
-              </span>
-            )}
-            {dailyRemaining !== null && (
-              <span className={cn("px-1 py-0.5 rounded text-[9px] font-bold", dailyRemaining > 0 ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive")}>
-                {dailyRemaining}/day
               </span>
             )}
             {!accessible && requiredPlan && (
