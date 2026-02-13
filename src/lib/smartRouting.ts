@@ -1,7 +1,7 @@
 // Smart Routing Logic for Cost Optimization and Smart Auto model
 // Routes simple queries to cheaper models while maintaining user experience
 
-import type { UserPlan } from '@/stores/chatStore';
+import type { UserPlan, Model } from '@/stores/chatStore';
 
 // Worker model IDs per plan (1x multiplier models for simple queries)
 const WORKER_MODELS: Record<UserPlan, string> = {
@@ -9,14 +9,6 @@ const WORKER_MODELS: Record<UserPlan, string> = {
   basic: 'openai/gpt-5-nano',
   pro: 'openai/gpt-5-nano',
   premium: 'openai/gpt-5-nano',
-};
-
-// Best models per plan (for complex queries in Smart Auto mode)
-const BEST_MODELS: Record<UserPlan, { backendId: string; modelId: string; multiplier: number }> = {
-  free: { backendId: 'openai/gpt-4o-mini', modelId: 'gpt-4o', multiplier: 1 },
-  basic: { backendId: 'google/gemini-3-flash-preview', modelId: 'gemini-3-flash', multiplier: 1.5 },
-  pro: { backendId: 'openai/gpt-5.1', modelId: 'gpt5-1', multiplier: 4 },
-  premium: { backendId: 'anthropic/claude-sonnet-4.5', modelId: 'claude-sonnet-45', multiplier: 6 },
 };
 
 // For backward compatibility
@@ -96,25 +88,36 @@ export function getWorkerModelForPlan(plan: UserPlan): string {
 }
 
 /**
- * Resolve Smart Auto model selection based on query complexity
- * Returns the actual model to use (backendId, multiplier, display modelId)
+ * Resolve Smart Auto model selection based on query complexity.
+ * Dynamically picks from the user's actual available models.
  */
 export function resolveSmartAutoModel(
   plan: UserPlan,
   prompt: string,
+  availableModels: Model[],
   conversationHistory?: { role: string; content: string }[]
 ): { backendId: string; modelId: string; multiplier: number } {
   const complexity = analyzeQueryComplexity(prompt, conversationHistory);
-  
+
+  // Filter out smart-auto itself
+  const realModels = availableModels.filter(m => m.id !== 'smart-auto');
+
   if (complexity === 'simple') {
-    return {
-      backendId: WORKER_MODELS[plan],
-      modelId: plan === 'free' ? 'gpt-4o' : 'gpt5-nano',
-      multiplier: 1,
-    };
+    // Pick the first 1x model from user's available models
+    const workerModel = realModels.find(m => m.multiplier <= 1);
+    if (workerModel) {
+      return { backendId: workerModel.backendId, modelId: workerModel.id, multiplier: workerModel.multiplier };
+    }
+  } else {
+    // Pick the highest multiplier model from user's available models
+    const sorted = [...realModels].sort((a, b) => b.multiplier - a.multiplier);
+    if (sorted.length > 0) {
+      return { backendId: sorted[0].backendId, modelId: sorted[0].id, multiplier: sorted[0].multiplier };
+    }
   }
-  
-  return BEST_MODELS[plan];
+
+  // Fallback
+  return { backendId: WORKER_MODELS[plan], modelId: realModels[0]?.id || 'gpt-4o', multiplier: 1 };
 }
 
 export default { analyzeQueryComplexity, shouldApplySmartRouting, WORKER_MODEL_ID, getWorkerModelForPlan, resolveSmartAutoModel };

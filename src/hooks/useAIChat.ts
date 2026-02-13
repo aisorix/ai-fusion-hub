@@ -129,8 +129,9 @@ export const useAIChat = () => {
     const conversationHistory = currentMessages.slice(-10).map(m => ({ role: m.role, content: m.content }));
 
     if (isSmartAuto) {
-      // Smart Auto: resolve based on query complexity
-      const resolved = resolveSmartAutoModel(user.plan, content, conversationHistory);
+      // Smart Auto: resolve based on query complexity using user's available models
+      const availableModels = models.filter(m => m.plans.includes(user.plan));
+      const resolved = resolveSmartAutoModel(user.plan, content, availableModels, conversationHistory);
       activeBackendId = resolved.backendId;
       activeMultiplier = resolved.multiplier;
       resolvedModelId = resolved.modelId;
