@@ -268,32 +268,32 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
           {/* Spacer */}
           <div className="flex-1" />
 
+          {/* More Tools */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
+                <Sparkles className="w-5 h-5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="start"
+              side="right"
+              className="w-48 bg-popover border border-border shadow-lg z-50"
+            >
+              <DropdownMenuItem onClick={() => navigate("/health")}>
+                <Heart className="w-4 h-4 mr-2 text-red-500" /> Sorix Health
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/agro")}>
+                <Leaf className="w-4 h-4 mr-2 text-green-500" /> Sorix Agro
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/legends")}>
+                <BookOpen className="w-4 h-4 mr-2 text-amber-500" /> Sorix Legends
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           {/* Bottom icons */}
           <div className="flex flex-col items-center gap-1.5">
-            {/* More Tools */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
-                  <Sparkles className="w-5 h-5" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="start"
-                side="right"
-                className="w-48 bg-popover border border-border shadow-lg z-50"
-              >
-                <DropdownMenuItem onClick={() => navigate("/health")}>
-                  <Heart className="w-4 h-4 mr-2 text-red-500" /> Sorix Health
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/agro")}>
-                  <Leaf className="w-4 h-4 mr-2 text-green-500" /> Sorix Agro
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/legends")}>
-                  <BookOpen className="w-4 h-4 mr-2 text-amber-500" /> Sorix Legends
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
             {/* User avatar with dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
