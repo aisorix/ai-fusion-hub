@@ -6,6 +6,7 @@ import ChatInput from "./ChatInput";
 import ModelSelector from "./ModelSelector";
 import EmptyState from "./EmptyState";
 import SettingsModal from "./SettingsModal";
+import UpgradePlanModal from "./UpgradePlanModal";
 import { cn } from "@/lib/utils";
 import { Settings, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -21,11 +22,17 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const [showSettings, setShowSettings] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   // Derive messages from active chat
   const messages = chats.find((c) => c.id === activeChatId)?.messages || [];
   const isPaidUser = user.plan !== "free";
   const currentModel = models.find((m) => m.id === selectedModel) || models[0];
   const handleSend = async (content: string) => {
+    // Check token limit before sending
+    if (user.tokensUsed >= user.tokensLimit && user.tokensLimit > 0) {
+      setShowUpgradeModal(true);
+      return;
+    }
     await sendMessage(content);
   };
 
@@ -79,6 +86,8 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
 
       {/* Settings Modal */}
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
+      {/* Upgrade Plan Modal - shown when token limit reached */}
+      <UpgradePlanModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
     </div>
   );
 };

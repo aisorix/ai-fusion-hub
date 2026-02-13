@@ -84,10 +84,10 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 sm:h-20 items-center">
             {/* Logo */}
-            <a href="#" className="flex items-center gap-2 sm:gap-3 group relative z-10">
+            <Link to="/" className="flex items-center gap-2 sm:gap-3 group relative z-10">
               <img src={logo} alt="AI Sorix" className="w-9 h-9 sm:w-12 sm:h-12 object-contain" />
               <span className="text-lg sm:text-2xl font-bold text-gradient-primary tracking-tight">AI Sorix</span>
-            </a>
+            </Link>
 
             {/* Desktop Menu */}
             <div className="hidden lg:flex items-center gap-10">

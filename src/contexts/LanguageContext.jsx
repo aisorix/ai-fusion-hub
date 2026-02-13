@@ -1,12 +1,28 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useChatStore } from '@/stores/chatStore';
+
+// Bidirectional sync component
+const LanguageSyncBridge = ({ language, setLanguage }) => {
+  const { language: storeLanguage, setLanguage: setStoreLanguage } = useChatStore();
+  
+  // Sync LanguageContext -> chatStore
+  useEffect(() => {
+    if (language !== storeLanguage) {
+      setStoreLanguage(language);
+    }
+  }, [language]);
+  
+  // Sync chatStore -> LanguageContext
+  useEffect(() => {
+    if (storeLanguage !== language) {
+      setLanguage(storeLanguage);
+    }
+  }, [storeLanguage]);
+  
+  return null;
+};
 
 const translations = {
-  en: {
-    // Navbar
-    features: 'Features',
-    pricing: 'Pricing',
-    faqs: 'FAQs',
-    aboutUs: 'About Us',
     login: 'Login',
     register: 'Register',
     getStarted: 'Get Started',
@@ -222,16 +238,17 @@ const translations = {
 const LanguageContext = createContext();
 
 export const LanguageProvider = ({ children }) => {
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguageState] = useState('en');
   
   const t = (key) => translations[language][key] || key;
   
   const toggleLanguage = (lang) => {
-    setLanguage(lang);
+    setLanguageState(lang);
   };
   
   return (
     <LanguageContext.Provider value={{ language, setLanguage: toggleLanguage, t }}>
+      <LanguageSyncBridge language={language} setLanguage={setLanguageState} />
       {children}
     </LanguageContext.Provider>
   );

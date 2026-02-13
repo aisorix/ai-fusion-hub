@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Toaster } from 'sonner';
+import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { useChatStore } from '@/stores/chatStore';
 import ChatArea from '@/components/aichat/ChatArea';
@@ -59,15 +59,7 @@ const ChatPage = () => {
        'flex h-[100dvh] overflow-hidden transition-colors duration-200',
       'bg-background text-foreground'
     )}>
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          className: cn(
-            'bg-popover text-popover-foreground border border-border',
-            'shadow-lg backdrop-blur-xl'
-          )
-        }}
-      />
+      
       
       {/* Desktop Sidebar - hidden on mobile */}
       {!isMobile && sidebarOpen && (
