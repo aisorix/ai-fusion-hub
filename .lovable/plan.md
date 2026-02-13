@@ -1,150 +1,178 @@
 
-## Sorix Legends - Chat with Historical Legends
 
-### Overview
-Build a dedicated "Sorix Legends" tool at `/legends` that lets users chat with 10 famous historical/specialist personas. Each persona has a unique avatar image, personality, and speaking style. Uses `deepseek/deepseek-r1-0528` via OpenRouter with 3x token deduction. Includes conversation history saved to the `analysis_history` table.
+# Model System Overhaul: New Models, Multipliers, Daily Limits, and Smart Routing
 
-Also includes two fixes:
-- Sorix Agro: make it free (no token deduction) 
-- Sorix Health: optimize for faster responses
+## Overview
+Complete rewrite of the model configuration and token calculation system to match the new pricing specification, add daily message limits for premium models, fix multi-window token calculation, and improve smart routing.
 
 ---
 
-### New Files to Create
+## 1. Rewrite Model Definitions (`src/stores/chatStore.ts`)
 
-#### 1. Avatar Images (copy uploaded images to src/assets/legends/)
-- `src/assets/legends/jc_bose.png` -- from user-uploads://image-129.png
-- `src/assets/legends/humayun.png` -- from user-uploads://image-130.png
-- `src/assets/legends/nazrul.png` -- from user-uploads://image-131.png
-- `src/assets/legends/jobs.png` -- from user-uploads://image-132.png
-- `src/assets/legends/einstein.png` -- from user-uploads://image-133.png
-- `src/assets/legends/tesla.png` -- from user-uploads://image-134.png
-- `src/assets/legends/kalam.png` -- from user-uploads://image-135.png
-- `src/assets/legends/bcs_coach.png` -- from user-uploads://image-136.png
-- `src/assets/legends/legal_bot.png` -- from user-uploads://image-137.png
-- `src/assets/legends/finance_bot.png` -- from user-uploads://image-138.png
+### New Model Architecture
+Instead of duplicating models per plan, each model is defined ONCE with:
+- The **minimum plan** required to access it
+- A single multiplier value
+- An optional `dailyLimit` map per plan (for rate-limited models)
 
-#### 2. `src/pages/LegendsPage.tsx` -- Main Legends Page
-- Two views: **Persona Grid** (default) and **Chat View** (when a persona is selected)
-- Header with back-to-chat link, tool branding (amber/gold theme), and History button
-- Persona grid organized into 3 sections: "Bengali Legends", "Global Icons", "Specialists"
-- Each persona card shows avatar image, name, role, description, and a "Chat" button
-- When a persona is selected, transitions to a full chat interface
-- History panel (same slide-out pattern as Health/Agro) using `analysis_history` table with `tool: 'legends'`
-- Responsive: cards in grid on desktop, stacked on mobile
+### Add to `Model` interface:
+```typescript
+export interface Model {
+  id: string;
+  name: string;
+  backendId: string;
+  description: string;
+  category: ModelCategory;
+  plans: UserPlan[];       // All plans that can access this model
+  multiplier: number;
+  dailyLimit?: Partial<Record<UserPlan, number>>; // Optional daily msg limits per plan
+  icon?: string;
+}
+```
 
-#### 3. `src/components/legends/LegendCard.tsx` -- Persona Card Component
-- Glassmorphism card with avatar image (circular), name, role badge, description
-- Hover animation with scale and glow effect
-- "Must Have" badge for Steve Jobs
-- Color-coded category indicator (amber for Bengali, blue for Global, purple for Specialists)
+### New Model List (Single Source of Truth):
 
-#### 4. `src/components/legends/LegendChat.tsx` -- Chat Interface with a Legend
-- Full chat interface similar to HealthChatMode/AgroChatMode
-- Shows the legend's avatar and name in assistant message headers
-- Supports image uploads (user can share images for context)
-- Uses markdown rendering (react-markdown) for rich responses
-- Streaming responses via SSE
-- Back button to return to persona grid
-- System prompt injects the persona's identity, speaking style, knowledge domain, and instructs the AI to roleplay authentically
+**Free Tier (3 models):**
+| Display Name | Backend ID | Multiplier |
+|---|---|---|
+| GPT-4o | openai/gpt-4o-mini | 1x |
+| DeepSeek V3.1 | deepseek/deepseek-chat-v3.1 | 1x |
+| Gemini 2.5 Flash | google/gemini-2.5-flash-lite | 1x |
 
-#### 5. `src/components/legends/LegendHistory.tsx` -- History Panel
-- Same pattern as HealthHistory/AgroHistory
-- Shows past conversations grouped by persona
-- Click to resume/view, delete individual entries
+**Basic Tier (12 models) -- also includes all Free models:**
+| Display Name | Backend ID | Multiplier |
+|---|---|---|
+| GPT-5.1 mini | openai/gpt-5-mini | 1x |
+| GPT-5 nano | openai/gpt-5-nano | 1x |
+| Gemini 3 Flash | google/gemini-3-flash-preview | 1.5x |
+| Gemini 3 | google/gemini-3-flash-preview | 1.5x |
+| Grok 4 | x-ai/grok-3-mini | 1x |
+| Grok 4 Fast | x-ai/grok-4-fast | 1x |
+| DeepSeek V3.1 | deepseek/deepseek-chat-v3.1 | 1x |
+| DeepSeek V3.2 | deepseek/deepseek-v3.2 | 1x |
+| LLaMA 3.1 | meta-llama/llama-3.1-70b-instruct | 1x |
+| LLaMA 3.3 | meta-llama/llama-3.3-70b-instruct | 1x |
+| Qwen 3 Coder | qwen/qwen3-coder | 1x |
+| Qwen 3 VL | qwen/qwen3-vl-235b-a22b-instruct | 1x |
 
-#### 6. `src/components/legends/index.tsx` -- Barrel exports
+**Pro Tier (8 models) -- also includes all Free + Basic models:**
+| Display Name | Backend ID | Multiplier | Daily Limit |
+|---|---|---|---|
+| Qwen 3 Pro | qwen/qwen3-235b-a22b-2507 | 1x | -- |
+| GPT-5.1 | openai/gpt-5.1 | 4x | 20/day (pro), 20/day (premium) |
+| GPT-5.2 (Limited) | openai/gpt-5.2 | 6.5x | 10/day (pro), 30/day (premium) |
+| Gemini 2.5 Pro (Limited) | google/gemini-2.5-pro | 4x | 20/day (pro), 20/day (premium) |
+| Grok 4.1 fast | x-ai/grok-4.1-fast | 1x | -- |
+| Perplexity Sonar | perplexity/sonar | 3x | -- |
+| Llama 4 Maverick | meta-llama/llama-4-maverick | 1x | -- |
+| Llama 4 Scout | meta-llama/llama-4-scout | 1x | -- |
 
-#### 7. `src/services/legendsApi.ts` -- API Service
-- Same SSE streaming pattern as agroApi.ts
-- Calls the new `legends-chat` edge function
+**Premium Tier (7 models) -- also includes all Free + Basic + Pro models:**
+| Display Name | Backend ID | Multiplier | Daily Limit |
+|---|---|---|---|
+| Claude Sonnet 4.5 | anthropic/claude-sonnet-4.5 | 6x | 20/day |
+| Claude Opus 4.5 | anthropic/claude-opus-4.5 | 10x | 10/day |
+| GPT-5.2 | openai/gpt-5.2 | 6.5x | 30/day |
+| Gemini 2.5 Pro | google/gemini-2.5-pro | 4x | 20/day |
+| Perplexity Research Pro | perplexity/sonar-deep-research | 6x | -- |
+| Kimi-K2.5 | moonshotai/kimi-k2.5 | 1x | -- |
+| Mistral Large 3 | mistralai/mistral-large-2512 | 1x | -- |
 
-#### 8. `supabase/functions/legends-chat/index.ts` -- Edge Function
-- Uses ONLY `deepseek/deepseek-r1-0528` via OpenRouter
-- Streaming chat mode only (no structured analysis needed)
-- Receives `personaId` parameter to select the correct system prompt
-- Each persona has a detailed system prompt defining:
-  - Their identity, era, achievements
-  - Speaking style (e.g., Humayun Ahmed uses gentle, philosophical Bangla-English; Nazrul uses passionate, rebellious language; Einstein uses playful analogies; Jobs uses minimalist, product-focused language)
-  - Knowledge domain boundaries
-  - Example phrases and mannerisms
-- Supports multimodal input (images) for context
-- CORS headers, no JWT verification
-
-#### 9. Persona System Prompts (inside the edge function)
-Each persona gets a unique system prompt. Examples:
-
-**Humayun Ahmed**: "You are Humayun Ahmed, the beloved Bangladeshi novelist. You speak in a gentle, philosophical mix of Bangla and English. You often reference your characters like Himu and Misir Ali. You tell stories to explain points..."
-
-**Steve Jobs**: "You are Steve Jobs. You speak with conviction about simplicity, design, and making a dent in the universe. You challenge assumptions. You use phrases like 'insanely great' and 'one more thing'..."
-
-**The BCS Cadre**: "You are an expert BCS exam preparation coach. You specialize in Bangladesh General Knowledge, Bangla Grammar, English, Math, and all BCS cadre subjects. You provide structured study plans..."
-
----
-
-### Files to Modify
-
-#### 10. `src/App.jsx`
-- Add route: `/legends` -> `<LegendsPage />` (protected)
-
-#### 11. `src/components/aichat/ChatSidebar.tsx`
-- Add onClick for "Sorix Legends" tool: `navigate('/legends')`
-
-#### 12. `src/components/aichat/MobileSidebar.tsx`
-- Add onClick for "Sorix Legends": `navigate('/legends'); onClose();`
-
-#### 13. `supabase/config.toml`
-- Add `[functions.legends-chat]` with `verify_jwt = false`
+### Plan Hierarchy Logic
+Update `getModelsForPlan` to be cumulative:
+- Free: only free models
+- Basic: free + basic models
+- Pro: free + basic + pro models
+- Premium: all models
 
 ---
 
-### Sorix Health Speed Optimization
+## 2. Add "Smart Auto" Model Option
 
-#### 14. `supabase/functions/health-analysis/index.ts`
-- For structured analysis mode, use `google/gemma-3-27b-it` as the PRIMARY model (fastest) instead of `deepseek/deepseek-r1-0528` (slowest due to reasoning)
-- Keep DeepSeek as fallback only
-- Reduce `max_tokens` from 8192 to 4096 for structured analysis (JSON output is compact)
-- Add `temperature: 0.3` for structured mode (more deterministic = faster)
-- For streaming chat mode, already using `gemma-3-27b-it` which is fast -- no change needed
-
-#### 15. Health Chat Enhancement
-- Ensure the "Continue Chat" button after analysis connects to a specialist context
-- The chat mode system prompt should mention "You are now acting as a specialist doctor for this patient's condition"
+Add a virtual "Smart Auto" model as the first option in the selector:
+- ID: `smart-auto`
+- Behavior: Analyzes the user's query complexity and routes to the best model within their plan
+- Simple queries (greetings, factual QnA): Use a 1x model (GPT-4o for free, GPT-5 nano for paid)
+- Complex queries: Use the highest-tier model available in the user's plan
+- Token deduction follows the model actually used
 
 ---
 
-### Sorix Agro Free Confirmation
-- Sorix Agro is already free (no token deduction logic exists in the frontend for it)
-- No code changes needed -- the edge function is called directly without any token tracking
+## 3. Daily Message Limit Enforcement
+
+### New State in Store
+Add daily usage tracking:
+```typescript
+dailyModelUsage: Record<string, { count: number; date: string }>;
+```
+
+### Enforcement Logic
+- Before sending a message, check if the model has a `dailyLimit` for the user's plan
+- If daily limit is reached, show a toast and block the message
+- Reset counter when the date changes
+- Display remaining daily messages in the model selector UI
 
 ---
 
-### Token Deduction for Legends (3x)
-The token deduction for Legends will be handled in the frontend. The `LegendChat` component will:
-- After each successful response, calculate token usage and call the chatStore's token deduction with a 3x multiplier
-- This follows the same pattern used in the main chat for model-based multipliers
+## 4. Fix Multi-Window Token Calculation (`src/components/aichat/MultiWindowChat.tsx`)
+
+Currently the `updateTokenUsage` function in MultiWindowChat does NOT apply the model multiplier. Fix:
+```typescript
+const updateTokenUsage = (inputTokens, outputTokens, multiplier, modelName) => {
+  const baseTokens = inputTokens + outputTokens;
+  const totalTokens = Math.ceil(baseTokens * multiplier);
+  // ... rest of logic
+};
+```
+
+Also apply attachment model override (1x multiplier for file/image analysis) same as single chat.
 
 ---
 
-### Technical Details
+## 5. Update Smart Routing (`src/lib/smartRouting.ts`)
 
-**Legends Edge Function System Prompts** will include:
-- Persona-specific vocabulary and speaking patterns
-- Historical accuracy about their life events and achievements
-- Domain expertise boundaries (Einstein won't give legal advice, etc.)
-- Instruction to stay in character at all times
-- Support for both English and Bangla responses where appropriate
+- When "Smart Auto" is selected, route based on query complexity:
+  - Simple: cheapest 1x model for the plan
+  - Complex: best available model for the plan
+- When a specific premium model is selected, still downgrade simple queries to 1x model
+- Update `WORKER_MODEL_ID` to match plan: `openai/gpt-4o-mini` for free, `openai/gpt-5-nano` for paid
 
-**Responsive Design**:
-- Persona grid: 1 column mobile, 2 columns tablet, 3 columns desktop
-- Chat view: full width on all devices
-- Avatar images: circular with border, 80px on desktop, 64px on mobile
-- Touch-friendly card interactions (min 44px tap targets)
+---
 
-**History Integration**:
-- Saves to `analysis_history` with `tool: 'legends'`
-- `title` field stores the persona name
-- `input_data` stores `{ personaId, lastMessages }` (last 3 messages for preview)
-- `result_data` stores the full message history
+## 6. Update UI Components
 
-**File count**: 10 image files, 6 new code files, 4 modified files, 1 edge function update
+### ModelSelector (`src/components/aichat/ModelSelector.tsx`)
+- Add "Smart Auto" as first option with special styling (gradient/sparkle icon)
+- Show daily limit badge (e.g., "10/day") next to rate-limited models
+- Show remaining daily uses for limited models
+- Update grouping logic for cumulative plan access
+
+### WindowModelSelector (`src/components/aichat/WindowModelSelector.tsx`)
+- Same updates as ModelSelector for consistency
+- Show multiplier badges and daily limits
+
+### EmptyState (`src/components/aichat/EmptyState.tsx`)
+- No changes needed (uses current model from store)
+
+---
+
+## 7. Files to Modify
+
+| File | Changes |
+|---|---|
+| `src/stores/chatStore.ts` | Rewrite model definitions, add dailyLimit, add dailyModelUsage state, update getModelsForPlan for hierarchy, add Smart Auto model, update default models |
+| `src/lib/smartRouting.ts` | Update WORKER_MODEL_ID per plan, add Smart Auto routing logic |
+| `src/hooks/useAIChat.ts` | Add daily limit check before sending, pass multiplier correctly, handle Smart Auto model selection |
+| `src/components/aichat/MultiWindowChat.tsx` | Fix token calculation to include multiplier, add daily limit checks |
+| `src/components/aichat/ModelSelector.tsx` | Add Smart Auto option, show daily limits, update grouping for cumulative access |
+| `src/components/aichat/WindowModelSelector.tsx` | Same updates as ModelSelector |
+
+---
+
+## Technical Notes
+
+- Models like GPT-5.2 and Gemini 2.5 Pro appear in both Pro and Premium tiers with different daily limits. These will have separate model entries (e.g., `gpt52-pro` with 10/day and `gpt52-premium` with 30/day) but share the same backend ID.
+- The "Smart Auto" model won't have a real backend ID -- the routing logic determines which actual model to use at send time.
+- Daily usage is tracked in Zustand persisted state and resets based on date comparison.
+- All multiplier values are updated to exactly match the user's specification.
+
