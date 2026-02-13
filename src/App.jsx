@@ -28,6 +28,7 @@ import AgroPage from "./pages/AgroPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailed from "./pages/PaymentFailed";
 import PaymentCancel from "./pages/PaymentCancel";
+import LegendsPage from "./pages/LegendsPage";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,11 @@ const App = () => (
               <Route path="/agro" element={
                 <ProtectedRoute>
                   <AgroPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/legends" element={
+                <ProtectedRoute>
+                  <LegendsPage />
                 </ProtectedRoute>
               } />
               <Route path="/login" element={<Login />} />
