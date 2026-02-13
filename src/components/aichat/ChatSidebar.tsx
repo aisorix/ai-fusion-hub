@@ -265,9 +265,6 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             </button>
           </div>
 
-          {/* Spacer */}
-          <div className="flex-1" />
-
           {/* More Tools */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -291,6 +288,8 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          {/* Spacer */}
+          <div className="flex-1" />
 
           {/* Bottom icons */}
           <div className="flex flex-col items-center gap-1.5">
