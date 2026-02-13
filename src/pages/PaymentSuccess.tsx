@@ -20,6 +20,7 @@ const PaymentSuccess = () => {
 
   const tranId = searchParams.get('tran_id');
   const gateway = searchParams.get('gateway');
+  const sessionId = searchParams.get('session_id');
 
   useEffect(() => {
     const verifyPayment = async () => {
@@ -28,6 +29,33 @@ const PaymentSuccess = () => {
         if (!user) {
           setIsVerifying(false);
           return;
+        }
+
+        // For Stripe: trigger webhook now that payment is complete
+        if (gateway === 'stripe' && sessionId && tranId) {
+          try {
+            await fetch(
+              `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/payment-webhook`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  gateway: 'stripe',
+                  status: 'success',
+                  tran_id: tranId,
+                  stripe_session_id: sessionId,
+                  amount: parseFloat(searchParams.get('amount') || '0'),
+                  currency: searchParams.get('currency') || 'USD',
+                  user_id: user.id,
+                  plan_id: searchParams.get('plan_id') || 'basic',
+                  billing_cycle: searchParams.get('billing_cycle') || 'monthly',
+                  payment_method: 'stripe',
+                }),
+              }
+            );
+          } catch (e) {
+            console.error('Failed to call webhook for Stripe:', e);
+          }
         }
 
         // Wait for webhook to process
@@ -42,7 +70,6 @@ const PaymentSuccess = () => {
           .maybeSingle();
 
         if (subscription && subscription.plan_id) {
-          // Update the chatStore with the new plan
           const validPlans: UserPlan[] = ['free', 'basic', 'pro', 'premium'];
           const planId = subscription.plan_id as UserPlan;
           
@@ -51,7 +78,6 @@ const PaymentSuccess = () => {
             setPlanName(getPlanDisplayName(planId));
             setVerified(true);
             
-            // Start countdown for auto-redirect to chat
             let count = 5;
             const countdownInterval = setInterval(() => {
               count -= 1;
@@ -74,7 +100,7 @@ const PaymentSuccess = () => {
     };
 
     verifyPayment();
-  }, [tranId, gateway, setUserPlan, navigate, createNewChat]);
+  }, [tranId, gateway, sessionId, setUserPlan, navigate, createNewChat]);
 
   const getPlanDisplayName = (planId: string): string => {
     const names: Record<string, string> = {
