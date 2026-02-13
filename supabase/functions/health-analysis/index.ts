@@ -90,13 +90,14 @@ Rules:
 - category must be exactly "necessary", "optional", or "unnecessary"
 - Respond ONLY with the JSON object, nothing else`;
 
-const MODELS = [
+// Structured analysis: fast model first for speed
+const STRUCTURED_MODELS = [
+  'google/gemma-3-27b-it',
   'deepseek/deepseek-r1-0528',
   'anthropic/claude-sonnet-4.5',
-  'google/gemma-3-27b-it',
 ];
 
-async function callModel(apiKey: string, model: string, messages: any[], stream: boolean) {
+async function callModel(apiKey: string, model: string, messages: any[], stream: boolean, opts?: { max_tokens?: number; temperature?: number }) {
   return await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -109,8 +110,8 @@ async function callModel(apiKey: string, model: string, messages: any[], stream:
       model,
       messages,
       stream,
-      max_tokens: 8192,
-      temperature: 0.7,
+      max_tokens: opts?.max_tokens ?? 8192,
+      temperature: opts?.temperature ?? 0.7,
     }),
   });
 }
@@ -167,10 +168,10 @@ serve(async (req) => {
 
       // Try models in order
       let lastError = '';
-      for (const model of MODELS) {
+      for (const model of STRUCTURED_MODELS) {
         try {
           console.log(`Trying model: ${model}`);
-          const response = await callModel(OPENROUTER_API_KEY, model, apiMessages, false);
+          const response = await callModel(OPENROUTER_API_KEY, model, apiMessages, false, { max_tokens: 4096, temperature: 0.3 });
 
           if (!response.ok) {
             const errText = await response.text();
