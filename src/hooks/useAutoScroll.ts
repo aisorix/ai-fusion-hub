@@ -1,5 +1,5 @@
 // Auto-scroll hook for chat message lists
-// Automatically scrolls to the bottom when new messages arrive
+// Smooth scrolling with user-override detection
 
 import { useRef, useEffect, useCallback } from 'react';
 import type { Message } from '@/stores/chatStore';
@@ -7,21 +7,21 @@ import type { Message } from '@/stores/chatStore';
 export const useAutoScroll = (messages: Message[], isStreaming: boolean) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const shouldScrollRef = useRef(true);
+  const rafRef = useRef<number | null>(null);
   
   // Check if user is near bottom
   const checkIfNearBottom = useCallback(() => {
     if (!containerRef.current) return true;
-    
     const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-    
-    // Consider "near bottom" if within 100px
-    return distanceFromBottom < 100;
+    return scrollHeight - scrollTop - clientHeight < 100;
   }, []);
   
-  // Handle scroll events
+  // Debounced scroll handler
   const handleScroll = useCallback(() => {
-    shouldScrollRef.current = checkIfNearBottom();
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      shouldScrollRef.current = checkIfNearBottom();
+    });
   }, [checkIfNearBottom]);
   
   // Scroll to bottom
@@ -34,19 +34,25 @@ export const useAutoScroll = (messages: Message[], isStreaming: boolean) => {
     }
   }, []);
   
-  // Set up scroll listener
+  // Set up scroll listener + CSS hints
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
     
-    container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
+    container.style.willChange = 'scroll-position';
+    container.style.overscrollBehaviorY = 'contain';
+    
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+      container.style.willChange = '';
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, [handleScroll]);
   
-  // Auto-scroll when messages change
+  // Auto-scroll when messages change — only if user hasn't scrolled up
   useEffect(() => {
-    if (shouldScrollRef.current || isStreaming) {
-      // Use requestAnimationFrame for smooth scrolling during streaming
+    if (shouldScrollRef.current) {
       requestAnimationFrame(() => {
         scrollToBottom(false);
       });

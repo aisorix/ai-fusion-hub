@@ -1,5 +1,4 @@
 import React, { useState, useCallback, memo, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   Copy,
   Check,
@@ -15,6 +14,7 @@ import SourcesWidget from './SourcesWidget';
 import { useChatStore, type Message } from '@/stores/chatStore';
 import { cn } from '@/lib/utils';
 import { ModelIcon } from './ModelIcons';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // Emoji reactions for rating AI responses
 const EMOJI_REACTIONS = [
@@ -62,7 +62,16 @@ interface MessageBubbleProps {
 }
 
 const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps) => {
-  const { theme, openShareModal, chats, activeChatId, user, selectedModel, models } = useChatStore();
+  // Use selectors for only what's needed
+  const theme = useChatStore(s => s.theme);
+  const openShareModal = useChatStore(s => s.openShareModal);
+  const activeChatId = useChatStore(s => s.activeChatId);
+  const chats = useChatStore(s => s.chats);
+  const selectedModel = useChatStore(s => s.selectedModel);
+  const models = useChatStore(s => s.models);
+
+  const isMobile = useIsMobile();
+
   const [copied, setCopied] = useState(false);
   const [selectedReactions, setSelectedReactions] = useState<Set<string>>(new Set());
   const [showActions, setShowActions] = useState(false);
@@ -70,9 +79,6 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(message.content);
   
-  const isPaidUser = user.plan !== 'free';
-  
-  // Get model info - use message's stored model or fallback to current selected
   const messageModelId = message.modelId || selectedModel;
   const messageModelName = message.modelName || models.find(m => m.id === messageModelId)?.name || 'Sorix AI';
 
@@ -91,7 +97,6 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
   const isUser = message.role === 'user';
   const isAssistant = message.role === 'assistant';
   
-  // Get all messages from the current chat for export
   const currentMessages = chats.find(c => c.id === activeChatId)?.messages || [];
   
   const handleCopy = useCallback(() => {
@@ -109,12 +114,20 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
     setIsEditing(false);
     setEditContent(message.content);
   }, [message.content]);
+
+  // On mobile, skip framer-motion wrapper for performance
+  const Wrapper = isMobile ? 'div' : require('framer-motion').motion.div;
+  const wrapperProps = isMobile
+    ? {}
+    : {
+        initial: { opacity: 0, y: 8 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0.2, ease: 'easeOut' },
+      };
   
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2, ease: 'easeOut' }}
+    <Wrapper
+      {...wrapperProps}
       className={cn(
         'group relative w-full',
         isUser ? 'py-3 sm:py-4' : 'py-4 sm:py-6',
@@ -125,38 +138,29 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
     >
       <div className="max-w-3xl mx-auto px-3 sm:px-4">
         {isUser ? (
-          // User message - clean bubble style with edit/copy
           <div className="flex justify-end">
             <div className="relative max-w-[90%] sm:max-w-[85%]">
-              {/* Edit/Copy buttons for user messages */}
-              <AnimatePresence>
-                {showActions && !isEditing && (
-                  <motion.div
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 10 }}
-                    className="absolute -left-20 top-1/2 -translate-y-1/2 flex items-center gap-1"
+              {showActions && !isEditing && !isMobile && (
+                <div className="absolute -left-20 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                  <button
+                    onClick={handleEdit}
+                    className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                    title="Edit"
                   >
-                    <button
-                      onClick={handleEdit}
-                      className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-                      title="Edit"
-                    >
-                      <Pencil className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={handleCopy}
-                      className={cn(
-                        "p-1.5 rounded-lg hover:bg-muted transition-colors",
-                        copied ? "text-green-500" : "text-muted-foreground hover:text-foreground"
-                      )}
-                      title="Copy"
-                    >
-                      {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={handleCopy}
+                    className={cn(
+                      "p-1.5 rounded-lg hover:bg-muted transition-colors",
+                      copied ? "text-green-500" : "text-muted-foreground hover:text-foreground"
+                    )}
+                    title="Copy"
+                  >
+                    {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              )}
 
               {isEditing ? (
                 <div className="flex flex-col gap-2">
@@ -193,11 +197,10 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
                     {message.content}
                   </p>
                   
-                  {/* Image Attachments */}
                   {message.attachments && message.attachments.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-2">
                       {message.attachments.map((att, index) => (
-                        att.type === 'image' && (
+                        att.type === 'image' && att.url && (
                           <img
                             key={index}
                             src={att.url}
@@ -213,9 +216,7 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
             </div>
           </div>
         ) : (
-          // Assistant message - shows real model icon and name
           <div className="flex gap-3 sm:gap-4">
-            {/* Model-specific Avatar Icon */}
             <div className="flex-shrink-0 mt-0.5">
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center overflow-hidden">
                 <ModelIcon 
@@ -228,9 +229,7 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
               </div>
             </div>
             
-            {/* Content */}
             <div className="flex-1 min-w-0 space-y-2">
-              {/* Model Name Label */}
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-foreground">
                   {messageModelName}
@@ -252,7 +251,6 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
                 )}
               </div>
               
-              {/* Message Content */}
               <div className="text-foreground">
                 {message.content ? (
                   <MarkdownRenderer content={message.content} />
@@ -267,24 +265,21 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
                     </div>
                   )
                 )}
-                {/* Streaming cursor - smooth blinking */}
                 {isStreaming && isLast && message.content && (
                   <span className="inline-block w-[3px] h-5 ml-0.5 bg-primary rounded-sm align-middle animate-[pulse_0.8s_ease-in-out_infinite]" />
                 )}
               </div>
               
-              {/* Sources Widget - Show citations from search models */}
               {message.citations && message.citations.length > 0 && !isStreaming && (
                 <SourcesWidget citations={message.citations} theme={theme} />
               )}
               
-              {/* Action Buttons - Show on hover for assistant messages */}
               {message.content && !isStreaming && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: showActions ? 1 : 0 }}
-                  transition={{ duration: 0.15 }}
-                  className="flex items-center gap-0.5 pt-2"
+                <div
+                  className={cn(
+                    "flex items-center gap-0.5 pt-2 transition-opacity duration-150",
+                    showActions ? "opacity-100" : "opacity-0"
+                  )}
                 >
                   <ActionButton
                     onClick={handleCopy}
@@ -304,13 +299,12 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
                     <Volume2 className="w-4 h-4" />
                   </ActionButton>
                   
-                  {/* Emoji Reactions */}
                   <div className="relative">
                     <button
                       onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                       className={cn(
                         'p-2 rounded-lg transition-all duration-150 text-muted-foreground',
-                        theme === 'dark' ? 'hover:bg-secondary hover:text-foreground' : 'hover:bg-secondary hover:text-foreground',
+                        'hover:bg-secondary hover:text-foreground',
                         selectedReactions.size > 0 && 'text-primary'
                       )}
                       title="React"
@@ -324,39 +318,32 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
                       )}
                     </button>
                     
-                    <AnimatePresence>
-                      {showEmojiPicker && (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.9, y: 4 }}
-                          animate={{ opacity: 1, scale: 1, y: 0 }}
-                          exit={{ opacity: 0, scale: 0.9, y: 4 }}
-                          transition={{ duration: 0.15 }}
-                          className={cn(
-                            'absolute bottom-full left-0 mb-2 flex items-center gap-1 px-2 py-1.5 rounded-xl shadow-lg z-50',
-                            theme === 'dark' ? 'bg-card border border-border' : 'bg-white border border-border shadow-md'
-                          )}
-                        >
-                          {EMOJI_REACTIONS.map((reaction) => (
-                            <button
-                              key={reaction.key}
-                              onClick={() => handleReaction(reaction.key)}
-                              className={cn(
-                                'p-1.5 rounded-lg transition-all duration-150 hover:scale-110 text-lg',
-                                selectedReactions.has(reaction.key) 
-                                  ? 'bg-primary/20 scale-110' 
-                                  : 'hover:bg-muted'
-                              )}
-                              title={reaction.label}
-                            >
-                              {reaction.emoji}
-                            </button>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    {showEmojiPicker && (
+                      <div
+                        className={cn(
+                          'absolute bottom-full left-0 mb-2 flex items-center gap-1 px-2 py-1.5 rounded-xl shadow-lg z-50',
+                          theme === 'dark' ? 'bg-card border border-border' : 'bg-white border border-border shadow-md'
+                        )}
+                      >
+                        {EMOJI_REACTIONS.map((reaction) => (
+                          <button
+                            key={reaction.key}
+                            onClick={() => handleReaction(reaction.key)}
+                            className={cn(
+                              'p-1.5 rounded-lg transition-all duration-150 hover:scale-110 text-lg',
+                              selectedReactions.has(reaction.key) 
+                                ? 'bg-primary/20 scale-110' 
+                                : 'hover:bg-muted'
+                            )}
+                            title={reaction.label}
+                          >
+                            {reaction.emoji}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   
-                  {/* Selected Reactions Display */}
                   {selectedReactions.size > 0 && (
                     <div className="flex items-center gap-0.5 ml-1 px-2 py-1 rounded-full bg-muted/50">
                       {EMOJI_REACTIONS.filter(r => selectedReactions.has(r.key)).map(reaction => (
@@ -382,13 +369,13 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
                   >
                     <Share className="w-4 h-4" />
                   </ActionButton>
-                </motion.div>
+                </div>
               )}
             </div>
           </div>
         )}
       </div>
-    </motion.div>
+    </Wrapper>
   );
 });
 
@@ -408,7 +395,7 @@ const ActionButton = memo(({ onClick, children, tooltip, active, activeColor, th
     className={cn(
       'p-2 rounded-lg transition-all duration-150',
       'text-muted-foreground',
-      theme === 'dark' ? 'hover:bg-secondary hover:text-foreground' : 'hover:bg-secondary hover:text-foreground',
+      'hover:bg-secondary hover:text-foreground',
       active && activeColor
     )}
     title={tooltip}

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useChatStore } from '@/stores/chatStore';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -103,6 +104,9 @@ const ProfileTab = () => {
       setAvatarUrl(url);
       
       await supabase.from('profiles').update({ avatar_url: url }).eq('user_id', user.id);
+      // Sync to Zustand store instantly
+      const store = useChatStore.getState();
+      store.setUser({ ...store.user, avatar: url });
       toast.success('Profile picture updated');
     } catch (err: any) {
       toast.error(err.message || 'Failed to upload');
@@ -125,6 +129,9 @@ const ProfileTab = () => {
         .eq('user_id', user.id);
       if (error) throw error;
       setHasChanges(false);
+      // Sync to Zustand store instantly
+      const store = useChatStore.getState();
+      store.setUser({ ...store.user, name: fullName || store.user.name });
       toast.success('Profile updated successfully');
     } catch (err: any) {
       toast.error(err.message || 'Failed to update profile');

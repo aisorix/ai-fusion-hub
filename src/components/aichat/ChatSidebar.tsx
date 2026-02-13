@@ -22,6 +22,10 @@ import {
   PanelLeft,
   MoreHorizontal,
   Home,
+  Pencil,
+  Trash2,
+  Check,
+  X,
 } from "lucide-react";
 import { useChatStore } from "@/stores/chatStore";
 import { cn } from "@/lib/utils";
@@ -47,6 +51,93 @@ interface ChatSidebarProps {
   onNewChat: () => void;
 }
 
+// Chat item with context menu
+const ChatItem = ({
+  chat,
+  isActive,
+  onSelect,
+  onDelete,
+  onRename,
+}: {
+  chat: { id: string; title: string };
+  isActive: boolean;
+  onSelect: () => void;
+  onDelete: (id: string) => void;
+  onRename: (id: string, title: string) => void;
+}) => {
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [renameValue, setRenameValue] = useState(chat.title);
+
+  const handleRenameSubmit = () => {
+    if (renameValue.trim()) {
+      onRename(chat.id, renameValue.trim());
+    }
+    setIsRenaming(false);
+  };
+
+  if (isRenaming) {
+    return (
+      <div className="flex items-center gap-1 px-2 py-1">
+        <input
+          autoFocus
+          value={renameValue}
+          onChange={(e) => setRenameValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleRenameSubmit();
+            if (e.key === "Escape") setIsRenaming(false);
+          }}
+          className="flex-1 text-sm px-2 py-1 rounded-md bg-muted border border-border focus:outline-none focus:ring-1 focus:ring-primary/50"
+        />
+        <button onClick={handleRenameSubmit} className="p-1 hover:bg-muted rounded text-green-500">
+          <Check className="w-3.5 h-3.5" />
+        </button>
+        <button onClick={() => setIsRenaming(false)} className="p-1 hover:bg-muted rounded text-muted-foreground">
+          <X className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={cn(
+        "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors group relative",
+        isActive ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
+      )}
+    >
+      <button onClick={onSelect} className="flex items-center gap-2 flex-1 min-w-0 text-left">
+        <MessageSquare className="w-4 h-4 shrink-0" />
+        <span className="truncate">{chat.title}</span>
+      </button>
+
+      {/* Three-dot menu on hover */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-muted/80 transition-opacity shrink-0">
+            <MoreHorizontal className="w-3.5 h-3.5 text-muted-foreground" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-36 bg-popover border border-border shadow-lg z-50">
+          <DropdownMenuItem
+            onClick={() => {
+              setRenameValue(chat.title);
+              setIsRenaming(true);
+            }}
+          >
+            <Pencil className="w-3.5 h-3.5 mr-2" />
+            Rename
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => onDelete(chat.id)} className="text-destructive focus:text-destructive">
+            <Trash2 className="w-3.5 h-3.5 mr-2" />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+};
+
 const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
   const navigate = useNavigate();
   const { signOut, user: authUser } = useAuth();
@@ -59,6 +150,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
     activeChatId,
     setActiveChat,
     deleteChat,
+    updateChatTitle,
     viewMode,
     setViewMode,
     user,
@@ -77,10 +169,8 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
     navigate("/login");
   };
 
-  // Filter chats by search
   const filteredChats = chats.filter((chat) => chat.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  // Group chats by date
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const weekAgo = new Date(today);
@@ -94,82 +184,51 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
   const olderChats = filteredChats.filter((c) => new Date(c.createdAt) < weekAgo);
 
   const moreTools = [
-    {
-      id: "agro",
-      name: "Sorix Agro",
-      description: "AI-powered agricultural assistant",
-      icon: Leaf,
-      color: "bg-green-100 text-green-600",
-    },
-    {
-      id: "health",
-      name: "Sorix Health",
-      description: "Your personal health companion",
-      icon: Heart,
-      color: "bg-red-100 text-red-600",
-    },
-    {
-      id: "legends",
-      name: "Sorix Legends",
-      description: "Chat with historical legends",
-      icon: BookOpen,
-      color: "bg-amber-100 text-amber-600",
-    },
+    { id: "agro", name: "Sorix Agro", description: "AI-powered agricultural assistant", icon: Leaf, color: "bg-green-100 text-green-600" },
+    { id: "health", name: "Sorix Health", description: "Your personal health companion", icon: Heart, color: "bg-red-100 text-red-600" },
+    { id: "legends", name: "Sorix Legends", description: "Chat with historical legends", icon: BookOpen, color: "bg-amber-100 text-amber-600" },
   ];
 
-  // Get user initials
   const userInitials = authUser?.email
     ? authUser.email.charAt(0).toUpperCase()
-    : user.name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase();
+    : user.name.split(" ").map((n) => n[0]).join("").toUpperCase();
 
   const userName = authUser?.user_metadata?.full_name || user.name;
   const userEmail = authUser?.email || user.email;
   const isPaidUser = user.plan !== "free";
 
+  const renderChatList = (chatList: typeof chats) =>
+    chatList.map((chat) => (
+      <ChatItem
+        key={chat.id}
+        chat={chat}
+        isActive={activeChatId === chat.id}
+        onSelect={() => setActiveChat(chat.id)}
+        onDelete={deleteChat}
+        onRename={updateChatTitle}
+      />
+    ));
+
   // Collapsed sidebar view
   if (sidebarCollapsed) {
     return (
       <div className="w-14 h-full bg-card border-r border-border flex flex-col items-center py-4 gap-2">
-        {/* Expand button */}
-        <button
-          onClick={toggleSidebarCollapse}
-          className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors mb-2"
-        >
+        <button onClick={toggleSidebarCollapse} className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors mb-2">
           <PanelLeft className="w-5 h-5 text-muted-foreground" />
         </button>
-
-        {/* New Chat */}
-        <button
-          onClick={onNewChat}
-          className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center hover:opacity-90 transition-opacity"
-        >
+        <button onClick={onNewChat} className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center hover:opacity-90 transition-opacity">
           <Plus className="w-5 h-5" />
         </button>
-
-        {/* Search */}
         <button className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
           <Search className="w-5 h-5" />
         </button>
-
-        {/* Multi-Window */}
         <button
           onClick={() => setViewMode(viewMode === "single" ? "multi" : "single")}
-          className={cn(
-            "w-10 h-10 rounded-lg flex items-center justify-center transition-colors",
-            viewMode === "multi" ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground",
-          )}
+          className={cn("w-10 h-10 rounded-lg flex items-center justify-center transition-colors", viewMode === "multi" ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground")}
         >
           <LayoutGrid className="w-5 h-5" />
         </button>
-
-        {/* Spacer */}
         <div className="flex-1" />
-
-        {/* User Avatar */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="w-10 h-10 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm hover:bg-primary/20 transition-colors">
@@ -197,12 +256,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
-        {/* Home */}
-        <Link
-          to="/"
-          className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
-        >
+        <Link to="/" className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
           <Home className="w-5 h-5" />
         </Link>
       </div>
@@ -211,13 +265,8 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
 
   return (
     <>
-      <div
-        className={cn(
-          "w-64 h-full bg-card border-r flex flex-col overflow-hidden",
-          isPaidUser ? "border-primary/20 bg-gradient-to-b from-card via-card to-primary/5" : "border-border",
-        )}
-      >
-        {/* Header with Plan Icon */}
+      <div className={cn("w-64 h-full bg-card border-r flex flex-col overflow-hidden", isPaidUser ? "border-primary/20 bg-gradient-to-b from-card via-card to-primary/5" : "border-border")}>
+        {/* Header */}
         <div className="p-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <img src={sorixLogo} alt="AI Sorix" className="w-8 h-8" />
@@ -229,15 +278,12 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
               <p className="text-[10px] text-muted-foreground">Premium AI Platform</p>
             </div>
           </Link>
-          <button
-            onClick={toggleSidebarCollapse}
-            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
-          >
+          <button onClick={toggleSidebarCollapse} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
             <PanelLeftClose className="w-4 h-4" />
           </button>
         </div>
 
-        {/* New Chat Button */}
+        {/* New Chat */}
         <div className="px-3">
           <Button onClick={onNewChat} className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
             <Plus className="w-4 h-4" />
@@ -259,21 +305,16 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
           </div>
         </div>
 
-        {/* Navigation Items */}
+        {/* Navigation */}
         <div className="px-3 mt-4 space-y-1">
-          {/* Multi-Window Chat */}
           <button
             onClick={() => setViewMode(viewMode === "single" ? "multi" : "single")}
-            className={cn(
-              "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
-              viewMode === "multi" ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
-            )}
+            className={cn("w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors", viewMode === "multi" ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted")}
           >
             <LayoutGrid className="w-4 h-4" />
             <span>Multi-Window Chat</span>
           </button>
 
-          {/* More Tools */}
           <div>
             <button
               onClick={() => setShowMoreTools(!showMoreTools)}
@@ -283,19 +324,12 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                 <Sparkles className="w-4 h-4 text-primary" />
                 <span>More Tools</span>
               </div>
-              <ChevronDown
-                className={cn("w-4 h-4 transition-transform text-muted-foreground", showMoreTools && "rotate-180")}
-              />
+              <ChevronDown className={cn("w-4 h-4 transition-transform text-muted-foreground", showMoreTools && "rotate-180")} />
             </button>
 
             <AnimatePresence>
               {showMoreTools && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden"
-                >
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                   <div className="py-1 space-y-1">
                     {moreTools.map((tool) => (
                       <button
@@ -324,7 +358,6 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             </AnimatePresence>
           </div>
 
-          {/* Projects */}
           <button
             onClick={() => setProjectsModalOpen(true)}
             className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
@@ -343,75 +376,22 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
         {/* Chat History */}
         <ScrollArea className="flex-1 mt-4">
           <div className="px-3 space-y-4">
-            {/* Today */}
             {todayChats.length > 0 && (
               <div>
-                <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">
-                  Today
-                </h3>
-                <div className="space-y-0.5">
-                  {todayChats.map((chat) => (
-                    <button
-                      key={chat.id}
-                      onClick={() => setActiveChat(chat.id)}
-                      className={cn(
-                        "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors group",
-                        activeChatId === chat.id ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
-                      )}
-                    >
-                      <MessageSquare className="w-4 h-4 shrink-0" />
-                      <span className="truncate flex-1 text-left">{chat.title}</span>
-                    </button>
-                  ))}
-                </div>
+                <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">Today</h3>
+                <div className="space-y-0.5">{renderChatList(todayChats)}</div>
               </div>
             )}
-
-            {/* This Week */}
             {thisWeekChats.length > 0 && (
               <div>
-                <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">
-                  This Week
-                </h3>
-                <div className="space-y-0.5">
-                  {thisWeekChats.map((chat) => (
-                    <button
-                      key={chat.id}
-                      onClick={() => setActiveChat(chat.id)}
-                      className={cn(
-                        "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
-                        activeChatId === chat.id ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
-                      )}
-                    >
-                      <MessageSquare className="w-4 h-4 shrink-0" />
-                      <span className="truncate flex-1 text-left">{chat.title}</span>
-                    </button>
-                  ))}
-                </div>
+                <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">This Week</h3>
+                <div className="space-y-0.5">{renderChatList(thisWeekChats)}</div>
               </div>
             )}
-
-            {/* Older */}
             {olderChats.length > 0 && (
               <div>
-                <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">
-                  Older
-                </h3>
-                <div className="space-y-0.5">
-                  {olderChats.slice(0, 10).map((chat) => (
-                    <button
-                      key={chat.id}
-                      onClick={() => setActiveChat(chat.id)}
-                      className={cn(
-                        "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
-                        activeChatId === chat.id ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
-                      )}
-                    >
-                      <MessageSquare className="w-4 h-4 shrink-0" />
-                      <span className="truncate flex-1 text-left">{chat.title}</span>
-                    </button>
-                  ))}
-                </div>
+                <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">Older</h3>
+                <div className="space-y-0.5">{renderChatList(olderChats.slice(0, 10))}</div>
               </div>
             )}
           </div>
@@ -419,7 +399,6 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
 
         {/* Bottom Section */}
         <div className="p-3 border-t border-border space-y-1">
-          {/* User Profile */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors">
@@ -442,12 +421,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                 <Settings className="w-4 h-4 mr-2" />
                 Settings
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setSettingsInitialTab("help");
-                  setShowSettings(true);
-                }}
-              >
+              <DropdownMenuItem onClick={() => { setSettingsInitialTab("help"); setShowSettings(true); }}>
                 <HelpCircle className="w-4 h-4 mr-2" />
                 Help & Support
               </DropdownMenuItem>
@@ -459,24 +433,16 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Back to Home */}
-          <Link
-            to="/"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
-          >
+          <Link to="/" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted transition-colors">
             <Home className="w-4 h-4" />
             <span>Back to Home</span>
           </Link>
         </div>
       </div>
 
-      {/* Modals */}
       <SettingsModal
         isOpen={showSettings}
-        onClose={() => {
-          setShowSettings(false);
-          setSettingsInitialTab(undefined);
-        }}
+        onClose={() => { setShowSettings(false); setSettingsInitialTab(undefined); }}
         initialTab={settingsInitialTab}
       />
       <UpgradePlanModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
