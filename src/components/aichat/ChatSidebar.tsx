@@ -185,14 +185,36 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
   const olderChats = filteredChats.filter((c) => new Date(c.createdAt) < weekAgo);
 
   const moreTools = [
-    { id: "agro", name: "Sorix Agro", description: "AI-powered agricultural assistant", icon: Leaf, color: "bg-green-100 text-green-600" },
-    { id: "health", name: "Sorix Health", description: "Your personal health companion", icon: Heart, color: "bg-red-100 text-red-600" },
-    { id: "legends", name: "Sorix Legends", description: "Chat with historical legends", icon: BookOpen, color: "bg-amber-100 text-amber-600" },
+    {
+      id: "agro",
+      name: "Sorix Agro",
+      description: "AI-powered agricultural assistant",
+      icon: Leaf,
+      color: "bg-green-100 text-green-600",
+    },
+    {
+      id: "health",
+      name: "Sorix Health",
+      description: "Your personal health companion",
+      icon: Heart,
+      color: "bg-red-100 text-red-600",
+    },
+    {
+      id: "legends",
+      name: "Sorix Legends",
+      description: "Chat with historical legends",
+      icon: BookOpen,
+      color: "bg-amber-100 text-amber-600",
+    },
   ];
 
   const userInitials = authUser?.email
     ? authUser.email.charAt(0).toUpperCase()
-    : user.name.split(" ").map((n) => n[0]).join("").toUpperCase();
+    : user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase();
 
   const userName = fullName || authUser?.user_metadata?.full_name || user.name;
   const userEmail = authUser?.email || user.email;
@@ -217,10 +239,16 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
         <div className="w-14 h-full bg-card border-r border-border flex flex-col items-center py-4">
           {/* Top icons */}
           <div className="flex flex-col items-center gap-1.5">
-            <button onClick={toggleSidebarCollapse} className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
+            <button
+              onClick={toggleSidebarCollapse}
+              className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
+            >
               <PanelLeft className="w-5 h-5" />
             </button>
-            <button onClick={onNewChat} className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center hover:opacity-90 transition-opacity">
+            <button
+              onClick={onNewChat}
+              className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center hover:opacity-90 transition-opacity"
+            >
               <Plus className="w-5 h-5" />
             </button>
             <button className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
@@ -228,7 +256,10 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             </button>
             <button
               onClick={() => setViewMode(viewMode === "single" ? "multi" : "single")}
-              className={cn("w-10 h-10 rounded-lg flex items-center justify-center transition-colors", viewMode === "multi" ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground")}
+              className={cn(
+                "w-10 h-10 rounded-lg flex items-center justify-center transition-colors",
+                viewMode === "multi" ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground",
+              )}
             >
               <LayoutGrid className="w-5 h-5" />
             </button>
@@ -246,7 +277,11 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                   <Sparkles className="w-5 h-5" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" side="right" className="w-48 bg-popover border border-border shadow-lg z-50">
+              <DropdownMenuContent
+                align="start"
+                side="right"
+                className="w-48 bg-popover border border-border shadow-lg z-50"
+              >
                 <DropdownMenuItem onClick={() => navigate("/health")}>
                   <Heart className="w-4 h-4 mr-2 text-red-500" /> Sorix Health
                 </DropdownMenuItem>
@@ -259,11 +294,6 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Settings */}
-            <button onClick={() => setShowSettings(true)} className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
-              <Settings className="w-5 h-5" />
-            </button>
-
             {/* User avatar with dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -271,7 +301,11 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                   {avatarUrl ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" /> : userInitials}
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" side="right" className="w-56 bg-popover border border-border shadow-lg z-50">
+              <DropdownMenuContent
+                align="start"
+                side="right"
+                className="w-56 bg-popover border border-border shadow-lg z-50"
+              >
                 <div className="px-3 py-2">
                   <p className="text-sm font-medium text-foreground truncate">{userName}</p>
                   <p className="text-xs text-muted-foreground truncate">{userEmail}</p>
@@ -285,7 +319,12 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                   <Settings className="w-4 h-4 mr-2" />
                   Settings
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => { setSettingsInitialTab("help"); setShowSettings(true); }}>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSettingsInitialTab("help");
+                    setShowSettings(true);
+                  }}
+                >
                   <HelpCircle className="w-4 h-4 mr-2" />
                   Help & Support
                 </DropdownMenuItem>
@@ -298,7 +337,10 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             </DropdownMenu>
 
             {/* Home */}
-            <Link to="/" className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
+            <Link
+              to="/"
+              className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
+            >
               <Home className="w-5 h-5" />
             </Link>
           </div>
@@ -306,7 +348,10 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
 
         <SettingsModal
           isOpen={showSettings}
-          onClose={() => { setShowSettings(false); setSettingsInitialTab(undefined); }}
+          onClose={() => {
+            setShowSettings(false);
+            setSettingsInitialTab(undefined);
+          }}
           initialTab={settingsInitialTab}
         />
         <UpgradePlanModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
@@ -316,7 +361,12 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
 
   return (
     <>
-      <div className={cn("w-64 h-full bg-card border-r flex flex-col overflow-hidden", isPaidUser ? "border-primary/20 bg-gradient-to-b from-card via-card to-primary/5" : "border-border")}>
+      <div
+        className={cn(
+          "w-64 h-full bg-card border-r flex flex-col overflow-hidden",
+          isPaidUser ? "border-primary/20 bg-gradient-to-b from-card via-card to-primary/5" : "border-border",
+        )}
+      >
         {/* Header */}
         <div className="p-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
@@ -329,7 +379,10 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
               <p className="text-[10px] text-muted-foreground">Premium AI Platform</p>
             </div>
           </Link>
-          <button onClick={toggleSidebarCollapse} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
+          <button
+            onClick={toggleSidebarCollapse}
+            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
+          >
             <PanelLeftClose className="w-4 h-4" />
           </button>
         </div>
@@ -360,7 +413,10 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
         <div className="px-3 mt-4 space-y-1">
           <button
             onClick={() => setViewMode(viewMode === "single" ? "multi" : "single")}
-            className={cn("w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors", viewMode === "multi" ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted")}
+            className={cn(
+              "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
+              viewMode === "multi" ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
+            )}
           >
             <LayoutGrid className="w-4 h-4" />
             <span>Multi-Window Chat</span>
@@ -375,12 +431,19 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                 <Sparkles className="w-4 h-4 text-primary" />
                 <span>More Tools</span>
               </div>
-              <ChevronDown className={cn("w-4 h-4 transition-transform text-muted-foreground", showMoreTools && "rotate-180")} />
+              <ChevronDown
+                className={cn("w-4 h-4 transition-transform text-muted-foreground", showMoreTools && "rotate-180")}
+              />
             </button>
 
             <AnimatePresence>
               {showMoreTools && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden"
+                >
                   <div className="py-1 space-y-1">
                     {moreTools.map((tool) => (
                       <button
@@ -432,35 +495,37 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground"
             title={historyCollapsed ? "Show history" : "Hide history"}
           >
-            {historyCollapsed ? (
-              <ChevronRight className="w-3.5 h-3.5" />
-            ) : (
-              <ChevronDown className="w-3.5 h-3.5" />
-            )}
+            {historyCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           </button>
         </div>
         <ScrollArea className="flex-1 mt-1">
           {!historyCollapsed && (
-          <div className="px-3 space-y-4">
-            {todayChats.length > 0 && (
-              <div>
-                <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">Today</h3>
-                <div className="space-y-0.5">{renderChatList(todayChats)}</div>
-              </div>
-            )}
-            {thisWeekChats.length > 0 && (
-              <div>
-                <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">This Week</h3>
-                <div className="space-y-0.5">{renderChatList(thisWeekChats)}</div>
-              </div>
-            )}
-            {olderChats.length > 0 && (
-              <div>
-                <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">Older</h3>
-                <div className="space-y-0.5">{renderChatList(olderChats.slice(0, 10))}</div>
-              </div>
-            )}
-          </div>
+            <div className="px-3 space-y-4">
+              {todayChats.length > 0 && (
+                <div>
+                  <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">
+                    Today
+                  </h3>
+                  <div className="space-y-0.5">{renderChatList(todayChats)}</div>
+                </div>
+              )}
+              {thisWeekChats.length > 0 && (
+                <div>
+                  <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">
+                    This Week
+                  </h3>
+                  <div className="space-y-0.5">{renderChatList(thisWeekChats)}</div>
+                </div>
+              )}
+              {olderChats.length > 0 && (
+                <div>
+                  <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">
+                    Older
+                  </h3>
+                  <div className="space-y-0.5">{renderChatList(olderChats.slice(0, 10))}</div>
+                </div>
+              )}
+            </div>
           )}
         </ScrollArea>
 
@@ -488,7 +553,12 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                 <Settings className="w-4 h-4 mr-2" />
                 Settings
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => { setSettingsInitialTab("help"); setShowSettings(true); }}>
+              <DropdownMenuItem
+                onClick={() => {
+                  setSettingsInitialTab("help");
+                  setShowSettings(true);
+                }}
+              >
                 <HelpCircle className="w-4 h-4 mr-2" />
                 Help & Support
               </DropdownMenuItem>
@@ -500,7 +570,10 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Link to="/" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted transition-colors">
+          <Link
+            to="/"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
+          >
             <Home className="w-4 h-4" />
             <span>Back to Home</span>
           </Link>
@@ -509,7 +582,10 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
 
       <SettingsModal
         isOpen={showSettings}
-        onClose={() => { setShowSettings(false); setSettingsInitialTab(undefined); }}
+        onClose={() => {
+          setShowSettings(false);
+          setSettingsInitialTab(undefined);
+        }}
         initialTab={settingsInitialTab}
       />
       <UpgradePlanModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
