@@ -29,6 +29,8 @@ import sorixLogo from "@/assets/logo.png";
 import copy from "copy-to-clipboard";
 import { formatFileForPrompt } from "@/lib/fileParser";
 import SharedChatInput from "./SharedChatInput";
+import { shouldApplySmartRouting, getWorkerModelForPlan } from "@/lib/smartRouting";
+import { generateCacheKey, getCachedResponse, setCachedResponse, simulateCachedStreaming } from "@/lib/responseCache";
 import { LiveVoiceOverlay } from "@/components/voice";
 import ExportDropdown from "./ExportDropdown";
 
@@ -166,9 +168,19 @@ const MultiWindowChat = () => {
       const sendToWindow = async (window: ChatWindow) => {
         const model = models.find((m) => m.id === window.modelId);
         const hasAttachments = imageAttachments.length > 0 || documentAttachments.length > 0;
-        const backendModel = hasAttachments ? "openai/gpt-4o-mini" : model?.backendId || "openai/gpt-4o-mini";
+        let backendModel = hasAttachments ? "openai/gpt-4o-mini" : model?.backendId || "openai/gpt-4o-mini";
         const modelName = model?.name || "Unknown";
-        const multiplier = hasAttachments ? 1 : (model?.multiplier || 1);
+        let multiplier = hasAttachments ? 1 : (model?.multiplier || 1);
+
+        // Smart routing: downgrade simple queries on premium models
+        if (!hasAttachments && multiplier > 1) {
+          const contextMsgs = window.messages.slice(-10).map(m => ({ role: m.role, content: m.content }));
+          if (shouldApplySmartRouting(multiplier, content, contextMsgs)) {
+            console.log(`🧠 [MultiWindow/${modelName}] Smart routing to worker model`);
+            backendModel = getWorkerModelForPlan(user.plan);
+            multiplier = 1;
+          }
+        }
 
         // Build user text with file content
         let userText = content;
@@ -241,6 +253,30 @@ const MultiWindowChat = () => {
         const inputTokens = apiMessages.reduce((acc, msg) => acc + estimateTokens(msg.content), 0);
         console.log(`[${modelName}] Sending message, estimated input tokens: ${inputTokens}`);
 
+        // Cache check for premium models
+        const shouldCache = multiplier > 1 && !hasAttachments;
+        const contextForCache = window.messages.slice(-3).map(m => ({ role: m.role, content: m.content }));
+        const cacheKey = shouldCache ? generateCacheKey(userText, backendModel, contextForCache) : '';
+
+        if (shouldCache) {
+          const cached = getCachedResponse(cacheKey);
+          if (cached) {
+            console.log(`⚡ [MultiWindow/${modelName}] Cache HIT — serving cached response`);
+            simulateCachedStreaming(
+              cached.response,
+              (chunk) => updateWindowLastMessage(window.id, chunk),
+              () => {
+                setWindowStreaming(window.id, false);
+                if (cached.citations && cached.citations.length > 0) {
+                  setWindowLastMessageCitations(window.id, cached.citations);
+                }
+                updateTokenUsage(cached.inputTokens, cached.outputTokens, multiplier, modelName);
+              }
+            );
+            return;
+          }
+        }
+
         const abortController = new AbortController();
         abortControllersRef.current.set(window.id, abortController);
 
@@ -258,13 +294,17 @@ const MultiWindowChat = () => {
             (citations) => {
               setWindowStreaming(window.id, false);
               abortControllersRef.current.delete(window.id);
-              // Set citations if available (from Perplexity/search models)
               if (citations && citations.length > 0) {
                 setWindowLastMessageCitations(window.id, citations);
                 console.log(`[${modelName}] 📚 Added ${citations.length} citations`);
               }
               const outputTokens = estimateTokens(fullResponse);
               updateTokenUsage(inputTokens, outputTokens, multiplier, modelName);
+              // Store in cache for premium models
+              if (shouldCache && fullResponse) {
+                setCachedResponse(cacheKey, { response: fullResponse, citations: citations || undefined, inputTokens, outputTokens });
+                console.log(`💾 [MultiWindow/${modelName}] Cached response`);
+              }
               console.log(`[${modelName}] Streaming complete, response length: ${fullResponse.length}`);
             },
             (err) => {
