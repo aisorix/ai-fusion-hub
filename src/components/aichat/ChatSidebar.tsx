@@ -173,11 +173,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="w-10 h-10 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm hover:bg-primary/20 transition-colors">
-              {avatarUrl ? (
-                <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
-              ) : (
-                userInitials
-              )}
+              {avatarUrl ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" /> : userInitials}
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" side="right" className="w-56 bg-popover border border-border shadow-lg z-50">
@@ -305,9 +301,9 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                       <button
                         key={tool.id}
                         onClick={() => {
-                          if (tool.id === 'health') navigate('/health');
-                          if (tool.id === 'agro') navigate('/agro');
-                          if (tool.id === 'legends') navigate('/legends');
+                          if (tool.id === "health") navigate("/health");
+                          if (tool.id === "agro") navigate("/agro");
+                          if (tool.id === "legends") navigate("/legends");
                         }}
                         className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
                       >
@@ -322,16 +318,6 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                         </div>
                       </button>
                     ))}
-                    {/* More tools coming */}
-                    <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-gradient-to-r from-primary/5 to-accent/5">
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <Sparkles className="w-4 h-4 text-primary" />
-                      </div>
-                      <div>
-                        <span className="text-sm text-primary">More Tools Coming:</span>
-                        <p className="text-[10px] text-muted-foreground">New AI tools coming soon</p>
-                      </div>
-                    </div>
                   </div>
                 </motion.div>
               )}
@@ -438,11 +424,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             <DropdownMenuTrigger asChild>
               <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors">
                 <div className="w-8 h-8 rounded-full overflow-hidden bg-primary/20 flex items-center justify-center text-primary font-semibold text-xs">
-                  {avatarUrl ? (
-                    <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    userInitials
-                  )}
+                  {avatarUrl ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" /> : userInitials}
                 </div>
                 <div className="flex-1 text-left min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{userName}</p>
@@ -460,7 +442,12 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                 <Settings className="w-4 h-4 mr-2" />
                 Settings
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => { setSettingsInitialTab('help'); setShowSettings(true); }}>
+              <DropdownMenuItem
+                onClick={() => {
+                  setSettingsInitialTab("help");
+                  setShowSettings(true);
+                }}
+              >
                 <HelpCircle className="w-4 h-4 mr-2" />
                 Help & Support
               </DropdownMenuItem>
@@ -484,7 +471,14 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
       </div>
 
       {/* Modals */}
-      <SettingsModal isOpen={showSettings} onClose={() => { setShowSettings(false); setSettingsInitialTab(undefined); }} initialTab={settingsInitialTab} />
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => {
+          setShowSettings(false);
+          setSettingsInitialTab(undefined);
+        }}
+        initialTab={settingsInitialTab}
+      />
       <UpgradePlanModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
     </>
   );
