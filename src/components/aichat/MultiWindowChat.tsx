@@ -69,10 +69,11 @@ const MultiWindowChat = () => {
 
   const isAnyStreaming = chatWindows.some((w) => w.isStreaming);
 
-  // Update token usage with warnings
+  // Update token usage with warnings and multiplier
   const updateTokenUsage = useCallback(
-    (inputTokens: number, outputTokens: number, modelName: string) => {
-      const totalTokens = inputTokens + outputTokens;
+    (inputTokens: number, outputTokens: number, multiplier: number, modelName: string) => {
+      const baseTokens = inputTokens + outputTokens;
+      const totalTokens = Math.ceil(baseTokens * multiplier);
       const currentUser = useChatStore.getState().user;
       const newUsage = Math.min(currentUser.tokensUsed + totalTokens, currentUser.tokensLimit);
       const prevPercent = currentUser.tokensLimit > 0 ? (currentUser.tokensUsed / currentUser.tokensLimit) * 100 : 0;
@@ -100,7 +101,7 @@ const MultiWindowChat = () => {
       });
 
       console.log(
-        `[${modelName}] Token usage: +${totalTokens} (input: ${inputTokens}, output: ${outputTokens}), total: ${newUsage}/${currentUser.tokensLimit} (${newPercent.toFixed(1)}%)`,
+        `[${modelName}] Token usage: +${totalTokens} (base: ${baseTokens}, multiplier: ${multiplier}x), total: ${newUsage}/${currentUser.tokensLimit} (${newPercent.toFixed(1)}%)`,
       );
     },
     [setUser],
@@ -165,8 +166,9 @@ const MultiWindowChat = () => {
       const sendToWindow = async (window: ChatWindow) => {
         const model = models.find((m) => m.id === window.modelId);
         const hasAttachments = imageAttachments.length > 0 || documentAttachments.length > 0;
-        const backendModel = hasAttachments ? "openai/gpt-4o-mini" : model?.backendId || "deepseek/deepseek-chat";
+        const backendModel = hasAttachments ? "openai/gpt-4o-mini" : model?.backendId || "openai/gpt-4o-mini";
         const modelName = model?.name || "Unknown";
+        const multiplier = hasAttachments ? 1 : (model?.multiplier || 1);
 
         // Build user text with file content
         let userText = content;
@@ -262,7 +264,7 @@ const MultiWindowChat = () => {
                 console.log(`[${modelName}] 📚 Added ${citations.length} citations`);
               }
               const outputTokens = estimateTokens(fullResponse);
-              updateTokenUsage(inputTokens, outputTokens, modelName);
+              updateTokenUsage(inputTokens, outputTokens, multiplier, modelName);
               console.log(`[${modelName}] Streaming complete, response length: ${fullResponse.length}`);
             },
             (err) => {

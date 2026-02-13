@@ -8,8 +8,8 @@ export interface Attachment {
   url: string;
   name: string;
   size?: number;
-  parsedContent?: string; // Extracted text content for documents
-  fileType?: FileType; // Type of file for icon display
+  parsedContent?: string;
+  fileType?: FileType;
 }
 
 export interface Message {
@@ -17,9 +17,9 @@ export interface Message {
   role: 'user' | 'assistant';
   content: string;
   attachments?: Attachment[] | null;
-  citations?: string[] | null; // URLs from Perplexity/search models
-  modelId?: string; // ID of the model used for this message
-  modelName?: string; // Display name of the model used
+  citations?: string[] | null;
+  modelId?: string;
+  modelName?: string;
   createdAt: string;
 }
 
@@ -40,8 +40,9 @@ export interface Model {
   backendId: string;
   description: string;
   category: ModelCategory;
-  plans: UserPlan[]; // Plans that have access to this model
-  multiplier: number; // Token multiplier (1x, 2x, 3x, etc.)
+  plans: UserPlan[];
+  multiplier: number;
+  dailyLimit?: Partial<Record<UserPlan, number>>;
   icon?: string;
 }
 
@@ -155,6 +156,11 @@ interface ChatState {
   isModelLocked: (modelId: string) => boolean;
   getModelMultiplier: (modelId: string) => number;
   
+  // Daily Model Usage
+  dailyModelUsage: Record<string, { count: number; date: string }>;
+  incrementDailyUsage: (modelId: string) => void;
+  getDailyUsageRemaining: (modelId: string) => number | null;
+  
   // Share Modal
   shareModalOpen: boolean;
   shareMessageId: string | null;
@@ -177,88 +183,69 @@ interface ChatState {
 }
 
 // ============================================
-// MODEL DEFINITIONS BY PLAN WITH MULTIPLIERS
-// Models are organized by display name - no duplicates!
+// MODEL DEFINITIONS - SINGLE SOURCE OF TRUTH
+// Each model defined ONCE with cumulative plan access
 // ============================================
 
-// 🆓 FREE PLAN MODELS (5k Tokens/Month)
+// Smart Auto virtual model
+const smartAutoModel: Model = {
+  id: 'smart-auto',
+  name: 'Smart Auto',
+  backendId: 'smart-auto',
+  description: 'AI routes your query to the best model for optimal results',
+  category: 'system',
+  plans: ['free', 'basic', 'pro', 'premium'],
+  multiplier: 1,
+};
+
+// 🆓 FREE TIER MODELS
 const freeModels: Model[] = [
-  { id: 'gpt-4o', name: 'GPT-4o', backendId: 'openai/gpt-4o-mini', description: 'Smart AI assistant', category: 'chat', plans: ['free'], multiplier: 1 },
-  { id: 'deepseek-v31-free', name: 'DeepSeek V3.1', backendId: 'deepseek/deepseek-chat-v3.1', description: 'Advanced reasoning', category: 'chat', plans: ['free'], multiplier: 1 },
-  { id: 'gemini-3-flash-free', name: 'Gemini 3 Flash', backendId: 'google/gemini-3-flash-preview', description: 'Google fast model', category: 'chat', plans: ['free'], multiplier: 5 },
+  { id: 'gpt-4o', name: 'GPT-4o', backendId: 'openai/gpt-4o-mini', description: 'Smart AI assistant', category: 'chat', plans: ['free', 'basic', 'pro', 'premium'], multiplier: 1 },
+  { id: 'deepseek-v31', name: 'DeepSeek V3.1', backendId: 'deepseek/deepseek-chat-v3.1', description: 'Advanced reasoning', category: 'chat', plans: ['free', 'basic', 'pro', 'premium'], multiplier: 1 },
+  { id: 'gemini-25-flash', name: 'Gemini 2.5 Flash', backendId: 'google/gemini-2.5-flash-lite', description: 'Fast Google model', category: 'chat', plans: ['free', 'basic', 'pro', 'premium'], multiplier: 1 },
 ];
 
-// 📦 BASIC PLAN MODELS (800k Tokens/Month)
+// 📦 BASIC TIER MODELS
 const basicModels: Model[] = [
-  { id: 'gpt5-1-mini-basic', name: 'GPT-5.1 mini', backendId: 'openai/gpt-5-mini', description: 'Fast and efficient', category: 'chat', plans: ['basic'], multiplier: 4 },
-  { id: 'gpt5-nano-basic', name: 'GPT-5 nano', backendId: 'openai/gpt-5-nano', description: 'Ultra-fast responses', category: 'chat', plans: ['basic'], multiplier: 1 },
-  { id: 'gemini-3-flash-basic', name: 'Gemini 3 Flash', backendId: 'google/gemini-3-flash-preview', description: 'Next-gen Gemini', category: 'chat', plans: ['basic'], multiplier: 5 },
-  { id: 'gemini-3-basic', name: 'Gemini 3', backendId: 'google/gemini-3-flash-preview', description: 'Google flagship', category: 'chat', plans: ['basic'], multiplier: 5 },
-  { id: 'grok-4-basic', name: 'Grok 4', backendId: 'x-ai/grok-3-mini', description: 'xAI smart model', category: 'chat', plans: ['basic'], multiplier: 2 },
-  { id: 'grok-4-fast-basic', name: 'Grok 4 Fast', backendId: 'x-ai/grok-4-fast', description: 'Fast xAI model', category: 'chat', plans: ['basic'], multiplier: 1 },
-  { id: 'deepseek-v31-basic', name: 'DeepSeek V3.1', backendId: 'deepseek/deepseek-chat-v3.1', description: 'Latest DeepSeek', category: 'chat', plans: ['basic'], multiplier: 2 },
-  { id: 'deepseek-v32-basic', name: 'DeepSeek V3.2', backendId: 'deepseek/deepseek-v3.2', description: 'Newest DeepSeek', category: 'chat', plans: ['basic'], multiplier: 1 },
-  { id: 'llama-31-basic', name: 'LLaMA 3.1', backendId: 'meta-llama/llama-3.1-70b-instruct', description: 'Meta open-source', category: 'chat', plans: ['basic'], multiplier: 1.5 },
-  { id: 'llama-33-basic', name: 'LLaMA 3.3', backendId: 'meta-llama/llama-3.3-70b-instruct', description: 'Latest LLaMA', category: 'chat', plans: ['basic'], multiplier: 1 },
-  { id: 'qwen3-coder-basic', name: 'Qwen 3 Coder', backendId: 'qwen/qwen3-coder', description: 'Code specialist', category: 'code', plans: ['basic'], multiplier: 2 },
-  { id: 'qwen3-vl-basic', name: 'Qwen 3 VL', backendId: 'qwen/qwen3-vl-30b-a3b-instruct', description: 'Vision-language', category: 'chat', plans: ['basic'], multiplier: 1.5 },
+  { id: 'gpt5-1-mini', name: 'GPT-5.1 mini', backendId: 'openai/gpt-5-mini', description: 'Fast and efficient', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
+  { id: 'gpt5-nano', name: 'GPT-5 nano', backendId: 'openai/gpt-5-nano', description: 'Ultra-fast responses', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
+  { id: 'gemini-3-flash', name: 'Gemini 3 Flash', backendId: 'google/gemini-3-flash-preview', description: 'Next-gen Gemini', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1.5 },
+  { id: 'gemini-3', name: 'Gemini 3', backendId: 'google/gemini-3-flash-preview', description: 'Google flagship', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1.5 },
+  { id: 'grok-4', name: 'Grok 4', backendId: 'x-ai/grok-3-mini', description: 'xAI smart model', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
+  { id: 'grok-4-fast', name: 'Grok 4 Fast', backendId: 'x-ai/grok-4-fast', description: 'Fast xAI model', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
+  { id: 'deepseek-v32', name: 'DeepSeek V3.2', backendId: 'deepseek/deepseek-v3.2', description: 'Newest DeepSeek', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
+  { id: 'llama-31', name: 'LLaMA 3.1', backendId: 'meta-llama/llama-3.1-70b-instruct', description: 'Meta open-source', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
+  { id: 'llama-33', name: 'LLaMA 3.3', backendId: 'meta-llama/llama-3.3-70b-instruct', description: 'Latest LLaMA', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
+  { id: 'qwen3-coder', name: 'Qwen 3 Coder', backendId: 'qwen/qwen3-coder', description: 'Code specialist', category: 'code', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
+  { id: 'qwen3-vl', name: 'Qwen 3 VL', backendId: 'qwen/qwen3-vl-235b-a22b-instruct', description: 'Vision-language', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
 ];
 
-// ⚡ PRO PLAN MODELS (1.5M Tokens/Month)
+// ⚡ PRO TIER MODELS
 const proModels: Model[] = [
-  { id: 'qwen3-pro-pro', name: 'Qwen 3 Pro', backendId: 'qwen/qwen3-235b-a22b-2507', description: 'Professional Qwen', category: 'chat', plans: ['pro'], multiplier: 1 },
-  { id: 'qwen3-coder-pro', name: 'Qwen 3 Coder', backendId: 'qwen/qwen3-coder', description: 'Code specialist', category: 'code', plans: ['pro'], multiplier: 2 },
-  { id: 'qwen3-vl-pro', name: 'Qwen 3 VL', backendId: 'qwen/qwen3-vl-30b-a3b-instruct', description: 'Vision-language', category: 'chat', plans: ['pro'], multiplier: 1 },
-  { id: 'gpt5-1-mini-pro', name: 'GPT-5.1 mini', backendId: 'openai/gpt-5-mini', description: 'Fast and efficient', category: 'chat', plans: ['pro'], multiplier: 3 },
-  { id: 'gpt5-nano-pro', name: 'GPT-5 nano', backendId: 'openai/gpt-5-nano', description: 'Ultra-fast responses', category: 'chat', plans: ['pro'], multiplier: 1 },
-  { id: 'gpt5-1-pro', name: 'GPT-5.1', backendId: 'openai/gpt-5.1', description: 'Enhanced GPT model', category: 'chat', plans: ['pro'], multiplier: 20 },
-  { id: 'gpt5-2-pro', name: 'GPT-5.2', backendId: 'openai/gpt-5.2', description: 'Flagship reasoning', category: 'chat', plans: ['pro'], multiplier: 30 },
-  { id: 'gemini-3-flash-pro', name: 'Gemini 3 Flash', backendId: 'google/gemini-3-flash-preview', description: 'Next-gen Gemini', category: 'chat', plans: ['pro'], multiplier: 5 },
-  { id: 'gemini-3-pro', name: 'Gemini 3', backendId: 'google/gemini-3-flash-preview', description: 'Google flagship', category: 'chat', plans: ['pro'], multiplier: 5 },
-  { id: 'gemini-25-pro', name: 'Gemini 2.5 Pro', backendId: 'google/gemini-2.5-pro', description: 'Professional Gemini', category: 'chat', plans: ['pro'], multiplier: 20 },
-  { id: 'grok-4-pro', name: 'Grok 4', backendId: 'x-ai/grok-3-mini', description: 'xAI smart model', category: 'chat', plans: ['pro'], multiplier: 2 },
-  { id: 'grok-4-fast-pro', name: 'Grok 4 Fast', backendId: 'x-ai/grok-4-fast', description: 'Fast xAI model', category: 'chat', plans: ['pro'], multiplier: 1 },
-  { id: 'grok-41-fast-pro', name: 'Grok 4.1 fast', backendId: 'x-ai/grok-4.1-fast', description: 'Latest xAI model', category: 'chat', plans: ['pro'], multiplier: 1 },
-  { id: 'perplexity-sonar-pro', name: 'Perplexity Sonar', backendId: 'perplexity/sonar', description: 'Web search powered', category: 'search', plans: ['pro'], multiplier: 3 },
-  { id: 'deepseek-v31-pro', name: 'DeepSeek V3.1', backendId: 'deepseek/deepseek-chat-v3.1', description: 'Latest DeepSeek', category: 'chat', plans: ['pro'], multiplier: 2 },
-  { id: 'deepseek-v32-pro', name: 'DeepSeek V3.2', backendId: 'deepseek/deepseek-v3.2', description: 'Newest DeepSeek', category: 'chat', plans: ['pro'], multiplier: 1 },
-  { id: 'llama-31-pro', name: 'LLaMA 3.1', backendId: 'meta-llama/llama-3.1-70b-instruct', description: 'Meta open-source', category: 'chat', plans: ['pro'], multiplier: 2 },
-  { id: 'llama-33-pro', name: 'LLaMA 3.3', backendId: 'meta-llama/llama-3.3-70b-instruct', description: 'Latest LLaMA', category: 'chat', plans: ['pro'], multiplier: 1 },
-  { id: 'llama-4-maverick-pro', name: 'Llama 4 Maverick', backendId: 'meta-llama/llama-4-maverick', description: 'Latest Llama 4', category: 'chat', plans: ['pro'], multiplier: 2 },
-  { id: 'llama-4-scout-pro', name: 'Llama 4 Scout', backendId: 'meta-llama/llama-4-scout', description: 'Llama 4 Scout', category: 'chat', plans: ['pro'], multiplier: 1 },
+  { id: 'qwen3-pro', name: 'Qwen 3 Pro', backendId: 'qwen/qwen3-235b-a22b-2507', description: 'Professional Qwen', category: 'chat', plans: ['pro', 'premium'], multiplier: 1 },
+  { id: 'gpt5-1', name: 'GPT-5.1', backendId: 'openai/gpt-5.1', description: 'Enhanced GPT model', category: 'chat', plans: ['pro', 'premium'], multiplier: 4, dailyLimit: { pro: 20, premium: 20 } },
+  { id: 'gpt5-2-limited', name: 'GPT-5.2 (Limited)', backendId: 'openai/gpt-5.2', description: 'Flagship reasoning', category: 'chat', plans: ['pro'], multiplier: 6.5, dailyLimit: { pro: 10 } },
+  { id: 'gemini-25-pro-limited', name: 'Gemini 2.5 Pro (Limited)', backendId: 'google/gemini-2.5-pro', description: 'Professional Gemini', category: 'chat', plans: ['pro'], multiplier: 4, dailyLimit: { pro: 20 } },
+  { id: 'grok-41-fast', name: 'Grok 4.1 fast', backendId: 'x-ai/grok-4.1-fast', description: 'Latest xAI model', category: 'chat', plans: ['pro', 'premium'], multiplier: 1 },
+  { id: 'perplexity-sonar', name: 'Perplexity Sonar', backendId: 'perplexity/sonar', description: 'Web search powered', category: 'search', plans: ['pro', 'premium'], multiplier: 3 },
+  { id: 'llama-4-maverick', name: 'Llama 4 Maverick', backendId: 'meta-llama/llama-4-maverick', description: 'Latest Llama 4', category: 'chat', plans: ['pro', 'premium'], multiplier: 1 },
+  { id: 'llama-4-scout', name: 'Llama 4 Scout', backendId: 'meta-llama/llama-4-scout', description: 'Llama 4 Scout', category: 'chat', plans: ['pro', 'premium'], multiplier: 1 },
 ];
 
-// 👑 PREMIUM PLAN MODELS (3M Tokens/Month)
+// 👑 PREMIUM TIER MODELS
 const premiumModels: Model[] = [
-  { id: 'qwen3-pro-prem', name: 'Qwen 3 Pro', backendId: 'qwen/qwen3-235b-a22b-2507', description: 'Professional Qwen', category: 'chat', plans: ['premium'], multiplier: 1 },
-  { id: 'qwen3-coder-prem', name: 'Qwen 3 Coder', backendId: 'qwen/qwen3-coder', description: 'Code specialist', category: 'code', plans: ['premium'], multiplier: 2 },
-  { id: 'qwen3-vl-prem', name: 'Qwen 3 VL', backendId: 'qwen/qwen3-vl-30b-a3b-instruct', description: 'Vision-language', category: 'chat', plans: ['premium'], multiplier: 1 },
-  { id: 'gpt5-1-mini-prem', name: 'GPT-5.1 mini', backendId: 'openai/gpt-5-mini', description: 'Fast and efficient', category: 'chat', plans: ['premium'], multiplier: 3 },
-  { id: 'gpt5-nano-prem', name: 'GPT-5 nano', backendId: 'openai/gpt-5-nano', description: 'Ultra-fast responses', category: 'chat', plans: ['premium'], multiplier: 1 },
-  { id: 'gpt5-1-prem', name: 'GPT-5.1', backendId: 'openai/gpt-5.1', description: 'Enhanced GPT model', category: 'chat', plans: ['premium'], multiplier: 15 },
-  { id: 'gpt5-2-prem', name: 'GPT-5.2', backendId: 'openai/gpt-5.2', description: 'Flagship reasoning', category: 'chat', plans: ['premium'], multiplier: 20 },
-  { id: 'claude-sonnet-45', name: 'Claude Sonnet 4.5', backendId: 'anthropic/claude-sonnet-4.5', description: 'Anthropic Sonnet', category: 'chat', plans: ['premium'], multiplier: 25 },
-  { id: 'claude-opus-45', name: 'Claude Opus 4.5', backendId: 'anthropic/claude-opus-4.5', description: 'Anthropic Opus', category: 'chat', plans: ['premium'], multiplier: 40 },
-  { id: 'gemini-3-flash-prem', name: 'Gemini 3 Flash', backendId: 'google/gemini-3-flash-preview', description: 'Next-gen Gemini', category: 'chat', plans: ['premium'], multiplier: 5 },
-  { id: 'gemini-3-prem', name: 'Gemini 3', backendId: 'google/gemini-3-flash-preview', description: 'Google flagship', category: 'chat', plans: ['premium'], multiplier: 5 },
-  { id: 'gemini-25-pro-prem', name: 'Gemini 2.5 Pro', backendId: 'google/gemini-2.5-pro', description: 'Professional Gemini', category: 'chat', plans: ['premium'], multiplier: 15 },
-  { id: 'grok-4-prem', name: 'Grok 4', backendId: 'x-ai/grok-3-mini', description: 'xAI smart model', category: 'chat', plans: ['premium'], multiplier: 1 },
-  { id: 'grok-4-fast-prem', name: 'Grok 4 Fast', backendId: 'x-ai/grok-4-fast', description: 'Fast xAI model', category: 'chat', plans: ['premium'], multiplier: 1 },
-  { id: 'grok-41-fast-prem', name: 'Grok 4.1 fast', backendId: 'x-ai/grok-4.1-fast', description: 'Latest xAI model', category: 'chat', plans: ['premium'], multiplier: 1 },
-  { id: 'perplexity-sonar-pro-prem', name: 'Perplexity Sonar Pro', backendId: 'perplexity/sonar', description: 'Web search powered', category: 'search', plans: ['premium'], multiplier: 2 },
-  { id: 'perplexity-research-prem', name: 'Perplexity Research Pro', backendId: 'perplexity/sonar-deep-research', description: 'Deep research', category: 'search', plans: ['premium'], multiplier: 12 },
-  { id: 'deepseek-v31-prem', name: 'DeepSeek V3.1', backendId: 'deepseek/deepseek-chat-v3.1', description: 'Latest DeepSeek', category: 'chat', plans: ['premium'], multiplier: 1 },
-  { id: 'deepseek-v32-prem', name: 'DeepSeek V3.2', backendId: 'deepseek/deepseek-v3.2', description: 'Newest DeepSeek', category: 'chat', plans: ['premium'], multiplier: 1 },
-  { id: 'llama-31-prem', name: 'LLaMA 3.1', backendId: 'meta-llama/llama-3.1-70b-instruct', description: 'Meta open-source', category: 'chat', plans: ['premium'], multiplier: 1 },
-  { id: 'llama-33-prem', name: 'LLaMA 3.3', backendId: 'meta-llama/llama-3.3-70b-instruct', description: 'Latest LLaMA', category: 'chat', plans: ['premium'], multiplier: 1 },
-  { id: 'llama-4-maverick-prem', name: 'Llama 4 Maverick', backendId: 'meta-llama/llama-4-maverick', description: 'Latest Llama 4', category: 'chat', plans: ['premium'], multiplier: 1 },
-  { id: 'llama-4-scout-prem', name: 'Llama 4 Scout', backendId: 'meta-llama/llama-4-scout', description: 'Llama 4 Scout', category: 'chat', plans: ['premium'], multiplier: 1 },
-  { id: 'kimi-k25-prem', name: 'Kimi-K2.5', backendId: 'moonshotai/kimi-k2.5', description: 'Advanced Moonshot', category: 'chat', plans: ['premium'], multiplier: 5 },
-  { id: 'mistral-large-3-prem', name: 'Mistral Large 3', backendId: 'mistralai/mistral-large-2512', description: 'Mistral flagship', category: 'chat', plans: ['premium'], multiplier: 3 },
+  { id: 'claude-sonnet-45', name: 'Claude Sonnet 4.5', backendId: 'anthropic/claude-sonnet-4.5', description: 'Anthropic Sonnet', category: 'chat', plans: ['premium'], multiplier: 6, dailyLimit: { premium: 20 } },
+  { id: 'claude-opus-45', name: 'Claude Opus 4.5', backendId: 'anthropic/claude-opus-4.5', description: 'Anthropic Opus', category: 'chat', plans: ['premium'], multiplier: 10, dailyLimit: { premium: 10 } },
+  { id: 'gpt5-2', name: 'GPT-5.2', backendId: 'openai/gpt-5.2', description: 'Flagship reasoning', category: 'chat', plans: ['premium'], multiplier: 6.5, dailyLimit: { premium: 30 } },
+  { id: 'gemini-25-pro', name: 'Gemini 2.5 Pro', backendId: 'google/gemini-2.5-pro', description: 'Professional Gemini', category: 'chat', plans: ['premium'], multiplier: 4, dailyLimit: { premium: 20 } },
+  { id: 'perplexity-research-pro', name: 'Perplexity Research Pro', backendId: 'perplexity/sonar-deep-research', description: 'Deep research', category: 'search', plans: ['premium'], multiplier: 6 },
+  { id: 'kimi-k25', name: 'Kimi-K2.5', backendId: 'moonshotai/kimi-k2.5', description: 'Advanced Moonshot', category: 'chat', plans: ['premium'], multiplier: 1 },
+  { id: 'mistral-large-3', name: 'Mistral Large 3', backendId: 'mistralai/mistral-large-2512', description: 'Mistral flagship', category: 'chat', plans: ['premium'], multiplier: 1 },
 ];
 
-// Combine all models - each plan sees appropriate models
+// Combine all models
 const allModels: Model[] = [
+  smartAutoModel,
   ...freeModels,
   ...basicModels,
   ...proModels,
@@ -267,10 +254,10 @@ const allModels: Model[] = [
 
 // Plan token limits
 const planTokenLimits: Record<UserPlan, number> = {
-  free: 5000,        // 5K tokens (Free Trial)
-  basic: 800000,     // 800K tokens
-  pro: 1500000,      // 1.5M tokens
-  premium: 3000000,  // 3M tokens
+  free: 5000,
+  basic: 800000,
+  pro: 1500000,
+  premium: 3000000,
 };
 
 const defaultUser: User = {
@@ -282,7 +269,6 @@ const defaultUser: User = {
   tokensLimit: planTokenLimits['free'],
 };
 
-// Helper to ensure token limit matches current plan (handles migrations)
 const syncUserTokenLimit = (user: User): User => {
   const correctLimit = planTokenLimits[user.plan];
   if (user.tokensLimit !== correctLimit) {
@@ -291,17 +277,39 @@ const syncUserTokenLimit = (user: User): User => {
   return user;
 };
 
-// Helper to get models by plan hierarchy
+// Cumulative plan access: higher plans get all lower-tier models
 const getModelsForPlan = (plan: UserPlan): Model[] => {
   return allModels.filter(m => m.plans.includes(plan));
 };
 
-// Default model for each plan
+// Get tier label for a model (its minimum/exclusive tier)
+export const getModelTier = (model: Model): UserPlan => {
+  if (model.plans.includes('free')) return 'free';
+  if (model.plans.includes('basic')) return 'basic';
+  if (model.plans.includes('pro')) return 'pro';
+  return 'premium';
+};
+
+// Get models grouped by their minimum tier for display
+export const getModelsGroupedByTier = (allModelsList: Model[]): {
+  free: Model[];
+  basic: Model[];
+  pro: Model[];
+  premium: Model[];
+} => {
+  return {
+    free: allModelsList.filter(m => m.id !== 'smart-auto' && getModelTier(m) === 'free'),
+    basic: allModelsList.filter(m => getModelTier(m) === 'basic'),
+    pro: allModelsList.filter(m => getModelTier(m) === 'pro'),
+    premium: allModelsList.filter(m => getModelTier(m) === 'premium'),
+  };
+};
+
 const defaultModelByPlan: Record<UserPlan, string> = {
-  free: 'gpt-4o',
-  basic: 'gpt5-nano-basic',
-  pro: 'gpt5-nano-pro',
-  premium: 'gpt5-nano-prem',
+  free: 'smart-auto',
+  basic: 'smart-auto',
+  pro: 'smart-auto',
+  premium: 'smart-auto',
 };
 
 export const useChatStore = create<ChatState>()(
@@ -325,13 +333,12 @@ export const useChatStore = create<ChatState>()(
       // Multi-Window Chat
       chatWindows: [
         { id: '1', modelId: 'gpt-4o', messages: [], isStreaming: false },
-        { id: '2', modelId: 'gemini-3-flash-free', messages: [], isStreaming: false },
+        { id: '2', modelId: 'gemini-25-flash', messages: [], isStreaming: false },
       ],
       addChatWindow: () => set((state) => {
         if (state.chatWindows.length >= 4) return state;
-        const availableModels = getModelsForPlan(state.user.plan);
-        const usedModelIds = state.chatWindows.map(w => w.id);
-        // Prefer unused models
+        const availableModels = getModelsForPlan(state.user.plan).filter(m => m.id !== 'smart-auto');
+        const usedModelIds = state.chatWindows.map(w => w.modelId);
         const unusedModels = availableModels.filter(m => !usedModelIds.includes(m.id));
         const newModelId = unusedModels.length > 0 ? unusedModels[0].id : availableModels[0]?.id || 'gpt-4o';
         return {
@@ -399,18 +406,18 @@ export const useChatStore = create<ChatState>()(
       setUserPlan: (plan) => set((state) => {
         const newLimit = planTokenLimits[plan];
         const defaultModel = defaultModelByPlan[plan];
+        const planModels = getModelsForPlan(plan).filter(m => m.id !== 'smart-auto');
         return {
           user: { 
             ...state.user, 
             plan, 
             tokensLimit: newLimit,
-            tokensUsed: 0 // Reset tokens on plan change
+            tokensUsed: 0
           },
           selectedModel: defaultModel,
-          // Reset multi-window with plan-appropriate models
           chatWindows: [
-            { id: '1', modelId: defaultModel, messages: [], isStreaming: false },
-            { id: '2', modelId: getModelsForPlan(plan)[1]?.id || defaultModel, messages: [], isStreaming: false },
+            { id: '1', modelId: planModels[0]?.id || 'gpt-4o', messages: [], isStreaming: false },
+            { id: '2', modelId: planModels[1]?.id || planModels[0]?.id || 'gpt-4o', messages: [], isStreaming: false },
           ]
         };
       }),
@@ -421,10 +428,7 @@ export const useChatStore = create<ChatState>()(
       createProject: (name, description, icon, color) => {
         const newProject: Project = {
           id: Date.now().toString(),
-          name,
-          description,
-          icon,
-          color,
+          name, description, icon, color,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           chatCount: 0,
@@ -478,7 +482,7 @@ export const useChatStore = create<ChatState>()(
         )
       })),
       
-      // Messages (derived from active chat)
+      // Messages
       messages: [],
       getMessages: () => {
         const state = get();
@@ -486,16 +490,12 @@ export const useChatStore = create<ChatState>()(
       },
       setMessages: (messages) => set((state) => ({
         chats: state.chats.map(c =>
-          c.id === state.activeChatId
-            ? { ...c, messages, updatedAt: new Date().toISOString() }
-            : c
+          c.id === state.activeChatId ? { ...c, messages, updatedAt: new Date().toISOString() } : c
         )
       })),
       addMessage: (message) => set((state) => {
-        // Update title based on first user message
         const activeChat = state.chats.find(c => c.id === state.activeChatId);
         const isFirstUserMessage = activeChat?.messages.length === 0 && message.role === 'user';
-        
         return {
           chats: state.chats.map(c =>
             c.id === state.activeChatId
@@ -517,10 +517,7 @@ export const useChatStore = create<ChatState>()(
           const newMessages = [...c.messages];
           if (newMessages.length > 0) {
             const lastMessage = newMessages[newMessages.length - 1];
-            newMessages[newMessages.length - 1] = {
-              ...lastMessage,
-              content: lastMessage.content + content
-            };
+            newMessages[newMessages.length - 1] = { ...lastMessage, content: lastMessage.content + content };
           }
           return { ...c, messages: newMessages, updatedAt: new Date().toISOString() };
         })
@@ -531,10 +528,7 @@ export const useChatStore = create<ChatState>()(
           const newMessages = [...c.messages];
           if (newMessages.length > 0) {
             const lastMessage = newMessages[newMessages.length - 1];
-            newMessages[newMessages.length - 1] = {
-              ...lastMessage,
-              citations
-            };
+            newMessages[newMessages.length - 1] = { ...lastMessage, citations };
           }
           return { ...c, messages: newMessages, updatedAt: new Date().toISOString() };
         })
@@ -560,7 +554,7 @@ export const useChatStore = create<ChatState>()(
       
       // Models
       models: allModels,
-      selectedModel: 'gpt-4o',
+      selectedModel: 'smart-auto',
       setSelectedModel: (modelId) => set({ selectedModel: modelId }),
       getAvailableModels: () => {
         const state = get();
@@ -576,6 +570,31 @@ export const useChatStore = create<ChatState>()(
         const state = get();
         const model = state.models.find(m => m.id === modelId);
         return model?.multiplier || 1;
+      },
+      
+      // Daily Model Usage
+      dailyModelUsage: {},
+      incrementDailyUsage: (modelId) => set((state) => {
+        const today = new Date().toISOString().split('T')[0];
+        const current = state.dailyModelUsage[modelId];
+        const count = (current && current.date === today) ? current.count + 1 : 1;
+        return {
+          dailyModelUsage: {
+            ...state.dailyModelUsage,
+            [modelId]: { count, date: today }
+          }
+        };
+      }),
+      getDailyUsageRemaining: (modelId) => {
+        const state = get();
+        const model = state.models.find(m => m.id === modelId);
+        if (!model?.dailyLimit) return null;
+        const limit = model.dailyLimit[state.user.plan];
+        if (limit === undefined) return null;
+        const today = new Date().toISOString().split('T')[0];
+        const usage = state.dailyModelUsage[modelId];
+        const used = (usage && usage.date === today) ? usage.count : 0;
+        return Math.max(0, limit - used);
       },
       
       // Share Modal
@@ -608,14 +627,18 @@ export const useChatStore = create<ChatState>()(
         projects: state.projects,
         language: state.language,
         openRouterKey: state.openRouterKey,
+        dailyModelUsage: state.dailyModelUsage,
       }),
       onRehydrateStorage: () => (state) => {
-        // Sync token limit on rehydration
         if (state?.user) {
           const correctLimit = planTokenLimits[state.user.plan];
           if (state.user.tokensLimit !== correctLimit) {
             state.user.tokensLimit = correctLimit;
           }
+        }
+        // Migrate old selectedModel IDs to new ones
+        if (state && state.selectedModel && !allModels.find(m => m.id === state.selectedModel)) {
+          state.selectedModel = 'smart-auto';
         }
       },
     }
