@@ -23,6 +23,7 @@ const LanguageSyncBridge = ({ language, setLanguage }) => {
 };
 
 const translations = {
+  en: {
     login: 'Login',
     register: 'Register',
     getStarted: 'Get Started',
