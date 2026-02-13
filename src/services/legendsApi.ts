@@ -1,4 +1,15 @@
+import { supabase } from '@/integrations/supabase/client';
+
 type Message = { role: 'user' | 'assistant' | 'system'; content: string | any[] };
+
+const getAuthHeaders = async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
+  };
+};
 
 export const legendsApi = {
   sendMessageStream: async (
@@ -10,14 +21,12 @@ export const legendsApi = {
     signal?: AbortSignal
   ) => {
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/legends-chat`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
+          headers,
           body: JSON.stringify({ messages, personaId, stream: true }),
           signal,
         }
