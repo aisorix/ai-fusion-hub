@@ -23,6 +23,15 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Verify internal webhook secret - this endpoint is for cron jobs only
+    const authHeader = req.headers.get('Authorization');
+    const INTERNAL_SECRET = Deno.env.get('INTERNAL_WEBHOOK_SECRET');
+    if (!authHeader || authHeader !== `Bearer ${INTERNAL_SECRET}`) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - internal endpoint only' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
     if (!RESEND_API_KEY) {
       console.error("RESEND_API_KEY not configured");
       return new Response(
