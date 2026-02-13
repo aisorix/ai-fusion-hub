@@ -323,6 +323,112 @@ export type Database = {
         }
         Relationships: []
       }
+      shared_chat_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          shared_chat_id: string
+          user_avatar: string | null
+          user_id: string
+          user_name: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          shared_chat_id: string
+          user_avatar?: string | null
+          user_id: string
+          user_name?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          shared_chat_id?: string
+          user_avatar?: string | null
+          user_id?: string
+          user_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shared_chat_comments_shared_chat_id_fkey"
+            columns: ["shared_chat_id"]
+            isOneToOne: false
+            referencedRelation: "shared_chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shared_chat_members: {
+        Row: {
+          accepted_at: string | null
+          id: string
+          invited_at: string
+          role: string
+          shared_chat_id: string
+          user_email: string
+          user_id: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          id?: string
+          invited_at?: string
+          role?: string
+          shared_chat_id: string
+          user_email: string
+          user_id?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          id?: string
+          invited_at?: string
+          role?: string
+          shared_chat_id?: string
+          user_email?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shared_chat_members_shared_chat_id_fkey"
+            columns: ["shared_chat_id"]
+            isOneToOne: false
+            referencedRelation: "shared_chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shared_chats: {
+        Row: {
+          chat_data: Json
+          created_at: string
+          id: string
+          owner_id: string
+          share_token: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          chat_data?: Json
+          created_at?: string
+          id?: string
+          owner_id: string
+          share_token?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          chat_data?: Json
+          created_at?: string
+          id?: string
+          owner_id?: string
+          share_token?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           amount: number

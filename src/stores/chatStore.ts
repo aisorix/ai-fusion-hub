@@ -184,10 +184,8 @@ interface ChatState {
 
 // ============================================
 // MODEL DEFINITIONS - SINGLE SOURCE OF TRUTH
-// Each model defined ONCE with cumulative plan access
 // ============================================
 
-// Smart Auto virtual model
 const smartAutoModel: Model = {
   id: 'smart-auto',
   name: 'Smart Auto',
@@ -243,7 +241,6 @@ const premiumModels: Model[] = [
   { id: 'mistral-large-3', name: 'Mistral Large 3', backendId: 'mistralai/mistral-large-2512', description: 'Mistral flagship', category: 'chat', plans: ['premium'], multiplier: 1 },
 ];
 
-// Combine all models
 const allModels: Model[] = [
   smartAutoModel,
   ...freeModels,
@@ -252,7 +249,6 @@ const allModels: Model[] = [
   ...premiumModels,
 ];
 
-// Plan token limits
 const planTokenLimits: Record<UserPlan, number> = {
   free: 5000,
   basic: 800000,
@@ -277,12 +273,10 @@ const syncUserTokenLimit = (user: User): User => {
   return user;
 };
 
-// Cumulative plan access: higher plans get all lower-tier models
 const getModelsForPlan = (plan: UserPlan): Model[] => {
   return allModels.filter(m => m.plans.includes(plan));
 };
 
-// Get tier label for a model (its minimum/exclusive tier)
 export const getModelTier = (model: Model): UserPlan => {
   if (model.plans.includes('free')) return 'free';
   if (model.plans.includes('basic')) return 'basic';
@@ -290,7 +284,6 @@ export const getModelTier = (model: Model): UserPlan => {
   return 'premium';
 };
 
-// Get models grouped by their minimum tier for display
 export const getModelsGroupedByTier = (allModelsList: Model[]): {
   free: Model[];
   basic: Model[];
@@ -310,6 +303,24 @@ const defaultModelByPlan: Record<UserPlan, string> = {
   basic: 'smart-auto',
   pro: 'smart-auto',
   premium: 'smart-auto',
+};
+
+// Maximum chats to persist in localStorage
+const MAX_PERSISTED_CHATS = 30;
+
+// Strip attachments from messages for persistence to prevent localStorage overflow
+const stripAttachmentsForPersistence = (chats: Chat[]): Chat[] => {
+  return chats.slice(0, MAX_PERSISTED_CHATS).map(chat => ({
+    ...chat,
+    messages: chat.messages.map(msg => ({
+      ...msg,
+      attachments: msg.attachments?.map(att => ({
+        ...att,
+        url: att.type === 'image' ? '' : att.url, // Strip base64 images
+        parsedContent: undefined, // Strip parsed file content
+      })) || null,
+    })),
+  }));
 };
 
 export const useChatStore = create<ChatState>()(
@@ -621,7 +632,7 @@ export const useChatStore = create<ChatState>()(
       name: 'sorix-chat-storage',
       partialize: (state) => ({
         theme: state.theme,
-        chats: state.chats,
+        chats: stripAttachmentsForPersistence(state.chats),
         activeChatId: state.activeChatId,
         user: state.user,
         projects: state.projects,
@@ -636,7 +647,10 @@ export const useChatStore = create<ChatState>()(
             state.user.tokensLimit = correctLimit;
           }
         }
-        // Migrate old selectedModel IDs to new ones
+        // Prune old chats on rehydration
+        if (state?.chats && state.chats.length > MAX_PERSISTED_CHATS) {
+          state.chats = state.chats.slice(0, MAX_PERSISTED_CHATS);
+        }
         if (state && state.selectedModel && !allModels.find(m => m.id === state.selectedModel)) {
           state.selectedModel = 'smart-auto';
         }
