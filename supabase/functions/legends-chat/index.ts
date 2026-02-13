@@ -211,7 +211,7 @@ serve(async (req) => {
         'X-Title': 'Sorix Legends',
       },
       body: JSON.stringify({
-        model: 'deepseek/deepseek-r1-0528',
+        model: 'google/gemini-2.5-flash',
         messages: processedMessages,
         stream,
         max_tokens: 4096,

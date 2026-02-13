@@ -155,6 +155,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
     setViewMode,
     user,
     setProjectsModalOpen,
+    historyCollapsed,
   } = useChatStore();
   const { avatarUrl, fullName } = useUserProfile();
 
@@ -228,7 +229,33 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
         >
           <LayoutGrid className="w-5 h-5" />
         </button>
-        <div className="flex-1" />
+        {/* More Tools */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
+              <Sparkles className="w-5 h-5" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" side="right" className="w-48 bg-popover border border-border shadow-lg z-50">
+            <DropdownMenuItem onClick={() => navigate("/health")}>
+              <Heart className="w-4 h-4 mr-2 text-red-500" /> Sorix Health
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/agro")}>
+              <Leaf className="w-4 h-4 mr-2 text-green-500" /> Sorix Agro
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/legends")}>
+              <BookOpen className="w-4 h-4 mr-2 text-amber-500" /> Sorix Legends
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        {/* Settings */}
+        <button onClick={() => setShowSettings(true)} className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
+          <Settings className="w-5 h-5" />
+        </button>
+        {/* Upgrade */}
+        <button onClick={() => setShowUpgradeModal(true)} className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
+          <Crown className="w-5 h-5 text-primary" />
+        </button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="w-10 h-10 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm hover:bg-primary/20 transition-colors">
@@ -374,7 +401,22 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
         </div>
 
         {/* Chat History */}
-        <ScrollArea className="flex-1 mt-4">
+        <div className="px-3 mt-4 flex items-center justify-between">
+          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-3">History</h3>
+          <button
+            onClick={() => useChatStore.setState({ historyCollapsed: !historyCollapsed })}
+            className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground"
+            title={historyCollapsed ? "Show history" : "Hide history"}
+          >
+            {historyCollapsed ? (
+              <ChevronRight className="w-3.5 h-3.5" />
+            ) : (
+              <ChevronDown className="w-3.5 h-3.5" />
+            )}
+          </button>
+        </div>
+        <ScrollArea className="flex-1 mt-1">
+          {!historyCollapsed && (
           <div className="px-3 space-y-4">
             {todayChats.length > 0 && (
               <div>
@@ -395,6 +437,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
               </div>
             )}
           </div>
+          )}
         </ScrollArea>
 
         {/* Bottom Section */}

@@ -5,7 +5,7 @@ import { useCallback, useRef } from 'react';
 import { useChatStore } from '@/stores/chatStore';
 import { chatApi } from '@/services/api';
 import { healthApi } from '@/services/healthApi';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { formatFileForPrompt } from '@/lib/fileParser';
 import { shouldApplySmartRouting, getWorkerModelForPlan, resolveSmartAutoModel } from '@/lib/smartRouting';
 import { generateCacheKey, getCachedResponse, setCachedResponse, simulateCachedStreaming } from '@/lib/responseCache';
@@ -66,18 +66,14 @@ export const useAIChat = () => {
     const newPercent = user.tokensLimit > 0 ? (newUsage / user.tokensLimit) * 100 : 0;
     
     if (prevPercent < 80 && newPercent >= 80 && newPercent < 100) {
-      toast({
-        title: "⚠️ Token Usage Warning",
+      toast.warning("⚠️ Token Usage Warning", {
         description: "You've used 80% of your monthly tokens. Consider upgrading your plan.",
-        variant: "default",
       });
     }
     
     if (prevPercent < 100 && newPercent >= 100) {
-      toast({
-        title: "🚫 Token Limit Reached",
+      toast.error("🚫 Token Limit Reached", {
         description: "You've used all your monthly tokens. Upgrade to continue chatting.",
-        variant: "destructive",
       });
     }
     
@@ -320,15 +316,15 @@ export const useAIChat = () => {
               setStreaming(false);
               
               if (errorMessage.includes('429') || errorMessage.toLowerCase().includes('rate limit')) {
-                toast({ title: "⏳ Rate Limited", description: "Too many requests. Please wait a moment.", variant: "destructive" });
+                toast.error("⏳ Rate Limited", { description: "Too many requests. Please wait a moment." });
               } else if (errorMessage.includes('401') || errorMessage.includes('403')) {
-                toast({ title: "🔒 Authentication Error", description: "API authentication failed.", variant: "destructive" });
+                toast.error("🔒 Authentication Error", { description: "API authentication failed." });
               } else if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('Failed to fetch')) {
-                toast({ title: "🌐 Network Error", description: "Unable to connect.", variant: "destructive" });
+                toast.error("🌐 Network Error", { description: "Unable to connect." });
               } else if (errorMessage.includes('500') || errorMessage.includes('502') || errorMessage.includes('503')) {
-                toast({ title: "🔧 Server Error", description: "Server issues. Please try again later.", variant: "destructive" });
+                toast.error("🔧 Server Error", { description: "Server issues. Please try again later." });
               } else {
-                toast({ title: "❌ Error", description: errorMessage, variant: "destructive" });
+                toast.error("❌ Error", { description: errorMessage });
               }
             },
             abortControllerRef.current.signal,
@@ -354,11 +350,11 @@ export const useAIChat = () => {
       
       if (err.name !== 'AbortError') {
         if (errorMessage.includes('429') || errorMessage.toLowerCase().includes('rate limit')) {
-          toast({ title: "⏳ Rate Limited", description: "Too many requests.", variant: "destructive" });
+          toast.error("⏳ Rate Limited", { description: "Too many requests." });
         } else if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('Failed to fetch')) {
-          toast({ title: "🌐 Network Error", description: "Unable to connect.", variant: "destructive" });
+          toast.error("🌐 Network Error", { description: "Unable to connect." });
         } else {
-          toast({ title: "❌ Failed to Send Message", description: errorMessage, variant: "destructive" });
+          toast.error("❌ Failed to Send Message", { description: errorMessage });
         }
       }
     }

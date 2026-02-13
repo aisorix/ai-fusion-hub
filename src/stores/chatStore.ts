@@ -85,6 +85,7 @@ interface ChatState {
   // Sidebar
   sidebarOpen: boolean;
   sidebarCollapsed: boolean;
+  historyCollapsed: boolean;
   toggleSidebar: () => void;
   toggleSidebarCollapse: () => void;
   
@@ -334,6 +335,7 @@ export const useChatStore = create<ChatState>()(
       // Sidebar
       sidebarOpen: true,
       sidebarCollapsed: false,
+      historyCollapsed: false,
       toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
       toggleSidebarCollapse: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
       

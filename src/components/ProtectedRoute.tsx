@@ -3,6 +3,7 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useChatStore, type UserPlan } from "@/stores/chatStore";
 import { supabase } from "@/integrations/supabase/client";
+import { useChatSync } from "@/hooks/useChatSync";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -12,31 +13,31 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { setUser, setUserPlan, user: storeUser } = useChatStore();
 
+  // Cross-device sync
+  useChatSync(user?.id || null);
+
   useEffect(() => {
     const loadUserProfile = async () => {
       if (!user) return;
 
-      // Fetch profile from database
       const { data: profile } = await supabase
         .from("profiles")
         .select("full_name, avatar_url")
         .eq("user_id", user.id)
         .single();
 
-      // Fetch subscription from database to get actual plan
       const { data: subscription } = await supabase
         .from("subscriptions")
-        .select("plan_id, status")
+        .select("plan_id, status, tokens_used")
         .eq("user_id", user.id)
         .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(1)
         .single();
 
-      // Determine the user's actual plan from subscription
       const actualPlan: UserPlan = subscription?.plan_id as UserPlan || 'free';
+      const dbTokensUsed = typeof (subscription as any)?.tokens_used === 'number' ? (subscription as any).tokens_used : storeUser.tokensUsed;
 
-      // Plan token limits
       const planTokenLimits: Record<UserPlan, number> = {
         free: 5000,
         basic: 800000,
@@ -44,14 +45,13 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         premium: 3000000,
       };
 
-      // Update store with real user data including actual plan from database
       setUser({
         id: user.id,
         name: profile?.full_name || user.user_metadata?.full_name || user.email?.split("@")[0] || "User",
         email: user.email || "",
         avatar: profile?.avatar_url || undefined,
         plan: actualPlan,
-        tokensUsed: storeUser.tokensUsed,
+        tokensUsed: dbTokensUsed,
         tokensLimit: planTokenLimits[actualPlan],
       });
     };
@@ -59,7 +59,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     if (isAuthenticated) {
       loadUserProfile();
     }
-  }, [user, isAuthenticated, setUser, setUserPlan, storeUser.tokensUsed]);
+  }, [user, isAuthenticated, setUser, setUserPlan]);
 
   if (isLoading) {
     return (
