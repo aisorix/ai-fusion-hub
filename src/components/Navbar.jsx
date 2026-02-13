@@ -22,7 +22,7 @@ const Navbar = () => {
   const { language, setLanguage, t } = useLanguage();
   const { user, signOut, loading: authLoading } = useAuth();
   const { isEmployee } = useEmployeeRole();
-  const { avatarUrl } = useUserProfile();
+  const { avatarUrl, fullName } = useUserProfile();
   const langRef = useRef(null);
 
   const handleSignOut = async () => {
@@ -185,7 +185,7 @@ const Navbar = () => {
                   <DropdownMenuContent align="end" className="w-56 backdrop-blur-xl bg-background/80 border-border/50">
                     <div className="px-3 py-2">
                       <p className="text-sm font-medium text-foreground truncate">
-                        {user.user_metadata?.full_name || "User"}
+                        {fullName || user.user_metadata?.full_name || "User"}
                       </p>
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </div>
@@ -347,7 +347,7 @@ const Navbar = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-bold text-foreground truncate text-lg">
-                            {user.user_metadata?.full_name || "User"}
+                            {fullName || user.user_metadata?.full_name || "User"}
                           </p>
                           <p className="text-sm text-muted-foreground truncate">{user.email}</p>
                         </div>

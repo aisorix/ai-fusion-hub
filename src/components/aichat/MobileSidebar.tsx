@@ -138,7 +138,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   const { signOut, user: authUser } = useAuth();
   const { theme, toggleTheme, chats, activeChatId, setActiveChat, deleteChat, updateChatTitle, viewMode, setViewMode, user, setProjectsModalOpen } =
     useChatStore();
-  const { avatarUrl } = useUserProfile();
+  const { avatarUrl, fullName } = useUserProfile();
 
   const [showMoreTools, setShowMoreTools] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -178,7 +178,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   const userInitials = authUser?.email
     ? authUser.email.charAt(0).toUpperCase()
     : user.name.split(" ").map((n) => n[0]).join("").toUpperCase();
-  const userName = authUser?.user_metadata?.full_name || user.name;
+  const userName = fullName || authUser?.user_metadata?.full_name || user.name;
   const userEmail = authUser?.email || user.email;
   const isPaidUser = user.plan !== "free";
 
