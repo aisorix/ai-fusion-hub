@@ -4,6 +4,11 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+const INTERNAL_WEBHOOK_SECRET = Deno.env.get("INTERNAL_WEBHOOK_SECRET");
+const SSLCOMMERZ_STORE_ID = Deno.env.get("SSLCOMMERZ_STORE_ID");
+const SSLCOMMERZ_STORE_PASSWORD = Deno.env.get("SSLCOMMERZ_STORE_PASSWORD");
+const SSLCOMMERZ_SANDBOX = Deno.env.get("SSLCOMMERZ_SANDBOX") !== "false";
+const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -29,6 +34,58 @@ interface PaymentCallback {
   billing_cycle: 'monthly' | 'yearly';
   payment_method?: string;
   stripe_session_id?: string;
+  _internal_secret?: string;
+}
+
+// --- SSLCommerz IPN Validation ---
+async function validateSSLCommerz(valId: string): Promise<boolean> {
+  if (!SSLCOMMERZ_STORE_ID || !SSLCOMMERZ_STORE_PASSWORD) {
+    console.error("SSLCommerz credentials not available for validation");
+    return false;
+  }
+  const validationUrl = SSLCOMMERZ_SANDBOX
+    ? 'https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php'
+    : 'https://securepay.sslcommerz.com/validator/api/validationserverAPI.php';
+
+  try {
+    const resp = await fetch(
+      `${validationUrl}?val_id=${encodeURIComponent(valId)}&store_id=${encodeURIComponent(SSLCOMMERZ_STORE_ID)}&store_passwd=${encodeURIComponent(SSLCOMMERZ_STORE_PASSWORD)}&format=json`
+    );
+    const result = await resp.json();
+    console.log("SSLCommerz validation result:", result.status);
+    return result.status === 'VALID' || result.status === 'VALIDATED';
+  } catch (err) {
+    console.error("SSLCommerz validation error:", err);
+    return false;
+  }
+}
+
+// --- Stripe Session Verification ---
+async function verifyStripeSession(sessionId: string): Promise<boolean> {
+  if (!STRIPE_SECRET_KEY) {
+    console.error("STRIPE_SECRET_KEY not available for verification");
+    return false;
+  }
+  try {
+    const resp = await fetch(`https://api.stripe.com/v1/checkout/sessions/${sessionId}`, {
+      headers: { "Authorization": `Bearer ${STRIPE_SECRET_KEY}` },
+    });
+    const session = await resp.json();
+    console.log("Stripe session status:", session.payment_status);
+    return session.payment_status === 'paid';
+  } catch (err) {
+    console.error("Stripe session verification error:", err);
+    return false;
+  }
+}
+
+// --- Internal Secret Validation ---
+function validateInternalSecret(secret: string | undefined): boolean {
+  if (!INTERNAL_WEBHOOK_SECRET) {
+    console.error("INTERNAL_WEBHOOK_SECRET not configured");
+    return false;
+  }
+  return secret === INTERNAL_WEBHOOK_SECRET;
 }
 
 const sendPaymentEmail = async (
@@ -121,22 +178,94 @@ const handler = async (req: Request): Promise<Response> => {
         val_id: formData.get("val_id") as string,
         amount: parseFloat(formData.get("amount") as string) || parseFloat(formData.get("value_d") as string) || 0,
         currency: formData.get("currency") as string || 'BDT',
-        user_id: formData.get("value_a") as string, // userId passed in value_a
-        plan_id: formData.get("value_b") as string, // planId passed in value_b
-        billing_cycle: (formData.get("value_c") as 'monthly' | 'yearly') || 'monthly', // billingCycle in value_c
+        user_id: formData.get("value_a") as string,
+        plan_id: formData.get("value_b") as string,
+        billing_cycle: (formData.get("value_c") as 'monthly' | 'yearly') || 'monthly',
         payment_method: formData.get("card_type") as string || 'sslcommerz',
       };
     } else {
       throw new Error("Unsupported content type");
     }
 
-    console.log("Payment webhook received:", JSON.stringify(callbackData));
+    console.log("Payment webhook received:", JSON.stringify({ ...callbackData, _internal_secret: '[REDACTED]' }));
 
     // Validate required fields
     if (!callbackData.tran_id || !callbackData.user_id || !callbackData.plan_id) {
       return new Response(
         JSON.stringify({ success: false, error: "Missing required fields" }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // === GATEWAY-SPECIFIC VERIFICATION ===
+    if (callbackData.status === 'success') {
+      if (callbackData.gateway === 'sslcommerz') {
+        // Verify SSLCommerz IPN with their validation API
+        if (!callbackData.val_id) {
+          console.error("SSLCommerz callback missing val_id");
+          return new Response(
+            JSON.stringify({ success: false, error: "Missing validation ID" }),
+            { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+          );
+        }
+        const isValid = await validateSSLCommerz(callbackData.val_id);
+        if (!isValid) {
+          console.error("SSLCommerz IPN validation failed for val_id:", callbackData.val_id);
+          return new Response(
+            JSON.stringify({ success: false, error: "Payment validation failed" }),
+            { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+          );
+        }
+        console.log("SSLCommerz IPN validated successfully");
+      } else if (callbackData.gateway === 'stripe') {
+        // Verify Stripe checkout session is actually paid
+        if (!callbackData.stripe_session_id) {
+          console.error("Stripe callback missing session_id");
+          return new Response(
+            JSON.stringify({ success: false, error: "Missing Stripe session ID" }),
+            { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+          );
+        }
+        const isPaid = await verifyStripeSession(callbackData.stripe_session_id);
+        if (!isPaid) {
+          console.error("Stripe session not paid:", callbackData.stripe_session_id);
+          return new Response(
+            JSON.stringify({ success: false, error: "Payment not completed" }),
+            { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+          );
+        }
+        console.log("Stripe session verified as paid");
+      } else if (callbackData.gateway === 'bkash') {
+        // bKash: require internal webhook secret (service-to-service call)
+        if (!validateInternalSecret(callbackData._internal_secret)) {
+          console.error("bKash callback: invalid internal secret");
+          return new Response(
+            JSON.stringify({ success: false, error: "Unauthorized" }),
+            { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+          );
+        }
+        console.log("bKash internal call verified");
+      } else {
+        console.error("Unknown gateway:", callbackData.gateway);
+        return new Response(
+          JSON.stringify({ success: false, error: "Unknown payment gateway" }),
+          { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+    }
+
+    // === IDEMPOTENCY CHECK ===
+    const { data: existingPayment } = await supabase
+      .from('payment_history')
+      .select('id')
+      .eq('transaction_id', callbackData.tran_id)
+      .maybeSingle();
+
+    if (existingPayment) {
+      console.log("Duplicate transaction ignored:", callbackData.tran_id);
+      return new Response(
+        JSON.stringify({ success: true, message: "Already processed" }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
@@ -173,7 +302,6 @@ const handler = async (req: Request): Promise<Response> => {
       let subscriptionId: string | null = null;
 
       if (existingSub) {
-        // Update existing subscription
         const { error: updateError } = await supabase
           .from('subscriptions')
           .update({
@@ -194,7 +322,6 @@ const handler = async (req: Request): Promise<Response> => {
         subscriptionId = existingSub.id;
         console.log("Subscription updated:", existingSub.id);
       } else {
-        // Create new subscription
         const { data: newSub, error: insertError } = await supabase
           .from('subscriptions')
           .insert({
@@ -266,7 +393,7 @@ const handler = async (req: Request): Promise<Response> => {
           payment_method: paymentMethod,
           amount: callbackData.amount,
           currency: currency,
-          status: callbackData.status === 'cancelled' ? 'failed' : 'failed',
+          status: 'failed',
           plan_id: callbackData.plan_id,
           billing_cycle: callbackData.billing_cycle,
           gateway_response: { gateway: callbackData.gateway, status: callbackData.status },
@@ -276,7 +403,6 @@ const handler = async (req: Request): Promise<Response> => {
         console.error("Error recording failed payment:", historyError);
       }
 
-      // Send failure email
       if (userEmail) {
         await sendPaymentEmail(
           userEmail,
@@ -297,7 +423,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Webhook error:", error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: "Internal server error" }),
       { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   }

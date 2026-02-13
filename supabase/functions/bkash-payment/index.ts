@@ -12,6 +12,7 @@ const BKASH_PASSWORD = Deno.env.get("BKASH_PASSWORD");
 const BKASH_SANDBOX = Deno.env.get("BKASH_SANDBOX") !== "false";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const WEBHOOK_URL = `${SUPABASE_URL}/functions/v1/payment-webhook`;
+const INTERNAL_WEBHOOK_SECRET = Deno.env.get("INTERNAL_WEBHOOK_SECRET");
 
 interface PaymentRequest {
   action: 'grant_token' | 'create_payment' | 'execute_payment' | 'query_payment';
@@ -235,6 +236,7 @@ const handler = async (req: Request): Promise<Response> => {
                 plan_id: planId,
                 billing_cycle: billingCycle,
                 payment_method: 'bkash',
+                _internal_secret: INTERNAL_WEBHOOK_SECRET,
               }),
             });
           } catch (webhookError) {

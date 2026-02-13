@@ -75,7 +75,7 @@ const handler = async (req: Request): Promise<Response> => {
         "metadata[billing_cycle]": billingCycle,
         "metadata[tran_id]": tranId,
         "metadata[amount]": amount.toString(),
-        "success_url": `${origin}/payment/success?tran_id=${tranId}&gateway=stripe&session_id={CHECKOUT_SESSION_ID}`,
+        "success_url": `${origin}/payment/success?tran_id=${tranId}&gateway=stripe&session_id={CHECKOUT_SESSION_ID}&plan_id=${planId}&billing_cycle=${billingCycle}&amount=${amount}&currency=${currencyCode.toUpperCase()}`,
         "cancel_url": `${origin}/payment/cancel?tran_id=${tranId}&gateway=stripe`,
       }).toString(),
     });
@@ -95,37 +95,21 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     if (session.url) {
-      // Immediately call payment-webhook to record the pending payment
-      // The actual status will be updated when the user completes payment
-      try {
-        await fetch(`${SUPABASE_URL}/functions/v1/payment-webhook`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            gateway: 'stripe',
-            status: 'success', // Stripe checkout is synchronous - if we get here, user will pay
-            tran_id: tranId,
-            amount: amount,
-            currency: currencyCode.toUpperCase(),
-            user_id: userId,
-            plan_id: planId,
-            billing_cycle: billingCycle,
-            payment_method: 'stripe',
-            stripe_session_id: session.id,
-          }),
-        });
-      } catch (webhookError) {
-        console.error("Failed to call webhook (non-critical):", webhookError);
-      }
-
+      // Do NOT call webhook here - the user hasn't paid yet.
+      // Payment will be verified when user returns to success page
+      // by calling the webhook with the stripe_session_id for verification.
       return new Response(
         JSON.stringify({
           success: true,
           checkoutUrl: session.url,
           sessionId: session.id,
           tranId: tranId,
+          // Pass metadata for the success page to call webhook after payment
+          userId,
+          planId,
+          billingCycle,
+          amount,
+          currency: currencyCode.toUpperCase(),
         }),
         { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
