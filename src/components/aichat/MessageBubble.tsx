@@ -8,6 +8,7 @@ import {
   Pencil
 } from 'lucide-react';
 import copy from 'copy-to-clipboard';
+import { motion } from 'framer-motion';
 import MarkdownRenderer from './MarkdownRenderer';
 import ExportDropdown from './ExportDropdown';
 import SourcesWidget from './SourcesWidget';
@@ -116,7 +117,7 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
   }, [message.content]);
 
   // On mobile, skip framer-motion wrapper for performance
-  const Wrapper = isMobile ? 'div' : require('framer-motion').motion.div;
+  const Wrapper: any = isMobile ? 'div' : motion.div;
   const wrapperProps = isMobile
     ? {}
     : {
