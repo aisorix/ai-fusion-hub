@@ -213,80 +213,104 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
   // Collapsed sidebar view
   if (sidebarCollapsed) {
     return (
-      <div className="w-14 h-full bg-card border-r border-border flex flex-col items-center py-4 gap-2">
-        <button onClick={toggleSidebarCollapse} className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors mb-2">
-          <PanelLeft className="w-5 h-5 text-muted-foreground" />
-        </button>
-        <button onClick={onNewChat} className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center hover:opacity-90 transition-opacity">
-          <Plus className="w-5 h-5" />
-        </button>
-        <button className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
-          <Search className="w-5 h-5" />
-        </button>
-        <button
-          onClick={() => setViewMode(viewMode === "single" ? "multi" : "single")}
-          className={cn("w-10 h-10 rounded-lg flex items-center justify-center transition-colors", viewMode === "multi" ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground")}
-        >
-          <LayoutGrid className="w-5 h-5" />
-        </button>
-        {/* More Tools */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+      <>
+        <div className="w-14 h-full bg-card border-r border-border flex flex-col items-center py-4">
+          {/* Top icons */}
+          <div className="flex flex-col items-center gap-1.5">
+            <button onClick={toggleSidebarCollapse} className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
+              <PanelLeft className="w-5 h-5" />
+            </button>
+            <button onClick={onNewChat} className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center hover:opacity-90 transition-opacity">
+              <Plus className="w-5 h-5" />
+            </button>
             <button className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
-              <Sparkles className="w-5 h-5" />
+              <Search className="w-5 h-5" />
             </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" side="right" className="w-48 bg-popover border border-border shadow-lg z-50">
-            <DropdownMenuItem onClick={() => navigate("/health")}>
-              <Heart className="w-4 h-4 mr-2 text-red-500" /> Sorix Health
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate("/agro")}>
-              <Leaf className="w-4 h-4 mr-2 text-green-500" /> Sorix Agro
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate("/legends")}>
-              <BookOpen className="w-4 h-4 mr-2 text-amber-500" /> Sorix Legends
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        {/* Settings */}
-        <button onClick={() => setShowSettings(true)} className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
-          <Settings className="w-5 h-5" />
-        </button>
-        {/* Upgrade */}
-        <button onClick={() => setShowUpgradeModal(true)} className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
-          <Crown className="w-5 h-5 text-primary" />
-        </button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="w-10 h-10 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm hover:bg-primary/20 transition-colors">
-              {avatarUrl ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" /> : userInitials}
+            <button
+              onClick={() => setViewMode(viewMode === "single" ? "multi" : "single")}
+              className={cn("w-10 h-10 rounded-lg flex items-center justify-center transition-colors", viewMode === "multi" ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground")}
+            >
+              <LayoutGrid className="w-5 h-5" />
             </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" side="right" className="w-56 bg-popover border border-border shadow-lg z-50">
-            <div className="px-3 py-2">
-              <p className="text-sm font-medium text-foreground truncate">{userName}</p>
-              <p className="text-xs text-muted-foreground truncate">{userEmail}</p>
-            </div>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => setShowUpgradeModal(true)}>
-              <Crown className="w-4 h-4 mr-2 text-primary" />
-              Upgrade Plan
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setShowSettings(true)}>
-              <Settings className="w-4 h-4 mr-2" />
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
-              <LogOut className="w-4 h-4 mr-2" />
-              Log Out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Link to="/" className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
-          <Home className="w-5 h-5" />
-        </Link>
-      </div>
+          </div>
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Bottom icons */}
+          <div className="flex flex-col items-center gap-1.5">
+            {/* More Tools */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
+                  <Sparkles className="w-5 h-5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" side="right" className="w-48 bg-popover border border-border shadow-lg z-50">
+                <DropdownMenuItem onClick={() => navigate("/health")}>
+                  <Heart className="w-4 h-4 mr-2 text-red-500" /> Sorix Health
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/agro")}>
+                  <Leaf className="w-4 h-4 mr-2 text-green-500" /> Sorix Agro
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/legends")}>
+                  <BookOpen className="w-4 h-4 mr-2 text-amber-500" /> Sorix Legends
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Settings */}
+            <button onClick={() => setShowSettings(true)} className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
+              <Settings className="w-5 h-5" />
+            </button>
+
+            {/* User avatar with dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="w-10 h-10 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm hover:bg-primary/20 transition-colors">
+                  {avatarUrl ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" /> : userInitials}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" side="right" className="w-56 bg-popover border border-border shadow-lg z-50">
+                <div className="px-3 py-2">
+                  <p className="text-sm font-medium text-foreground truncate">{userName}</p>
+                  <p className="text-xs text-muted-foreground truncate">{userEmail}</p>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setShowUpgradeModal(true)}>
+                  <Crown className="w-4 h-4 mr-2 text-primary" />
+                  Upgrade Plan
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowSettings(true)}>
+                  <Settings className="w-4 h-4 mr-2" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { setSettingsInitialTab("help"); setShowSettings(true); }}>
+                  <HelpCircle className="w-4 h-4 mr-2" />
+                  Help & Support
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Log Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Home */}
+            <Link to="/" className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
+              <Home className="w-5 h-5" />
+            </Link>
+          </div>
+        </div>
+
+        <SettingsModal
+          isOpen={showSettings}
+          onClose={() => { setShowSettings(false); setSettingsInitialTab(undefined); }}
+          initialTab={settingsInitialTab}
+        />
+        <UpgradePlanModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
+      </>
     );
   }
 
