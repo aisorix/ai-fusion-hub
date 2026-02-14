@@ -479,10 +479,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
               <FolderKanban className="w-4 h-4" />
               <span>Projects</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">PRO</span>
-              {user.plan === "free" && <span className="text-muted-foreground">🔒</span>}
-            </div>
+            {user.plan === "free" && <span className="text-muted-foreground">🔒</span>}
           </button>
         </div>
 

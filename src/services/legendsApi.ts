@@ -34,6 +34,9 @@ export const legendsApi = {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        if (errorData.error === 'TOKEN_LIMIT_REACHED') {
+          throw new Error('TOKEN_LIMIT_REACHED');
+        }
         throw new Error(errorData.error || `HTTP error: ${response.status}`);
       }
 
