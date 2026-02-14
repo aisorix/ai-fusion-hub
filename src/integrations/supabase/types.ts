@@ -118,6 +118,42 @@ export type Database = {
           },
         ]
       }
+      image_generations: {
+        Row: {
+          created_at: string
+          height: number
+          id: string
+          image_url: string
+          prompt: string
+          style: string | null
+          tokens_used: number
+          user_id: string
+          width: number
+        }
+        Insert: {
+          created_at?: string
+          height?: number
+          id?: string
+          image_url: string
+          prompt: string
+          style?: string | null
+          tokens_used?: number
+          user_id: string
+          width?: number
+        }
+        Update: {
+          created_at?: string
+          height?: number
+          id?: string
+          image_url?: string
+          prompt?: string
+          style?: string | null
+          tokens_used?: number
+          user_id?: string
+          width?: number
+        }
+        Relationships: []
+      }
       payment_history: {
         Row: {
           amount: number

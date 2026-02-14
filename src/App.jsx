@@ -28,6 +28,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailed from "./pages/PaymentFailed";
 import PaymentCancel from "./pages/PaymentCancel";
 import LegendsPage from "./pages/LegendsPage";
+import ImaginePage from "./pages/ImaginePage";
 import SharedChatPage from "./pages/SharedChatPage";
 
 const queryClient = new QueryClient();
@@ -65,6 +66,11 @@ const App = () => (
               <Route path="/legends" element={
                 <ProtectedRoute>
                   <LegendsPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/imagine" element={
+                <ProtectedRoute>
+                  <ImaginePage />
                 </ProtectedRoute>
               } />
               <Route path="/login" element={<Login />} />
