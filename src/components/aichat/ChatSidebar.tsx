@@ -208,7 +208,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
       description: "Chat with historical legends",
       icon: BookOpen,
       gradient: "bg-gradient-to-br from-blue-500 to-cyan-500",
-      free: false,
+      free: true,
     },
     {
       id: "imagine",
