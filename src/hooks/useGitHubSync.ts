@@ -20,8 +20,6 @@ export interface GitHubRepo {
   private: boolean;
 }
 
-const GITHUB_CLIENT_ID = 'Ov23liXXXXXXXXXX'; // Will be replaced by edge function
-
 const callGitHubSync = async (action: string, params: Record<string, any>) => {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.access_token) throw new Error('No session');
@@ -44,16 +42,43 @@ const callGitHubSync = async (action: string, params: Record<string, any>) => {
   return res.json();
 };
 
+// Public endpoint (no auth needed for get_client_id)
+const callGitHubSyncPublic = async (action: string) => {
+  const res = await fetch(
+    `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/github-sync`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action }),
+    }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Error ${res.status}`);
+  }
+  return res.json();
+};
+
 export const useGitHubSync = (projectId: string | null) => {
   const [connection, setConnection] = useState<GitHubConnection | null>(null);
-  const [repos, setRepos] = useState<GitHubRepo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [clientId, setClientId] = useState<string | null>(null);
 
-  const getOAuthUrl = useCallback(() => {
-    // The client ID is obtained via the edge function; we use a redirect flow
+  const fetchClientId = useCallback(async () => {
+    try {
+      const data = await callGitHubSyncPublic('get_client_id');
+      setClientId(data.client_id);
+      return data.client_id;
+    } catch (err: any) {
+      toast({ title: 'Error', description: 'Failed to fetch GitHub config', variant: 'destructive' });
+      return null;
+    }
+  }, []);
+
+  const getOAuthUrl = useCallback((fetchedClientId: string) => {
     const redirectUri = `${window.location.origin}/chat?github_callback=true`;
-    return `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=repo`;
+    return `https://github.com/login/oauth/authorize?client_id=${fetchedClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=repo`;
   }, []);
 
   const exchangeCode = useCallback(async (code: string): Promise<string | null> => {
@@ -67,32 +92,23 @@ export const useGitHubSync = (projectId: string | null) => {
     }
   }, []);
 
-  const fetchRepos = useCallback(async (token: string) => {
+  const createRepo = useCallback(async (
+    repoName: string, isPrivate: boolean, token: string
+  ): Promise<GitHubConnection | null> => {
+    if (!projectId) return null;
     setIsLoading(true);
     try {
-      const data = await callGitHubSync('list_repos', { accessToken: token });
-      setRepos(data);
-    } catch (err: any) {
-      toast({ title: 'Error', description: 'Failed to fetch repos', variant: 'destructive' });
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const connectRepo = useCallback(async (
-    repoOwner: string, repoName: string, branch: string, token: string
-  ): Promise<boolean> => {
-    if (!projectId) return false;
-    try {
-      const data = await callGitHubSync('connect_repo', {
-        projectId, repoOwner, repoName, branch, accessToken: token,
+      const data = await callGitHubSync('create_repo', {
+        projectId, repoName, isPrivate, accessToken: token,
       });
       setConnection(data);
-      toast({ title: 'Connected!', description: `Linked to ${repoOwner}/${repoName}` });
-      return true;
+      toast({ title: 'Repository Created!', description: `Pushed to ${data.repo_owner}/${data.repo_name}` });
+      return data;
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
-      return false;
+      return null;
+    } finally {
+      setIsLoading(false);
     }
   }, [projectId]);
 
@@ -126,19 +142,18 @@ export const useGitHubSync = (projectId: string | null) => {
       await callGitHubSync('sync_file', { projectId, filePath, content, operation });
     } catch (err: any) {
       console.error('GitHub sync failed:', err);
-      // Silent fail - don't block the user, just log
     }
   }, [projectId, connection]);
 
   return {
     connection,
-    repos,
     isLoading,
     accessToken,
+    clientId,
+    fetchClientId,
     getOAuthUrl,
     exchangeCode,
-    fetchRepos,
-    connectRepo,
+    createRepo,
     disconnectRepo,
     fetchConnection,
     syncFile,

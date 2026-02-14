@@ -12,6 +12,23 @@ serve(async (req) => {
   }
 
   try {
+    const body = await req.json();
+    const { action, ...params } = body;
+
+    // === GET CLIENT ID (no auth needed) ===
+    if (action === 'get_client_id') {
+      const clientId = Deno.env.get('GITHUB_CLIENT_ID');
+      if (!clientId) {
+        return new Response(JSON.stringify({ error: 'GitHub OAuth not configured' }), {
+          status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      return new Response(JSON.stringify({ client_id: clientId }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // All other actions require auth
     const authHeader = req.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return new Response(JSON.stringify({ error: 'Missing authorization' }), {
@@ -35,8 +52,6 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
-
-    const { action, ...params } = await req.json();
 
     // === EXCHANGE CODE FOR TOKEN ===
     if (action === 'exchange_code') {
@@ -67,32 +82,79 @@ serve(async (req) => {
       });
     }
 
-    // === LIST REPOS ===
-    if (action === 'list_repos') {
-      const { accessToken } = params;
-      const res = await fetch('https://api.github.com/user/repos?sort=updated&per_page=30&affiliation=owner', {
-        headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/vnd.github+json' },
-      });
-      const repos = await res.json();
-      return new Response(JSON.stringify(repos.map((r: any) => ({
-        id: r.id, full_name: r.full_name, name: r.name, owner: r.owner?.login,
-        default_branch: r.default_branch, private: r.private,
-      }))), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    // === CREATE REPO & PUSH FILES ===
+    if (action === 'create_repo') {
+      const { projectId, repoName, isPrivate, accessToken } = params;
+      const ghHeaders = {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+        'X-GitHub-Api-Version': '2022-11-28',
+      };
 
-    // === CONNECT REPO ===
-    if (action === 'connect_repo') {
-      const { projectId, repoOwner, repoName, branch, accessToken } = params;
-      // Remove existing connection for this project
+      // 1. Get GitHub user info
+      const userRes = await fetch('https://api.github.com/user', { headers: ghHeaders });
+      if (!userRes.ok) throw new Error('Failed to get GitHub user');
+      const ghUser = await userRes.json();
+      const repoOwner = ghUser.login;
+
+      // 2. Create repository
+      const createRes = await fetch('https://api.github.com/user/repos', {
+        method: 'POST', headers: ghHeaders,
+        body: JSON.stringify({
+          name: repoName,
+          private: isPrivate,
+          auto_init: true,
+          description: `Created from SorixAI project`,
+        }),
+      });
+      if (!createRes.ok) {
+        const err = await createRes.json();
+        throw new Error(err.message || 'Failed to create repository');
+      }
+      const repoData = await createRes.json();
+      const branch = repoData.default_branch || 'main';
+
+      // 3. Fetch project files from DB
+      const { data: files, error: filesErr } = await serviceClient
+        .from('project_files')
+        .select('name, path, content, is_folder')
+        .eq('project_id', projectId)
+        .eq('user_id', user.id)
+        .eq('is_folder', false);
+
+      if (filesErr) throw filesErr;
+
+      // 4. Push each file to GitHub (sequentially to avoid race conditions)
+      if (files && files.length > 0) {
+        for (const file of files) {
+          const filePath = file.path === '/' ? file.name : `${file.path.replace(/^\//, '')}/${file.name}`;
+          const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
+          
+          try {
+            await fetch(apiUrl, {
+              method: 'PUT', headers: ghHeaders,
+              body: JSON.stringify({
+                message: `Add ${filePath}`,
+                content: btoa(unescape(encodeURIComponent(file.content || ''))),
+                branch,
+              }),
+            });
+          } catch (e) {
+            console.error(`Failed to push ${filePath}:`, e);
+          }
+        }
+      }
+
+      // 5. Save connection
       await serviceClient.from('project_github').delete().eq('project_id', projectId).eq('user_id', user.id);
-      const { data, error } = await serviceClient.from('project_github').insert({
+      const { data: conn, error: connErr } = await serviceClient.from('project_github').insert({
         project_id: projectId, user_id: user.id,
         repo_owner: repoOwner, repo_name: repoName, branch, access_token: accessToken,
-      }).select().single();
-      if (error) throw error;
-      return new Response(JSON.stringify(data), {
+      }).select('id, project_id, repo_owner, repo_name, branch, connected_at').single();
+      if (connErr) throw connErr;
+
+      return new Response(JSON.stringify(conn), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
@@ -120,7 +182,6 @@ serve(async (req) => {
     // === SYNC FILE (create/update/delete) ===
     if (action === 'sync_file') {
       const { projectId, filePath, content, operation } = params;
-      // Get connection
       const { data: conn } = await serviceClient.from('project_github')
         .select('*').eq('project_id', projectId).eq('user_id', user.id).single();
       if (!conn) {
@@ -136,7 +197,6 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       };
 
-      // Check if file exists (for update/delete we need the SHA)
       let sha: string | undefined;
       try {
         const existRes = await fetch(`${apiBase}?ref=${conn.branch}`, { headers });
@@ -157,7 +217,6 @@ serve(async (req) => {
           body: JSON.stringify({ message: `Delete ${filePath}`, sha, branch: conn.branch }),
         });
       } else {
-        // Create or update
         const body: any = {
           message: sha ? `Update ${filePath}` : `Create ${filePath}`,
           content: btoa(unescape(encodeURIComponent(content || ''))),
