@@ -1,122 +1,66 @@
 
-# Sorix Imagine - AI Image Generation Tool
 
-## Overview
-Add a new "Sorix Imagine" tool to the sidebar (alongside Agro, Health, Legends) that lets users generate images using the `black-forest-labs/flux.2-klein-4b` model via OpenRouter. Each generation costs 12,000 tokens. Users can download in multiple formats, share images, browse history, and get trending style suggestions.
+# Redesign Sorix Imagine UI - Simple, Clean, Futuristic
 
-## Architecture
+## What's Changing
 
-### 1. Database Table: `image_generations`
-- `id` (uuid, PK)
-- `user_id` (uuid, NOT NULL)
-- `prompt` (text)
-- `style` (text, nullable)
-- `image_url` (text) -- stored as base64 data URL or uploaded to storage
-- `width` (int, default 1024)
-- `height` (int, default 1024)
-- `tokens_used` (int, default 12000)
-- `created_at` (timestamptz)
-- RLS: users can only read/insert their own rows
+The current layout has a large empty square placeholder that wastes space and looks basic. The redesign will make it compact, modern, and futuristic -- inspired by clean AI tool interfaces.
 
-### 2. Edge Function: `imagine`
-- Receives: `{ prompt, style, width?, height? }`
-- Authenticates user via JWT
-- Checks user token balance (reads from `subscriptions` + `user_token_usage` or uses the existing token system)
-- Calls OpenRouter with model `black-forest-labs/flux.2-klein-4b`
-- Saves result to `image_generations` table
-- Deducts 12,000 tokens from the user
-- Returns the generated image URL
+## Design Changes
 
-### 3. Frontend Components
+### 1. Remove the Large Empty Placeholder
+- Replace the big square "Your creation will appear here" box with a smaller, subtle indicator
+- When no image is generated yet, show a minimal centered message with a small icon (no giant box)
+- The page should feel prompt-first, not canvas-first
 
-**New Page: `/imagine` (`src/pages/ImaginePage.tsx`)**
-- Full-page tool like HealthPage/AgroPage
-- Header with back button to /chat
-- Main prompt input bar (like the reference image - clean input with mic + send button)
-- Trending styles carousel (Caricature, Flower Petals, Gold, Crayon, Paparazzi, Clouds, etc.)
-- Image generation area with gradient loading animation (like reference image 1)
-- Generated image display with action buttons
+### 2. Rearrange Layout: Prompt First
+- Move the prompt bar higher -- it should be the hero element
+- Below prompt: style carousel
+- Below styles: generated image (only appears after generation)
+- This makes the flow: type prompt -> pick style -> see result
 
-**Components (`src/components/imagine/`):**
-- `ImaginePromptBar.tsx` - Main prompt input with style chips
-- `ImagineStyleCarousel.tsx` - Horizontal scrollable trending styles with preview thumbnails
-- `ImagineCanvas.tsx` - Shows loading animation during generation + final image
-- `ImagineHistory.tsx` - Grid of past generations (from DB)
-- `ImagineActions.tsx` - Download (PNG/JPG/WEBP), Share, Copy link buttons
-- `index.tsx` - Barrel export
+### 3. Compact Header
+- Keep header minimal but add a subtle gradient accent line under it
+- Remove the "12K tokens/image" badge from header (redundant, shown below prompt)
 
-**Service: `src/services/imagineApi.ts`**
-- `generateImage(prompt, style?)` - calls the edge function
-- Handles auth headers like other services
+### 4. Futuristic Empty State
+- Instead of a dashed-border square, show a sleek centered message with animated gradient text
+- Something like "Describe anything. We'll create it." with a subtle shimmer effect
+- Much smaller footprint -- just 2-3 lines of text, not a giant box
 
-### 4. Sidebar Integration
-- Add "Sorix Imagine" entry to the `moreTools` array in both `ChatSidebar.tsx` and `MobileSidebar.tsx`
-- Icon: `ImageIcon` (from lucide-react) or `Wand2`
-- Color: purple theme (`bg-purple-100 text-purple-600`)
-- Navigates to `/imagine`
+### 5. Better Canvas When Image Exists
+- Image appears with a smooth fade-in and subtle glow border
+- Actions (download/share/copy) appear as a floating toolbar below the image
+- Rounded corners with a thin gradient border
 
-### 5. Token Deduction
-- Each image costs 12,000 tokens
-- Check `user.tokensUsed + 12000 <= user.tokensLimit` before generating
-- If insufficient tokens, show the UpgradePlanModal
-- Deduct tokens in the edge function after successful generation
-- Update local store after successful generation
+### 6. Improved Loading State
+- Replace the large square loading with a compact progress bar or a small centered spinner
+- Show the prompt text being processed with a typing animation
 
-### 6. Download & Share
-- Download: Convert image to canvas, export as PNG/JPG/WEBP using `file-saver`
-- Share: Generate a shareable link or copy image to clipboard
+### 7. Style Carousel Polish
+- Make chips slightly smaller and more pill-shaped
+- Add a subtle scroll indicator on mobile
 
-### 7. Trending Styles
-Pre-defined style suggestions with example prompts:
-- Caricature Trend, Flower Petals, Gold, Crayon, Paparazzi, Clouds, Anime, Cyberpunk, Watercolor, Oil Painting, Pixel Art, Neon Glow
-
-Each style appends a style modifier to the user's prompt (e.g., "in caricature style", "with flower petal aesthetic").
+---
 
 ## Technical Details
 
-### Edge Function (`supabase/functions/imagine/index.ts`)
-```text
-POST /imagine
-Body: { prompt: string, style?: string }
-Auth: Bearer token (required)
+### Files Modified
 
-Flow:
-1. Verify user auth
-2. Check token balance via chatStore logic (or DB query)
-3. Build final prompt = user prompt + style modifier
-4. POST to OpenRouter:
-   - model: "black-forest-labs/flux.2-klein-4b"
-   - Messages format for image gen
-5. Get image URL from response
-6. Insert into image_generations table
-7. Update user token usage
-8. Return { imageUrl, id, tokensUsed }
-```
+**`src/pages/ImaginePage.tsx`**
+- Reorder layout: prompt bar first, then styles, then canvas
+- Remove "12K tokens/image" badge from header
+- Add subtle gradient line under header
 
-### UI Design (Futuristic)
-- Dark gradient background with glass-morphism cards
-- Gradient border glow on the prompt input
-- Animated gradient loading placeholder (soft pink/purple like reference)
-- Style cards with rounded corners, hover scale effects
-- Image display with subtle shadow and rounded corners
-- Action buttons with icon + tooltip
-- Responsive: single column on mobile, wider layout on desktop
+**`src/components/imagine/ImagineCanvas.tsx`**
+- Redesign empty state: small centered text with shimmer, no large box
+- Redesign loading state: compact with progress indicator
+- Add gradient border glow to generated image
 
-### Files to Create
-1. `supabase/functions/imagine/index.ts`
-2. `src/pages/ImaginePage.tsx`
-3. `src/components/imagine/ImaginePromptBar.tsx`
-4. `src/components/imagine/ImagineStyleCarousel.tsx`
-5. `src/components/imagine/ImagineCanvas.tsx`
-6. `src/components/imagine/ImagineHistory.tsx`
-7. `src/components/imagine/ImagineActions.tsx`
-8. `src/components/imagine/index.tsx`
-9. `src/services/imagineApi.ts`
+**`src/components/imagine/ImaginePromptBar.tsx`**  
+- Add subtle gradient border glow effect
+- Make it the visual hero of the page
 
-### Files to Edit
-1. `src/App.jsx` - Add `/imagine` route
-2. `src/components/aichat/ChatSidebar.tsx` - Add Sorix Imagine to moreTools + collapsed dropdown
-3. `src/components/aichat/MobileSidebar.tsx` - Add Sorix Imagine to moreTools
+**`src/components/imagine/ImagineStyleCarousel.tsx`**
+- Slightly smaller, more refined chip styling
 
-### Database Migration
-- Create `image_generations` table with RLS policies (user can read/insert own rows)
