@@ -251,6 +251,47 @@ export type Database = {
           },
         ]
       }
+      project_github: {
+        Row: {
+          access_token: string
+          branch: string
+          connected_at: string
+          id: string
+          project_id: string
+          repo_name: string
+          repo_owner: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          branch?: string
+          connected_at?: string
+          id?: string
+          project_id: string
+          repo_name: string
+          repo_owner: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          branch?: string
+          connected_at?: string
+          id?: string
+          project_id?: string
+          repo_name?: string
+          repo_owner?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_github_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_messages: {
         Row: {
           content: string
@@ -299,6 +340,7 @@ export type Database = {
           id: string
           model: string
           name: string
+          project_type: string
           status: string
           tokens_used: number
           updated_at: string
@@ -313,6 +355,7 @@ export type Database = {
           id?: string
           model?: string
           name: string
+          project_type?: string
           status?: string
           tokens_used?: number
           updated_at?: string
@@ -327,6 +370,7 @@ export type Database = {
           id?: string
           model?: string
           name?: string
+          project_type?: string
           status?: string
           tokens_used?: number
           updated_at?: string
