@@ -224,7 +224,8 @@ const ProjectsModal = () => {
             onClick={(e) => e.stopPropagation()}
             className={cn(
               "bg-background w-full h-full sm:h-auto sm:max-h-[90vh] sm:rounded-2xl border-0 sm:border border-border overflow-hidden flex flex-col animate-in zoom-in-95 slide-in-from-bottom-2 duration-200",
-              view === 'chat' ? 'sm:max-w-6xl' : 'sm:max-w-3xl'
+              view === 'chat' ? 'sm:max-w-6xl' : 'sm:max-w-3xl',
+              "max-h-[100dvh]"
             )}
           >
             {/* ===== LIST VIEW ===== */}
