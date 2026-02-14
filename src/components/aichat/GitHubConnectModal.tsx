@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { X, Github, Loader2, Check, Unlink, ExternalLink, GitBranch, Lock, Globe } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { useGitHubSync, type GitHubRepo } from '@/hooks/useGitHubSync';
+import { Switch } from '@/components/ui/switch';
+import { Progress } from '@/components/ui/progress';
+import { useGitHubSync } from '@/hooks/useGitHubSync';
 
 interface GitHubConnectModalProps {
   isOpen: boolean;
@@ -13,21 +13,24 @@ interface GitHubConnectModalProps {
   projectName: string;
 }
 
+const sanitizeRepoName = (name: string) =>
+  name.toLowerCase().replace(/[^a-z0-9._-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'my-project';
+
 const GitHubConnectModal: React.FC<GitHubConnectModalProps> = ({
   isOpen, onClose, projectId, projectName,
 }) => {
   const github = useGitHubSync(projectId);
-  const [search, setSearch] = useState('');
-  const [selectedRepo, setSelectedRepo] = useState<GitHubRepo | null>(null);
-  const [branch, setBranch] = useState('main');
-  const [connecting, setConnecting] = useState(false);
-  const [step, setStep] = useState<'auth' | 'select' | 'connected'>('auth');
+  const [step, setStep] = useState<'auth' | 'create' | 'pushing' | 'connected'>('auth');
+  const [repoName, setRepoName] = useState(sanitizeRepoName(projectName));
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [loadingClientId, setLoadingClientId] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       github.fetchConnection();
+      setRepoName(sanitizeRepoName(projectName));
     }
-  }, [isOpen, projectId]);
+  }, [isOpen, projectId, projectName]);
 
   useEffect(() => {
     if (github.connection) setStep('connected');
@@ -43,19 +46,30 @@ const GitHubConnectModal: React.FC<GitHubConnectModalProps> = ({
       (async () => {
         const token = await github.exchangeCode(code);
         if (token) {
-          await github.fetchRepos(token);
-          setStep('select');
+          setStep('create');
         }
       })();
     }
   }, []);
 
-  const handleConnect = async () => {
-    if (!selectedRepo || !github.accessToken) return;
-    setConnecting(true);
-    const ok = await github.connectRepo(selectedRepo.owner, selectedRepo.name, branch, github.accessToken);
-    setConnecting(false);
-    if (ok) setStep('connected');
+  const handleAuthorize = async () => {
+    setLoadingClientId(true);
+    const id = github.clientId || await github.fetchClientId();
+    setLoadingClientId(false);
+    if (id) {
+      window.location.href = github.getOAuthUrl(id);
+    }
+  };
+
+  const handleCreateAndPush = async () => {
+    if (!github.accessToken || !repoName.trim()) return;
+    setStep('pushing');
+    const conn = await github.createRepo(repoName.trim(), isPrivate, github.accessToken);
+    if (conn) {
+      setStep('connected');
+    } else {
+      setStep('create');
+    }
   };
 
   const handleDisconnect = async () => {
@@ -64,10 +78,6 @@ const GitHubConnectModal: React.FC<GitHubConnectModalProps> = ({
       setStep('auth');
     }
   };
-
-  const filteredRepos = github.repos.filter(r =>
-    r.full_name.toLowerCase().includes(search.toLowerCase())
-  );
 
   if (!isOpen) return null;
 
@@ -103,72 +113,64 @@ const GitHubConnectModal: React.FC<GitHubConnectModalProps> = ({
               </div>
               <h3 className="text-lg font-bold text-foreground mb-2">Connect to GitHub</h3>
               <p className="text-sm text-muted-foreground max-w-sm mb-6">
-                Sync your project files automatically. Every file change will be pushed to your repository.
+                Authorize GitHub to auto-create a repository and push all your project files.
               </p>
               <Button
-                onClick={() => window.location.href = github.getOAuthUrl()}
+                onClick={handleAuthorize}
+                disabled={loadingClientId}
                 className="gap-2 bg-[#24292f] hover:bg-[#1b1f23] text-white"
               >
-                <Github className="w-4 h-4" />
+                {loadingClientId ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Github className="w-4 h-4" />
+                )}
                 Authorize with GitHub
                 <ExternalLink className="w-3 h-3 ml-1" />
               </Button>
             </div>
           )}
 
-          {/* STEP: SELECT REPO */}
-          {step === 'select' && (
-            <div className="p-4 space-y-4">
+          {/* STEP: CREATE REPO */}
+          {step === 'create' && (
+            <div className="p-6 space-y-5">
+              <div className="text-center mb-2">
+                <h3 className="text-lg font-bold text-foreground mb-1">Create Repository</h3>
+                <p className="text-sm text-muted-foreground">A new repo will be created and all project files pushed to it.</p>
+              </div>
+
               <div>
-                <label className="text-sm font-medium text-foreground mb-1.5 block">Select Repository</label>
+                <label className="text-sm font-medium text-foreground mb-1.5 block">Repository Name</label>
                 <Input
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  placeholder="Search repositories..."
+                  value={repoName}
+                  onChange={e => setRepoName(sanitizeRepoName(e.target.value))}
+                  placeholder="my-project"
                   className="bg-muted/50"
                 />
               </div>
 
-              <ScrollArea className="h-[240px]">
-                <div className="space-y-1.5">
-                  {github.isLoading ? (
-                    <div className="flex items-center justify-center py-8">
-                      <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-                    </div>
-                  ) : filteredRepos.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-8">No repositories found</p>
-                  ) : (
-                    filteredRepos.map(repo => (
-                      <button
-                        key={repo.id}
-                        onClick={() => { setSelectedRepo(repo); setBranch(repo.default_branch); }}
-                        className={cn(
-                          'w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all',
-                          selectedRepo?.id === repo.id
-                            ? 'bg-primary/10 border border-primary/30'
-                            : 'hover:bg-muted/50 border border-transparent'
-                        )}
-                      >
-                        {repo.private ? <Lock className="w-4 h-4 text-muted-foreground shrink-0" /> : <Globe className="w-4 h-4 text-muted-foreground shrink-0" />}
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-foreground truncate">{repo.full_name}</p>
-                          <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                            <GitBranch className="w-3 h-3" /> {repo.default_branch}
-                          </p>
-                        </div>
-                        {selectedRepo?.id === repo.id && <Check className="w-4 h-4 text-primary shrink-0" />}
-                      </button>
-                    ))
-                  )}
+              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border">
+                <div className="flex items-center gap-2">
+                  {isPrivate ? <Lock className="w-4 h-4 text-muted-foreground" /> : <Globe className="w-4 h-4 text-muted-foreground" />}
+                  <span className="text-sm font-medium text-foreground">{isPrivate ? 'Private' : 'Public'}</span>
                 </div>
-              </ScrollArea>
+                <Switch checked={isPrivate} onCheckedChange={setIsPrivate} />
+              </div>
 
-              {selectedRepo && (
-                <div>
-                  <label className="text-sm font-medium text-foreground mb-1.5 block">Branch</label>
-                  <Input value={branch} onChange={e => setBranch(e.target.value)} className="bg-muted/50" />
-                </div>
-              )}
+              <Button onClick={handleCreateAndPush} className="w-full gap-2" disabled={!repoName.trim()}>
+                <Github className="w-4 h-4" />
+                Create & Push
+              </Button>
+            </div>
+          )}
+
+          {/* STEP: PUSHING */}
+          {step === 'pushing' && (
+            <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
+              <Loader2 className="w-10 h-10 animate-spin text-primary mb-5" />
+              <h3 className="text-lg font-bold text-foreground mb-2">Creating Repository...</h3>
+              <p className="text-sm text-muted-foreground mb-4">Pushing all project files to GitHub. This may take a moment.</p>
+              <Progress value={undefined} className="w-full max-w-xs h-2" />
             </div>
           )}
 
@@ -179,9 +181,15 @@ const GitHubConnectModal: React.FC<GitHubConnectModalProps> = ({
                 <Check className="w-8 h-8 text-green-500" />
               </div>
               <h3 className="text-lg font-bold text-foreground mb-2">Connected!</h3>
-              <p className="text-sm text-muted-foreground mb-1">
-                <span className="font-semibold text-foreground">{github.connection.repo_owner}/{github.connection.repo_name}</span>
-              </p>
+              <a
+                href={`https://github.com/${github.connection.repo_owner}/${github.connection.repo_name}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-semibold text-primary hover:underline mb-1 flex items-center gap-1"
+              >
+                {github.connection.repo_owner}/{github.connection.repo_name}
+                <ExternalLink className="w-3 h-3" />
+              </a>
               <p className="text-xs text-muted-foreground mb-6 flex items-center gap-1">
                 <GitBranch className="w-3 h-3" /> {github.connection.branch}
               </p>
@@ -192,20 +200,6 @@ const GitHubConnectModal: React.FC<GitHubConnectModalProps> = ({
             </div>
           )}
         </div>
-
-        {/* Footer */}
-        {step === 'select' && (
-          <div className="p-4 border-t border-border">
-            <Button
-              onClick={handleConnect}
-              disabled={!selectedRepo || connecting}
-              className="w-full gap-2"
-            >
-              {connecting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Github className="w-4 h-4" />}
-              Connect Repository
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );
