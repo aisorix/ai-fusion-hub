@@ -1,100 +1,122 @@
 
-# Fix GitHub Integration: OAuth + Auto-Create Repository
+# Sorix Imagine - AI Image Generation Tool
 
-## Problems Identified
+## Overview
+Add a new "Sorix Imagine" tool to the sidebar (alongside Agro, Health, Legends) that lets users generate images using the `black-forest-labs/flux.2-klein-4b` model via OpenRouter. Each generation costs 12,000 tokens. Users can download in multiple formats, share images, browse history, and get trending style suggestions.
 
-1. **404 Error on GitHub OAuth**: The frontend has a hardcoded placeholder `GITHUB_CLIENT_ID = 'Ov23liXXXXXXXXXX'` that doesn't match your real GitHub OAuth App. GitHub returns a 404 because it can't find that client ID.
+## Architecture
 
-2. **Flow should auto-create repos**: Instead of listing existing repos and asking the user to pick one, the flow should automatically create a new repository (named after the project) on the user's GitHub account and push all existing project files to it.
+### 1. Database Table: `image_generations`
+- `id` (uuid, PK)
+- `user_id` (uuid, NOT NULL)
+- `prompt` (text)
+- `style` (text, nullable)
+- `image_url` (text) -- stored as base64 data URL or uploaded to storage
+- `width` (int, default 1024)
+- `height` (int, default 1024)
+- `tokens_used` (int, default 12000)
+- `created_at` (timestamptz)
+- RLS: users can only read/insert their own rows
 
----
+### 2. Edge Function: `imagine`
+- Receives: `{ prompt, style, width?, height? }`
+- Authenticates user via JWT
+- Checks user token balance (reads from `subscriptions` + `user_token_usage` or uses the existing token system)
+- Calls OpenRouter with model `black-forest-labs/flux.2-klein-4b`
+- Saves result to `image_generations` table
+- Deducts 12,000 tokens from the user
+- Returns the generated image URL
 
-## Solution
+### 3. Frontend Components
 
-### Step 1: Fix OAuth Client ID (Frontend)
+**New Page: `/imagine` (`src/pages/ImaginePage.tsx`)**
+- Full-page tool like HealthPage/AgroPage
+- Header with back button to /chat
+- Main prompt input bar (like the reference image - clean input with mic + send button)
+- Trending styles carousel (Caricature, Flower Petals, Gold, Crayon, Paparazzi, Clouds, etc.)
+- Image generation area with gradient loading animation (like reference image 1)
+- Generated image display with action buttons
 
-Instead of hardcoding the client ID, fetch it from the edge function. Add a new `get_client_id` action to the edge function that returns `GITHUB_CLIENT_ID` from secrets, and update the frontend to fetch it before redirecting to GitHub.
+**Components (`src/components/imagine/`):**
+- `ImaginePromptBar.tsx` - Main prompt input with style chips
+- `ImagineStyleCarousel.tsx` - Horizontal scrollable trending styles with preview thumbnails
+- `ImagineCanvas.tsx` - Shows loading animation during generation + final image
+- `ImagineHistory.tsx` - Grid of past generations (from DB)
+- `ImagineActions.tsx` - Download (PNG/JPG/WEBP), Share, Copy link buttons
+- `index.tsx` - Barrel export
 
-**Files changed:**
-- `src/hooks/useGitHubSync.ts` -- Remove hardcoded placeholder, add `fetchClientId` that calls the edge function, update `getOAuthUrl` to use the fetched ID
-- `src/components/aichat/GitHubConnectModal.tsx` -- Call `fetchClientId` on mount, show loading state until ready
+**Service: `src/services/imagineApi.ts`**
+- `generateImage(prompt, style?)` - calls the edge function
+- Handles auth headers like other services
 
-### Step 2: Auto-Create Repository (Edge Function)
+### 4. Sidebar Integration
+- Add "Sorix Imagine" entry to the `moreTools` array in both `ChatSidebar.tsx` and `MobileSidebar.tsx`
+- Icon: `ImageIcon` (from lucide-react) or `Wand2`
+- Color: purple theme (`bg-purple-100 text-purple-600`)
+- Navigates to `/imagine`
 
-Add a new `create_repo` action to the `github-sync` edge function that:
-1. Creates a new GitHub repository using the GitHub API (`POST /user/repos`)
-2. Pushes all project files to the new repo (fetches files from `project_files` table, then uses GitHub Contents API to create each file)
-3. Saves the connection in `project_github` table
-4. Returns the connection data
+### 5. Token Deduction
+- Each image costs 12,000 tokens
+- Check `user.tokensUsed + 12000 <= user.tokensLimit` before generating
+- If insufficient tokens, show the UpgradePlanModal
+- Deduct tokens in the edge function after successful generation
+- Update local store after successful generation
 
-**File changed:** `supabase/functions/github-sync/index.ts`
+### 6. Download & Share
+- Download: Convert image to canvas, export as PNG/JPG/WEBP using `file-saver`
+- Share: Generate a shareable link or copy image to clipboard
 
-### Step 3: Simplify the Modal Flow (Frontend)
+### 7. Trending Styles
+Pre-defined style suggestions with example prompts:
+- Caricature Trend, Flower Petals, Gold, Crayon, Paparazzi, Clouds, Anime, Cyberpunk, Watercolor, Oil Painting, Pixel Art, Neon Glow
 
-Change the post-authorization flow:
-- After OAuth callback, instead of showing a repo picker, show a "Create Repository" form with:
-  - Pre-filled repo name (from project name, sanitized to valid GitHub repo name)
-  - Option for public/private
-  - A "Create & Push" button
-- On click, call the new `create_repo` action which creates the repo and pushes all files
-- Show progress indicator while files are being pushed
-- Jump to "connected" step when done
-
-**File changed:** `src/components/aichat/GitHubConnectModal.tsx`
-
----
+Each style appends a style modifier to the user's prompt (e.g., "in caricature style", "with flower petal aesthetic").
 
 ## Technical Details
 
-### Edge Function Changes (`github-sync/index.ts`)
-
-New actions added:
-
+### Edge Function (`supabase/functions/imagine/index.ts`)
 ```text
-get_client_id --> Returns GITHUB_CLIENT_ID from env (no auth needed for this action)
+POST /imagine
+Body: { prompt: string, style?: string }
+Auth: Bearer token (required)
 
-create_repo --> 
-  1. POST https://api.github.com/user/repos with { name, private, auto_init: true }
-  2. Fetch all project_files from DB for the project
-  3. For each non-folder file, PUT to GitHub Contents API
-  4. Save connection to project_github table
-  5. Return connection data
+Flow:
+1. Verify user auth
+2. Check token balance via chatStore logic (or DB query)
+3. Build final prompt = user prompt + style modifier
+4. POST to OpenRouter:
+   - model: "black-forest-labs/flux.2-klein-4b"
+   - Messages format for image gen
+5. Get image URL from response
+6. Insert into image_generations table
+7. Update user token usage
+8. Return { imageUrl, id, tokensUsed }
 ```
 
-### Frontend Hook Changes (`useGitHubSync.ts`)
+### UI Design (Futuristic)
+- Dark gradient background with glass-morphism cards
+- Gradient border glow on the prompt input
+- Animated gradient loading placeholder (soft pink/purple like reference)
+- Style cards with rounded corners, hover scale effects
+- Image display with subtle shadow and rounded corners
+- Action buttons with icon + tooltip
+- Responsive: single column on mobile, wider layout on desktop
 
-```text
-- Remove GITHUB_CLIENT_ID constant
-- Add state: clientId (fetched from edge function)
-- Add fetchClientId() -- calls get_client_id action
-- Update getOAuthUrl() to use fetched clientId
-- Add createRepo(repoName, isPrivate, token) -- calls create_repo action
-```
+### Files to Create
+1. `supabase/functions/imagine/index.ts`
+2. `src/pages/ImaginePage.tsx`
+3. `src/components/imagine/ImaginePromptBar.tsx`
+4. `src/components/imagine/ImagineStyleCarousel.tsx`
+5. `src/components/imagine/ImagineCanvas.tsx`
+6. `src/components/imagine/ImagineHistory.tsx`
+7. `src/components/imagine/ImagineActions.tsx`
+8. `src/components/imagine/index.tsx`
+9. `src/services/imagineApi.ts`
 
-### Modal Changes (`GitHubConnectModal.tsx`)
+### Files to Edit
+1. `src/App.jsx` - Add `/imagine` route
+2. `src/components/aichat/ChatSidebar.tsx` - Add Sorix Imagine to moreTools + collapsed dropdown
+3. `src/components/aichat/MobileSidebar.tsx` - Add Sorix Imagine to moreTools
 
-```text
-Steps: auth --> create --> pushing --> connected
-
-auth: "Authorize with GitHub" button (fetches client ID first)
-create: Form with repo name + public/private toggle + "Create & Push" button  
-pushing: Loading spinner with "Creating repository and pushing files..."
-connected: Success view with repo link + disconnect button
-```
-
-### Flow Diagram
-
-```text
-User clicks "Authorize with GitHub"
-  --> Frontend fetches client ID from edge function
-  --> Redirects to GitHub OAuth with correct client ID
-  --> User authorizes
-  --> Callback returns to /chat with code
-  --> Edge function exchanges code for access token
-  --> Modal shows "Create Repository" form
-  --> User clicks "Create & Push"
-  --> Edge function creates repo on GitHub
-  --> Edge function pushes all project files to repo
-  --> Connection saved to database
-  --> Modal shows "Connected!" with repo link
-```
+### Database Migration
+- Create `image_generations` table with RLS policies (user can read/insert own rows)
