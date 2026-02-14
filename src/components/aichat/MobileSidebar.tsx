@@ -14,6 +14,7 @@ import {
   Leaf,
   Heart,
   BookOpen,
+  ImageIcon,
   Home,
   PanelLeftClose,
   MoreHorizontal,
@@ -174,6 +175,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
     { id: "agro", name: "Sorix Agro", icon: Leaf, color: "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400" },
     { id: "health", name: "Sorix Health", icon: Heart, color: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400" },
     { id: "legends", name: "Sorix Legends", icon: BookOpen, color: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" },
+    { id: "imagine", name: "Sorix Imagine", icon: ImageIcon, color: "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400" },
   ];
 
   const userInitials = authUser?.email
@@ -272,6 +274,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                             if (tool.id === 'health') { navigate('/health'); onClose(); }
                             if (tool.id === 'agro') { navigate('/agro'); onClose(); }
                             if (tool.id === 'legends') { navigate('/legends'); onClose(); }
+                            if (tool.id === 'imagine') { navigate('/imagine'); onClose(); }
                           }}
                           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground/80 hover:bg-muted/50 transition-colors"
                         >

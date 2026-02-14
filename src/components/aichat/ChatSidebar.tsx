@@ -18,6 +18,7 @@ import {
   Leaf,
   Heart,
   BookOpen,
+  ImageIcon,
   PanelLeftClose,
   PanelLeft,
   MoreHorizontal,
@@ -206,6 +207,13 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
       icon: BookOpen,
       color: "bg-amber-100 text-amber-600",
     },
+    {
+      id: "imagine",
+      name: "Sorix Imagine",
+      description: "AI-powered image generation",
+      icon: ImageIcon,
+      color: "bg-purple-100 text-purple-600",
+    },
   ];
 
   const userInitials = authUser?.email
@@ -285,6 +293,9 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate("/legends")}>
                 <BookOpen className="w-4 h-4 mr-2 text-amber-500" /> Sorix Legends
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/imagine")}>
+                <ImageIcon className="w-4 h-4 mr-2 text-purple-500" /> Sorix Imagine
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -451,6 +462,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                           if (tool.id === "health") navigate("/health");
                           if (tool.id === "agro") navigate("/agro");
                           if (tool.id === "legends") navigate("/legends");
+                          if (tool.id === "imagine") navigate("/imagine");
                         }}
                         className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
                       >
