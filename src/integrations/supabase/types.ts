@@ -250,6 +250,7 @@ export type Database = {
           description: string
           icon: string
           id: string
+          model: string
           name: string
           status: string
           tokens_used: number
@@ -263,6 +264,7 @@ export type Database = {
           description?: string
           icon?: string
           id?: string
+          model?: string
           name: string
           status?: string
           tokens_used?: number
@@ -276,6 +278,7 @@ export type Database = {
           description?: string
           icon?: string
           id?: string
+          model?: string
           name?: string
           status?: string
           tokens_used?: number
