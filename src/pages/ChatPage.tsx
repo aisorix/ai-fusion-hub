@@ -12,6 +12,7 @@ import MobileHeader from '@/components/aichat/MobileHeader';
 import MobileSidebar from '@/components/aichat/MobileSidebar';
 import ShareModal from '@/components/aichat/ShareModal';
 import MultiWindowChat from '@/components/aichat/MultiWindowChat';
+import ProjectsModal from '@/components/aichat/ProjectsModal';
 import { LiveVoiceOverlay } from '@/components/voice';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
@@ -90,6 +91,9 @@ const ChatPage = () => {
       
       {/* Share Modal */}
       <ShareModal />
+
+      {/* Projects Modal */}
+      <ProjectsModal />
 
       {/* Voice Mode Overlay */}
       <LiveVoiceOverlay isOpen={showVoiceMode} onClose={() => setShowVoiceMode(false)} />
