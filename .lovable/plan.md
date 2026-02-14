@@ -1,66 +1,110 @@
 
 
-# Redesign Sorix Imagine UI - Simple, Clean, Futuristic
+# Redesign Sorix Health to Work Like Sorix Agro
 
-## What's Changing
+## Overview
+Rebuild Sorix Health to follow the same simple flow as Sorix Agro: **Intake Form -> Analysis Results -> Follow-up Chat**. Remove the current test-cost-fairness approach and replace it with a proper medical diagnosis tool that identifies the problem, suggests medicines, recommends tests if needed, and provides solutions -- all targeted at Bangladeshi users.
 
-The current layout has a large empty square placeholder that wastes space and looks basic. The redesign will make it compact, modern, and futuristic -- inspired by clean AI tool interfaces.
+## Flow Change
 
-## Design Changes
+Current flow: Intake -> Review Tests (costs) -> Results (fairness score, pie charts) -> Chat
 
-### 1. Remove the Large Empty Placeholder
-- Replace the big square "Your creation will appear here" box with a smaller, subtle indicator
-- When no image is generated yet, show a minimal centered message with a small icon (no giant box)
-- The page should feel prompt-first, not canvas-first
+New flow: **Intake -> Results (diagnosis, medicines, tests if serious) -> Chat**
 
-### 2. Rearrange Layout: Prompt First
-- Move the prompt bar higher -- it should be the hero element
-- Below prompt: style carousel
-- Below styles: generated image (only appears after generation)
-- This makes the flow: type prompt -> pick style -> see result
+The "review" step is completely removed. No more cost analysis, fairness scores, or pie/bar charts.
 
-### 3. Compact Header
-- Keep header minimal but add a subtle gradient accent line under it
-- Remove the "12K tokens/image" badge from header (redundant, shown below prompt)
+## What Changes
 
-### 4. Futuristic Empty State
-- Instead of a dashed-border square, show a sleek centered message with animated gradient text
-- Something like "Describe anything. We'll create it." with a subtle shimmer effect
-- Much smaller footprint -- just 2-3 lines of text, not a giant box
+### 1. HealthPage.tsx - Simplify the Flow
+- Remove the `review` step entirely (no more `ExtractedTest`, `HealthTestReview`)
+- Change step type from `'intake' | 'review' | 'results' | 'chat'` to `'intake' | 'results' | 'chat'`
+- Remove `extractedTests` state and `handleTestReviewConfirm`
+- Update `AnalysisResult` type to match the new Agro-like schema:
+  - `diagnosis`, `severity`, `severityScore`, `causes[]`
+  - `medicines[]` (name, type, dosage, frequency, cost in BDT, etc.)
+  - `preventionTips[]`, `recommendedTests[]` (only if serious)
+  - `timeline`, `detailedAnalysis`
+- Remove step indicators for "Review Tests"
+- Keep the same 3 AI models from the current health edge function
 
-### 5. Better Canvas When Image Exists
-- Image appears with a smooth fade-in and subtle glow border
-- Actions (download/share/copy) appear as a floating toolbar below the image
-- Rounded corners with a thin gradient border
+### 2. HealthIntakeForm.tsx - Localize for Bangladesh
+- Add Bangla text alongside English (like Agro form does)
+- Keep existing fields: patient category, symptoms, gender, age, weight, height
+- Add optional fields: existing medications, medical history, allergies
+- Keep file upload for prescriptions/lab reports
 
-### 6. Improved Loading State
-- Replace the large square loading with a compact progress bar or a small centered spinner
-- Show the prompt text being processed with a typing animation
+### 3. HealthAnalysisResults.tsx - Complete Redesign
+- Remove: pie charts, bar charts, fairness score, test cost breakdown
+- Add (matching Agro pattern):
+  - Diagnosis card with severity indicator
+  - Severity score bar (like Agro)
+  - Causes section
+  - Medicine recommendations with BDT pricing (Bangladesh-available medicines)
+  - Recommended tests section (only shown for serious conditions)
+  - Prevention tips
+  - Timeline (treatment duration, expected recovery)
+  - Detailed analysis
+  - Action buttons: New Analysis + Ask Follow-up Questions
 
-### 7. Style Carousel Polish
-- Make chips slightly smaller and more pill-shaped
-- Add a subtle scroll indicator on mobile
+### 4. health-analysis Edge Function - New Structured Prompt
+- Replace the current JSON schema (tests/costs/fairness) with a new Agro-like schema
+- New structured analysis prompt asks for:
+  - Diagnosis, severity, causes
+  - Medicine suggestions (Bangladesh-available, BDT pricing)
+  - Recommended tests only when medically necessary
+  - Prevention tips, timeline
+- Keep the same 3 models: `google/gemma-3-27b-it`, `deepseek/deepseek-r1-0528`, `anthropic/claude-sonnet-4.5`
+- Keep streaming chat mode unchanged
 
----
+### 5. Cleanup
+- Remove `HealthTestReview.tsx` (no longer needed)
+- Remove unused chart imports from results
+- Update `index.tsx` exports
 
 ## Technical Details
 
+### New AnalysisResult Type (replaces current)
+```typescript
+export interface Medicine {
+  name: string;
+  type: string; // Antibiotic, Painkiller, Antacid, etc.
+  dosage: string;
+  frequency: string;
+  duration: string;
+  cost: number; // BDT
+  warning: string;
+}
+
+export interface RecommendedTest {
+  name: string;
+  reason: string;
+  urgency: 'routine' | 'soon' | 'urgent';
+  estimatedCost: number; // BDT
+}
+
+export interface AnalysisResult {
+  diagnosis: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  severityScore: number;
+  causes: string[];
+  medicines: Medicine[];
+  recommendedTests: RecommendedTest[];
+  preventionTips: string[];
+  lifestyle: string[];
+  timeline: { treatmentDuration: string; expectedRecovery: string };
+  detailedAnalysis: string;
+  whenToSeeDoctor: string;
+}
+```
+
+### New Edge Function Prompt
+The structured analysis prompt will request Bangladesh-specific medicine names and BDT pricing, with a focus on practical solutions rather than cost analysis. Tests are only recommended when the condition warrants them (serious symptoms, unclear diagnosis).
+
 ### Files Modified
-
-**`src/pages/ImaginePage.tsx`**
-- Reorder layout: prompt bar first, then styles, then canvas
-- Remove "12K tokens/image" badge from header
-- Add subtle gradient line under header
-
-**`src/components/imagine/ImagineCanvas.tsx`**
-- Redesign empty state: small centered text with shimmer, no large box
-- Redesign loading state: compact with progress indicator
-- Add gradient border glow to generated image
-
-**`src/components/imagine/ImaginePromptBar.tsx`**  
-- Add subtle gradient border glow effect
-- Make it the visual hero of the page
-
-**`src/components/imagine/ImagineStyleCarousel.tsx`**
-- Slightly smaller, more refined chip styling
-
+- `src/pages/HealthPage.tsx` - Simplified flow, new types
+- `src/components/health/HealthIntakeForm.tsx` - Minor Bangla additions
+- `src/components/health/HealthAnalysisResults.tsx` - Complete rewrite (Agro-style)
+- `src/components/health/HealthChatMode.tsx` - Minor type updates
+- `src/components/health/index.tsx` - Remove HealthTestReview export
+- `supabase/functions/health-analysis/index.ts` - New structured prompt and schema
+- Delete: `src/components/health/HealthTestReview.tsx`
