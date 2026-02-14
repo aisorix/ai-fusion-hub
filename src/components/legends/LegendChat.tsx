@@ -11,6 +11,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 
 interface LegendChatProps {
   persona: Persona;
@@ -39,6 +40,7 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [pendingImage, setPendingImage] = useState<string | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -77,6 +79,12 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
 
   const sendMessage = async () => {
     if (!input.trim() || isStreaming) return;
+
+    // Check token limit before sending
+    if (user.tokensLimit > 0 && user.tokensUsed >= user.tokensLimit) {
+      setShowUpgradeModal(true);
+      return;
+    }
 
     const userMsg: ChatMessage = { id: `u-${Date.now()}`, role: 'user', content: input.trim(), image: pendingImage || undefined };
     const assistantId = `a-${Date.now()}`;
@@ -124,15 +132,25 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
         // 3x token deduction
         const estimatedTokens = (input.length / 4) + (totalContent.length / 4);
         const deduction = Math.ceil(estimatedTokens * 3);
+        const newUsed = user.tokensUsed + deduction;
         useChatStore.setState(state => ({
           user: { ...state.user, tokensUsed: state.user.tokensUsed + deduction }
         }));
+        // Show upgrade modal if limit now reached
+        if (user.tokensLimit > 0 && newUsed >= user.tokensLimit) {
+          setShowUpgradeModal(true);
+        }
       },
       (error) => {
         console.error('Legend chat error:', error);
-        setMessages(prev => prev.map(m =>
-          m.id === assistantId ? { ...m, content: 'Sorry, something went wrong. Please try again.' } : m
-        ));
+        if (error.message === 'TOKEN_LIMIT_REACHED') {
+          setMessages(prev => prev.filter(m => m.id !== assistantId));
+          setShowUpgradeModal(true);
+        } else {
+          setMessages(prev => prev.map(m =>
+            m.id === assistantId ? { ...m, content: 'Sorry, something went wrong. Please try again.' } : m
+          ));
+        }
         setIsStreaming(false);
       },
       abort.signal,
@@ -245,6 +263,9 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
           </div>
         </div>
       </div>
+
+      {/* Upgrade Plan Modal */}
+      <UpgradePlanModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
     </div>
   );
 };

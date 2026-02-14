@@ -144,6 +144,13 @@ SPEAKING STYLE:
 KNOWLEDGE DOMAIN: Bangladesh Sanchayapatra (Savings Certificates), Stock Market (DSE/CSE), Bank FD rates, Mutual Funds, Insurance, Real Estate, Tax planning, Business loans, DPS, Personal budgeting, Cryptocurrency awareness.`,
 };
 
+const PLAN_TOKEN_LIMITS: Record<string, number> = {
+  free: 5000,
+  basic: 800000,
+  pro: 1500000,
+  premium: 3000000,
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -168,6 +175,31 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check token limits from subscriptions table
+    const serviceClient = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    );
+    const { data: sub } = await serviceClient
+      .from('subscriptions')
+      .select('plan_id, tokens_used')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    const planId = sub?.plan_id || 'free';
+    const tokensUsed = sub?.tokens_used || 0;
+    const tokenLimit = PLAN_TOKEN_LIMITS[planId] || PLAN_TOKEN_LIMITS.free;
+
+    if (tokensUsed >= tokenLimit) {
+      return new Response(
+        JSON.stringify({ error: 'TOKEN_LIMIT_REACHED', message: 'You have reached your token limit. Please upgrade your plan.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -229,12 +261,70 @@ serve(async (req) => {
     }
 
     if (stream) {
-      return new Response(response.body, {
+      // Collect stream content for token deduction, then forward
+      const reader = response.body!.getReader();
+      let totalContent = '';
+      const chunks: Uint8Array[] = [];
+
+      const forwardStream = new ReadableStream({
+        async start(controller) {
+          const decoder = new TextDecoder();
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              chunks.push(value);
+              controller.enqueue(value);
+
+              // Parse SSE to estimate tokens
+              const text = decoder.decode(value, { stream: true });
+              for (const line of text.split('\n')) {
+                if (!line.startsWith('data: ') || line.includes('[DONE]')) continue;
+                try {
+                  const parsed = JSON.parse(line.slice(6));
+                  const c = parsed.choices?.[0]?.delta?.content;
+                  if (c) totalContent += c;
+                } catch { /* ignore */ }
+              }
+            }
+          } finally {
+            controller.close();
+            // Deduct tokens in background (3x multiplier for Legends)
+            const lastUserMsg = (messages || []).filter((m: any) => m.role === 'user').pop();
+            const inputLen = typeof lastUserMsg?.content === 'string' ? lastUserMsg.content.length : 100;
+            const estimatedTokens = Math.ceil(((inputLen / 4) + (totalContent.length / 4)) * 3);
+            if (estimatedTokens > 0 && sub) {
+              serviceClient
+                .from('subscriptions')
+                .update({ tokens_used: tokensUsed + estimatedTokens })
+                .eq('user_id', user.id)
+                .eq('status', 'active')
+                .then(() => {});
+            }
+          }
+        }
+      });
+
+      return new Response(forwardStream, {
         headers: { ...corsHeaders, 'Content-Type': 'text/event-stream' },
       });
     }
 
     const data = await response.json();
+    
+    // Deduct tokens for non-stream responses
+    const content = data.choices?.[0]?.message?.content || '';
+    const lastUserMsg = (messages || []).filter((m: any) => m.role === 'user').pop();
+    const inputLen = typeof lastUserMsg?.content === 'string' ? lastUserMsg.content.length : 100;
+    const estimatedTokens = Math.ceil(((inputLen / 4) + (content.length / 4)) * 3);
+    if (estimatedTokens > 0 && sub) {
+      await serviceClient
+        .from('subscriptions')
+        .update({ tokens_used: tokensUsed + estimatedTokens })
+        .eq('user_id', user.id)
+        .eq('status', 'active');
+    }
+
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
