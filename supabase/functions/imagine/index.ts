@@ -88,17 +88,18 @@ serve(async (req) => {
       });
     }
 
-    const orResponse = await fetch("https://openrouter.ai/api/v1/images/generations", {
+    const orResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${openrouterKey}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": "https://sorixai.lovable.app",
+        "X-Title": "Sorix Imagine",
       },
       body: JSON.stringify({
         model: "black-forest-labs/flux.2-klein-4b",
-        prompt: finalPrompt,
-        n: 1,
-        size: `${width}x${height}`,
+        messages: [{ role: "user", content: finalPrompt }],
+        modalities: ["image"],
       }),
     });
 
@@ -112,18 +113,32 @@ serve(async (req) => {
     }
 
     const orData = await orResponse.json();
-    const imageUrl = orData.data?.[0]?.url || orData.data?.[0]?.b64_json;
+    console.log("OpenRouter response structure:", JSON.stringify(orData).substring(0, 500));
+    // Extract image from chat completions response
+    const message = orData.choices?.[0]?.message;
+    let imageUrl = "";
+    // Images come in message.images array
+    if (message?.images?.length > 0) {
+      imageUrl = message.images[0]?.image_url?.url || "";
+    }
+    // Fallback: check content array
+    if (!imageUrl && Array.isArray(message?.content)) {
+      const imgPart = message.content.find((c: any) => c.type === "image_url");
+      imageUrl = imgPart?.image_url?.url || "";
+    }
+    if (!imageUrl && typeof message?.content === "string" && message.content.startsWith("data:image")) {
+      imageUrl = message.content;
+    }
 
     if (!imageUrl) {
-      return new Response(JSON.stringify({ error: "No image returned" }), {
+      console.error("Could not extract image. Content type:", typeof content, "Content preview:", JSON.stringify(content)?.substring(0, 300));
+      return new Response(JSON.stringify({ error: "No image returned", debug: typeof content }), {
         status: 502,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const finalImageUrl = imageUrl.startsWith("http")
-      ? imageUrl
-      : `data:image/png;base64,${imageUrl}`;
+    const finalImageUrl = imageUrl;
 
     // Save to DB
     const { data: insertedRow, error: insertErr } = await supabase
