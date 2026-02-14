@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import {
   File, Folder, FolderOpen, Plus, Trash2, Pencil, Check, X,
   ChevronRight, ChevronDown, Save, FileCode, FilePlus, FolderPlus,
@@ -27,7 +26,6 @@ interface ProjectFileExplorerProps {
   getFilesInPath: (path: string) => ProjectFile[];
 }
 
-// Language icon colors
 const LANG_COLORS: Record<string, string> = {
   javascript: 'text-yellow-500', jsx: 'text-cyan-500', typescript: 'text-blue-500',
   tsx: 'text-blue-400', python: 'text-green-500', html: 'text-orange-500',
@@ -36,16 +34,30 @@ const LANG_COLORS: Record<string, string> = {
   go: 'text-cyan-600', java: 'text-red-500', ruby: 'text-red-400',
 };
 
+// Memoized syntax highlighter to prevent re-renders
+const MemoizedHighlighter = memo(({ content, language, theme }: { content: string; language: string; theme: string }) => (
+  <SyntaxHighlighter
+    language={language === 'plaintext' ? 'text' : language}
+    style={theme === 'dark' ? oneDark : oneLight}
+    customStyle={{
+      margin: 0, padding: '12px 16px', fontSize: '13px',
+      lineHeight: '1.6', minHeight: '100%', background: 'transparent',
+    }}
+    showLineNumbers
+    lineNumberStyle={{ minWidth: '2.5em', paddingRight: '1em', color: 'hsl(var(--muted-foreground) / 0.4)' }}
+  >
+    {content || ' '}
+  </SyntaxHighlighter>
+));
+MemoizedHighlighter.displayName = 'MemoizedHighlighter';
+
 // ===== FILE TREE ITEM =====
 const FileTreeItem = ({
   file, depth, isActive, expandedFolders, onToggleFolder, onSelect, onRename, onDelete, files, onCreateFile,
 }: {
-  file: ProjectFile;
-  depth: number;
-  isActive: boolean;
+  file: ProjectFile; depth: number; isActive: boolean;
   expandedFolders: Set<string>;
-  onToggleFolder: (id: string) => void;
-  onSelect: (id: string) => void;
+  onToggleFolder: (id: string) => void; onSelect: (id: string) => void;
   onRename: (id: string, name: string) => Promise<boolean>;
   onDelete: (id: string) => Promise<boolean>;
   files: ProjectFile[];
@@ -124,30 +136,28 @@ const FileTreeItem = ({
         )}
       </div>
 
-      {/* Children */}
-      <AnimatePresence>
-        {file.is_folder && isExpanded && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-            {children
-              .sort((a, b) => (a.is_folder === b.is_folder ? a.name.localeCompare(b.name) : a.is_folder ? -1 : 1))
-              .map(child => (
-                <FileTreeItem
-                  key={child.id}
-                  file={child}
-                  depth={depth + 1}
-                  isActive={false}
-                  expandedFolders={expandedFolders}
-                  onToggleFolder={onToggleFolder}
-                  onSelect={onSelect}
-                  onRename={onRename}
-                  onDelete={onDelete}
-                  files={files}
-                  onCreateFile={onCreateFile}
-                />
-              ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Children - CSS transition instead of AnimatePresence */}
+      {file.is_folder && isExpanded && (
+        <div className="overflow-hidden animate-in slide-in-from-top-1 duration-150">
+          {children
+            .sort((a, b) => (a.is_folder === b.is_folder ? a.name.localeCompare(b.name) : a.is_folder ? -1 : 1))
+            .map(child => (
+              <FileTreeItem
+                key={child.id}
+                file={child}
+                depth={depth + 1}
+                isActive={false}
+                expandedFolders={expandedFolders}
+                onToggleFolder={onToggleFolder}
+                onSelect={onSelect}
+                onRename={onRename}
+                onDelete={onDelete}
+                files={files}
+                onCreateFile={onCreateFile}
+              />
+            ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -166,7 +176,6 @@ const ProjectFileExplorer: React.FC<ProjectFileExplorerProps> = ({
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
-  // Sync editor content when active file changes
   useEffect(() => {
     if (activeFile) {
       setEditedContent(activeFile.content);
@@ -174,11 +183,9 @@ const ProjectFileExplorer: React.FC<ProjectFileExplorerProps> = ({
     }
   }, [activeFileId, activeFile?.content]);
 
-  const handleContentChange = (value: string) => {
+  const handleContentChange = useCallback((value: string) => {
     setEditedContent(value);
     setHasUnsavedChanges(true);
-
-    // Auto-save after 2 seconds of inactivity
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
       if (activeFileId) {
@@ -186,34 +193,33 @@ const ProjectFileExplorer: React.FC<ProjectFileExplorerProps> = ({
         setHasUnsavedChanges(false);
       }
     }, 2000);
-  };
+  }, [activeFileId, onUpdateContent]);
 
-  const handleManualSave = async () => {
+  const handleManualSave = useCallback(async () => {
     if (activeFileId && hasUnsavedChanges) {
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
       const ok = await onUpdateContent(activeFileId, editedContent);
       if (ok) setHasUnsavedChanges(false);
     }
-  };
+  }, [activeFileId, hasUnsavedChanges, editedContent, onUpdateContent]);
 
-  const handleCreateNew = async () => {
+  const handleCreateNew = useCallback(async () => {
     if (!newName.trim() || !showNewInput) return;
     await onCreateFile(newName.trim(), '/', showNewInput === 'folder');
     setNewName('');
     setShowNewInput(null);
-  };
+  }, [newName, showNewInput, onCreateFile]);
 
-  const toggleFolder = (id: string) => {
+  const toggleFolder = useCallback((id: string) => {
     setExpandedFolders(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
-  };
+  }, []);
 
   const rootFiles = getFilesInPath('/');
 
-  // Handle keyboard shortcut for save
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 's') {
       e.preventDefault();
@@ -233,18 +239,10 @@ const ProjectFileExplorer: React.FC<ProjectFileExplorerProps> = ({
         <div className="flex items-center justify-between px-3 py-2 border-b border-border">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Files</span>
           <div className="flex items-center gap-1">
-            <button
-              onClick={() => setShowNewInput('file')}
-              className="p-1 rounded hover:bg-muted transition-colors"
-              title="New File"
-            >
+            <button onClick={() => setShowNewInput('file')} className="p-1 rounded hover:bg-muted transition-colors" title="New File">
               <FilePlus className="w-3.5 h-3.5 text-muted-foreground" />
             </button>
-            <button
-              onClick={() => setShowNewInput('folder')}
-              className="p-1 rounded hover:bg-muted transition-colors"
-              title="New Folder"
-            >
+            <button onClick={() => setShowNewInput('folder')} className="p-1 rounded hover:bg-muted transition-colors" title="New Folder">
               <FolderPlus className="w-3.5 h-3.5 text-muted-foreground" />
             </button>
           </div>
@@ -252,7 +250,6 @@ const ProjectFileExplorer: React.FC<ProjectFileExplorerProps> = ({
 
         <ScrollArea className="flex-1">
           <div className="py-1">
-            {/* New file/folder input */}
             {showNewInput && (
               <div className="flex items-center gap-1 px-2 py-1">
                 {showNewInput === 'folder' ? <Folder className="w-4 h-4 text-amber-500 shrink-0" /> : <File className="w-4 h-4 text-muted-foreground shrink-0" />}
@@ -277,29 +274,19 @@ const ProjectFileExplorer: React.FC<ProjectFileExplorerProps> = ({
               <div className="text-center py-8 px-3">
                 <FileCode className="w-8 h-8 mx-auto mb-2 text-muted-foreground/30" />
                 <p className="text-[10px] text-muted-foreground">No files yet</p>
-                <button
-                  onClick={() => setShowNewInput('file')}
-                  className="text-[10px] text-primary hover:underline mt-1"
-                >
-                  Create one
-                </button>
+                <button onClick={() => setShowNewInput('file')} className="text-[10px] text-primary hover:underline mt-1">Create one</button>
               </div>
             ) : (
               rootFiles
                 .sort((a, b) => (a.is_folder === b.is_folder ? a.name.localeCompare(b.name) : a.is_folder ? -1 : 1))
                 .map(file => (
                   <FileTreeItem
-                    key={file.id}
-                    file={file}
-                    depth={0}
+                    key={file.id} file={file} depth={0}
                     isActive={activeFileId === file.id}
                     expandedFolders={expandedFolders}
-                    onToggleFolder={toggleFolder}
-                    onSelect={onSelectFile}
-                    onRename={onRenameFile}
-                    onDelete={onDeleteFile}
-                    files={files}
-                    onCreateFile={onCreateFile}
+                    onToggleFolder={toggleFolder} onSelect={onSelectFile}
+                    onRename={onRenameFile} onDelete={onDeleteFile}
+                    files={files} onCreateFile={onCreateFile}
                   />
                 ))
             )}
@@ -311,7 +298,6 @@ const ProjectFileExplorer: React.FC<ProjectFileExplorerProps> = ({
       <div className="flex-1 flex flex-col min-w-0">
         {activeFile ? (
           <>
-            {/* Editor Header */}
             <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/30">
               <div className="flex items-center gap-2 min-w-0">
                 <FileCode className={cn('w-4 h-4 shrink-0', LANG_COLORS[activeFile.language] || 'text-muted-foreground')} />
@@ -321,42 +307,16 @@ const ProjectFileExplorer: React.FC<ProjectFileExplorerProps> = ({
               </div>
               <div className="flex items-center gap-1.5">
                 {isSaving && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />}
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={handleManualSave}
-                  disabled={!hasUnsavedChanges || isSaving}
-                  className="h-7 text-xs gap-1"
-                >
-                  <Save className="w-3 h-3" />
-                  Save
+                <Button size="sm" variant="ghost" onClick={handleManualSave} disabled={!hasUnsavedChanges || isSaving} className="h-7 text-xs gap-1">
+                  <Save className="w-3 h-3" /> Save
                 </Button>
               </div>
             </div>
 
-            {/* Editor Area - Overlaid textarea + syntax highlighting */}
             <div className="flex-1 relative overflow-hidden">
-              {/* Syntax highlighted preview (behind textarea) */}
               <div className="absolute inset-0 overflow-auto">
-                <SyntaxHighlighter
-                  language={activeFile.language === 'plaintext' ? 'text' : activeFile.language}
-                  style={theme === 'dark' ? oneDark : oneLight}
-                  customStyle={{
-                    margin: 0,
-                    padding: '12px 16px',
-                    fontSize: '13px',
-                    lineHeight: '1.6',
-                    minHeight: '100%',
-                    background: 'transparent',
-                  }}
-                  showLineNumbers
-                  lineNumberStyle={{ minWidth: '2.5em', paddingRight: '1em', color: 'hsl(var(--muted-foreground) / 0.4)' }}
-                >
-                  {editedContent || ' '}
-                </SyntaxHighlighter>
+                <MemoizedHighlighter content={editedContent} language={activeFile.language} theme={theme} />
               </div>
-
-              {/* Editable textarea (on top, transparent) */}
               <textarea
                 ref={editorRef}
                 value={editedContent}
@@ -367,7 +327,6 @@ const ProjectFileExplorer: React.FC<ProjectFileExplorerProps> = ({
               />
             </div>
 
-            {/* Status Bar */}
             <div className="flex items-center justify-between px-3 py-1 border-t border-border bg-muted/20 text-[10px] text-muted-foreground">
               <span>{activeFile.language} • {editedContent.split('\n').length} lines</span>
               <span>Ctrl+S to save • Auto-saves after 2s</span>

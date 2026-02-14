@@ -81,7 +81,8 @@ export const useProjectAI = () => {
     description: string,
     icon: string,
     color: string,
-    model: ProjectModel = 'deepseek/deepseek-v3.2'
+    model: ProjectModel = 'deepseek/deepseek-v3.2',
+    projectType: string = 'other'
   ): Promise<DbProject | null> => {
     if (!authUser) return null;
     if (!canCreateProject) {
@@ -91,7 +92,7 @@ export const useProjectAI = () => {
     try {
       const { data, error } = await (supabase as any)
         .from('projects')
-        .insert({ user_id: authUser.id, name, description, icon, color, model, status: 'active' })
+        .insert({ user_id: authUser.id, name, description, icon, color, model, status: 'active', project_type: projectType })
         .select()
         .single();
       if (error) throw error;
