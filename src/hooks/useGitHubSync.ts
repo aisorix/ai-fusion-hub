@@ -77,7 +77,11 @@ export const useGitHubSync = (projectId: string | null) => {
   }, []);
 
   const getOAuthUrl = useCallback((fetchedClientId: string) => {
-    const redirectUri = `${window.location.origin}/chat?github_callback=true`;
+    // Use published URL if available for stable OAuth redirects
+    const baseUrl = window.location.hostname.includes('lovable.app') 
+      ? 'https://sorixai.lovable.app' 
+      : window.location.origin;
+    const redirectUri = `${baseUrl}/chat?github_callback=true`;
     return `https://github.com/login/oauth/authorize?client_id=${fetchedClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=repo`;
   }, []);
 
