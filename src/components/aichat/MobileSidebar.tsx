@@ -28,9 +28,6 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import sorixLogo from "@/assets/logo.png";
-import sorixAgroIcon from "@/assets/icons/sorix-agro.png";
-import sorixHealthIcon from "@/assets/icons/sorix-health.png";
-import sorixLegendsIcon from "@/assets/icons/sorix-legends.png";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -175,10 +172,10 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   const olderChats = filteredChats.filter((c) => new Date(c.createdAt) < weekAgo);
 
   const moreTools = [
-    { id: "agro", name: "Sorix Agro", image: sorixAgroIcon, free: true },
-    { id: "health", name: "Sorix Health", image: sorixHealthIcon, free: true },
-    { id: "legends", name: "Sorix Legends", image: sorixLegendsIcon, free: false },
-    { id: "imagine", name: "Sorix Imagine", icon: ImageIcon, color: "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400", free: false },
+    { id: "agro", name: "Sorix Agro", icon: Leaf, gradient: "bg-gradient-to-br from-green-500 to-lime-500", free: true },
+    { id: "health", name: "Sorix Health", icon: Heart, gradient: "bg-gradient-to-br from-emerald-500 to-teal-500", free: true },
+    { id: "legends", name: "Sorix Legends", icon: BookOpen, gradient: "bg-gradient-to-br from-blue-500 to-cyan-500", free: false },
+    { id: "imagine", name: "Sorix Imagine", icon: ImageIcon, gradient: "bg-gradient-to-br from-purple-500 to-pink-500", free: false },
   ];
 
   const userInitials = authUser?.email
@@ -281,13 +278,9 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                           }}
                           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground/80 hover:bg-muted/50 transition-colors"
                         >
-                          {'image' in tool && tool.image ? (
-                            <img src={tool.image} alt={tool.name} className="w-7 h-7 rounded-md object-cover" />
-                          ) : (
-                            <div className={cn("w-7 h-7 rounded-md flex items-center justify-center", tool.color)}>
-                              {tool.icon && <tool.icon className="w-3.5 h-3.5" />}
-                            </div>
-                          )}
+                          <div className={cn("w-7 h-7 rounded-xl flex items-center justify-center shadow-sm", tool.gradient)}>
+                            <tool.icon className="w-3.5 h-3.5 text-white" />
+                          </div>
                           <span className="text-[13px] flex-1">{tool.name}</span>
                           {tool.free && (
                             <span className="text-[9px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400 font-bold">FREE</span>
