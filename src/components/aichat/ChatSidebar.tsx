@@ -33,6 +33,9 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import sorixLogo from "@/assets/logo.png";
+import sorixAgroIcon from "@/assets/icons/sorix-agro.png";
+import sorixHealthIcon from "@/assets/icons/sorix-health.png";
+import sorixLegendsIcon from "@/assets/icons/sorix-legends.png";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -190,22 +193,22 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
       id: "agro",
       name: "Sorix Agro",
       description: "AI-powered agricultural assistant",
-      icon: Leaf,
-      color: "bg-green-100 text-green-600",
+      image: sorixAgroIcon,
+      free: true,
     },
     {
       id: "health",
       name: "Sorix Health",
       description: "Your personal health companion",
-      icon: Heart,
-      color: "bg-red-100 text-red-600",
+      image: sorixHealthIcon,
+      free: true,
     },
     {
       id: "legends",
       name: "Sorix Legends",
       description: "Chat with historical legends",
-      icon: BookOpen,
-      color: "bg-amber-100 text-amber-600",
+      image: sorixLegendsIcon,
+      free: false,
     },
     {
       id: "imagine",
@@ -213,6 +216,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
       description: "AI-powered image generation",
       icon: ImageIcon,
       color: "bg-purple-100 text-purple-600",
+      free: false,
     },
   ];
 
@@ -466,12 +470,19 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                         }}
                         className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
                       >
-                        <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", tool.color)}>
-                          <tool.icon className="w-4 h-4" />
-                        </div>
+                        {'image' in tool && tool.image ? (
+                          <img src={tool.image} alt={tool.name} className="w-8 h-8 rounded-lg object-cover" />
+                        ) : (
+                          <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", tool.color)}>
+                            {tool.icon && <tool.icon className="w-4 h-4" />}
+                          </div>
+                        )}
                         <div className="flex-1 text-left">
                           <div className="flex items-center gap-2">
                             <span className="text-sm">{tool.name}</span>
+                            {tool.free && (
+                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400 font-bold">FREE</span>
+                            )}
                           </div>
                           <p className="text-[10px] text-muted-foreground">{tool.description}</p>
                         </div>

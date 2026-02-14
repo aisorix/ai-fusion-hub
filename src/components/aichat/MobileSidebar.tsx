@@ -28,6 +28,9 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import sorixLogo from "@/assets/logo.png";
+import sorixAgroIcon from "@/assets/icons/sorix-agro.png";
+import sorixHealthIcon from "@/assets/icons/sorix-health.png";
+import sorixLegendsIcon from "@/assets/icons/sorix-legends.png";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -172,10 +175,10 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   const olderChats = filteredChats.filter((c) => new Date(c.createdAt) < weekAgo);
 
   const moreTools = [
-    { id: "agro", name: "Sorix Agro", icon: Leaf, color: "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400" },
-    { id: "health", name: "Sorix Health", icon: Heart, color: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400" },
-    { id: "legends", name: "Sorix Legends", icon: BookOpen, color: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" },
-    { id: "imagine", name: "Sorix Imagine", icon: ImageIcon, color: "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400" },
+    { id: "agro", name: "Sorix Agro", image: sorixAgroIcon, free: true },
+    { id: "health", name: "Sorix Health", image: sorixHealthIcon, free: true },
+    { id: "legends", name: "Sorix Legends", image: sorixLegendsIcon, free: false },
+    { id: "imagine", name: "Sorix Imagine", icon: ImageIcon, color: "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400", free: false },
   ];
 
   const userInitials = authUser?.email
@@ -278,10 +281,17 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                           }}
                           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground/80 hover:bg-muted/50 transition-colors"
                         >
-                          <div className={cn("w-7 h-7 rounded-md flex items-center justify-center", tool.color)}>
-                            <tool.icon className="w-3.5 h-3.5" />
-                          </div>
-                          <span className="text-[13px]">{tool.name}</span>
+                          {'image' in tool && tool.image ? (
+                            <img src={tool.image} alt={tool.name} className="w-7 h-7 rounded-md object-cover" />
+                          ) : (
+                            <div className={cn("w-7 h-7 rounded-md flex items-center justify-center", tool.color)}>
+                              {tool.icon && <tool.icon className="w-3.5 h-3.5" />}
+                            </div>
+                          )}
+                          <span className="text-[13px] flex-1">{tool.name}</span>
+                          {tool.free && (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400 font-bold">FREE</span>
+                          )}
                         </button>
                       ))}
                     </div>
