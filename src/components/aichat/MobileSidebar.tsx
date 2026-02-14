@@ -13,6 +13,7 @@ import {
   MessageSquare,
   Leaf,
   Heart,
+  Stethoscope,
   BookOpen,
   ImageIcon,
   Home,
@@ -173,8 +174,8 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
 
   const moreTools = [
     { id: "agro", name: "Sorix Agro", icon: Leaf, gradient: "bg-gradient-to-br from-green-500 to-lime-500", free: true },
-    { id: "health", name: "Sorix Health", icon: Heart, gradient: "bg-gradient-to-br from-emerald-500 to-teal-500", free: true },
-    { id: "legends", name: "Sorix Legends", icon: BookOpen, gradient: "bg-gradient-to-br from-blue-500 to-cyan-500", free: true },
+    { id: "health", name: "Sorix Health", icon: Stethoscope, gradient: "bg-gradient-to-br from-emerald-500 to-teal-500", free: true },
+    { id: "legends", name: "Sorix Legends", icon: Crown, gradient: "bg-gradient-to-br from-blue-500 to-cyan-500", free: false },
     { id: "imagine", name: "Sorix Imagine", icon: ImageIcon, gradient: "bg-gradient-to-br from-purple-500 to-pink-500", free: false },
   ];
 
