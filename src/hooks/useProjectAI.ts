@@ -156,7 +156,10 @@ export const useProjectAI = () => {
     }
   }, []);
 
-  const sendMessage = useCallback(async (content: string): Promise<void> => {
+  const sendMessage = useCallback(async (
+    content: string,
+    fileContext?: { name: string; path: string; content: string; language: string }[]
+  ): Promise<void> => {
     if (!currentProject || !authUser || !content.trim()) return;
 
     setIsStreaming(true);
@@ -210,6 +213,7 @@ export const useProjectAI = () => {
             conversationHistory,
             userId: authUser.id,
             model: currentProject.model || 'deepseek/deepseek-v3.2',
+            files: fileContext || [],
           }),
         }
       );

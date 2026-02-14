@@ -70,7 +70,7 @@ serve(async (req) => {
       );
     }
 
-    const { projectId, message, conversationHistory, userId, model } = await req.json();
+    const { projectId, message, conversationHistory, userId, model, files } = await req.json();
 
     if (!OPENROUTER_API_KEY) {
       console.error("OPENROUTER_API_KEY is not configured");
@@ -129,6 +129,15 @@ serve(async (req) => {
       );
     }
 
+    // Build file context string
+    let fileContextStr = '';
+    if (files && Array.isArray(files) && files.length > 0) {
+      fileContextStr = '\n\n## Project Files:\nThe user has the following files in their project. You can reference and suggest edits to these files:\n\n';
+      for (const f of files) {
+        fileContextStr += `### ${f.path}\n\`\`\`${f.language}\n${f.content}\n\`\`\`\n\n`;
+      }
+    }
+
     // Build messages
     const contextPrompt = `${PROJECT_SYSTEM_PROMPT}
 
@@ -137,8 +146,8 @@ serve(async (req) => {
 - **Description**: ${project.description || 'No description provided'}
 - **Status**: ${project.status}
 - **Created**: ${new Date(project.created_at).toLocaleDateString()}
-
-Focus your responses on helping with this specific project.`;
+${fileContextStr}
+Focus your responses on helping with this specific project. When the user has project files, reference them directly and suggest code changes inline.`;
 
     const messages = [
       { role: 'system', content: contextPrompt },
