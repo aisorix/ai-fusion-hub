@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Heart, Activity, FileText, Stethoscope, History, X } from 'lucide-react';
+import { ArrowLeft, Heart, Activity, FileText, History, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import HealthHistory from '@/components/health/HealthHistory';
 import HealthIntakeForm from '@/components/health/HealthIntakeForm';
-import HealthTestReview from '@/components/health/HealthTestReview';
 import HealthAnalysisResults from '@/components/health/HealthAnalysisResults';
 import HealthChatMode from '@/components/health/HealthChatMode';
 
@@ -19,35 +18,48 @@ export interface PatientData {
   weightUnit: 'kg' | 'lbs';
   height: number;
   heightUnit: 'cm' | 'ft';
+  existingMedications: string;
+  medicalHistory: string;
+  allergies: string;
   files: File[];
   fileContents: { name: string; type: string; base64: string }[];
 }
 
-export interface ExtractedTest {
-  id: string;
+export interface Medicine {
   name: string;
+  type: string;
+  dosage: string;
+  frequency: string;
+  duration: string;
   cost: number;
-  category: 'necessary' | 'optional' | 'unnecessary';
-  explanation: string;
+  warning: string;
+}
+
+export interface RecommendedTest {
+  name: string;
+  reason: string;
+  urgency: 'routine' | 'soon' | 'urgent';
+  estimatedCost: number;
 }
 
 export interface AnalysisResult {
-  summary: string;
-  tests: ExtractedTest[];
-  totalCost: number;
-  necessaryCost: number;
-  savings: number;
-  fairnessScore: number;
-  fairnessLabel: string;
-  categoryDistribution: { name: string; value: number; color: string }[];
+  diagnosis: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  severityScore: number;
+  causes: string[];
+  medicines: Medicine[];
+  recommendedTests: RecommendedTest[];
+  preventionTips: string[];
+  lifestyle: string[];
+  timeline: { treatmentDuration: string; expectedRecovery: string };
   detailedAnalysis: string;
+  whenToSeeDoctor: string;
 }
 
-type Step = 'intake' | 'review' | 'results' | 'chat';
+type Step = 'intake' | 'results' | 'chat';
 
 const stepConfig = [
   { key: 'intake', label: 'Patient Info', icon: FileText },
-  { key: 'review', label: 'Review Tests', icon: Stethoscope },
   { key: 'results', label: 'Analysis', icon: Activity },
 ] as const;
 
@@ -55,7 +67,6 @@ const HealthPage: React.FC = () => {
   const { user: authUser } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>('intake');
   const [patientData, setPatientData] = useState<PatientData | null>(null);
-  const [extractedTests, setExtractedTests] = useState<ExtractedTest[]>([]);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
@@ -65,7 +76,6 @@ const HealthPage: React.FC = () => {
     setIsAnalyzing(true);
 
     try {
-      // Call edge function for structured analysis (test extraction)
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
       const response = await fetch(
@@ -87,101 +97,33 @@ const HealthPage: React.FC = () => {
               weightUnit: data.weightUnit,
               height: data.height,
               heightUnit: data.heightUnit,
+              existingMedications: data.existingMedications,
+              medicalHistory: data.medicalHistory,
+              allergies: data.allergies,
             },
             files: data.fileContents,
           }),
         }
       );
 
-      if (!response.ok) {
-        throw new Error('Analysis failed');
-      }
-
-      const result = await response.json();
-      
-      if (result.tests && result.tests.length > 0) {
-        setExtractedTests(result.tests.map((t: any, i: number) => ({
-          id: `test-${i}`,
-          name: t.name,
-          cost: t.cost || 0,
-          category: t.category || 'optional',
-          explanation: t.explanation || '',
-        })));
-        setCurrentStep('review');
-      } else {
-        // No tests extracted, go directly to results
-        setAnalysisResult(result);
-        setCurrentStep('results');
-        // Save to history
-        if (authUser) {
-          await supabase.from('analysis_history' as any).insert({
-            user_id: authUser.id,
-            tool: 'health',
-            title: `Health Analysis - ${patientData?.patientCategory || 'General'}`,
-            input_data: { symptoms: data.symptoms, gender: data.gender, patientCategory: data.patientCategory, age: data.age },
-            result_data: result,
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Analysis error:', error);
-      // Fallback: go to chat mode with patient context
-      setCurrentStep('chat');
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
-  const handleTestReviewConfirm = async (tests: ExtractedTest[]) => {
-    setExtractedTests(tests);
-    setIsAnalyzing(true);
-
-    try {
-      const { data: { session: s2 } } = await supabase.auth.getSession();
-      const token2 = s2?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/health-analysis`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token2}`,
-          },
-          body: JSON.stringify({
-            mode: 'detailed_analysis',
-            patientData: {
-              symptoms: patientData?.symptoms,
-              gender: patientData?.gender,
-              patientCategory: patientData?.patientCategory,
-              age: patientData?.age,
-              weight: patientData?.weight,
-              weightUnit: patientData?.weightUnit,
-              height: patientData?.height,
-              heightUnit: patientData?.heightUnit,
-            },
-            tests,
-            files: patientData?.fileContents || [],
-          }),
-        }
-      );
-
-      if (!response.ok) throw new Error('Detailed analysis failed');
+      if (!response.ok) throw new Error('Analysis failed');
 
       const result = await response.json();
       setAnalysisResult(result);
       setCurrentStep('results');
-      // Save to history
+
       if (authUser) {
         await supabase.from('analysis_history' as any).insert({
           user_id: authUser.id,
           tool: 'health',
-          title: `Health Analysis - ${patientData?.patientCategory || 'General'}`,
-          input_data: { symptoms: patientData?.symptoms, gender: patientData?.gender, patientCategory: patientData?.patientCategory },
+          title: `Health Analysis - ${data.patientCategory || 'General'}`,
+          input_data: { symptoms: data.symptoms, gender: data.gender, patientCategory: data.patientCategory, age: data.age },
           result_data: result,
         });
       }
     } catch (error) {
-      console.error('Detailed analysis error:', error);
+      console.error('Analysis error:', error);
+      setCurrentStep('chat');
     } finally {
       setIsAnalyzing(false);
     }
@@ -190,7 +132,6 @@ const HealthPage: React.FC = () => {
   const handleStartOver = () => {
     setCurrentStep('intake');
     setPatientData(null);
-    setExtractedTests([]);
     setAnalysisResult(null);
   };
 
@@ -297,23 +238,6 @@ const HealthPage: React.FC = () => {
               className="h-full"
             >
               <HealthIntakeForm onSubmit={handleIntakeSubmit} isLoading={isAnalyzing} />
-            </motion.div>
-          )}
-
-          {currentStep === 'review' && (
-            <motion.div
-              key="review"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="h-full"
-            >
-              <HealthTestReview
-                tests={extractedTests}
-                onConfirm={handleTestReviewConfirm}
-                onStartOver={handleStartOver}
-                isLoading={isAnalyzing}
-              />
             </motion.div>
           )}
 

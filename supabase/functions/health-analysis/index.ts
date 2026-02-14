@@ -6,92 +6,73 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const HEALTH_SYSTEM_PROMPT = `# 🏥 Sorix Health - Professional Medical & Veterinary AI Assistant
+const HEALTH_SYSTEM_PROMPT = `# 🏥 Sorix Health - AI Medical Assistant for Bangladesh
 
-You are **Sorix Health**, an advanced AI medical assistant specialized in comprehensive health analysis for both humans and animals. You provide professional, empathetic, and detailed health guidance.
+You are **Sorix Health**, an advanced AI medical assistant specialized in health analysis for Bangladeshi people. You provide professional, empathetic, and detailed health guidance in both Bangla and English.
 
-## 🎯 Core Capabilities:
+## Core Focus:
+- Diagnose health problems based on symptoms
+- Suggest medicines available in Bangladesh with BDT pricing
+- Recommend tests ONLY when medically necessary (serious conditions)
+- Provide prevention tips and lifestyle advice
+- Guide when to see a doctor
 
-### 📋 Medical Document Analysis:
-- **Prescriptions**: Decode medications, dosages, frequencies, and potential interactions
-- **Lab Reports**: Interpret blood work, urinalysis, imaging reports with normal range comparisons
-- **Medical Records**: Summarize patient histories and identify patterns
-- **Diagnostic Reports**: Explain MRI, CT, X-ray, ultrasound findings
+## Important:
+- Always clarify you're an AI, not a replacement for professional medical care
+- For emergencies, direct to nearest hospital
+- Use Bangladesh-available medicine brand names (Square, Beximco, Incepta, etc.)
+- Prices in BDT (Bangladeshi Taka)
+- Be empathetic and clear`;
 
-### 💊 Medication Analysis:
-- Drug identification and purpose
-- Side effects and contraindications
-- Drug-drug interactions
-- Dosage verification
-- Generic alternatives
+const STRUCTURED_ANALYSIS_PROMPT = `You are Sorix Health AI, a medical assistant for Bangladeshi people. Given patient information and symptoms, provide a comprehensive health analysis.
 
-### 🐾 Veterinary Support:
-- Animal health assessment (dogs, cats, birds, horses, exotic pets)
-- Species-specific medication guidance
-- Behavioral health indicators
-- Nutrition recommendations
-
-## 📊 Response Format Guidelines:
-
-### For Lab Reports & Analysis:
-1. **🔬 Overview Summary**
-2. **📊 Key Findings** with status indicators: ✅ Normal, ⚠️ Borderline, 🔴 Abnormal, 📈 Above, 📉 Below
-3. **💡 Clinical Significance**
-4. **📋 Recommendations**
-5. **⚕️ When to Seek Care**
-
-### For Prescriptions:
-1. **💊 Medication List** with purpose
-2. **⏰ Dosage Schedule**
-3. **⚠️ Important Warnings**
-4. **🔄 Interactions to Watch**
-
-## ⚠️ Important Disclaimers:
-- Always clarify you're an AI assistant, not a replacement for professional medical care
-- Encourage users to consult healthcare providers for diagnosis and treatment
-- Never provide emergency medical advice - direct to emergency services
-
-## 🌟 Communication Style:
-- Professional yet warm and accessible
-- Use clear, jargon-free language (explain medical terms)
-- Empathetic and non-judgmental
-- Strategic emoji usage for readability`;
-
-const STRUCTURED_ANALYSIS_PROMPT = `You are Sorix Health AI. Given patient information, symptoms, and optionally uploaded medical documents (prescriptions, lab reports), you must respond with ONLY a valid JSON object (no markdown, no code fences).
+You must respond with ONLY a valid JSON object (no markdown, no code fences).
 
 Your response must follow this exact schema:
 {
-  "summary": "A 2-3 paragraph professional medical analysis summary",
-  "tests": [
+  "diagnosis": "Clear diagnosis of the health problem in both Bangla and English",
+  "severity": "low|medium|high|critical",
+  "severityScore": 0-100,
+  "causes": ["Possible cause 1", "Possible cause 2"],
+  "medicines": [
     {
-      "name": "Test name",
-      "cost": 500,
-      "category": "necessary|optional|unnecessary",
-      "explanation": "Why this test is recommended or not"
+      "name": "Medicine name (Bangladesh brand name)",
+      "type": "Antibiotic|Painkiller|Antacid|Antihistamine|etc.",
+      "dosage": "e.g., 500mg",
+      "frequency": "e.g., দিনে ৩ বার (3 times daily)",
+      "duration": "e.g., ৫-৭ দিন (5-7 days)",
+      "cost": 50,
+      "warning": "Important warnings or side effects"
     }
   ],
-  "totalCost": 5000,
-  "necessaryCost": 3000,
-  "savings": 2000,
-  "fairnessScore": 75,
-  "fairnessLabel": "Good",
-  "categoryDistribution": [
-    {"name": "Necessary", "value": 5},
-    {"name": "Optional", "value": 3},
-    {"name": "Unnecessary", "value": 2}
+  "recommendedTests": [
+    {
+      "name": "Test name",
+      "reason": "Why this test is needed",
+      "urgency": "routine|soon|urgent",
+      "estimatedCost": 500
+    }
   ],
-  "detailedAnalysis": "Detailed medical analysis with recommendations, lifestyle changes, etc."
+  "preventionTips": ["Prevention tip 1", "Prevention tip 2"],
+  "lifestyle": ["Lifestyle suggestion 1", "Lifestyle suggestion 2"],
+  "timeline": {
+    "treatmentDuration": "e.g., ৫-৭ দিন (5-7 days)",
+    "expectedRecovery": "e.g., ১-২ সপ্তাহ (1-2 weeks)"
+  },
+  "detailedAnalysis": "Detailed medical analysis with explanation",
+  "whenToSeeDoctor": "When the patient should visit a doctor urgently"
 }
 
 Rules:
-- Costs should be in BDT (Bangladeshi Taka)
-- fairnessScore: 0-100 (how fair/necessary the prescribed tests are)
-- fairnessLabel: "Poor" (0-39), "Fair" (40-59), "Good" (60-79), "Excellent" (80-100)
-- If no tests/prescriptions are provided, generate recommended tests based on symptoms
-- category must be exactly "necessary", "optional", or "unnecessary"
+- All costs in BDT (Bangladeshi Taka)
+- Use Bangladesh-available medicine brand names (Square, Beximco, Incepta, Renata, ACI, etc.)
+- Only recommend tests if the condition is serious or diagnosis is unclear
+- For mild conditions, focus on medicines and home remedies
+- Include Bangla text where helpful
+- severity must be exactly "low", "medium", "high", or "critical"
+- recommendedTests can be empty array [] for non-serious conditions
 - Respond ONLY with the JSON object, nothing else`;
 
-// Structured analysis: fast model first for speed
 const STRUCTURED_MODELS = [
   'google/gemma-3-27b-it',
   'deepseek/deepseek-r1-0528',
@@ -123,7 +104,6 @@ serve(async (req) => {
   }
 
   try {
-    // Authenticate user
     const authHeader = req.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return new Response(
@@ -145,7 +125,7 @@ serve(async (req) => {
     }
 
     const body = await req.json();
-    const { mode, messages, stream = true, analysisType = 'general', patientData, tests, files } = body;
+    const { mode, messages, stream = true, analysisType = 'general', patientData, files } = body;
 
     const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
     if (!OPENROUTER_API_KEY) {
@@ -156,19 +136,18 @@ serve(async (req) => {
     }
 
     // === STRUCTURED ANALYSIS MODE ===
-    if (mode === 'structured_analysis' || mode === 'detailed_analysis') {
+    if (mode === 'structured_analysis') {
       let userContent = '';
 
       if (patientData) {
-        userContent += `Patient Information:\n- Gender: ${patientData.gender}\n- Age: ${patientData.age}\n- Category: ${patientData.patientCategory}\n- Weight: ${patientData.weight} ${patientData.weightUnit}\n- Height: ${patientData.height} ${patientData.heightUnit}\n\nSymptoms/Concerns:\n${patientData.symptoms}\n\n`;
+        userContent += `Patient Information:\n- Gender: ${patientData.gender}\n- Age: ${patientData.age}\n- Category: ${patientData.patientCategory}\n- Weight: ${patientData.weight} ${patientData.weightUnit}\n- Height: ${patientData.height} ${patientData.heightUnit}\n`;
+        if (patientData.existingMedications) userContent += `- Current Medications: ${patientData.existingMedications}\n`;
+        if (patientData.medicalHistory) userContent += `- Medical History: ${patientData.medicalHistory}\n`;
+        if (patientData.allergies) userContent += `- Allergies: ${patientData.allergies}\n`;
+        userContent += `\nSymptoms/Concerns:\n${patientData.symptoms}\n\n`;
+        userContent += 'Please analyze these symptoms, diagnose the problem, suggest medicines available in Bangladesh with BDT pricing, and recommend tests only if the condition is serious.\n';
       }
 
-      if (tests && tests.length > 0) {
-        userContent += `Existing Tests:\n${tests.map((t: any) => `- ${t.name}: ৳${t.cost} (${t.category})`).join('\n')}\n\n`;
-        userContent += 'Please provide a detailed analysis of these tests, verify their necessity, and calculate fairness score.\n';
-      }
-
-      // Build messages with multimodal content if files exist
       const apiMessages: any[] = [
         { role: 'system', content: STRUCTURED_ANALYSIS_PROMPT },
       ];
@@ -188,7 +167,6 @@ serve(async (req) => {
         apiMessages.push({ role: 'user', content: userContent });
       }
 
-      // Try models in order
       let lastError = '';
       for (const model of STRUCTURED_MODELS) {
         try {
@@ -205,12 +183,10 @@ serve(async (req) => {
           const data = await response.json();
           let content = data.choices?.[0]?.message?.content || '';
 
-          // Clean up response - remove markdown code fences and thinking tags
           content = content.replace(/```json\s*/g, '').replace(/```\s*/g, '');
           content = content.replace(/<think>[\s\S]*?<\/think>/g, '');
           content = content.trim();
 
-          // Try to extract JSON
           const jsonMatch = content.match(/\{[\s\S]*\}/);
           if (jsonMatch) {
             const parsed = JSON.parse(jsonMatch[0]);
@@ -219,17 +195,19 @@ serve(async (req) => {
             });
           }
 
-          // If no JSON found, return as summary
+          // Fallback
           return new Response(JSON.stringify({
-            summary: content,
-            tests: [],
-            totalCost: 0,
-            necessaryCost: 0,
-            savings: 0,
-            fairnessScore: 0,
-            fairnessLabel: 'N/A',
-            categoryDistribution: [],
+            diagnosis: content,
+            severity: 'medium',
+            severityScore: 50,
+            causes: [],
+            medicines: [],
+            recommendedTests: [],
+            preventionTips: [],
+            lifestyle: [],
+            timeline: { treatmentDuration: 'N/A', expectedRecovery: 'N/A' },
             detailedAnalysis: content,
+            whenToSeeDoctor: 'If symptoms persist or worsen, consult a doctor.',
           }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
@@ -247,19 +225,10 @@ serve(async (req) => {
     }
 
     // === STREAMING CHAT MODE (default) ===
-    const model = 'google/gemma-3-27b-it'; // Fast model for chat
-
-    let enhancedPrompt = HEALTH_SYSTEM_PROMPT;
-    if (analysisType === 'prescription') {
-      enhancedPrompt += '\n\n## 🎯 Current Mode: Prescription Analysis\nFocus on medications, dosages, and interactions.';
-    } else if (analysisType === 'lab_report') {
-      enhancedPrompt += '\n\n## 🎯 Current Mode: Lab Report Analysis\nFocus on interpreting values and clinical significance.';
-    } else if (analysisType === 'veterinary') {
-      enhancedPrompt += '\n\n## 🎯 Current Mode: Veterinary Analysis\nFocus on animal health and species-specific care.';
-    }
+    const model = 'google/gemma-3-27b-it';
 
     const processedMessages = [
-      { role: 'system', content: enhancedPrompt },
+      { role: 'system', content: HEALTH_SYSTEM_PROMPT },
       ...(messages || []).filter((m: { role: string }) => m.role !== 'system'),
     ];
 

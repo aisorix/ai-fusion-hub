@@ -26,13 +26,13 @@ const HealthChatMode: React.FC<HealthChatModeProps> = ({ patientData, analysisRe
       initial.push({
         id: 'initial',
         role: 'assistant',
-        content: `${analysisResult.summary}\n\nI've completed the analysis. Feel free to ask me any follow-up questions about your health concerns, medications, test results, or anything else!`,
+        content: `${analysisResult.diagnosis}\n\nবিশ্লেষণ সম্পন্ন হয়েছে। আপনার স্বাস্থ্য সংক্রান্ত যেকোনো প্রশ্ন করতে পারেন!`,
       });
     } else {
       initial.push({
         id: 'initial',
         role: 'assistant',
-        content: `Hello! I'm Sorix Health, your AI medical assistant. ${patientData ? `I see you have some health concerns. ` : ''}How can I help you today?`,
+        content: `আসসালামু আলাইকুম! আমি Sorix Health, আপনার AI চিকিৎসা সহকারী। ${patientData ? 'আপনার স্বাস্থ্য সমস্যা সম্পর্কে আমাকে বলুন।' : 'আজ কীভাবে সাহায্য করতে পারি?'}`,
       });
     }
     return initial;
@@ -47,12 +47,15 @@ const HealthChatMode: React.FC<HealthChatModeProps> = ({ patientData, analysisRe
   }, [messages]);
 
   const buildContext = (): { role: 'system'; content: string } => {
-    let ctx = 'You are Sorix Health, an AI medical assistant.';
+    let ctx = 'You are Sorix Health, an AI medical assistant for Bangladeshi people. Respond in both Bangla and English. Suggest Bangladesh-available medicines with BDT pricing.';
     if (patientData) {
       ctx += ` Patient: ${patientData.gender}, ${patientData.age} years old, ${patientData.weight}${patientData.weightUnit}, ${patientData.height}${patientData.heightUnit}. Category: ${patientData.patientCategory}. Symptoms: ${patientData.symptoms}`;
+      if (patientData.existingMedications) ctx += ` Current medications: ${patientData.existingMedications}`;
+      if (patientData.medicalHistory) ctx += ` Medical history: ${patientData.medicalHistory}`;
+      if (patientData.allergies) ctx += ` Allergies: ${patientData.allergies}`;
     }
     if (analysisResult) {
-      ctx += ` Previous analysis summary: ${analysisResult.summary}`;
+      ctx += ` Previous diagnosis: ${analysisResult.diagnosis}`;
     }
     return { role: 'system', content: ctx };
   };
@@ -89,7 +92,7 @@ const HealthChatMode: React.FC<HealthChatModeProps> = ({ patientData, analysisRe
       (error) => {
         console.error('Health chat error:', error);
         setMessages(prev => prev.map(m =>
-          m.id === assistantId ? { ...m, content: 'Sorry, something went wrong. Please try again.' } : m
+          m.id === assistantId ? { ...m, content: 'দুঃখিত, কিছু সমস্যা হয়েছে। আবার চেষ্টা করুন।' } : m
         ));
         setIsStreaming(false);
       },
@@ -106,17 +109,13 @@ const HealthChatMode: React.FC<HealthChatModeProps> = ({ patientData, analysisRe
 
   return (
     <div className="flex flex-col h-full">
-      {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 md:p-8 space-y-4">
         {messages.map((msg) => (
           <motion.div
             key={msg.id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className={cn(
-              'max-w-2xl',
-              msg.role === 'user' ? 'ml-auto' : ''
-            )}
+            className={cn('max-w-2xl', msg.role === 'user' ? 'ml-auto' : '')}
           >
             <div className={cn(
               'p-4 rounded-2xl text-sm leading-relaxed',
@@ -145,7 +144,6 @@ const HealthChatMode: React.FC<HealthChatModeProps> = ({ patientData, analysisRe
         ))}
       </div>
 
-      {/* Input */}
       <div className="shrink-0 border-t border-border p-4">
         <div className="max-w-2xl mx-auto flex gap-2">
           <Button variant="outline" size="icon" onClick={onStartOver} className="shrink-0">
@@ -156,7 +154,7 @@ const HealthChatMode: React.FC<HealthChatModeProps> = ({ patientData, analysisRe
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask a follow-up question..."
+              placeholder="আপনার প্রশ্ন লিখুন..."
               className="min-h-[44px] max-h-32 pr-12 bg-card resize-none"
               rows={1}
             />
