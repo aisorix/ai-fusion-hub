@@ -16,10 +16,10 @@ interface HealthIntakeFormProps {
 }
 
 const categories = [
-  { id: 'men', label: 'Men', icon: User, color: 'from-blue-500 to-indigo-600' },
-  { id: 'women', label: 'Women', icon: Heart, color: 'from-pink-500 to-rose-600' },
-  { id: 'kids', label: 'Kids', icon: Baby, color: 'from-amber-400 to-orange-500' },
-  { id: 'pregnant', label: 'Pregnant', icon: Activity, color: 'from-purple-500 to-violet-600' },
+  { id: 'men', label: 'পুরুষ (Men)', icon: User, color: 'from-blue-500 to-indigo-600' },
+  { id: 'women', label: 'মহিলা (Women)', icon: Heart, color: 'from-pink-500 to-rose-600' },
+  { id: 'kids', label: 'শিশু (Kids)', icon: Baby, color: 'from-amber-400 to-orange-500' },
+  { id: 'pregnant', label: 'গর্ভবতী (Pregnant)', icon: Activity, color: 'from-purple-500 to-violet-600' },
 ] as const;
 
 const HealthIntakeForm: React.FC<HealthIntakeFormProps> = ({ onSubmit, isLoading }) => {
@@ -31,6 +31,9 @@ const HealthIntakeForm: React.FC<HealthIntakeFormProps> = ({ onSubmit, isLoading
   const [weightUnit, setWeightUnit] = useState<'kg' | 'lbs'>('kg');
   const [height, setHeight] = useState('');
   const [heightUnit, setHeightUnit] = useState<'cm' | 'ft'>('cm');
+  const [existingMedications, setExistingMedications] = useState('');
+  const [medicalHistory, setMedicalHistory] = useState('');
+  const [allergies, setAllergies] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -51,7 +54,6 @@ const HealthIntakeForm: React.FC<HealthIntakeFormProps> = ({ onSubmit, isLoading
   };
 
   const handleSubmit = async () => {
-    // Convert files to base64
     const fileContents = await Promise.all(
       files.map(async (file) => {
         const buffer = await file.arrayBuffer();
@@ -75,6 +77,9 @@ const HealthIntakeForm: React.FC<HealthIntakeFormProps> = ({ onSubmit, isLoading
       weightUnit,
       height: parseFloat(height) || 0,
       heightUnit,
+      existingMedications,
+      medicalHistory,
+      allergies,
       files,
       fileContents,
     });
@@ -93,15 +98,15 @@ const HealthIntakeForm: React.FC<HealthIntakeFormProps> = ({ onSubmit, isLoading
         >
           <Stethoscope className="w-8 h-8 text-white" />
         </motion.div>
-        <h2 className="text-2xl font-bold text-foreground">Tell us about your health concern</h2>
+        <h2 className="text-2xl font-bold text-foreground">আপনার স্বাস্থ্য সমস্যা জানান</h2>
         <p className="text-sm text-muted-foreground">
-          Describe symptoms, upload prescriptions or lab reports for AI analysis
+          লক্ষণ বর্ণনা করুন, প্রেসক্রিপশন বা রিপোর্ট আপলোড করুন — AI বিশ্লেষণ করবে
         </p>
       </div>
 
       {/* Patient Category */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground">Patient Category</label>
+        <label className="text-sm font-medium text-foreground">রোগীর ধরন (Patient Category)</label>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {categories.map((cat) => {
             const Icon = cat.icon;
@@ -137,36 +142,34 @@ const HealthIntakeForm: React.FC<HealthIntakeFormProps> = ({ onSubmit, isLoading
 
       {/* Symptoms */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground">Symptoms & Concerns *</label>
+        <label className="text-sm font-medium text-foreground">লক্ষণ ও সমস্যা (Symptoms & Concerns) *</label>
         <Textarea
           value={symptoms}
           onChange={(e) => setSymptoms(e.target.value)}
-          placeholder="Describe your symptoms, medical concerns, or what you'd like analyzed...&#10;&#10;Examples:&#10;• I have headaches and fever for 3 days&#10;• Please analyze my blood test report&#10;• What does this prescription mean?&#10;• My child has a rash on the arms"
+          placeholder="আপনার লক্ষণ বর্ণনা করুন...&#10;&#10;উদাহরণ:&#10;• ৩ দিন ধরে জ্বর ও মাথাব্যথা&#10;• পেটে ব্যথা, বমি বমি ভাব&#10;• গলা ব্যথা, কাশি&#10;• শরীরে র‌্যাশ বা ফুসকুড়ি"
           className="min-h-[140px] bg-card border-border"
         />
       </div>
 
       {/* Patient Info Grid */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground">Patient Information</label>
+        <label className="text-sm font-medium text-foreground">রোগীর তথ্য (Patient Information)</label>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {/* Gender */}
           <div className="space-y-1">
-            <span className="text-xs text-muted-foreground">Gender</span>
+            <span className="text-xs text-muted-foreground">লিঙ্গ (Gender)</span>
             <select
               value={gender}
               onChange={(e) => setGender(e.target.value as any)}
               className="w-full h-10 rounded-md border border-input bg-card px-3 text-sm"
             >
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
+              <option value="male">পুরুষ (Male)</option>
+              <option value="female">মহিলা (Female)</option>
+              <option value="other">অন্যান্য (Other)</option>
             </select>
           </div>
 
-          {/* Age */}
           <div className="space-y-1">
-            <span className="text-xs text-muted-foreground">Age</span>
+            <span className="text-xs text-muted-foreground">বয়স (Age)</span>
             <Input
               type="number"
               value={age}
@@ -176,9 +179,8 @@ const HealthIntakeForm: React.FC<HealthIntakeFormProps> = ({ onSubmit, isLoading
             />
           </div>
 
-          {/* Weight */}
           <div className="space-y-1">
-            <span className="text-xs text-muted-foreground">Weight</span>
+            <span className="text-xs text-muted-foreground">ওজন (Weight)</span>
             <div className="flex gap-1">
               <Input
                 type="number"
@@ -198,9 +200,8 @@ const HealthIntakeForm: React.FC<HealthIntakeFormProps> = ({ onSubmit, isLoading
             </div>
           </div>
 
-          {/* Height */}
           <div className="space-y-1">
-            <span className="text-xs text-muted-foreground">Height</span>
+            <span className="text-xs text-muted-foreground">উচ্চতা (Height)</span>
             <div className="flex gap-1">
               <Input
                 type="number"
@@ -222,10 +223,45 @@ const HealthIntakeForm: React.FC<HealthIntakeFormProps> = ({ onSubmit, isLoading
         </div>
       </div>
 
+      {/* Additional Medical Info */}
+      <div className="space-y-3">
+        <label className="text-sm font-medium text-foreground">অতিরিক্ত তথ্য (Additional Info) <span className="text-muted-foreground font-normal">— ঐচ্ছিক</span></label>
+        
+        <div className="space-y-1">
+          <span className="text-xs text-muted-foreground">বর্তমান ওষুধ (Current Medications)</span>
+          <Input
+            value={existingMedications}
+            onChange={(e) => setExistingMedications(e.target.value)}
+            placeholder="যেমন: Napa Extra, Omeprazole..."
+            className="bg-card"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <span className="text-xs text-muted-foreground">পূর্ববর্তী রোগের ইতিহাস (Medical History)</span>
+          <Input
+            value={medicalHistory}
+            onChange={(e) => setMedicalHistory(e.target.value)}
+            placeholder="যেমন: ডায়াবেটিস, উচ্চ রক্তচাপ..."
+            className="bg-card"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <span className="text-xs text-muted-foreground">এলার্জি (Allergies)</span>
+          <Input
+            value={allergies}
+            onChange={(e) => setAllergies(e.target.value)}
+            placeholder="যেমন: পেনিসিলিন, ধুলাবালি..."
+            className="bg-card"
+          />
+        </div>
+      </div>
+
       {/* File Upload */}
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground">
-          Upload Documents <span className="text-muted-foreground font-normal">(optional)</span>
+          ডকুমেন্ট আপলোড <span className="text-muted-foreground font-normal">(ঐচ্ছিক)</span>
         </label>
         <div
           onDragOver={(e) => e.preventDefault()}
@@ -235,10 +271,10 @@ const HealthIntakeForm: React.FC<HealthIntakeFormProps> = ({ onSubmit, isLoading
         >
           <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
           <p className="text-sm text-foreground font-medium">
-            Drop files here or click to browse
+            ফাইল ড্রপ করুন বা ক্লিক করুন
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            Prescriptions, lab reports, medical images • JPG, PNG, PDF • Max 10MB
+            প্রেসক্রিপশন, ল্যাব রিপোর্ট, মেডিকেল ছবি • JPG, PNG, PDF • Max 10MB
           </p>
           <input
             ref={fileInputRef}
@@ -250,7 +286,6 @@ const HealthIntakeForm: React.FC<HealthIntakeFormProps> = ({ onSubmit, isLoading
           />
         </div>
 
-        {/* File List */}
         {files.length > 0 && (
           <div className="space-y-2">
             {files.map((file, i) => (
@@ -288,12 +323,12 @@ const HealthIntakeForm: React.FC<HealthIntakeFormProps> = ({ onSubmit, isLoading
         {isLoading ? (
           <span className="flex items-center gap-2">
             <Loader2 className="w-5 h-5 animate-spin" />
-            Analyzing...
+            বিশ্লেষণ চলছে...
           </span>
         ) : (
           <span className="flex items-center gap-2">
             <Stethoscope className="w-5 h-5" />
-            Start Analysis
+            বিশ্লেষণ শুরু করুন
           </span>
         )}
       </Button>
