@@ -267,7 +267,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
               <AnimatePresence>
                 {showMoreTools && (
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                    <div className="py-1 px-2 space-y-0.5">
+                    <div className="py-1 pl-4 pr-2 space-y-0.5">
                       {moreTools.map((tool) => (
                         <button
                           key={tool.id}
@@ -277,14 +277,14 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                             if (tool.id === 'legends') { navigate('/legends'); onClose(); }
                             if (tool.id === 'imagine') { navigate('/imagine'); onClose(); }
                           }}
-                          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground/80 hover:bg-muted/50 transition-colors"
+                          className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-sm text-foreground/80 hover:bg-muted/50 transition-colors"
                         >
-                          <div className={cn("w-7 h-7 rounded-xl flex items-center justify-center shadow-sm", tool.gradient)}>
-                            <tool.icon className="w-3.5 h-3.5 text-white" />
+                          <div className={cn("w-6 h-6 rounded-lg flex items-center justify-center shrink-0", tool.gradient)}>
+                            <tool.icon className="w-3 h-3 text-white" />
                           </div>
                           <span className="text-[13px] flex-1">{tool.name}</span>
                           {tool.free && (
-                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400 font-bold">FREE</span>
+                            <span className="text-[8px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400 font-bold uppercase tracking-wide">Free</span>
                           )}
                         </button>
                       ))}
