@@ -3,16 +3,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, Plus, ArrowLeft, FolderKanban, Send, Loader2, Trash2,
   Lock, Sparkles, Cpu, Brain, Zap, Clock, MessageSquare, Crown,
+  PanelRightOpen, PanelRightClose,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useChatStore } from '@/stores/chatStore';
 import { useProjectAI, type ProjectModel, type DbProject } from '@/hooks/useProjectAI';
+import { useProjectFiles } from '@/hooks/useProjectFiles';
 import MarkdownRenderer from './MarkdownRenderer';
 import UpgradePlanModal from './UpgradePlanModal';
+import ProjectFileExplorer from './project/ProjectFileExplorer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type View = 'list' | 'create' | 'chat';
 
@@ -54,8 +58,12 @@ const ProjectsModal = () => {
     createProject, deleteProject, selectProject, sendMessage, setCurrentProject, setMessages,
   } = useProjectAI();
 
+  const projectFiles = useProjectFiles(currentProject?.id || null);
+  const isMobile = useIsMobile();
+
   const [view, setView] = useState<View>('list');
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [showFiles, setShowFiles] = useState(true);
 
   // Create form state
   const [name, setName] = useState('');
@@ -72,6 +80,13 @@ const ProjectsModal = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Load files when project changes
+  useEffect(() => {
+    if (currentProject) {
+      projectFiles.fetchFiles();
+    }
+  }, [currentProject?.id]);
 
   // Reset on close
   useEffect(() => {
@@ -101,7 +116,9 @@ const ProjectsModal = () => {
 
   const handleSend = () => {
     if (!chatInput.trim() || isStreaming) return;
-    sendMessage(chatInput.trim());
+    // Pass file context along with the message
+    const fileContext = projectFiles.getFilesForAIContext();
+    sendMessage(chatInput.trim(), fileContext);
     setChatInput('');
   };
 
@@ -133,7 +150,10 @@ const ProjectsModal = () => {
               exit={{ opacity: 0, scale: 0.96, y: 20 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-background w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-3xl sm:rounded-2xl border-0 sm:border border-border overflow-hidden flex flex-col"
+              className={cn(
+                "bg-background w-full h-full sm:h-auto sm:max-h-[90vh] sm:rounded-2xl border-0 sm:border border-border overflow-hidden flex flex-col",
+                view === 'chat' ? 'sm:max-w-6xl' : 'sm:max-w-3xl'
+              )}
             >
               {/* ===== LIST VIEW ===== */}
               {view === 'list' && (
@@ -452,80 +472,121 @@ const ProjectsModal = () => {
                         </span>
                       </div>
                     </div>
+                    {/* File panel toggle */}
+                    {!isMobile && (
+                      <button
+                        onClick={() => setShowFiles(!showFiles)}
+                        className={cn(
+                          'w-9 h-9 rounded-xl flex items-center justify-center transition-colors shrink-0',
+                          showFiles ? 'bg-primary/10 text-primary' : 'hover:bg-muted text-muted-foreground'
+                        )}
+                        title={showFiles ? 'Hide files' : 'Show files'}
+                      >
+                        {showFiles ? <PanelRightClose className="w-5 h-5" /> : <PanelRightOpen className="w-5 h-5" />}
+                      </button>
+                    )}
                   </div>
 
-                  <ScrollArea className="flex-1 min-h-0">
-                    <div className="p-4 space-y-4">
-                      {isLoading ? (
-                        <div className="flex items-center justify-center py-20">
-                          <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                        </div>
-                      ) : messages.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20 text-center">
-                          <div className={cn(
-                            'w-16 h-16 rounded-2xl flex items-center justify-center text-2xl bg-gradient-to-br mb-4',
-                            COLOR_MAP[currentProject.color] || COLOR_MAP.cyan
-                          )}>
-                            {currentProject.icon}
-                          </div>
-                          <h3 className="font-bold text-foreground mb-1">{currentProject.name}</h3>
-                          <p className="text-sm text-muted-foreground max-w-sm">
-                            Start a conversation about your project. Ask for code, architecture advice, or task planning.
-                          </p>
-                        </div>
-                      ) : (
-                        messages.map((msg) => (
-                          <div key={msg.id} className={cn('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
-                            <div className={cn(
-                              'max-w-[85%] rounded-2xl px-4 py-3',
-                              msg.role === 'user'
-                                ? 'bg-primary text-primary-foreground'
-                                : 'bg-muted/50 border border-border/50'
-                            )}>
-                              {msg.role === 'assistant' ? (
-                                <MarkdownRenderer content={msg.content || (isStreaming ? '' : '...')} />
-                              ) : (
-                                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                              )}
-                              {msg.role === 'assistant' && isStreaming && msg === messages[messages.length - 1] && !msg.content && (
-                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                  <Loader2 className="w-3 h-3 animate-spin" />
-                                  Thinking...
-                                </div>
+                  {/* Split Layout: Chat + Files */}
+                  <div className="flex-1 flex min-h-0 overflow-hidden">
+                    {/* Chat Panel */}
+                    <div className="flex-1 flex flex-col min-w-0">
+                      <ScrollArea className="flex-1 min-h-0">
+                        <div className="p-4 space-y-4">
+                          {isLoading ? (
+                            <div className="flex items-center justify-center py-20">
+                              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                            </div>
+                          ) : messages.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-20 text-center">
+                              <div className={cn(
+                                'w-16 h-16 rounded-2xl flex items-center justify-center text-2xl bg-gradient-to-br mb-4',
+                                COLOR_MAP[currentProject.color] || COLOR_MAP.cyan
+                              )}>
+                                {currentProject.icon}
+                              </div>
+                              <h3 className="font-bold text-foreground mb-1">{currentProject.name}</h3>
+                              <p className="text-sm text-muted-foreground max-w-sm">
+                                Start a conversation about your project. Ask for code, architecture advice, or task planning.
+                              </p>
+                              {projectFiles.files.length > 0 && (
+                                <p className="text-xs text-primary mt-2">
+                                  📁 {projectFiles.files.filter(f => !f.is_folder).length} files available as AI context
+                                </p>
                               )}
                             </div>
-                          </div>
-                        ))
-                      )}
-                      <div ref={messagesEndRef} />
-                    </div>
-                  </ScrollArea>
+                          ) : (
+                            messages.map((msg) => (
+                              <div key={msg.id} className={cn('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
+                                <div className={cn(
+                                  'max-w-[85%] rounded-2xl px-4 py-3',
+                                  msg.role === 'user'
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'bg-muted/50 border border-border/50'
+                                )}>
+                                  {msg.role === 'assistant' ? (
+                                    <MarkdownRenderer content={msg.content || (isStreaming ? '' : '...')} />
+                                  ) : (
+                                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                                  )}
+                                  {msg.role === 'assistant' && isStreaming && msg === messages[messages.length - 1] && !msg.content && (
+                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                      <Loader2 className="w-3 h-3 animate-spin" />
+                                      Thinking...
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ))
+                          )}
+                          <div ref={messagesEndRef} />
+                        </div>
+                      </ScrollArea>
 
-                  {/* Chat Input */}
-                  <div className="p-4 border-t border-border">
-                    <div className="flex items-end gap-2">
-                      <Textarea
-                        value={chatInput}
-                        onChange={(e) => setChatInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSend();
-                          }
-                        }}
-                        placeholder="Ask about your project..."
-                        className="min-h-[44px] max-h-[120px] bg-muted/50 resize-none"
-                        rows={1}
-                      />
-                      <Button
-                        onClick={handleSend}
-                        disabled={!chatInput.trim() || isStreaming}
-                        size="icon"
-                        className="h-11 w-11 shrink-0 bg-primary text-primary-foreground hover:bg-primary/90"
-                      >
-                        {isStreaming ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                      </Button>
+                      {/* Chat Input */}
+                      <div className="p-4 border-t border-border">
+                        <div className="flex items-end gap-2">
+                          <Textarea
+                            value={chatInput}
+                            onChange={(e) => setChatInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSend();
+                              }
+                            }}
+                            placeholder="Ask about your project..."
+                            className="min-h-[44px] max-h-[120px] bg-muted/50 resize-none"
+                            rows={1}
+                          />
+                          <Button
+                            onClick={handleSend}
+                            disabled={!chatInput.trim() || isStreaming}
+                            size="icon"
+                            className="h-11 w-11 shrink-0 bg-primary text-primary-foreground hover:bg-primary/90"
+                          >
+                            {isStreaming ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                          </Button>
+                        </div>
+                      </div>
                     </div>
+
+                    {/* File Explorer Panel - Desktop only */}
+                    {!isMobile && showFiles && (
+                      <ProjectFileExplorer
+                        files={projectFiles.files}
+                        activeFile={projectFiles.activeFile}
+                        activeFileId={projectFiles.activeFileId}
+                        isSaving={projectFiles.isSaving}
+                        isLoading={projectFiles.isLoading}
+                        onSelectFile={projectFiles.setActiveFileId}
+                        onCreateFile={projectFiles.createFile}
+                        onUpdateContent={projectFiles.updateFileContent}
+                        onRenameFile={projectFiles.renameFile}
+                        onDeleteFile={projectFiles.deleteFile}
+                        getFilesInPath={projectFiles.getFilesInPath}
+                      />
+                    )}
                   </div>
                 </>
               )}

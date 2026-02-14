@@ -204,6 +204,53 @@ export type Database = {
         }
         Relationships: []
       }
+      project_files: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_folder: boolean
+          language: string
+          name: string
+          path: string
+          project_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_folder?: boolean
+          language?: string
+          name: string
+          path?: string
+          project_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_folder?: boolean
+          language?: string
+          name?: string
+          path?: string
+          project_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_files_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_messages: {
         Row: {
           content: string
