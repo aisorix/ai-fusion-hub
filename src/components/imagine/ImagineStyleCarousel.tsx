@@ -32,23 +32,23 @@ interface Props {
 const ImagineStyleCarousel: React.FC<Props> = ({ selectedStyle, onSelectStyle }) => {
   return (
     <div className="w-full">
-      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">
-        Trending Styles
+      <h3 className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-widest mb-2 px-1">
+        Style
       </h3>
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+      <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide">
         {trendingStyles.map((style) => (
           <button
             key={style.id}
             onClick={() => onSelectStyle(style)}
             className={cn(
-              'flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all duration-200',
-              'border backdrop-blur-sm hover:scale-105',
+              'flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-medium transition-all duration-200',
+              'border backdrop-blur-sm',
               selectedStyle === style.id
-                ? 'border-primary/50 bg-primary/10 text-primary shadow-lg shadow-primary/10'
-                : 'border-border/50 bg-card/50 text-foreground/70 hover:bg-muted/50 hover:border-border'
+                ? 'border-primary/50 bg-primary/10 text-primary shadow-sm shadow-primary/10'
+                : 'border-border/40 bg-card/40 text-muted-foreground hover:bg-muted/50 hover:border-border/60'
             )}
           >
-            <span>{style.emoji}</span>
+            <span className="text-xs">{style.emoji}</span>
             <span className="whitespace-nowrap">{style.name}</span>
           </button>
         ))}
