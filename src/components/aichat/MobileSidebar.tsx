@@ -173,10 +173,10 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   const olderChats = filteredChats.filter((c) => new Date(c.createdAt) < weekAgo);
 
   const moreTools = [
-    { id: "agro", name: "Sorix Agro", icon: Leaf, gradient: "bg-gradient-to-br from-green-500 to-lime-500", free: true },
-    { id: "health", name: "Sorix Health", icon: Stethoscope, gradient: "bg-gradient-to-br from-emerald-500 to-teal-500", free: true },
-    { id: "legends", name: "Sorix Legends", icon: Crown, gradient: "bg-gradient-to-br from-blue-500 to-cyan-500", free: false },
-    { id: "imagine", name: "Sorix Imagine", icon: ImageIcon, gradient: "bg-gradient-to-br from-purple-500 to-pink-500", free: false },
+    { id: "agro", name: "Sorix Agro", desc: "AI-powered agricultural assistant", icon: Leaf, gradient: "bg-gradient-to-br from-green-500 to-lime-500", free: true },
+    { id: "health", name: "Sorix Health", desc: "Your personal health companion", icon: Stethoscope, gradient: "bg-gradient-to-br from-emerald-500 to-teal-500", free: true },
+    { id: "legends", name: "Sorix Legends", desc: "Chat with historical legends", icon: Crown, gradient: "bg-gradient-to-br from-blue-500 to-cyan-500", free: false },
+    { id: "imagine", name: "Sorix Imagine", desc: "AI-powered image generation", icon: ImageIcon, gradient: "bg-gradient-to-br from-purple-500 to-pink-500", free: false },
   ];
 
   const userInitials = authUser?.email
@@ -267,7 +267,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
               <AnimatePresence>
                 {showMoreTools && (
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                    <div className="py-1 pl-4 pr-2 space-y-0.5">
+                    <div className="py-1 pl-3 pr-2 space-y-0.5">
                       {moreTools.map((tool) => (
                         <button
                           key={tool.id}
@@ -277,15 +277,20 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                             if (tool.id === 'legends') { navigate('/legends'); onClose(); }
                             if (tool.id === 'imagine') { navigate('/imagine'); onClose(); }
                           }}
-                          className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-sm text-foreground/80 hover:bg-muted/50 transition-colors"
+                          className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-foreground/80 hover:bg-muted/50 transition-colors"
                         >
-                          <div className={cn("w-6 h-6 rounded-lg flex items-center justify-center shrink-0", tool.gradient)}>
-                            <tool.icon className="w-3 h-3 text-white" />
+                          <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-sm", tool.gradient)}>
+                            <tool.icon className="w-4 h-4 text-white" />
                           </div>
-                          <span className="text-[13px] flex-1">{tool.name}</span>
-                          {tool.free && (
-                            <span className="text-[8px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400 font-bold uppercase tracking-wide">Free</span>
-                          )}
+                          <div className="flex-1 min-w-0 text-left">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[13px] font-medium">{tool.name}</span>
+                              {tool.free && (
+                                <span className="text-[8px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400 font-bold uppercase tracking-wide">Free</span>
+                              )}
+                            </div>
+                            <p className="text-[10px] text-muted-foreground truncate">{tool.desc}</p>
+                          </div>
                         </button>
                       ))}
                     </div>
