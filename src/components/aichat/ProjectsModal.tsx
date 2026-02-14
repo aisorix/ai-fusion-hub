@@ -230,7 +230,7 @@ const ProjectsModal = () => {
           >
             {/* ===== LIST VIEW ===== */}
             {view === 'list' && (
-              <>
+              <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
                 <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
@@ -306,12 +306,12 @@ const ProjectsModal = () => {
                     )}
                   </div>
                 </ScrollArea>
-              </>
+              </div>
             )}
 
             {/* ===== TYPE SELECTION VIEW ===== */}
             {view === 'create-type' && (
-              <>
+              <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
                 <div className="flex items-center gap-3 p-4 sm:p-5 border-b border-border">
                   <button onClick={() => setView('list')} className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-muted transition-colors">
                     <ArrowLeft className="w-5 h-5" />
@@ -352,12 +352,12 @@ const ProjectsModal = () => {
                     </div>
                   </div>
                 </ScrollArea>
-              </>
+              </div>
             )}
 
             {/* ===== CREATE VIEW ===== */}
             {view === 'create' && (
-              <>
+              <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
                 <div className="flex items-center gap-3 p-4 sm:p-5 border-b border-border">
                   <button onClick={() => setView('create-type')} className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-muted transition-colors">
                     <ArrowLeft className="w-5 h-5" />
@@ -372,7 +372,7 @@ const ProjectsModal = () => {
                   </div>
                 </div>
 
-                <ScrollArea className="flex-1 min-h-0">
+                <div className="flex-1 min-h-0 overflow-y-auto">
                   <div className="p-4 sm:p-5 space-y-5">
                     {/* Name */}
                     <div>
@@ -488,7 +488,7 @@ const ProjectsModal = () => {
                       </div>
                     </div>
                   </div>
-                </ScrollArea>
+                </div>
 
                 <div className="p-4 sm:p-5 border-t border-border">
                   <Button
@@ -500,12 +500,12 @@ const ProjectsModal = () => {
                     Create Project
                   </Button>
                 </div>
-              </>
+              </div>
             )}
 
             {/* ===== CHAT VIEW ===== */}
             {view === 'chat' && currentProject && (
-              <>
+              <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
                 <div className="flex items-center gap-3 p-4 border-b border-border">
                   <button onClick={() => { setView('list'); setCurrentProject(null); setMessages([]); }} className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-muted transition-colors shrink-0">
                     <ArrowLeft className="w-5 h-5" />
@@ -664,7 +664,7 @@ const ProjectsModal = () => {
                     </Suspense>
                   )}
                 </div>
-              </>
+              </div>
             )}
           </div>
         </div>
