@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ImageIcon, History, X, Zap } from 'lucide-react';
+import { ArrowLeft, ImageIcon, History, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useChatStore } from '@/stores/chatStore';
@@ -38,8 +38,6 @@ const ImaginePage: React.FC = () => {
       const result = await imagineApi.generateImage(prompt, selectedStyle.modifier || undefined);
       setImageUrl(result.imageUrl);
       setRefreshHistory((p) => p + 1);
-
-      // Update local token count
       setUser({ ...user, tokensUsed: result.totalTokensUsed });
     } catch (err: any) {
       if (err.message === 'insufficient_tokens') {
@@ -61,7 +59,7 @@ const ImaginePage: React.FC = () => {
   return (
     <div className="h-[100dvh] flex flex-col bg-background overflow-hidden">
       {/* Header */}
-      <header className="shrink-0 border-b border-border bg-card/80 backdrop-blur-xl">
+      <header className="shrink-0 bg-card/80 backdrop-blur-xl relative">
         <div className="flex items-center justify-between px-4 md:px-6 h-14">
           <div className="flex items-center gap-3">
             <Link
@@ -81,50 +79,34 @@ const ImaginePage: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted/50 border border-border/50">
-              <Zap className="w-3 h-3 text-primary" />
-              <span className="text-[10px] font-medium text-muted-foreground">
-                12K tokens/image
-              </span>
-            </div>
-            <button
-              onClick={() => setShowHistory(true)}
-              className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
-              title="Generation History"
-            >
-              <History className="w-4 h-4" />
-            </button>
-          </div>
+          <button
+            onClick={() => setShowHistory(true)}
+            className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
+            title="Generation History"
+          >
+            <History className="w-4 h-4" />
+          </button>
         </div>
+        {/* Gradient accent line */}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
       </header>
 
-      {/* Main Content */}
+      {/* Main Content — Prompt First */}
       <main className="flex-1 overflow-y-auto">
-        <div className="max-w-2xl mx-auto px-4 py-6 md:py-10 flex flex-col items-center gap-6">
-          {/* Canvas / Image Display */}
-          <ImagineCanvas
-            imageUrl={imageUrl}
-            isGenerating={isGenerating}
-            prompt={currentPrompt}
-          />
-
-          {/* Style Carousel */}
-          <ImagineStyleCarousel
-            selectedStyle={selectedStyle.id}
-            onSelectStyle={setSelectedStyle}
-          />
-
-          {/* Prompt Bar */}
-          <ImaginePromptBar
-            onGenerate={handleGenerate}
-            isGenerating={isGenerating}
-          />
+        <div className="max-w-2xl mx-auto px-4 py-8 md:py-12 flex flex-col items-center gap-5">
+          {/* Prompt Bar (hero) */}
+          <ImaginePromptBar onGenerate={handleGenerate} isGenerating={isGenerating} />
 
           {/* Token info */}
-          <p className="text-[10px] text-muted-foreground/50 text-center">
-            {tokensRemaining.toLocaleString()} tokens remaining • Each image costs 12,000 tokens
+          <p className="text-[10px] text-muted-foreground/50 text-center -mt-2">
+            {tokensRemaining.toLocaleString()} tokens remaining • 12,000 per image
           </p>
+
+          {/* Style Carousel */}
+          <ImagineStyleCarousel selectedStyle={selectedStyle.id} onSelectStyle={setSelectedStyle} />
+
+          {/* Canvas / Image Display */}
+          <ImagineCanvas imageUrl={imageUrl} isGenerating={isGenerating} prompt={currentPrompt} />
         </div>
       </main>
 
