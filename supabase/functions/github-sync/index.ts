@@ -6,6 +6,22 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
+// Validate file path to prevent path traversal attacks
+const isValidFilePath = (filePath: string): boolean => {
+  if (!filePath || typeof filePath !== 'string') return false;
+  // Block path traversal sequences
+  if (filePath.includes('..') || filePath.includes('~')) return false;
+  // Block absolute paths
+  if (filePath.startsWith('/') || filePath.startsWith('\\')) return false;
+  // Block null bytes
+  if (filePath.includes('\0')) return false;
+  // Only allow reasonable characters
+  if (!/^[\w\-./]+$/.test(filePath)) return false;
+  // Limit length
+  if (filePath.length > 500) return false;
+  return true;
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -14,6 +30,14 @@ serve(async (req) => {
   try {
     const body = await req.json();
     const { action, ...params } = body;
+
+    // Validate action
+    const ALLOWED_ACTIONS = ['get_client_id', 'exchange_code', 'create_repo', 'disconnect_repo', 'get_connection', 'sync_file'];
+    if (!action || typeof action !== 'string' || !ALLOWED_ACTIONS.includes(action)) {
+      return new Response(JSON.stringify({ error: 'Invalid action' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     // === GET CLIENT ID (no auth needed) ===
     if (action === 'get_client_id') {
@@ -182,6 +206,27 @@ serve(async (req) => {
     // === SYNC FILE (create/update/delete) ===
     if (action === 'sync_file') {
       const { projectId, filePath, content, operation } = params;
+
+      // Validate file path against traversal attacks
+      if (!isValidFilePath(filePath)) {
+        return new Response(JSON.stringify({ error: 'Invalid file path' }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Validate operation
+      if (!operation || !['create', 'update', 'delete'].includes(operation)) {
+        return new Response(JSON.stringify({ error: 'Invalid operation' }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Validate content size (max 1MB)
+      if (content && typeof content === 'string' && content.length > 1_000_000) {
+        return new Response(JSON.stringify({ error: 'File content too large (max 1MB)' }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
       const { data: conn } = await serviceClient.from('project_github')
         .select('*').eq('project_id', projectId).eq('user_id', user.id).single();
       if (!conn) {
