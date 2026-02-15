@@ -50,22 +50,22 @@ const Footer = () => {
             <ul className="space-y-3 sm:space-y-4">
               <li>
                 <a href="#Features" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  {t("features")}
+                  {t("Features")}
                 </a>
               </li>
               <li>
                 <a href="#pricing" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  {t("pricing")}
+                  {t("Pricing")}
                 </a>
               </li>
               <li>
                 <a href="#faq" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  {t("faqs")}
+                  {t("FAQs")}
                 </a>
               </li>
               <li>
                 <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  {t("changelog")}
+                  {t("Changelog")}
                 </a>
               </li>
             </ul>
@@ -113,15 +113,15 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="mt-10 sm:mt-16 pt-6 sm:pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
+          <p className="text-muted-foreground text-xs sm:text-sm text-center sm:text-left">
+            © 2026 AI Sorix. {t("allRightsReserved")}
+          </p>
           <div className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm">
             <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <a href="mailto:support@aisorix.com" className="hover:text-primary transition-colors">
               support@aisorix.com
             </a>
           </div>
-          <p className="text-muted-foreground text-xs sm:text-sm text-center sm:text-left">
-            © 2026 AI Sorix. {t("allRightsReserved")}
-          </p>
         </div>
       </div>
     </footer>
