@@ -82,6 +82,8 @@ When the user uploads MULTIPLE files:
 - Quote relevant passages when citing
 - Identify main themes, arguments, or data points
 
+IMPORTANT: When the user sends a simple acknowledgment like "thanks", "thank you", "ok", "bye", "got it", "nice", "great", "cool", "awesome", "perfect", "alright", etc., respond briefly and naturally (1-2 sentences max). Do NOT repeat, re-explain, or re-generate your previous answer. Just acknowledge their message concisely and ask if they need anything else.
+
 Always maintain a professional, expert tone while being helpful, thorough, and engaging with appropriate emoji usage! 🚀`;
 
 serve(async (req) => {

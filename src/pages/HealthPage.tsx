@@ -8,6 +8,7 @@ import HealthHistory from '@/components/health/HealthHistory';
 import HealthIntakeForm from '@/components/health/HealthIntakeForm';
 import HealthAnalysisResults from '@/components/health/HealthAnalysisResults';
 import HealthChatMode from '@/components/health/HealthChatMode';
+import AnalysisTimer from '@/components/shared/AnalysisTimer';
 
 export interface PatientData {
   symptoms: string;
@@ -238,6 +239,11 @@ const HealthPage: React.FC = () => {
               className="h-full"
             >
               <HealthIntakeForm onSubmit={handleIntakeSubmit} isLoading={isAnalyzing} />
+              {isAnalyzing && (
+                <div className="flex justify-center py-2">
+                  <AnalysisTimer isActive={isAnalyzing} />
+                </div>
+              )}
             </motion.div>
           )}
 
