@@ -6,6 +6,48 @@ const Features = () => {
   const { language, t } = useLanguage();
 
   const premiumFeatures = [
+    
+    {
+      icon: Leaf,
+      title: language === 'en' ? 'Sorix Agro' : 'সোরিক্স অ্যাগ্রো',
+      desc: language === 'en'
+        ? 'Smart farming assistant — crop planning, weather insights, pest detection, and yield optimization for Bangladesh farmers.'
+        : 'স্মার্ট কৃষি সহায়ক — ফসল পরিকল্পনা, আবহাওয়া তথ্য, পোকা সনাক্তকরণ এবং বাংলাদেশি কৃষকদের জন্য ফলন অপ্টিমাইজেশন।',
+      gradient: "from-green-500 to-lime-500",
+      bgGradient: "from-green-500/10 to-lime-500/10",
+      comingSoon: false
+    },
+    {
+      icon: Stethoscope,
+      title: t('Sorix Health'),
+      desc: language === 'en'
+        ? 'Share your reports, symptoms — get doctor-level analysis and suggestions within seconds.'
+        : 'তোমার রিপোর্ট, লক্ষণ দাও — সেকেন্ডের মধ্যে ডাক্তার লেভেলের অ্যানালাইসিস + সাজেশন।',
+      gradient: "from-emerald-500 to-teal-500",
+      bgGradient: "from-emerald-500/10 to-teal-500/10",
+      comingSoon: false
+    }
+    {
+      icon: Crown,
+      title: language === 'en' ? 'Sorix Legends' : 'সোরিক্স লিজেন্ডস',
+      desc: language === 'en'
+        ? 'Build Your Elite AI Team — Doctors, Lawyers, Coders, and Marketing Experts Working Together for You.'
+        : 'তোমার এলিট AI টিম তৈরি করো — ডাক্তার, উকিল, কোডার এবং মার্কেটিং বিশেষজ্ঞ তোমার জন্য একসাথে কাজ করছে।',
+      gradient: "from-blue-500 to-cyan-500",
+      bgGradient: "from-blue-500/10 to-cyan-500/10",
+      comingSoon: false
+    },
+
+  {
+      icon: Palette, // (নোট: উপরে Palette আইকনটি ইমপোর্ট করে নিন, যেমন: lucide-react থেকে)
+      title: t('Sorix Imagine'),
+      desc: language === 'en'
+        ? 'Transform your ideas into stunning visuals. Generate high-quality images from text using advanced AI models like Flux.2.'
+        : 'আপনার ভাবনাকে বাস্তবে রূপ দিন। উন্নত AI মডেল (যেমন Flux.2) ব্যবহার করে টেক্সট থেকে তৈরি করুন অত্যাশ্চর্য সব ছবি।',
+      gradient: "from-cyan-500 to-blue-500",
+      bgGradient: "from-cyan-500/10 to-blue-500/10",
+      comingSoon: false // যদি এখনো পুরোপুরি রেডি না হয়, তবে true দিতে পারেন
+    },
     {
       icon: Search,
       title: language === 'en' ? 'Sorix Search' : 'সোরিক্স সার্চ',
@@ -18,44 +60,17 @@ const Features = () => {
     },
     {
       icon: Gem,
-      title: t('sorixChat'),
+      title: t('Sorix Chat'),
       desc: language === 'en' 
-        ? 'All Premium AI in One Chat — GPT-4o, Gemini 1.5 Pro, DeepSeek; all together. Switch whenever you want.'
-        : 'সব প্রিমিয়াম AI একটি চ্যাটে — GPT-4o, Gemini 1.5 Pro, DeepSeek; সব একসাথে। যখন খুশি সুইচ করো।',
+        ? 'All Premium AI in One Chat — ChatGPT, Gemini Pro, DeepSeek; all together. Switch whenever you want.'
+        : 'সব প্রিমিয়াম AI একটি চ্যাটে — ChatGPT, Gemini Pro, DeepSeek; সব একসাথে। যখন খুশি সুইচ করো।',
       gradient: "from-purple-500 to-pink-500",
       bgGradient: "from-purple-500/10 to-pink-500/10",
       comingSoon: false
-    },
-    {
-      icon: Leaf,
-      title: language === 'en' ? 'Sorix Agro' : 'সোরিক্স অ্যাগ্রো',
-      desc: language === 'en'
-        ? 'Smart farming assistant — crop planning, weather insights, pest detection, and yield optimization for Bangladesh farmers.'
-        : 'স্মার্ট কৃষি সহায়ক — ফসল পরিকল্পনা, আবহাওয়া তথ্য, পোকা সনাক্তকরণ এবং বাংলাদেশি কৃষকদের জন্য ফলন অপ্টিমাইজেশন।',
-      gradient: "from-green-500 to-lime-500",
-      bgGradient: "from-green-500/10 to-lime-500/10",
-      comingSoon: false
-    },
-    {
-      icon: Crown,
-      title: language === 'en' ? 'Sorix Legends' : 'সোরিক্স লিজেন্ডস',
-      desc: language === 'en'
-        ? 'Build Your Elite AI Team — Doctors, Lawyers, Coders, and Marketing Experts Working Together for You.'
-        : 'তোমার এলিট AI টিম তৈরি করো — ডাক্তার, উকিল, কোডার এবং মার্কেটিং বিশেষজ্ঞ তোমার জন্য একসাথে কাজ করছে।',
-      gradient: "from-blue-500 to-cyan-500",
-      bgGradient: "from-blue-500/10 to-cyan-500/10",
-      comingSoon: false
-    },
-    {
-      icon: Stethoscope,
-      title: t('sorixHealth'),
-      desc: language === 'en'
-        ? 'Share your reports, symptoms — get doctor-level analysis and suggestions within seconds.'
-        : 'তোমার রিপোর্ট, লক্ষণ দাও — সেকেন্ডের মধ্যে ডাক্তার লেভেলের অ্যানালাইসিস + সাজেশন।',
-      gradient: "from-emerald-500 to-teal-500",
-      bgGradient: "from-emerald-500/10 to-teal-500/10",
-      comingSoon: false
     }
+    
+    
+    
   ];
 
   const regularFeatures = [
