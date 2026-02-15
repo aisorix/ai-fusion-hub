@@ -112,16 +112,16 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm">
-          <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-          <a href="mailto:support@aisorix.com" className="hover:text-primary transition-colors">
-            support@aisorix.com
-          </a>
-        </div>
         <div className="mt-10 sm:mt-16 pt-6 sm:pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
           <p className="text-muted-foreground text-xs sm:text-sm text-center sm:text-left">
             © 2026 AI Sorix. {t("allRightsReserved")}
           </p>
+          <div className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm">
+            <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <a href="mailto:support@aisorix.com" className="hover:text-primary transition-colors">
+              support@aisorix.com
+            </a>
+          </div>
         </div>
       </div>
     </footer>
