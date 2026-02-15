@@ -1,5 +1,5 @@
 import React from 'react';
-import { Gem, Crown, Stethoscope, Leaf, Search, Sparkles, Brain, Zap, Heart, Shield, Globe, ArrowRight, Plus } from 'lucide-react';
+import { Gem, Crown, Stethoscope, Leaf, Search, Sparkles, Brain, Zap, Heart, Shield, Globe, ArrowRight, Plus, Palette } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const Features = () => {
@@ -26,7 +26,7 @@ const Features = () => {
       gradient: "from-emerald-500 to-teal-500",
       bgGradient: "from-emerald-500/10 to-teal-500/10",
       comingSoon: false
-    }
+    },
     {
       icon: Crown,
       title: language === 'en' ? 'Sorix Legends' : 'সোরিক্স লিজেন্ডস',
