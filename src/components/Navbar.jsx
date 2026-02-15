@@ -95,25 +95,25 @@ const Navbar = () => {
                 href="#Features"
                 className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all"
               >
-                {t("features")}
+                {t("Features")}
               </a>
               <a
                 href="#pricing"
                 className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all"
               >
-                {t("pricing")}
+                {t("Pricing")}
               </a>
               <a
                 href="#faq"
                 className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all"
               >
-                {t("faqs")}
+                {t("FAQs")}
               </a>
               <a
                 href="#about"
                 className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all"
               >
-                {t("aboutUs")}
+                {t("AboutUs")}
               </a>
             </div>
 
