@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -172,19 +172,26 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
     navigate("/login");
   };
 
-  const filteredChats = chats.filter((chat) => chat.title.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredChats = useMemo(
+    () => chats.filter((chat) => chat.title.toLowerCase().includes(searchQuery.toLowerCase())),
+    [chats, searchQuery]
+  );
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const weekAgo = new Date(today);
-  weekAgo.setDate(weekAgo.getDate() - 7);
+  const { todayChats, thisWeekChats, olderChats } = useMemo(() => {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const weekAgo = new Date(now);
+    weekAgo.setDate(weekAgo.getDate() - 7);
 
-  const todayChats = filteredChats.filter((c) => new Date(c.createdAt) >= today);
-  const thisWeekChats = filteredChats.filter((c) => {
-    const d = new Date(c.createdAt);
-    return d < today && d >= weekAgo;
-  });
-  const olderChats = filteredChats.filter((c) => new Date(c.createdAt) < weekAgo);
+    return {
+      todayChats: filteredChats.filter((c) => new Date(c.createdAt) >= now),
+      thisWeekChats: filteredChats.filter((c) => {
+        const d = new Date(c.createdAt);
+        return d < now && d >= weekAgo;
+      }),
+      olderChats: filteredChats.filter((c) => new Date(c.createdAt) < weekAgo),
+    };
+  }, [filteredChats]);
 
   const moreTools = [
     {

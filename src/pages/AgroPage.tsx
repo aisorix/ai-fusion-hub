@@ -8,6 +8,7 @@ import { AgroChatMode } from '@/components/agro';
 import { AgroHistory } from '@/components/agro';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import AnalysisTimer from '@/components/shared/AnalysisTimer';
 
 export interface CropData {
   cropType: string;
@@ -227,6 +228,11 @@ const AgroPage: React.FC = () => {
               className="h-full"
             >
               <AgroIntakeForm onSubmit={handleIntakeSubmit} isLoading={isAnalyzing} />
+              {isAnalyzing && (
+                <div className="flex justify-center py-2">
+                  <AnalysisTimer isActive={isAnalyzing} />
+                </div>
+              )}
             </motion.div>
           )}
 
