@@ -87,33 +87,6 @@ serve(async (req) => {
       );
     }
 
-    // Validate message size (max 100KB)
-    if (typeof message !== 'string' || message.length > 100_000) {
-      return new Response(
-        JSON.stringify({ error: "Message too large (max 100KB)" }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Validate files size (max 500KB total)
-    if (files && Array.isArray(files)) {
-      const totalSize = files.reduce((sum: number, f: any) => sum + (f.content?.length || 0), 0);
-      if (totalSize > 500_000) {
-        return new Response(
-          JSON.stringify({ error: "Combined file content too large (max 500KB)" }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-    }
-
-    // Validate conversation history length
-    if (conversationHistory && Array.isArray(conversationHistory) && conversationHistory.length > 100) {
-      return new Response(
-        JSON.stringify({ error: "Conversation history too long (max 100 messages)" }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
     // Validate model
     const selectedModel = model && ALLOWED_MODELS.includes(model) ? model : 'deepseek/deepseek-v3.2';
     const multiplier = MODEL_MULTIPLIERS[selectedModel];

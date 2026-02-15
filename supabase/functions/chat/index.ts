@@ -114,37 +114,7 @@ serve(async (req) => {
       );
     }
 
-    const body = await req.json();
-    const { messages, model, stream = true, userPlan, modelName } = body;
-
-    // Input validation
-    if (!Array.isArray(messages) || messages.length === 0) {
-      return new Response(
-        JSON.stringify({ error: 'Messages must be a non-empty array' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-    if (messages.length > 200) {
-      return new Response(
-        JSON.stringify({ error: 'Too many messages (max 200)' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-    for (const msg of messages) {
-      if (!msg.role || !['user', 'assistant', 'system'].includes(msg.role)) {
-        return new Response(
-          JSON.stringify({ error: 'Invalid message role' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      const contentStr = typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content);
-      if (contentStr && contentStr.length > 100_000) {
-        return new Response(
-          JSON.stringify({ error: 'Message content too large (max 100KB)' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-    }
+    const { messages, model, stream = true, userPlan, modelName } = await req.json();
     
     const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
     if (!OPENROUTER_API_KEY) {
