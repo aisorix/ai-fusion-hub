@@ -59,7 +59,7 @@ serve(async (req) => {
       .maybeSingle();
 
     const planLimits: Record<string, number> = {
-      free: 5000,
+      free: 15000,
       basic: 800000,
       pro: 1500000,
       premium: 3000000,
@@ -67,7 +67,7 @@ serve(async (req) => {
 
     const currentUsed = sub?.tokens_used ?? 0;
     const planId = sub?.plan_id ?? "free";
-    const limit = planLimits[planId] ?? 5000;
+    const limit = planLimits[planId] ?? 15000;
 
     if (currentUsed + TOKENS_PER_IMAGE > limit) {
       return new Response(

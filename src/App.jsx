@@ -1,3 +1,4 @@
+import React, { Suspense } from "react";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -6,32 +7,40 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Index from "./pages/Index";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import VerifyEmail from "./pages/VerifyEmail";
-import NotFound from "./pages/NotFound";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
-import CookiePolicy from "./pages/CookiePolicy";
-import RefundPolicy from "./pages/RefundPolicy";
-import AboutSorixLab from "./pages/AboutSorixLab";
-import Reviews from "./pages/Reviews";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import ChatDashboard from "./pages/admin/ChatDashboard";
-import ChatPage from "./pages/ChatPage";
-import Dashboard from "./pages/Dashboard";
-import HealthPage from "./pages/HealthPage";
-import AgroPage from "./pages/AgroPage";
-import PaymentSuccess from "./pages/PaymentSuccess";
-import PaymentFailed from "./pages/PaymentFailed";
-import PaymentCancel from "./pages/PaymentCancel";
-import LegendsPage from "./pages/LegendsPage";
-import ImaginePage from "./pages/ImaginePage";
-import SharedChatPage from "./pages/SharedChatPage";
+
+// Lazy-loaded pages for code splitting
+const Index = React.lazy(() => import("./pages/Index"));
+const Login = React.lazy(() => import("./pages/Login"));
+const Register = React.lazy(() => import("./pages/Register"));
+const VerifyEmail = React.lazy(() => import("./pages/VerifyEmail"));
+const NotFound = React.lazy(() => import("./pages/NotFound"));
+const PrivacyPolicy = React.lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = React.lazy(() => import("./pages/TermsOfService"));
+const CookiePolicy = React.lazy(() => import("./pages/CookiePolicy"));
+const RefundPolicy = React.lazy(() => import("./pages/RefundPolicy"));
+const AboutSorixLab = React.lazy(() => import("./pages/AboutSorixLab"));
+const Reviews = React.lazy(() => import("./pages/Reviews"));
+const ForgotPassword = React.lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = React.lazy(() => import("./pages/ResetPassword"));
+const ChatDashboard = React.lazy(() => import("./pages/admin/ChatDashboard"));
+const ChatPage = React.lazy(() => import("./pages/ChatPage"));
+const Dashboard = React.lazy(() => import("./pages/Dashboard"));
+const HealthPage = React.lazy(() => import("./pages/HealthPage"));
+const AgroPage = React.lazy(() => import("./pages/AgroPage"));
+const PaymentSuccess = React.lazy(() => import("./pages/PaymentSuccess"));
+const PaymentFailed = React.lazy(() => import("./pages/PaymentFailed"));
+const PaymentCancel = React.lazy(() => import("./pages/PaymentCancel"));
+const LegendsPage = React.lazy(() => import("./pages/LegendsPage"));
+const ImaginePage = React.lazy(() => import("./pages/ImaginePage"));
+const SharedChatPage = React.lazy(() => import("./pages/SharedChatPage"));
 
 const queryClient = new QueryClient();
+
+const LoadingScreen = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+  </div>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -41,58 +50,60 @@ const App = () => (
           <Sonner position="top-center" />
           <BrowserRouter>
             <ScrollToTop />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/chat" element={
-                <ProtectedRoute>
-                  <ChatPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/health" element={
-                <ProtectedRoute>
-                  <HealthPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/agro" element={
-                <ProtectedRoute>
-                  <AgroPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/legends" element={
-                <ProtectedRoute>
-                  <LegendsPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/imagine" element={
-                <ProtectedRoute>
-                  <ImaginePage />
-                </ProtectedRoute>
-              } />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/verify-email" element={<VerifyEmail />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/terms-of-service" element={<TermsOfService />} />
-              <Route path="/cookie-policy" element={<CookiePolicy />} />
-              <Route path="/refund-policy" element={<RefundPolicy />} />
-              <Route path="/about-sorix-lab" element={<AboutSorixLab />} />
-              <Route path="/reviews" element={<Reviews />} />
-              <Route path="/admin/chat" element={<ChatDashboard />} />
-              {/* Payment Callback Routes */}
-              <Route path="/payment/success" element={<PaymentSuccess />} />
-              <Route path="/payment/failed" element={<PaymentFailed />} />
-              <Route path="/payment/cancel" element={<PaymentCancel />} />
-              <Route path="/payment/bkash/callback" element={<PaymentSuccess />} />
-              <Route path="/shared/:token" element={<SharedChatPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <Suspense fallback={<LoadingScreen />}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/chat" element={
+                  <ProtectedRoute>
+                    <ChatPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/health" element={
+                  <ProtectedRoute>
+                    <HealthPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/agro" element={
+                  <ProtectedRoute>
+                    <AgroPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/legends" element={
+                  <ProtectedRoute>
+                    <LegendsPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/imagine" element={
+                  <ProtectedRoute>
+                    <ImaginePage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
+                <Route path="/cookie-policy" element={<CookiePolicy />} />
+                <Route path="/refund-policy" element={<RefundPolicy />} />
+                <Route path="/about-sorix-lab" element={<AboutSorixLab />} />
+                <Route path="/reviews" element={<Reviews />} />
+                <Route path="/admin/chat" element={<ChatDashboard />} />
+                {/* Payment Callback Routes */}
+                <Route path="/payment/success" element={<PaymentSuccess />} />
+                <Route path="/payment/failed" element={<PaymentFailed />} />
+                <Route path="/payment/cancel" element={<PaymentCancel />} />
+                <Route path="/payment/bkash/callback" element={<PaymentSuccess />} />
+                <Route path="/shared/:token" element={<SharedChatPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
           </BrowserRouter>
         </TooltipProvider>
       </LanguageProvider>

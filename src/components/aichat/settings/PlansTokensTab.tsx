@@ -14,7 +14,7 @@ const formatTokens = (tokens: number): string => {
 };
 
 const planFeatures: Record<UserPlan, { name: string; models: number; tokens: string; features: string[] }> = {
-  free: { name: "Free Trial", models: 3, tokens: "5K", features: ["3 AI Models", "Basic Chat Only"] },
+  free: { name: "Free Trial", models: 3, tokens: "15K", features: ["3 AI Models", "Basic Chat Only"] },
   basic: {
     name: "Sorix Basic",
     models: 5,

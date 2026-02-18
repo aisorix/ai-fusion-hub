@@ -17,7 +17,7 @@ const MODEL_MULTIPLIERS: Record<string, number> = {
 };
 
 const PLAN_TOKEN_LIMITS: Record<string, number> = {
-  free: 5000,
+  free: 15000,
   basic: 800000,
   pro: 1500000,
   premium: 3000000,
@@ -120,7 +120,7 @@ serve(async (req) => {
 
     const planId = subscription?.plan_id || 'free';
     const tokensUsed = subscription?.tokens_used || 0;
-    const tokensLimit = PLAN_TOKEN_LIMITS[planId] || 5000;
+    const tokensLimit = PLAN_TOKEN_LIMITS[planId] || 15000;
 
     if (tokensUsed >= tokensLimit) {
       return new Response(
