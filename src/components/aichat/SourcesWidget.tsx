@@ -77,7 +77,7 @@ const SourcesWidget = memo(({ citations, theme }: SourcesWidgetProps) => {
             <span className="max-w-[120px] truncate">
               {getDomain(url)}
             </span>
-            <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <ExternalLink className="w-3 h-3 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" />
           </a>
         ))}
       </div>

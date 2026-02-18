@@ -61,9 +61,9 @@ const Pricing = () => {
       gradient: 'from-slate-500 to-slate-600',
       cardStyle: 'glass-card',
       models: ['GPT-4o', 'DeepSeek', 'Gemini'],
-      tokens: '5K',
+      tokens: '15K',
       features: [
-        { text: '5K Tokens', subtext: '/month', included: true },
+        { text: '15K Tokens', subtext: '/month', included: true },
         { text: t('webSearch'), included: false },
         { text: t('projects'), included: false },
         { text: t('voiceAI'), included: false },
