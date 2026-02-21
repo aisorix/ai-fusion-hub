@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback } from "react";
 import MessageBubble from "./MessageBubble";
 import useAutoScroll from "@/hooks/useAutoScroll";
 import { useChatStore } from "@/stores/chatStore";
@@ -8,18 +8,12 @@ const INITIAL_VISIBLE = 100;
 
 const MessageList = () => {
   const { chats, activeChatId, isStreaming } = useChatStore();
-  const allMessages = useMemo(
-    () => chats.find((c) => c.id === activeChatId)?.messages || [],
-    [chats, activeChatId]
-  );
+  const allMessages = chats.find((c) => c.id === activeChatId)?.messages || [];
   const [showAll, setShowAll] = useState(false);
 
-  const messages = useMemo(
-    () => showAll || allMessages.length <= INITIAL_VISIBLE
-      ? allMessages
-      : allMessages.slice(-INITIAL_VISIBLE),
-    [allMessages, showAll]
-  );
+  const messages = showAll || allMessages.length <= INITIAL_VISIBLE
+    ? allMessages
+    : allMessages.slice(-INITIAL_VISIBLE);
 
   const { containerRef } = useAutoScroll(messages, isStreaming);
 

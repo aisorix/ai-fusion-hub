@@ -145,7 +145,7 @@ KNOWLEDGE DOMAIN: Bangladesh Sanchayapatra (Savings Certificates), Stock Market 
 };
 
 const PLAN_TOKEN_LIMITS: Record<string, number> = {
-  free: 15000,
+  free: 5000,
   basic: 800000,
   pro: 1500000,
   premium: 3000000,

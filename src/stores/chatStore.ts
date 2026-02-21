@@ -251,7 +251,7 @@ const allModels: Model[] = [
 ];
 
 const planTokenLimits: Record<UserPlan, number> = {
-  free: 15000,
+  free: 5000,
   basic: 800000,
   pro: 1500000,
   premium: 3000000,
@@ -524,19 +524,17 @@ export const useChatStore = create<ChatState>()(
           )
         };
       }),
-      updateLastMessage: (content) => set((state) => {
-        const idx = state.chats.findIndex(c => c.id === state.activeChatId);
-        if (idx === -1) return state;
-        const chat = state.chats[idx];
-        const newMessages = [...chat.messages];
-        if (newMessages.length > 0) {
-          const last = newMessages[newMessages.length - 1];
-          newMessages[newMessages.length - 1] = { ...last, content: last.content + content };
-        }
-        const newChats = [...state.chats];
-        newChats[idx] = { ...chat, messages: newMessages, updatedAt: new Date().toISOString() };
-        return { chats: newChats };
-      }),
+      updateLastMessage: (content) => set((state) => ({
+        chats: state.chats.map(c => {
+          if (c.id !== state.activeChatId) return c;
+          const newMessages = [...c.messages];
+          if (newMessages.length > 0) {
+            const lastMessage = newMessages[newMessages.length - 1];
+            newMessages[newMessages.length - 1] = { ...lastMessage, content: lastMessage.content + content };
+          }
+          return { ...c, messages: newMessages, updatedAt: new Date().toISOString() };
+        })
+      })),
       setLastMessageCitations: (citations) => set((state) => ({
         chats: state.chats.map(c => {
           if (c.id !== state.activeChatId) return c;

@@ -49,11 +49,11 @@ const plans: PlanData[] = [
     name: 'Free Trial',
     price: 0,
     yearlyPrice: 0,
-    tokens: '15K',
+    tokens: '5K',
     modelCount: 3,
     models: ['GPT-4o', 'DeepSeek', 'Gemini'],
     features: [
-      { text: '15K Tokens', subtext: '/month', included: true },
+      { text: '5K Tokens', subtext: '/month', included: true },
       { text: 'Web Search', included: false },
       { text: 'Projects', included: false },
       { text: 'Voice AI', included: false },

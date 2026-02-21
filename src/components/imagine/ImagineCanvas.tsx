@@ -2,7 +2,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import ImagineActions from './ImagineActions';
-import AnalysisTimer from '@/components/shared/AnalysisTimer';
 
 interface Props {
   imageUrl: string | null;
@@ -23,7 +22,6 @@ const ImagineCanvas: React.FC<Props> = ({ imageUrl, isGenerating, prompt }) => {
         <div className="text-center max-w-xs">
           <p className="text-sm font-medium text-foreground">Creating your image…</p>
           <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2 italic">"{prompt}"</p>
-          <AnalysisTimer isActive={isGenerating} />
         </div>
         {/* Progress dots */}
         <div className="flex gap-1.5">
