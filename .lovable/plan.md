@@ -1,40 +1,61 @@
 
 
-# Ensure Perplexity Source Citations Display in Chat and Multi-Window
+# Preserve Perplexity Model — Never Override with Another Model
 
-## Current Status
+## Problem
+When a user selects a Perplexity model (Perplexity Sonar or Perplexity Research Pro), three places in the code can override it with a different model, which kills the web search and citations functionality:
 
-The citation infrastructure is **already fully built** across all layers:
-- Edge function (`chat/index.ts`) detects Perplexity/sonar models and uses a transform stream to extract citations
-- API service (`api.ts`) parses `citations` from SSE events and passes them to `onDone`
-- Chat store has `setLastMessageCitations` and `setWindowLastMessageCitations`
-- `MessageBubble` and `MultiWindowChat` both render `SourcesWidget` when citations exist
-- `SourcesWidget` shows numbered source pills with favicons
-
-## Potential Issue
-
-The transform stream in the edge function may have a subtle bug: it splits raw bytes by `\n` per chunk, but an SSE citation event from OpenRouter could be split across multiple chunks, causing the JSON parse to fail silently and citations to be lost.
+1. **`src/hooks/useAIChat.ts` line 240**: Attachments force `gpt-4o-mini`
+2. **`src/hooks/useAIChat.ts` line 139**: Smart routing downgrades to worker model
+3. **`src/components/aichat/MultiWindowChat.tsx` line 171**: Attachments force `gpt-4o-mini`
+4. **`src/components/aichat/MultiWindowChat.tsx` line 178**: Smart routing downgrades
+5. **`supabase/functions/chat/index.ts` line 152**: Edge function overrides to `gpt-4o-mini`
 
 ## Fix
 
-### 1. Edge Function (`supabase/functions/chat/index.ts`) - Improve Citation Extraction
-
-Replace the current transform stream with a more robust line-buffering approach that accumulates partial lines across chunks, ensuring citations are never lost due to chunk boundaries.
-
-Add a `lineBuffer` variable in the transform stream to hold incomplete lines between chunks, similar to how `api.ts` already handles this with `textBuffer`.
-
-### 2. No Changes Needed Elsewhere
-
-Everything else is already correctly implemented:
-- **Single Chat**: `MessageBubble.tsx` line 274 renders `SourcesWidget` when `message.citations` exists
-- **Multi-Window Chat**: `MultiWindowChat.tsx` line 623 renders `SourcesWidget` when `message.citations` exists
-- **Store**: `setLastMessageCitations` and `setWindowLastMessageCitations` both work correctly
-- **API Service**: `api.ts` correctly extracts citations from SSE events
+Add a simple Perplexity/sonar check before each override. If the selected model is a Perplexity model, skip the override entirely.
 
 ### Files Modified
+
 | File | Change |
 |------|--------|
-| `supabase/functions/chat/index.ts` | Fix transform stream line buffering for reliable citation extraction |
+| `src/hooks/useAIChat.ts` | Skip attachment override and smart routing when model is Perplexity |
+| `src/components/aichat/MultiWindowChat.tsx` | Skip attachment override and smart routing when model is Perplexity |
+| `supabase/functions/chat/index.ts` | Skip attachment override when model is Perplexity |
 
-Nothing existing is removed. Only the internal buffering logic of the transform stream is improved.
+### What Changes (nothing removed, only guards added)
 
+**useAIChat.ts (line ~139):**
+```typescript
+// Add check: never downgrade Perplexity models
+const isSearchModel = activeBackendId.includes('perplexity') || activeBackendId.includes('sonar');
+if (!isSearchModel && activeMultiplier > 1 && shouldApplySmartRouting(...)) {
+```
+
+**useAIChat.ts (line ~240):**
+```typescript
+// Never override Perplexity with attachment model
+const isSearchModel = activeBackendId.includes('perplexity') || activeBackendId.includes('sonar');
+const backendModel = (hasAttachments && !isSearchModel) ? 'openai/gpt-4o-mini' : activeBackendId;
+const finalMultiplier = (hasAttachments && !isSearchModel) ? 1 : activeMultiplier;
+```
+
+**MultiWindowChat.tsx (line ~171):**
+```typescript
+const isSearchModel = model?.backendId?.includes('perplexity') || model?.backendId?.includes('sonar');
+let backendModel = (hasAttachments && !isSearchModel) ? "openai/gpt-4o-mini" : model?.backendId || "openai/gpt-4o-mini";
+let multiplier = (hasAttachments && !isSearchModel) ? 1 : (model?.multiplier || 1);
+
+// Smart routing: skip for search models
+if (!isSearchModel && !hasAttachments && multiplier > 1) {
+```
+
+**chat/index.ts (line ~152):**
+```typescript
+const isSearchModel = selectedModel.includes('perplexity') || selectedModel.includes('sonar');
+if (!isSearchModel && (hasImages || hasFiles)) {
+  selectedModel = ATTACHMENT_MODEL;
+}
+```
+
+All existing code stays exactly as-is. Only guard conditions are added to protect Perplexity models from being overridden.
