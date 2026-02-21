@@ -1,93 +1,99 @@
 
 
-# Add Timers, Fix AI Repeat Answers, and Optimize Long Chat Performance
+# Production-Ready: Performance, Mobile Sources Fix, and Token Limit Update
 
-**Important: Nothing existing will be removed. All current code stays exactly as it is. Only new code will be added.**
+## Overview
+Three changes to make the product launch-ready: drastically improve published site load speed via code splitting, fix mobile source links visibility, and update the free plan from 5K to 15K tokens everywhere.
 
-## 1. Add Elapsed Timer to Agro, Health, and Imagine Pages
+---
 
-### What's added:
-- A reusable `AnalysisTimer` component (new file: `src/components/shared/AnalysisTimer.tsx`)
-- Shows elapsed seconds (e.g., "12.3s") during analysis/generation
+## 1. Published Site Performance - Lazy Loading (Code Splitting)
 
-### Where it appears:
-- **AgroPage.tsx**: Timer shown next to the loading spinner inside `AgroIntakeForm` while `isAnalyzing` is true
-- **HealthPage.tsx**: Same timer shown during health analysis while `isAnalyzing` is true  
-- **ImagineCanvas.tsx**: Timer added below "Creating your image..." text while `isGenerating` is true
+**Problem:** All 20+ pages are eagerly imported in `App.jsx`. When a user visits `/chat`, they also download the code for Health, Agro, Imagine, Legends, Admin, all policy pages, etc. This creates a massive single bundle that loads slowly on production, especially on mobile.
 
-The timer component mirrors the existing `ThinkingTimer` pattern already used in `MessageBubble.tsx`.
+**Fix:** Convert all route imports in `App.jsx` to use `React.lazy()` + `Suspense`. This splits each page into its own chunk that only loads when the user navigates to that route.
 
-## 2. Fix AI Repeating Answers for Simple Acknowledgments (e.g., "thanks", "ok")
+**File: `src/App.jsx`**
+- Replace all 20+ static `import` statements with `React.lazy(() => import(...))` calls
+- Wrap `<Routes>` in `<Suspense fallback={<LoadingScreen />}>`
+- Add a simple full-screen loading spinner as the fallback
+- Nothing removed -- same routes, same components, same behavior -- just loaded on demand
 
-### What's added:
-- A new paragraph added to the **existing** system prompt in `supabase/functions/chat/index.ts`:
+**Expected impact:** Initial page load drops from loading the entire app (~1MB+) to loading only the current page (~100-200KB). Each subsequent page loads its own small chunk on navigation.
 
+---
+
+## 2. Mobile Source Links Not Showing
+
+**Problem:** In `SourcesWidget.tsx`, the `ExternalLink` icon uses `opacity-0 group-hover:opacity-100` which doesn't work on mobile (no hover). The links themselves work fine but users can't see the external link indicator.
+
+**Fix:** Make the icon always visible on mobile, hover-reveal on desktop only.
+
+**File: `src/components/aichat/SourcesWidget.tsx`** (line 80)
+- Change: `opacity-0 group-hover:opacity-100`
+- To: `opacity-100 sm:opacity-0 sm:group-hover:opacity-100`
+
+One line change. Nothing removed.
+
+---
+
+## 3. Free Plan Token Limit: 5K to 15K
+
+Update the number `5000` to `15000` and display text `5K` to `15K` in all locations:
+
+### Frontend (4 files)
+| File | Line | Change |
+|------|------|--------|
+| `src/stores/chatStore.ts` | 254 | `free: 5000` to `free: 15000` |
+| `src/components/ProtectedRoute.tsx` | 42 | `free: 5000` to `free: 15000` |
+| `src/components/Pricing.jsx` | 64, 66 | `5K` to `15K` (tokens display + features text) |
+| `src/components/aichat/settings/PlansTokensTab.tsx` | 17 | `tokens: "5K"` to `tokens: "15K"` |
+| `src/components/aichat/UpgradePlanModal.tsx` | 52, 56 | `5K` to `15K` (tokens + features) |
+
+### Edge Functions (3 files, need redeployment)
+| File | Lines | Change |
+|------|-------|--------|
+| `supabase/functions/imagine/index.ts` | 62, 70 | `5000` to `15000` |
+| `supabase/functions/project-ai/index.ts` | 20, 123 | `5000` to `15000` |
+| `supabase/functions/legends-chat/index.ts` | 148 | `5000` to `15000` |
+
+### SEO (1 file)
+| File | Line | Change |
+|------|------|--------|
+| `index.html` | 143 | FAQ text `5K tokens` to `15K tokens` |
+
+---
+
+## Technical Details
+
+### Lazy Loading Pattern
+```javascript
+// Before (eager - loads everything upfront)
+import ChatPage from "./pages/ChatPage";
+
+// After (lazy - loads only when navigated to)
+const ChatPage = React.lazy(() => import("./pages/ChatPage"));
+
+// Wrapped in Suspense
+<Suspense fallback={<LoadingSpinner />}>
+  <Routes>...</Routes>
+</Suspense>
 ```
-IMPORTANT: When the user sends a simple acknowledgment like "thanks", "thank you", 
-"ok", "bye", "got it", "nice", "great", "cool", etc., respond briefly and naturally 
-(1-2 sentences max). Do NOT repeat, re-explain, or re-generate your previous answer. 
-Just acknowledge their message concisely and ask if they need anything else.
-```
 
-This is appended to the existing `getSystemPrompt` function. Nothing else in the edge function changes.
-
-## 3. Optimize `updateLastMessage` in Chat Store (Performance)
-
-### What's changed (keeps all existing logic, just optimizes the inner implementation):
-- **`src/stores/chatStore.ts`** - The `updateLastMessage` function currently maps over ALL chats on every streaming chunk. The optimization changes it to only create a new reference for the active chat using `findIndex` + direct array splice, instead of `.map()` over every chat. The function signature and behavior remain identical.
-
-Current:
-```typescript
-updateLastMessage: (content) => set((state) => ({
-  chats: state.chats.map(c => {
-    if (c.id !== state.activeChatId) return c;
-    // ...
-  })
-}))
-```
-
-Optimized (same result, less work):
-```typescript
-updateLastMessage: (content) => set((state) => {
-  const idx = state.chats.findIndex(c => c.id === state.activeChatId);
-  if (idx === -1) return state;
-  const chat = state.chats[idx];
-  const newMessages = [...chat.messages];
-  if (newMessages.length > 0) {
-    const last = newMessages[newMessages.length - 1];
-    newMessages[newMessages.length - 1] = { ...last, content: last.content + content };
-  }
-  const newChats = [...state.chats];
-  newChats[idx] = { ...chat, messages: newMessages, updatedAt: new Date().toISOString() };
-  return { chats: newChats };
-})
-```
-
-## 4. Memoize Sidebar Chat Lists (Performance)
-
-### What's added:
-- Wrap `filteredChats`, `todayChats`, `thisWeekChats`, `olderChats` computations in `useMemo` in `ChatSidebar.tsx`
-- This prevents recalculating these lists on every re-render during streaming
-
-Nothing is removed from the sidebar. The same data, same UI, same behavior -- just wrapped in `useMemo`.
-
-## 5. Memoize MessageList Messages (Performance)
-
-### What's added:
-- Wrap the `messages` derivation in `MessageList.tsx` with `useMemo` so it doesn't recompute on every render
-
-## Files Modified (additions only)
-
+### Files Modified Summary
 | File | Change |
 |------|--------|
-| `src/components/shared/AnalysisTimer.tsx` | **NEW** - Reusable timer component |
-| `src/pages/AgroPage.tsx` | Add timer prop pass-through to intake form |
-| `src/pages/HealthPage.tsx` | Add timer prop pass-through to intake form |
-| `src/components/imagine/ImagineCanvas.tsx` | Add timer below "Creating..." text |
-| `supabase/functions/chat/index.ts` | Add acknowledgment instruction to system prompt |
-| `src/stores/chatStore.ts` | Optimize `updateLastMessage` inner logic |
-| `src/components/aichat/ChatSidebar.tsx` | Add `useMemo` wraps |
-| `src/components/aichat/MessageList.tsx` | Add `useMemo` wrap |
+| `src/App.jsx` | Convert all imports to `React.lazy`, add `Suspense` wrapper |
+| `src/components/aichat/SourcesWidget.tsx` | Fix mobile ExternalLink visibility |
+| `src/stores/chatStore.ts` | `5000` to `15000` |
+| `src/components/ProtectedRoute.tsx` | `5000` to `15000` |
+| `src/components/Pricing.jsx` | `5K` to `15K` |
+| `src/components/aichat/settings/PlansTokensTab.tsx` | `5K` to `15K` |
+| `src/components/aichat/UpgradePlanModal.tsx` | `5K` to `15K` |
+| `supabase/functions/imagine/index.ts` | `5000` to `15000` |
+| `supabase/functions/project-ai/index.ts` | `5000` to `15000` |
+| `supabase/functions/legends-chat/index.ts` | `5000` to `15000` |
+| `index.html` | FAQ `5K` to `15K` |
 
 **No files deleted. No existing code removed. All existing features preserved.**
 
