@@ -1,61 +1,93 @@
 
 
-# Preserve Perplexity Model — Never Override with Another Model
+# Add Timers, Fix AI Repeat Answers, and Optimize Long Chat Performance
 
-## Problem
-When a user selects a Perplexity model (Perplexity Sonar or Perplexity Research Pro), three places in the code can override it with a different model, which kills the web search and citations functionality:
+**Important: Nothing existing will be removed. All current code stays exactly as it is. Only new code will be added.**
 
-1. **`src/hooks/useAIChat.ts` line 240**: Attachments force `gpt-4o-mini`
-2. **`src/hooks/useAIChat.ts` line 139**: Smart routing downgrades to worker model
-3. **`src/components/aichat/MultiWindowChat.tsx` line 171**: Attachments force `gpt-4o-mini`
-4. **`src/components/aichat/MultiWindowChat.tsx` line 178**: Smart routing downgrades
-5. **`supabase/functions/chat/index.ts` line 152**: Edge function overrides to `gpt-4o-mini`
+## 1. Add Elapsed Timer to Agro, Health, and Imagine Pages
 
-## Fix
+### What's added:
+- A reusable `AnalysisTimer` component (new file: `src/components/shared/AnalysisTimer.tsx`)
+- Shows elapsed seconds (e.g., "12.3s") during analysis/generation
 
-Add a simple Perplexity/sonar check before each override. If the selected model is a Perplexity model, skip the override entirely.
+### Where it appears:
+- **AgroPage.tsx**: Timer shown next to the loading spinner inside `AgroIntakeForm` while `isAnalyzing` is true
+- **HealthPage.tsx**: Same timer shown during health analysis while `isAnalyzing` is true  
+- **ImagineCanvas.tsx**: Timer added below "Creating your image..." text while `isGenerating` is true
 
-### Files Modified
+The timer component mirrors the existing `ThinkingTimer` pattern already used in `MessageBubble.tsx`.
+
+## 2. Fix AI Repeating Answers for Simple Acknowledgments (e.g., "thanks", "ok")
+
+### What's added:
+- A new paragraph added to the **existing** system prompt in `supabase/functions/chat/index.ts`:
+
+```
+IMPORTANT: When the user sends a simple acknowledgment like "thanks", "thank you", 
+"ok", "bye", "got it", "nice", "great", "cool", etc., respond briefly and naturally 
+(1-2 sentences max). Do NOT repeat, re-explain, or re-generate your previous answer. 
+Just acknowledge their message concisely and ask if they need anything else.
+```
+
+This is appended to the existing `getSystemPrompt` function. Nothing else in the edge function changes.
+
+## 3. Optimize `updateLastMessage` in Chat Store (Performance)
+
+### What's changed (keeps all existing logic, just optimizes the inner implementation):
+- **`src/stores/chatStore.ts`** - The `updateLastMessage` function currently maps over ALL chats on every streaming chunk. The optimization changes it to only create a new reference for the active chat using `findIndex` + direct array splice, instead of `.map()` over every chat. The function signature and behavior remain identical.
+
+Current:
+```typescript
+updateLastMessage: (content) => set((state) => ({
+  chats: state.chats.map(c => {
+    if (c.id !== state.activeChatId) return c;
+    // ...
+  })
+}))
+```
+
+Optimized (same result, less work):
+```typescript
+updateLastMessage: (content) => set((state) => {
+  const idx = state.chats.findIndex(c => c.id === state.activeChatId);
+  if (idx === -1) return state;
+  const chat = state.chats[idx];
+  const newMessages = [...chat.messages];
+  if (newMessages.length > 0) {
+    const last = newMessages[newMessages.length - 1];
+    newMessages[newMessages.length - 1] = { ...last, content: last.content + content };
+  }
+  const newChats = [...state.chats];
+  newChats[idx] = { ...chat, messages: newMessages, updatedAt: new Date().toISOString() };
+  return { chats: newChats };
+})
+```
+
+## 4. Memoize Sidebar Chat Lists (Performance)
+
+### What's added:
+- Wrap `filteredChats`, `todayChats`, `thisWeekChats`, `olderChats` computations in `useMemo` in `ChatSidebar.tsx`
+- This prevents recalculating these lists on every re-render during streaming
+
+Nothing is removed from the sidebar. The same data, same UI, same behavior -- just wrapped in `useMemo`.
+
+## 5. Memoize MessageList Messages (Performance)
+
+### What's added:
+- Wrap the `messages` derivation in `MessageList.tsx` with `useMemo` so it doesn't recompute on every render
+
+## Files Modified (additions only)
 
 | File | Change |
 |------|--------|
-| `src/hooks/useAIChat.ts` | Skip attachment override and smart routing when model is Perplexity |
-| `src/components/aichat/MultiWindowChat.tsx` | Skip attachment override and smart routing when model is Perplexity |
-| `supabase/functions/chat/index.ts` | Skip attachment override when model is Perplexity |
+| `src/components/shared/AnalysisTimer.tsx` | **NEW** - Reusable timer component |
+| `src/pages/AgroPage.tsx` | Add timer prop pass-through to intake form |
+| `src/pages/HealthPage.tsx` | Add timer prop pass-through to intake form |
+| `src/components/imagine/ImagineCanvas.tsx` | Add timer below "Creating..." text |
+| `supabase/functions/chat/index.ts` | Add acknowledgment instruction to system prompt |
+| `src/stores/chatStore.ts` | Optimize `updateLastMessage` inner logic |
+| `src/components/aichat/ChatSidebar.tsx` | Add `useMemo` wraps |
+| `src/components/aichat/MessageList.tsx` | Add `useMemo` wrap |
 
-### What Changes (nothing removed, only guards added)
+**No files deleted. No existing code removed. All existing features preserved.**
 
-**useAIChat.ts (line ~139):**
-```typescript
-// Add check: never downgrade Perplexity models
-const isSearchModel = activeBackendId.includes('perplexity') || activeBackendId.includes('sonar');
-if (!isSearchModel && activeMultiplier > 1 && shouldApplySmartRouting(...)) {
-```
-
-**useAIChat.ts (line ~240):**
-```typescript
-// Never override Perplexity with attachment model
-const isSearchModel = activeBackendId.includes('perplexity') || activeBackendId.includes('sonar');
-const backendModel = (hasAttachments && !isSearchModel) ? 'openai/gpt-4o-mini' : activeBackendId;
-const finalMultiplier = (hasAttachments && !isSearchModel) ? 1 : activeMultiplier;
-```
-
-**MultiWindowChat.tsx (line ~171):**
-```typescript
-const isSearchModel = model?.backendId?.includes('perplexity') || model?.backendId?.includes('sonar');
-let backendModel = (hasAttachments && !isSearchModel) ? "openai/gpt-4o-mini" : model?.backendId || "openai/gpt-4o-mini";
-let multiplier = (hasAttachments && !isSearchModel) ? 1 : (model?.multiplier || 1);
-
-// Smart routing: skip for search models
-if (!isSearchModel && !hasAttachments && multiplier > 1) {
-```
-
-**chat/index.ts (line ~152):**
-```typescript
-const isSearchModel = selectedModel.includes('perplexity') || selectedModel.includes('sonar');
-if (!isSearchModel && (hasImages || hasFiles)) {
-  selectedModel = ATTACHMENT_MODEL;
-}
-```
-
-All existing code stays exactly as-is. Only guard conditions are added to protect Perplexity models from being overridden.

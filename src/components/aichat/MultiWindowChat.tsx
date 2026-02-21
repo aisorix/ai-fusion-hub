@@ -168,13 +168,12 @@ const MultiWindowChat = () => {
       const sendToWindow = async (window: ChatWindow) => {
         const model = models.find((m) => m.id === window.modelId);
         const hasAttachments = imageAttachments.length > 0 || documentAttachments.length > 0;
-        const isSearchModel = model?.backendId?.includes('perplexity') || model?.backendId?.includes('sonar');
-        let backendModel = (hasAttachments && !isSearchModel) ? "openai/gpt-4o-mini" : model?.backendId || "openai/gpt-4o-mini";
+        let backendModel = hasAttachments ? "openai/gpt-4o-mini" : model?.backendId || "openai/gpt-4o-mini";
         const modelName = model?.name || "Unknown";
-        let multiplier = (hasAttachments && !isSearchModel) ? 1 : (model?.multiplier || 1);
+        let multiplier = hasAttachments ? 1 : (model?.multiplier || 1);
 
-        // Smart routing: downgrade simple queries on premium models (skip for search models)
-        if (!isSearchModel && !hasAttachments && multiplier > 1) {
+        // Smart routing: downgrade simple queries on premium models
+        if (!hasAttachments && multiplier > 1) {
           const contextMsgs = window.messages.slice(-10).map(m => ({ role: m.role, content: m.content }));
           if (shouldApplySmartRouting(multiplier, content, contextMsgs)) {
             console.log(`🧠 [MultiWindow/${modelName}] Smart routing to worker model`);
