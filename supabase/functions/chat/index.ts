@@ -219,10 +219,15 @@ serve(async (req) => {
         const decoder = new TextDecoder();
         let citations: string[] = [];
 
+        let lineBuffer = '';
+
         const transformStream = new TransformStream({
           transform(chunk, controller) {
             const text = decoder.decode(chunk, { stream: true });
-            const lines = text.split('\n');
+            lineBuffer += text;
+            const lines = lineBuffer.split('\n');
+            // Keep the last (possibly incomplete) line in the buffer
+            lineBuffer = lines.pop() || '';
             
             for (const line of lines) {
               if (line.startsWith('data: ') && line.length > 6) {
@@ -246,12 +251,38 @@ serve(async (req) => {
                     console.log(`📚 Found ${citations.length} citations`);
                   }
                 } catch {
-                  // Ignore parse errors
+                  // Ignore parse errors for non-JSON lines
                 }
               }
               
               // Forward the original line
               controller.enqueue(encoder.encode(line + '\n'));
+            }
+          },
+          flush(controller) {
+            // Process any remaining buffered data
+            if (lineBuffer.trim()) {
+              if (lineBuffer.startsWith('data: ') && lineBuffer.length > 6) {
+                const jsonStr = lineBuffer.slice(6).trim();
+                if (jsonStr === '[DONE]') {
+                  if (citations.length > 0) {
+                    const citationsEvent = `data: ${JSON.stringify({ citations })}\n\n`;
+                    controller.enqueue(encoder.encode(citationsEvent));
+                  }
+                  controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+                } else {
+                  try {
+                    const parsed = JSON.parse(jsonStr);
+                    if (parsed.citations && Array.isArray(parsed.citations)) {
+                      citations = parsed.citations;
+                      console.log(`📚 Found ${citations.length} citations (flush)`);
+                    }
+                  } catch { /* ignore */ }
+                  controller.enqueue(encoder.encode(lineBuffer + '\n'));
+                }
+              } else {
+                controller.enqueue(encoder.encode(lineBuffer + '\n'));
+              }
             }
           }
         });
