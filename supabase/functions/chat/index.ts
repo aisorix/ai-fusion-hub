@@ -149,7 +149,8 @@ serve(async (req) => {
     // Always use GPT-4o-mini for attachments
     let selectedModel = model || DEFAULT_MODEL;
     
-    if (hasImages || hasFiles) {
+    const isSearchModelOverride = selectedModel.includes('perplexity') || selectedModel.includes('sonar');
+    if (!isSearchModelOverride && (hasImages || hasFiles)) {
       selectedModel = ATTACHMENT_MODEL;
       if (hasImages) {
         console.log(`🖼️ Image detected - using ${selectedModel}`);
