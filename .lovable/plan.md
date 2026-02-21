@@ -1,93 +1,40 @@
 
 
-# Add Timers, Fix AI Repeat Answers, and Optimize Long Chat Performance
+# Ensure Perplexity Source Citations Display in Chat and Multi-Window
 
-**Important: Nothing existing will be removed. All current code stays exactly as it is. Only new code will be added.**
+## Current Status
 
-## 1. Add Elapsed Timer to Agro, Health, and Imagine Pages
+The citation infrastructure is **already fully built** across all layers:
+- Edge function (`chat/index.ts`) detects Perplexity/sonar models and uses a transform stream to extract citations
+- API service (`api.ts`) parses `citations` from SSE events and passes them to `onDone`
+- Chat store has `setLastMessageCitations` and `setWindowLastMessageCitations`
+- `MessageBubble` and `MultiWindowChat` both render `SourcesWidget` when citations exist
+- `SourcesWidget` shows numbered source pills with favicons
 
-### What's added:
-- A reusable `AnalysisTimer` component (new file: `src/components/shared/AnalysisTimer.tsx`)
-- Shows elapsed seconds (e.g., "12.3s") during analysis/generation
+## Potential Issue
 
-### Where it appears:
-- **AgroPage.tsx**: Timer shown next to the loading spinner inside `AgroIntakeForm` while `isAnalyzing` is true
-- **HealthPage.tsx**: Same timer shown during health analysis while `isAnalyzing` is true  
-- **ImagineCanvas.tsx**: Timer added below "Creating your image..." text while `isGenerating` is true
+The transform stream in the edge function may have a subtle bug: it splits raw bytes by `\n` per chunk, but an SSE citation event from OpenRouter could be split across multiple chunks, causing the JSON parse to fail silently and citations to be lost.
 
-The timer component mirrors the existing `ThinkingTimer` pattern already used in `MessageBubble.tsx`.
+## Fix
 
-## 2. Fix AI Repeating Answers for Simple Acknowledgments (e.g., "thanks", "ok")
+### 1. Edge Function (`supabase/functions/chat/index.ts`) - Improve Citation Extraction
 
-### What's added:
-- A new paragraph added to the **existing** system prompt in `supabase/functions/chat/index.ts`:
+Replace the current transform stream with a more robust line-buffering approach that accumulates partial lines across chunks, ensuring citations are never lost due to chunk boundaries.
 
-```
-IMPORTANT: When the user sends a simple acknowledgment like "thanks", "thank you", 
-"ok", "bye", "got it", "nice", "great", "cool", etc., respond briefly and naturally 
-(1-2 sentences max). Do NOT repeat, re-explain, or re-generate your previous answer. 
-Just acknowledge their message concisely and ask if they need anything else.
-```
+Add a `lineBuffer` variable in the transform stream to hold incomplete lines between chunks, similar to how `api.ts` already handles this with `textBuffer`.
 
-This is appended to the existing `getSystemPrompt` function. Nothing else in the edge function changes.
+### 2. No Changes Needed Elsewhere
 
-## 3. Optimize `updateLastMessage` in Chat Store (Performance)
+Everything else is already correctly implemented:
+- **Single Chat**: `MessageBubble.tsx` line 274 renders `SourcesWidget` when `message.citations` exists
+- **Multi-Window Chat**: `MultiWindowChat.tsx` line 623 renders `SourcesWidget` when `message.citations` exists
+- **Store**: `setLastMessageCitations` and `setWindowLastMessageCitations` both work correctly
+- **API Service**: `api.ts` correctly extracts citations from SSE events
 
-### What's changed (keeps all existing logic, just optimizes the inner implementation):
-- **`src/stores/chatStore.ts`** - The `updateLastMessage` function currently maps over ALL chats on every streaming chunk. The optimization changes it to only create a new reference for the active chat using `findIndex` + direct array splice, instead of `.map()` over every chat. The function signature and behavior remain identical.
-
-Current:
-```typescript
-updateLastMessage: (content) => set((state) => ({
-  chats: state.chats.map(c => {
-    if (c.id !== state.activeChatId) return c;
-    // ...
-  })
-}))
-```
-
-Optimized (same result, less work):
-```typescript
-updateLastMessage: (content) => set((state) => {
-  const idx = state.chats.findIndex(c => c.id === state.activeChatId);
-  if (idx === -1) return state;
-  const chat = state.chats[idx];
-  const newMessages = [...chat.messages];
-  if (newMessages.length > 0) {
-    const last = newMessages[newMessages.length - 1];
-    newMessages[newMessages.length - 1] = { ...last, content: last.content + content };
-  }
-  const newChats = [...state.chats];
-  newChats[idx] = { ...chat, messages: newMessages, updatedAt: new Date().toISOString() };
-  return { chats: newChats };
-})
-```
-
-## 4. Memoize Sidebar Chat Lists (Performance)
-
-### What's added:
-- Wrap `filteredChats`, `todayChats`, `thisWeekChats`, `olderChats` computations in `useMemo` in `ChatSidebar.tsx`
-- This prevents recalculating these lists on every re-render during streaming
-
-Nothing is removed from the sidebar. The same data, same UI, same behavior -- just wrapped in `useMemo`.
-
-## 5. Memoize MessageList Messages (Performance)
-
-### What's added:
-- Wrap the `messages` derivation in `MessageList.tsx` with `useMemo` so it doesn't recompute on every render
-
-## Files Modified (additions only)
-
+### Files Modified
 | File | Change |
 |------|--------|
-| `src/components/shared/AnalysisTimer.tsx` | **NEW** - Reusable timer component |
-| `src/pages/AgroPage.tsx` | Add timer prop pass-through to intake form |
-| `src/pages/HealthPage.tsx` | Add timer prop pass-through to intake form |
-| `src/components/imagine/ImagineCanvas.tsx` | Add timer below "Creating..." text |
-| `supabase/functions/chat/index.ts` | Add acknowledgment instruction to system prompt |
-| `src/stores/chatStore.ts` | Optimize `updateLastMessage` inner logic |
-| `src/components/aichat/ChatSidebar.tsx` | Add `useMemo` wraps |
-| `src/components/aichat/MessageList.tsx` | Add `useMemo` wrap |
+| `supabase/functions/chat/index.ts` | Fix transform stream line buffering for reliable citation extraction |
 
-**No files deleted. No existing code removed. All existing features preserved.**
+Nothing existing is removed. Only the internal buffering logic of the transform stream is improved.
 
