@@ -18,16 +18,16 @@ import {
 } from '@/lib/exportUtils';
 
 interface ExportDropdownProps {
-  messages: Message[];
+  message: Message;
   theme: 'light' | 'dark';
 }
 
-const ExportDropdown = ({ messages, theme }: ExportDropdownProps) => {
+const ExportDropdown = ({ message, theme }: ExportDropdownProps) => {
   const [isExporting, setIsExporting] = useState<string | null>(null);
 
   const handleExport = async (type: 'pdf' | 'markdown' | 'docx' | 'zip') => {
-    if (messages.length === 0) {
-      toast.error('No messages to export');
+    if (!message.content) {
+      toast.error('No content to export');
       return;
     }
 
@@ -35,19 +35,19 @@ const ExportDropdown = ({ messages, theme }: ExportDropdownProps) => {
     try {
       switch (type) {
         case 'pdf':
-          await exportAsPDF(messages);
+          await exportAsPDF(message);
           toast.success('PDF exported successfully!');
           break;
         case 'markdown':
-          exportAsMarkdown(messages);
+          exportAsMarkdown(message);
           toast.success('Markdown exported successfully!');
           break;
         case 'docx':
-          await exportAsDOCX(messages);
+          await exportAsDOCX(message);
           toast.success('DOCX exported successfully!');
           break;
         case 'zip':
-          await exportAsZIP(messages);
+          await exportAsZIP(message);
           toast.success('ZIP archive exported successfully!');
           break;
       }
@@ -66,9 +66,7 @@ const ExportDropdown = ({ messages, theme }: ExportDropdownProps) => {
           className={cn(
             'p-2 rounded-lg transition-all duration-150',
             'text-muted-foreground',
-            theme === 'dark'
-              ? 'hover:bg-secondary hover:text-foreground'
-              : 'hover:bg-secondary hover:text-foreground'
+            'hover:bg-secondary hover:text-foreground'
           )}
           title="Export"
         >
@@ -79,13 +77,7 @@ const ExportDropdown = ({ messages, theme }: ExportDropdownProps) => {
           )}
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="start"
-        className={cn(
-          'w-48',
-          theme === 'dark' ? 'bg-card border-border' : 'bg-card border-border'
-        )}
-      >
+      <DropdownMenuContent align="start" className="w-48 bg-card border-border">
         <DropdownMenuItem
           onClick={() => handleExport('pdf')}
           disabled={isExporting !== null}
@@ -93,9 +85,7 @@ const ExportDropdown = ({ messages, theme }: ExportDropdownProps) => {
         >
           <FileText className="w-4 h-4 text-red-500" />
           <span>PDF</span>
-          {isExporting === 'pdf' && (
-            <Loader2 className="w-3 h-3 ml-auto animate-spin" />
-          )}
+          {isExporting === 'pdf' && <Loader2 className="w-3 h-3 ml-auto animate-spin" />}
         </DropdownMenuItem>
         
         <DropdownMenuItem
@@ -105,9 +95,7 @@ const ExportDropdown = ({ messages, theme }: ExportDropdownProps) => {
         >
           <FileText className="w-4 h-4 text-gray-500" />
           <span>Markdown</span>
-          {isExporting === 'markdown' && (
-            <Loader2 className="w-3 h-3 ml-auto animate-spin" />
-          )}
+          {isExporting === 'markdown' && <Loader2 className="w-3 h-3 ml-auto animate-spin" />}
         </DropdownMenuItem>
         
         <DropdownMenuItem
@@ -117,9 +105,7 @@ const ExportDropdown = ({ messages, theme }: ExportDropdownProps) => {
         >
           <File className="w-4 h-4 text-blue-500" />
           <span>DOCX</span>
-          {isExporting === 'docx' && (
-            <Loader2 className="w-3 h-3 ml-auto animate-spin" />
-          )}
+          {isExporting === 'docx' && <Loader2 className="w-3 h-3 ml-auto animate-spin" />}
         </DropdownMenuItem>
         
         <DropdownMenuSeparator />
@@ -131,9 +117,7 @@ const ExportDropdown = ({ messages, theme }: ExportDropdownProps) => {
         >
           <FileArchive className="w-4 h-4 text-amber-500" />
           <span>All Assets (ZIP)</span>
-          {isExporting === 'zip' && (
-            <Loader2 className="w-3 h-3 ml-auto animate-spin" />
-          )}
+          {isExporting === 'zip' && <Loader2 className="w-3 h-3 ml-auto animate-spin" />}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

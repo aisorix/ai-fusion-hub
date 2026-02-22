@@ -361,7 +361,7 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
                     <RotateCcw className="w-4 h-4" />
                   </ActionButton>
                   
-                  <ExportDropdown messages={currentMessages} theme={theme} />
+                  <ExportDropdown message={message} theme={theme} />
                   
                   <ActionButton
                     onClick={() => openShareModal(message.id)}
