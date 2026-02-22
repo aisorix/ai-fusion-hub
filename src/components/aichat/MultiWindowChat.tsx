@@ -746,7 +746,7 @@ const ChatWindowPanel = ({ window, canClose }: ChatWindowPanelProps) => {
                                 <RotateCcw className="w-3.5 h-3.5" />
                               </button>
 
-                              <ExportDropdown messages={window.messages} theme={theme} />
+                              <ExportDropdown message={message} theme={theme} />
 
                               <button
                                 onClick={() => openShareModal(message.id)}

@@ -73,9 +73,12 @@ export function analyzeQueryComplexity(
 export function shouldApplySmartRouting(
   selectedMultiplier: number,
   prompt: string,
-  conversationHistory?: { role: string; content: string }[]
+  conversationHistory?: { role: string; content: string }[],
+  backendId?: string
 ): boolean {
   if (selectedMultiplier <= 1) return false;
+  // Never downgrade perplexity/sonar models
+  if (backendId && (backendId.includes('perplexity') || backendId.includes('sonar'))) return false;
   const complexity = analyzeQueryComplexity(prompt, conversationHistory);
   return complexity === 'simple';
 }

@@ -135,8 +135,11 @@ export const useAIChat = () => {
       wasSmartRouted = true;
       console.log(`🧠 Smart Auto: Resolved to ${resolved.backendId} (${resolved.multiplier}x) for query`);
     } else {
-      // Apply smart routing for simple queries on premium models
-      if (activeMultiplier > 1 && shouldApplySmartRouting(activeMultiplier, content, conversationHistory)) {
+      // Never override perplexity/sonar models - they need real web search
+      const isPerplexityModel = activeBackendId.includes('perplexity') || activeBackendId.includes('sonar');
+      
+      // Apply smart routing for simple queries on premium models (skip perplexity)
+      if (!isPerplexityModel && activeMultiplier > 1 && shouldApplySmartRouting(activeMultiplier, content, conversationHistory)) {
         console.log(`🧠 Smart Routing: Downgrading ${modelName} to Worker Model for simple query`);
         activeBackendId = getWorkerModelForPlan(user.plan);
         activeMultiplier = 1;
@@ -235,10 +238,11 @@ export const useAIChat = () => {
       return acc;
     }, 0);
 
-    // Always use GPT-4o-mini for file/image attachments
+    // Use GPT-4o-mini for file/image attachments (but NOT for perplexity models)
     const hasAttachments = imageAttachments.length > 0 || documentAttachments.length > 0;
-    const backendModel = hasAttachments ? 'openai/gpt-4o-mini' : activeBackendId;
-    const finalMultiplier = hasAttachments ? 1 : activeMultiplier;
+    const isPerplexityFinal = activeBackendId.includes('perplexity') || activeBackendId.includes('sonar');
+    const backendModel = (hasAttachments && !isPerplexityFinal) ? 'openai/gpt-4o-mini' : activeBackendId;
+    const finalMultiplier = (hasAttachments && !isPerplexityFinal) ? 1 : activeMultiplier;
     
     console.log(`Sending message with model: ${backendModel}${hasAttachments ? ' (forced for attachments)' : wasSmartRouted ? ' (smart routed)' : ''}, multiplier: ${finalMultiplier}x`);
 
