@@ -16,6 +16,40 @@ const formatDate = (date: string): string => {
 
 const getModelLabel = (msg: Message): string => msg.modelName || 'Sorix AI';
 
+// Strip emoji and non-latin chars that jsPDF can't render
+const stripEmoji = (text: string): string =>
+  text.replace(/[\u{1F000}-\u{1FFFF}|\u{2600}-\u{27BF}|\u{FE00}-\u{FEFF}|\u{1F900}-\u{1F9FF}|\u{200D}|\u{20E3}|\u{E0020}-\u{E007F}]/gu, '').replace(/\s{2,}/g, ' ').trim();
+
+// Parse a line into segments: { text, bold, italic, code }
+interface TextSegment {
+  text: string;
+  bold?: boolean;
+  italic?: boolean;
+  code?: boolean;
+}
+
+const parseInlineMarkdown = (line: string): TextSegment[] => {
+  const segments: TextSegment[] = [];
+  // Match **bold**, *italic*, `code`, and [n] citation refs
+  const regex = /(\*\*(.+?)\*\*|\*(.+?)\*|`(.+?)`)/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(line)) !== null) {
+    if (match.index > lastIndex) {
+      segments.push({ text: stripEmoji(line.slice(lastIndex, match.index)) });
+    }
+    if (match[2]) segments.push({ text: stripEmoji(match[2]), bold: true });
+    else if (match[3]) segments.push({ text: stripEmoji(match[3]), italic: true });
+    else if (match[4]) segments.push({ text: stripEmoji(match[4]), code: true });
+    lastIndex = regex.lastIndex;
+  }
+  if (lastIndex < line.length) {
+    segments.push({ text: stripEmoji(line.slice(lastIndex)) });
+  }
+  return segments.length ? segments : [{ text: stripEmoji(line) }];
+};
+
 // ─── PDF ────────────────────────────────────────────────────────────────
 export const generatePDF = async (message: Message): Promise<Blob> => {
   const pdf = new jsPDF();
@@ -29,28 +63,51 @@ export const generatePDF = async (message: Message): Promise<Blob> => {
     if (y + need > ph - 25) { pdf.addPage(); y = 25; }
   };
 
-  // Title
+  // ── Title (model name) ──
   pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(14);
-  pdf.setTextColor(30, 30, 30);
-  pdf.text(getModelLabel(message), m, y);
-  y += 6;
+  pdf.setFontSize(16);
+  pdf.setTextColor(20, 20, 20);
+  pdf.text(stripEmoji(getModelLabel(message)), m, y);
+  y += 7;
 
-  // Timestamp
+  // ── Timestamp ──
   if (message.createdAt) {
     pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(9);
-    pdf.setTextColor(120, 120, 120);
+    pdf.setFontSize(10);
+    pdf.setTextColor(130, 130, 130);
     pdf.text(formatDate(message.createdAt), m, y);
   }
   y += 10;
 
-  // Separator line
-  pdf.setDrawColor(200, 200, 200);
+  // ── Separator ──
+  pdf.setDrawColor(210, 210, 210);
   pdf.line(m, y, pw - m, y);
-  y += 8;
+  y += 10;
 
-  // Body
+  // ── Render inline segments on one logical line ──
+  const renderSegments = (segments: TextSegment[], x: number, maxW: number) => {
+    // For simplicity, join text, apply dominant style per-line wrapping
+    const fullText = segments.map(s => s.text).join('');
+    const hasBold = segments.some(s => s.bold);
+
+    if (hasBold && segments.length <= 2 && segments[0]?.bold) {
+      // Entire line is bold (heading-like)
+      pdf.setFont('helvetica', 'bold');
+    } else {
+      pdf.setFont('helvetica', 'normal');
+    }
+    pdf.setFontSize(11);
+    pdf.setTextColor(30, 30, 30);
+
+    const wrapped = pdf.splitTextToSize(fullText, maxW);
+    wrapped.forEach((wl: string) => {
+      checkPage(6);
+      pdf.text(wl, x, y);
+      y += 5.5;
+    });
+  };
+
+  // ── Body ──
   const lines = message.content.split('\n');
   let inCodeBlock = false;
 
@@ -61,78 +118,79 @@ export const generatePDF = async (message: Message): Promise<Blob> => {
     }
 
     if (inCodeBlock) {
-      // Code block
       pdf.setFont('courier', 'normal');
       pdf.setFontSize(9);
       pdf.setTextColor(50, 50, 50);
-      const wrapped = pdf.splitTextToSize(line, cw - 10);
+      const clean = stripEmoji(line);
+      const wrapped = pdf.splitTextToSize(clean, cw - 16);
       wrapped.forEach((wl: string) => {
         checkPage(7);
-        pdf.setFillColor(243, 244, 246);
+        pdf.setFillColor(245, 245, 245);
         pdf.rect(m, y - 4, cw, 6, 'F');
-        pdf.text(wl, m + 4, y);
+        pdf.text(wl, m + 5, y);
         y += 5;
       });
-    } else if (line.startsWith('## ')) {
+    } else if (line.startsWith('### ')) {
       checkPage(10);
       y += 3;
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(12);
-      pdf.setTextColor(30, 30, 30);
-      pdf.text(line.replace(/^##\s+/, ''), m, y);
+      pdf.setTextColor(20, 20, 20);
+      pdf.text(stripEmoji(line.replace(/^###\s+/, '')), m, y);
+      y += 7;
+    } else if (line.startsWith('## ')) {
+      checkPage(10);
+      y += 4;
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(13);
+      pdf.setTextColor(20, 20, 20);
+      pdf.text(stripEmoji(line.replace(/^##\s+/, '')), m, y);
       y += 7;
     } else if (line.startsWith('# ')) {
       checkPage(12);
       y += 4;
       pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(13);
-      pdf.setTextColor(30, 30, 30);
-      pdf.text(line.replace(/^#\s+/, ''), m, y);
+      pdf.setFontSize(14);
+      pdf.setTextColor(20, 20, 20);
+      pdf.text(stripEmoji(line.replace(/^#\s+/, '')), m, y);
       y += 8;
     } else if (line.startsWith('- ') || line.startsWith('* ')) {
+      const content = line.replace(/^[-*]\s+/, '');
+      const segments = parseInlineMarkdown(content);
+      const fullText = '\u2022  ' + segments.map(s => s.text).join('');
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(11);
-      pdf.setTextColor(40, 40, 40);
-      const bullet = `•  ${line.replace(/^[-*]\s+/, '')}`;
-      const wrapped = pdf.splitTextToSize(bullet, cw - 6);
+      pdf.setTextColor(30, 30, 30);
+      const wrapped = pdf.splitTextToSize(fullText, cw - 10);
       wrapped.forEach((wl: string) => {
-        checkPage(7);
-        pdf.text(wl, m + 4, y);
+        checkPage(6);
+        pdf.text(wl, m + 6, y);
         y += 5.5;
       });
     } else if (line.trim() === '') {
       y += 4;
     } else {
-      // Normal paragraph — strip inline markdown bold/italic
-      const clean = line.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1').replace(/`(.*?)`/g, '$1');
-      pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(11);
-      pdf.setTextColor(40, 40, 40);
-      const wrapped = pdf.splitTextToSize(clean, cw);
-      wrapped.forEach((wl: string) => {
-        checkPage(7);
-        pdf.text(wl, m, y);
-        y += 5.5;
-      });
+      const segments = parseInlineMarkdown(line);
+      renderSegments(segments, m, cw);
     }
   }
 
-  // Citations
+  // ── Citations ──
   if (message.citations && message.citations.length > 0) {
     y += 8;
     checkPage(20);
-    pdf.setDrawColor(200, 200, 200);
+    pdf.setDrawColor(210, 210, 210);
     pdf.line(m, y, pw - m, y);
     y += 8;
     pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(11);
-    pdf.setTextColor(60, 60, 60);
+    pdf.setFontSize(12);
+    pdf.setTextColor(40, 40, 40);
     pdf.text('Sources', m, y);
     y += 7;
 
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(9);
-    pdf.setTextColor(80, 120, 200);
+    pdf.setTextColor(60, 100, 180);
     message.citations.forEach((url, i) => {
       checkPage(6);
       const label = `[${i + 1}] ${url}`;
@@ -144,12 +202,12 @@ export const generatePDF = async (message: Message): Promise<Blob> => {
     });
   }
 
-  // Page numbers
+  // ── Page numbers ──
   const pages = pdf.getNumberOfPages();
   for (let i = 1; i <= pages; i++) {
     pdf.setPage(i);
     pdf.setFontSize(8);
-    pdf.setTextColor(150, 150, 150);
+    pdf.setTextColor(160, 160, 160);
     pdf.text(`${i} / ${pages}`, pw - m, ph - 10, { align: 'right' });
   }
 
