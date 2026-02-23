@@ -102,6 +102,7 @@ interface ChatState {
   updateWindowLastMessage: (windowId: string, content: string) => void;
   setWindowLastMessageCitations: (windowId: string, citations: string[]) => void;
   setWindowStreaming: (windowId: string, isStreaming: boolean) => void;
+  setWindowMessages: (windowId: string, messages: Message[]) => void;
   clearAllWindows: () => void;
   
   // User
@@ -237,7 +238,7 @@ const premiumModels: Model[] = [
   { id: 'claude-opus-45', name: 'Claude Opus 4.5', backendId: 'anthropic/claude-opus-4.5', description: 'Anthropic Opus', category: 'chat', plans: ['premium'], multiplier: 10, dailyLimit: { premium: 10 } },
   { id: 'gpt5-2', name: 'GPT-5.2', backendId: 'openai/gpt-5.2', description: 'Flagship reasoning', category: 'chat', plans: ['premium'], multiplier: 6.5, dailyLimit: { premium: 30 } },
   { id: 'gemini-25-pro', name: 'Gemini 2.5 Pro', backendId: 'google/gemini-2.5-pro', description: 'Professional Gemini', category: 'chat', plans: ['premium'], multiplier: 4, dailyLimit: { premium: 20 } },
-  { id: 'perplexity-research-pro', name: 'Perplexity Research Pro', backendId: 'perplexity/sonar-deep-research', description: 'Deep research', category: 'search', plans: ['premium'], multiplier: 6 },
+  
   { id: 'kimi-k25', name: 'Kimi-K2.5', backendId: 'moonshotai/kimi-k2.5', description: 'Advanced Moonshot', category: 'chat', plans: ['premium'], multiplier: 1 },
   { id: 'mistral-large-3', name: 'Mistral Large 3', backendId: 'mistralai/mistral-large-2512', description: 'Mistral flagship', category: 'chat', plans: ['premium'], multiplier: 1 },
 ];
@@ -407,6 +408,11 @@ export const useChatStore = create<ChatState>()(
       setWindowStreaming: (windowId, isStreaming) => set((state) => ({
         chatWindows: state.chatWindows.map(w =>
           w.id === windowId ? { ...w, isStreaming } : w
+        )
+      })),
+      setWindowMessages: (windowId, messages) => set((state) => ({
+        chatWindows: state.chatWindows.map(w =>
+          w.id === windowId ? { ...w, messages } : w
         )
       })),
       clearAllWindows: () => set((state) => ({

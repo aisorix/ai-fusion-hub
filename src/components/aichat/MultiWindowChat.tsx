@@ -114,8 +114,15 @@ const MultiWindowChat = () => {
       controller.abort();
     });
     abortControllersRef.current.clear();
+    // Remove incomplete assistant messages from all windows
     chatWindows.forEach((window) => {
       setWindowStreaming(window.id, false);
+      const msgs = window.messages;
+      if (msgs.length >= 2 && msgs[msgs.length - 1].role === 'assistant') {
+        const updatedMsgs = msgs.slice(0, -2);
+        // Update window messages via store
+        useChatStore.getState().setWindowMessages(window.id, updatedMsgs);
+      }
     });
   }, [chatWindows, setWindowStreaming]);
 
@@ -173,7 +180,13 @@ const MultiWindowChat = () => {
         let multiplier = hasAttachments ? 1 : (model?.multiplier || 1);
 
         // Smart routing: downgrade simple queries on premium models
-        if (!hasAttachments && multiplier > 1) {
+        // Protect perplexity models from routing and attachment overrides
+        const isPerplexityModel = (model?.backendId || '').includes('perplexity') || (model?.backendId || '').includes('sonar');
+        if (isPerplexityModel) {
+          backendModel = model?.backendId || backendModel;
+          multiplier = model?.multiplier || multiplier;
+        }
+        if (!isPerplexityModel && !hasAttachments && multiplier >= 3) {
           const contextMsgs = window.messages.slice(-10).map(m => ({ role: m.role, content: m.content }));
           if (shouldApplySmartRouting(multiplier, content, contextMsgs)) {
             console.log(`🧠 [MultiWindow/${modelName}] Smart routing to worker model`);
@@ -564,9 +577,9 @@ const ChatWindowPanel = ({ window, canClose }: ChatWindowPanelProps) => {
                         <span className="text-[10px] sm:text-xs font-medium text-foreground">
                           {message.role === "user" ? "You" : message.modelName || currentModel.name}
                         </span>
-                        {message.role === "assistant" && window.isStreaming && isLastMessage && !message.content && (
-                          <span className="px-1.5 py-0.5 text-[8px] bg-primary/10 text-primary rounded-full animate-pulse">
-                            Thinking...
+                        {message.role === "assistant" && window.isStreaming && isLastMessage && message.content && (
+                          <span className="px-1.5 py-0.5 text-[8px] bg-green-500/10 text-green-500 rounded-full">
+                            Writing
                           </span>
                         )}
                       </div>
@@ -598,20 +611,11 @@ const ChatWindowPanel = ({ window, canClose }: ChatWindowPanelProps) => {
                           {message.content ? (
                             <MarkdownRenderer content={message.content} />
                           ) : (
-                            window.isStreaming && (
-                              <div className="flex items-center gap-1">
-                                <span
-                                  className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce"
-                                  style={{ animationDelay: "0ms" }}
-                                />
-                                <span
-                                  className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce"
-                                  style={{ animationDelay: "150ms" }}
-                                />
-                                <span
-                                  className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce"
-                                  style={{ animationDelay: "300ms" }}
-                                />
+                            window.isStreaming && isLastMessage && (
+                              <div className="mt-1">
+                                <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-muted/80 text-[10px] text-muted-foreground">
+                                  <span>Thinking...</span>
+                                </div>
                               </div>
                             )
                           )}

@@ -139,7 +139,7 @@ export const useAIChat = () => {
       const isPerplexityModel = activeBackendId.includes('perplexity') || activeBackendId.includes('sonar');
       
       // Apply smart routing for simple queries on premium models (skip perplexity)
-      if (!isPerplexityModel && activeMultiplier > 1 && shouldApplySmartRouting(activeMultiplier, content, conversationHistory)) {
+      if (!isPerplexityModel && activeMultiplier >= 3 && shouldApplySmartRouting(activeMultiplier, content, conversationHistory)) {
         console.log(`🧠 Smart Routing: Downgrading ${modelName} to Worker Model for simple query`);
         activeBackendId = getWorkerModelForPlan(user.plan);
         activeMultiplier = 1;
@@ -215,12 +215,12 @@ export const useAIChat = () => {
     if (imageAttachments.length > 0) {
       const multimodalContent = buildMultimodalContent(userText, imageAttachments);
       apiMessages = [
-        ...contextMessages.slice(0, -1),
+        ...contextMessages,
         { role: 'user' as const, content: multimodalContent }
       ];
     } else {
       apiMessages = [
-        ...contextMessages.slice(0, -1),
+        ...contextMessages,
         { role: 'user' as const, content: userText }
       ];
     }
@@ -370,7 +370,19 @@ export const useAIChat = () => {
       abortControllerRef.current = null;
     }
     setStreaming(false);
-  }, [setStreaming]);
+    // Remove the last incomplete assistant message and its user message
+    const currentChat = useChatStore.getState().chats.find(c => c.id === activeChatId);
+    if (currentChat) {
+      const msgs = currentChat.messages;
+      if (msgs.length >= 2 && msgs[msgs.length - 1].role === 'assistant' && !msgs[msgs.length - 1].content) {
+        // Empty assistant + user message: remove both
+        setMessages(msgs.slice(0, -2));
+      } else if (msgs.length >= 1 && msgs[msgs.length - 1].role === 'assistant') {
+        // Incomplete assistant message: remove it and user message
+        setMessages(msgs.slice(0, -2));
+      }
+    }
+  }, [setStreaming, activeChatId, setMessages]);
   
   const regenerateLastMessage = useCallback(async () => {
     if (messages.length < 2) return;
