@@ -95,17 +95,6 @@ const PlansTokensTab = () => {
                   />
                 </div>
 
-                {/* Reset Button for Testing */}
-                <button
-                  onClick={handleResetUsage}
-                  className={cn(
-                    "mt-2 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-all",
-                    "bg-muted hover:bg-accent text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  <RotateCcw className="w-3 h-3" />
-                  Reset Usage (Testing)
-                </button>
               </div>
             )}
 
