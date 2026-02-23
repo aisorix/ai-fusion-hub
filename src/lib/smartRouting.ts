@@ -76,7 +76,7 @@ export function shouldApplySmartRouting(
   conversationHistory?: { role: string; content: string }[],
   backendId?: string
 ): boolean {
-  if (selectedMultiplier <= 1) return false;
+  if (selectedMultiplier < 3) return false;
   // Never downgrade perplexity/sonar models
   if (backendId && (backendId.includes('perplexity') || backendId.includes('sonar'))) return false;
   const complexity = analyzeQueryComplexity(prompt, conversationHistory);

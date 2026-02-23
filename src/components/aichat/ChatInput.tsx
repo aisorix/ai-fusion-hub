@@ -14,9 +14,10 @@ interface ChatInputProps {
   onSend: (content: string) => void;
   disabled?: boolean;
   onOpenVoiceMode?: () => void;
+  onStop?: () => void;
 }
 
-const ChatInput = ({ onSend, disabled, onOpenVoiceMode }: ChatInputProps) => {
+const ChatInput = ({ onSend, disabled, onOpenVoiceMode, onStop }: ChatInputProps) => {
   const [input, setInput] = useState('');
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
@@ -680,7 +681,7 @@ const ChatInput = ({ onSend, disabled, onOpenVoiceMode }: ChatInputProps) => {
           
           {/* Send/Stop Button */}
           <button
-            onClick={isStreaming ? () => {} : handleSend}
+            onClick={isStreaming ? (onStop || (() => {})) : handleSend}
             disabled={disabled || isParsing || (!isStreaming && !input.trim() && pendingAttachments.length === 0)}
             className={cn(
               'p-2 sm:p-2.5 rounded-full transition-all duration-200',

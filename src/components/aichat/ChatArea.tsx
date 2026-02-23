@@ -18,7 +18,7 @@ interface ChatAreaProps {
 
 const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
   const { activeChatId, chats, user, selectedModel, models } = useChatStore();
-  const { sendMessage, isStreaming, error } = useAIChat();
+  const { sendMessage, isStreaming, error, stopStreaming } = useAIChat();
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const [showSettings, setShowSettings] = useState(false);
@@ -80,7 +80,7 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
 
       <div className="shrink-0 bg-background border-t border-border/40 z-20">
         <div className="pb-2 sm:pb-3 md:pb-4 pt-2">
-          <ChatInput onSend={handleSend} disabled={isStreaming} onOpenVoiceMode={onOpenVoiceMode} />
+          <ChatInput onSend={handleSend} disabled={isStreaming} onOpenVoiceMode={onOpenVoiceMode} onStop={stopStreaming} />
         </div>
       </div>
 

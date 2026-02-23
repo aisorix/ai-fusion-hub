@@ -26,9 +26,10 @@ const EMOJI_REACTIONS = [
   { emoji: '😊', label: 'Nice', key: 'smile' },
 ];
 
-// Thinking Timer Component
-const ThinkingTimer = memo(({ isActive }: { isActive: boolean }) => {
+// Thinking Section Component - collapsible "Show thinking" pill
+const ThinkingSection = memo(({ isActive }: { isActive: boolean }) => {
   const [elapsed, setElapsed] = useState(0);
+  const [expanded, setExpanded] = useState(false);
   const startTimeRef = useRef<number>(Date.now());
 
   useEffect(() => {
@@ -36,25 +37,42 @@ const ThinkingTimer = memo(({ isActive }: { isActive: boolean }) => {
       setElapsed(0);
       return;
     }
-
     startTimeRef.current = Date.now();
     const interval = setInterval(() => {
       setElapsed(Math.floor((Date.now() - startTimeRef.current) / 100) / 10);
     }, 100);
-
     return () => clearInterval(interval);
   }, [isActive]);
 
   if (!isActive) return null;
 
   return (
-    <span className="ml-2 text-xs text-muted-foreground font-mono tabular-nums">
-      {elapsed.toFixed(1)}s
-    </span>
+    <div className="mt-1">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/80 hover:bg-muted transition-colors text-sm"
+      >
+        <span className="text-muted-foreground font-medium">
+          {expanded ? 'Hide thinking' : 'Show thinking'}
+        </span>
+        <svg
+          className={cn("w-3.5 h-3.5 text-muted-foreground transition-transform duration-200", expanded && "rotate-180")}
+          fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {expanded && (
+        <div className="mt-2 pl-3 border-l-2 border-muted-foreground/20 text-sm text-muted-foreground">
+          <span>Analyzing your query...</span>
+          <span className="ml-2 font-mono tabular-nums">{elapsed.toFixed(1)}s</span>
+        </div>
+      )}
+    </div>
   );
 });
 
-ThinkingTimer.displayName = 'ThinkingTimer';
+ThinkingSection.displayName = 'ThinkingSection';
 
 interface MessageBubbleProps {
   message: Message;
@@ -235,14 +253,6 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
                 <span className="text-sm font-semibold text-foreground">
                   {messageModelName}
                 </span>
-                {isStreaming && isLast && !message.content && (
-                  <div className="flex items-center">
-                    <span className="px-2 py-0.5 text-xs rounded-full bg-primary/10 text-primary">
-                      Thinking
-                    </span>
-                    <ThinkingTimer isActive={true} />
-                  </div>
-                )}
                 {isStreaming && isLast && message.content && (
                   <div className="flex items-center">
                     <span className="px-2 py-0.5 text-xs rounded-full bg-green-500/10 text-green-500">
@@ -256,14 +266,8 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
                 {message.content ? (
                   <MarkdownRenderer content={message.content} />
                 ) : (
-                  isStreaming && (
-                    <div className="flex items-center gap-2 py-2">
-                      <div className="flex items-center gap-1">
-                        <span className="inline-block w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms' }} />
-                        <span className="inline-block w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
-                        <span className="inline-block w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms' }} />
-                      </div>
-                    </div>
+                  isStreaming && isLast && (
+                    <ThinkingSection isActive={true} />
                   )
                 )}
                 {isStreaming && isLast && message.content && (
