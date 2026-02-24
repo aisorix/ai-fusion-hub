@@ -20,6 +20,7 @@ import {
   Stethoscope,
   BookOpen,
   ImageIcon,
+  Presentation,
   PanelLeftClose,
   PanelLeft,
   MoreHorizontal,
@@ -226,6 +227,14 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
       gradient: "bg-gradient-to-br from-purple-500 to-pink-500",
       free: false,
     },
+    {
+      id: "deck",
+      name: "Sorix Deck",
+      description: "AI presentation builder",
+      icon: Presentation,
+      gradient: "bg-gradient-to-br from-cyan-500 to-blue-600",
+      free: false,
+    },
   ];
 
   const userInitials = authUser?.email
@@ -308,6 +317,9 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate("/imagine")}>
                 <ImageIcon className="w-4 h-4 mr-2 text-purple-500" /> Sorix Imagine
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/deck")}>
+                <Presentation className="w-4 h-4 mr-2 text-cyan-500" /> Sorix Deck
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -475,6 +487,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                           if (tool.id === "agro") navigate("/agro");
                           if (tool.id === "legends") navigate("/legends");
                           if (tool.id === "imagine") navigate("/imagine");
+                          if (tool.id === "deck") navigate("/deck");
                         }}
                         className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
                       >

@@ -16,6 +16,7 @@ import {
   Stethoscope,
   BookOpen,
   ImageIcon,
+  Presentation,
   Home,
   PanelLeftClose,
   MoreHorizontal,
@@ -177,6 +178,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
     { id: "health", name: "Sorix Health", desc: "Your personal health companion", icon: Stethoscope, gradient: "bg-gradient-to-br from-emerald-500 to-teal-500", free: true },
     { id: "legends", name: "Sorix Legends", desc: "Chat with historical legends", icon: Crown, gradient: "bg-gradient-to-br from-blue-500 to-cyan-500", free: false },
     { id: "imagine", name: "Sorix Imagine", desc: "AI-powered image generation", icon: ImageIcon, gradient: "bg-gradient-to-br from-purple-500 to-pink-500", free: false },
+    { id: "deck", name: "Sorix Deck", desc: "AI presentation builder", icon: Presentation, gradient: "bg-gradient-to-br from-cyan-500 to-blue-600", free: false },
   ];
 
   const userInitials = authUser?.email
@@ -276,6 +278,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                             if (tool.id === 'agro') { navigate('/agro'); onClose(); }
                             if (tool.id === 'legends') { navigate('/legends'); onClose(); }
                             if (tool.id === 'imagine') { navigate('/imagine'); onClose(); }
+                            if (tool.id === 'deck') { navigate('/deck'); onClose(); }
                           }}
                           className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-foreground/80 hover:bg-muted/50 transition-colors"
                         >
