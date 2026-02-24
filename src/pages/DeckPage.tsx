@@ -138,7 +138,7 @@ const DeckPage: React.FC = () => {
           </p>
 
           {/* Actions */}
-          {slides.length > 0 && <DeckActions slides={slides} title={title} />}
+          {slides.length > 0 && <DeckActions slides={slides} title={title} theme={selectedTheme} />}
 
           {/* Slides */}
           <DeckSlideViewer
