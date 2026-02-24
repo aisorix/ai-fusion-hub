@@ -33,6 +33,7 @@ const PaymentCancel = React.lazy(() => import("./pages/PaymentCancel"));
 const LegendsPage = React.lazy(() => import("./pages/LegendsPage"));
 const ImaginePage = React.lazy(() => import("./pages/ImaginePage"));
 const SharedChatPage = React.lazy(() => import("./pages/SharedChatPage"));
+const DeckPage = React.lazy(() => import("./pages/DeckPage"));
 
 const queryClient = new QueryClient();
 
@@ -81,6 +82,11 @@ const App = () => (
                 <Route path="/imagine" element={
                   <ProtectedRoute>
                     <ImaginePage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/deck" element={
+                  <ProtectedRoute>
+                    <DeckPage />
                   </ProtectedRoute>
                 } />
                 <Route path="/login" element={<Login />} />
