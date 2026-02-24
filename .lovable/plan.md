@@ -1,232 +1,164 @@
 
-# Sorix Deck — AI-Powered Presentation Builder
+# Sorix Deck Enhancement — More Slides, Text Content, Image Art Styles, and Expanded Themes
 
 ## Overview
-Build "Sorix Deck" as a new tool (like Health, Agro, Imagine) at `/deck`. Users enter a prompt, the AI generates a structured JSON presentation, images are generated per-slide via FLUX.2, and users can edit text/regenerate images inline. Includes history panel, token deduction, themes, and skeleton streaming.
+Enhance Sorix Deck with three major features inspired by Gamma AI:
+1. **Extended slide counts** (up to 30) plus a custom input option
+2. **Text content density selector** (Minimal, Concise, Detailed, Extensive)
+3. **Image art style selector** (Illustration, Photo, Abstract, 3D, Line Art, Custom)
+4. **Expanded theme library** — from 4 themes to 20+ named themes (Gamma-style grid picker in a modal)
 
 ---
 
-## Architecture
+## 1. Extended Slide Counts + Custom Input
+
+### Current
+Fixed buttons: `[3, 5, 8, 10]`
+
+### New
+Buttons: `[3, 5, 8, 10, 12, 15, 20, 25, 30, Custom]`
+- "Custom" opens a small inline number input (1-50 range)
+- Displayed as a scrollable row of chips
+
+### Files changed
+- `src/pages/DeckPage.tsx` — update SLIDE_COUNTS array, add custom input state, pass new params to API
+
+---
+
+## 2. Text Content Density Selector
+
+A new component `DeckTextContentPicker.tsx` mimicking the 2nd reference image:
+- 4 options: **Minimal**, **Concise** (default), **Detailed**, **Extensive**
+- Each shown as a card with visual lines representing text density
+- Selected card gets a blue border highlight
+- The value is passed to the edge function which adjusts the system prompt:
+  - Minimal: 2-3 short bullet points per slide
+  - Concise: 3-4 bullet points per slide (current default)
+  - Detailed: 4-6 bullet points, longer text
+  - Extensive: 5-8 bullet points with detailed descriptions
+
+### Files changed
+- New: `src/components/deck/DeckTextContentPicker.tsx`
+- `src/pages/DeckPage.tsx` — add state, pass to API
+- `src/services/deckApi.ts` — add `textContent` param
+- `supabase/functions/deck-generate/index.ts` — adjust system prompt based on textContent value
+
+---
+
+## 3. Image Art Style Selector
+
+A new component `DeckArtStylePicker.tsx` mimicking the 1st reference image:
+- Options: **Illustration**, **Photo**, **Abstract**, **3D**, **Line Art**, **Custom**
+- Displayed as a horizontal scrollable row of themed cards (no uploaded images — use gradient/icon placeholders or emoji icons)
+- "Custom" option shows a text input for the user to describe their style
+- The selected art style is prepended to each `image_prompt` in the edge function system prompt
+
+### Files changed
+- New: `src/components/deck/DeckArtStylePicker.tsx`
+- `src/pages/DeckPage.tsx` — add state, pass to API
+- `src/services/deckApi.ts` — add `artStyle` param
+- `supabase/functions/deck-generate/index.ts` — inject art style into image prompt instructions
+
+---
+
+## 4. Expanded Theme Library (20+ Themes)
+
+Replace the current 4-circle theme picker with a Gamma-style theme grid modal.
+
+### New Themes (inspired by reference images)
+
+| Theme Name | Background | Text | Card BG |
+|-----------|-----------|------|---------|
+| Dark | gray-900 | white | gray-800 |
+| Cyan Blue | cyan-600 to blue-700 | white | -- |
+| Minimalist | white | gray-900 | gray-50 |
+| Sunset | orange-500 to purple-700 | white | -- |
+| Pearl | gray-100 | gray-900 | white with gray border |
+| Vortex | black | white | gray-900 |
+| Clementa | amber-100 | amber-800 | cream |
+| Stratos | navy-900 | white | dark navy |
+| Nova | blue-500 to purple-500 | white | white card |
+| Twilight | rose-200 to slate-400 | rose-900 | cream |
+| Creme | stone-200 | stone-800 | cream |
+| Lux | teal-900 | emerald-200 | teal-800 |
+| Marine | teal-800 | white | dark teal |
+| Consultant | gray-100 | gray-800 | white |
+| Lavender | violet-200 | violet-900 | white |
+| Indigo | indigo-900 | white | indigo-800 |
+| Gamma | rose-50 | orange-600 title, gray-800 body | white card |
+| Founder | purple-900 | white | gray-700 |
+| Atmosphere | pink gradient | pink-600 | white |
+| Blueberry | purple-900 | white | purple-800 |
+| Sage | green-100 | green-900 | white |
+| Coal | teal-900 | white | gray-800 |
+
+### UI Design
+- Current inline picker becomes a button "Choose Theme" that opens a modal/sheet
+- Modal displays themes in a 2-column (mobile) or 3-column (desktop) grid
+- Each theme card shows a mini preview: colored background with inner card showing "Title" and "Body" text, just like the reference images
+- Selected theme has a blue check mark and highlighted border
+
+### Files changed
+- `src/components/deck/DeckThemePicker.tsx` — complete rewrite with modal grid
+- `src/components/deck/DeckSlideCard.tsx` — expand `themeClasses` record to support all new themes
+- `src/components/deck/DeckActions.tsx` — expand `themeColors` for PDF/PPTX export
+- `src/pages/DeckPage.tsx` — update DeckTheme type usage
+
+---
+
+## 5. Edge Function Updates
+
+### System Prompt Changes
+The system prompt in `deck-generate` will be enhanced to accept:
+- `textContent`: adjusts bullet point count and verbosity
+- `artStyle`: prepended to every `image_prompt` instruction
+
+Example system prompt addition:
+```
+Text density: "${textContent}". 
+- If "minimal": 2-3 very short bullet points
+- If "concise": 3-4 bullet points  
+- If "detailed": 4-6 longer bullet points
+- If "extensive": 5-8 detailed bullet points
+
+Image style: "${artStyle}". Prepend "${artStyle} style, " to every image_prompt.
+```
+
+---
+
+## 6. Updated DeckPage Layout
+
+The controls section below the prompt bar will be restructured:
 
 ```text
-User Prompt
-    |
-    v
-Edge Function: deck-generate
-    |
-    +---> LLM (GPT-4o-mini via OpenRouter) --> JSON slides
-    |
-    +---> For each slide with image_prompt:
-    |       FLUX.2 Klein (via OpenRouter) --> image URLs
-    |
-    +---> Save to DB (presentations table)
-    +---> Deduct tokens from subscription
-    |
-    v
-Frontend renders slides progressively
+[Prompt Bar]
+
+[Slides: 3|5|8|10|12|15|20|25|30|Custom]
+[Text Content: Minimal|Concise|Detailed|Extensive]
+[Image Style: Illustration|Photo|Abstract|3D|Line Art|Custom]
+[Theme: Choose Theme button -> opens modal]
+
+[Token info]
+[Export actions]
+[Generated slides]
 ```
 
 ---
 
-## 1. Database Migration
+## Technical Summary
 
-### New table: `presentations`
+### New Files (3)
+- `src/components/deck/DeckTextContentPicker.tsx`
+- `src/components/deck/DeckArtStylePicker.tsx`
+- Updated barrel: `src/components/deck/index.tsx`
 
-| Column | Type | Notes |
-|--------|------|-------|
-| id | uuid | PK, default gen_random_uuid() |
-| user_id | uuid | NOT NULL |
-| title | text | Extracted from LLM response |
-| prompt | text | Original user prompt |
-| slide_count | int | Number of slides |
-| slides_data | jsonb | Full slide JSON array |
-| theme | text | 'dark', 'cyan-blue', 'minimalist', 'gradient' |
-| tokens_used | int | Total tokens deducted |
-| created_at | timestamptz | default now() |
+### Modified Files (5)
+- `src/pages/DeckPage.tsx` — extended slide counts, custom input, new state for textContent + artStyle, pass to API
+- `src/components/deck/DeckThemePicker.tsx` — rewrite to modal grid with 20+ themes
+- `src/components/deck/DeckSlideCard.tsx` — expanded themeClasses for all new themes
+- `src/components/deck/DeckActions.tsx` — expanded themeColors for export
+- `src/services/deckApi.ts` — add textContent and artStyle params
+- `supabase/functions/deck-generate/index.ts` — accept and use textContent + artStyle in system prompt
 
-RLS: Users can only CRUD their own rows (`user_id = auth.uid()`).
-
-Also save to existing `analysis_history` table (tool='deck') for the shared history pattern.
-
----
-
-## 2. Edge Function: `supabase/functions/deck-generate/index.ts`
-
-### Workflow:
-1. Authenticate user via Bearer token
-2. Parse request: `{ prompt, slideCount (default 5), theme, generateImages (default true) }`
-3. Check token balance: `slideCount * 2000 + imageCount * 12000`
-   - If insufficient, return 403 with `insufficient_tokens` error
-4. Call OpenRouter with GPT-4o-mini and system prompt:
-   - System prompt instructs strict JSON array output with: `slide_number`, `heading`, `bullet_points[]`, `image_prompt`, `layout` ('text-only' | 'split' | 'full-image')
-5. Parse JSON from LLM response
-6. For each slide with `image_prompt` and `generateImages=true`:
-   - Call FLUX.2 Klein via OpenRouter (same pattern as imagine function)
-   - Attach `image_url` to slide object
-7. Save to `presentations` table
-8. Save to `analysis_history` (tool='deck')
-9. Deduct tokens from subscription
-10. Return full slides payload
-
-### Token costs:
-- Text generation: 2,000 tokens per slide
-- Image generation: 12,000 tokens per image
-- Formula: `Total = (S x 2000) + (I x 12000)`
-
-### Config addition to `supabase/config.toml`:
-```toml
-[functions.deck-generate]
-verify_jwt = false
-```
-
----
-
-## 3. Frontend Files
-
-### New Files to Create:
-
-| File | Purpose |
-|------|---------|
-| `src/pages/DeckPage.tsx` | Main page (follows HealthPage/ImaginePage pattern) |
-| `src/components/deck/DeckPromptBar.tsx` | Prompt input + slide count selector + theme picker |
-| `src/components/deck/DeckSlideViewer.tsx` | Main slide renderer with skeleton loading |
-| `src/components/deck/DeckSlideCard.tsx` | Individual slide card (editable text, image, regenerate) |
-| `src/components/deck/DeckThemePicker.tsx` | Theme selection chips (4 presets) |
-| `src/components/deck/DeckHistory.tsx` | History panel (right slide-out, same pattern as Imagine/Health) |
-| `src/components/deck/DeckActions.tsx` | Download/share actions |
-| `src/components/deck/index.tsx` | Barrel exports |
-| `src/services/deckApi.ts` | API service layer |
-
-### Modified Files:
-
-| File | Change |
-|------|--------|
-| `src/App.jsx` | Add `/deck` route with ProtectedRoute |
-| `supabase/config.toml` | Add `[functions.deck-generate]` entry |
-
----
-
-## 4. Page Layout (`DeckPage.tsx`)
-
-Follows exact same pattern as HealthPage/ImaginePage:
-
-```text
-+--------------------------------------------+
-| [<-] Sorix Deck | AI Presentations | [History] |
-+--------------------------------------------+
-|                                            |
-|  [Prompt Bar - hero element]               |
-|  "Create a 5-slide pitch deck for..."      |
-|                                            |
-|  [Slide Count: 3|5|8|10] [Theme chips]     |
-|                                            |
-|  Token info: "X tokens remaining"          |
-|                                            |
-|  --- Generated Slides (card grid) ---      |
-|  +----------+  +----------+               |
-|  | Slide 1  |  | Slide 2  |               |
-|  | [heading]|  | [heading]|               |
-|  | [bullets]|  | [bullets]|               |
-|  | [image]  |  | [image]  |               |
-|  +----------+  +----------+               |
-|                                            |
-+--------------------------------------------+
-```
-
----
-
-## 5. Slide Card Design (`DeckSlideCard.tsx`)
-
-Each slide card is a responsive card with:
-- **Slide number badge** (top-left corner)
-- **Layout variants**:
-  - `split`: Left half = heading + bullets, Right half = AI image
-  - `text-only`: Full-width text content
-  - `full-image`: Large image with heading overlay
-- **Editable text**: Click any heading or bullet to edit inline (contentEditable or controlled input)
-- **Image actions**: Click image to show "Regenerate Image" button
-- **Skeleton loading**: While generating, show shimmer placeholders for text lines and image area
-
-### Themes (CSS classes applied to slide cards):
-- **Dark Mode**: Dark bg, white text, cyan accents
-- **Sorix Cyan-Blue**: Gradient from cyan-500 to blue-600, white text
-- **Minimalist White**: White bg, dark text, subtle borders
-- **Sunset Gradient**: Warm orange-to-purple gradient, white text
-
----
-
-## 6. Streaming/Progressive Rendering
-
-Since the LLM call is NOT streamed (we need complete JSON), the UX flow is:
-1. User submits prompt -> show skeleton slides (shimmer cards based on selected slide count)
-2. Timer shows "Generating... 4.2s" (using existing `AnalysisTimer` component)
-3. Once LLM returns JSON -> render text content immediately, show image skeleton placeholders
-4. As each image loads (they're URLs) -> fade in the image replacing the skeleton
-5. All done -> enable edit/download actions
-
----
-
-## 7. History Panel (`DeckHistory.tsx`)
-
-Same slide-out panel pattern as Imagine/Health:
-- Lists previous presentations with title, slide count, date
-- Click to reload a presentation
-- Delete button per entry
-- Uses `analysis_history` table filtered by `tool='deck'`
-
----
-
-## 8. API Service (`src/services/deckApi.ts`)
-
-```typescript
-export const deckApi = {
-  generate: async (prompt, slideCount, theme, generateImages) => { ... },
-  getHistory: async () => { ... },  // from analysis_history where tool='deck'
-  deletePresentation: async (id) => { ... },
-  regenerateImage: async (presentationId, slideIndex, imagePrompt) => { ... },
-};
-```
-
----
-
-## 9. Token Economy Display
-
-Show before generation:
-- "Estimated cost: 5 slides x 2,000 = 10,000 + 5 images x 12,000 = 60,000 = **70,000 tokens**"
-- If insufficient: show UpgradePlanModal (reuse existing component)
-
----
-
-## 10. Routing
-
-Add to `src/App.jsx`:
-```jsx
-const DeckPage = React.lazy(() => import("./pages/DeckPage"));
-// ...
-<Route path="/deck" element={<ProtectedRoute><DeckPage /></ProtectedRoute>} />
-```
-
----
-
-## Implementation Order
-
-1. Database migration (presentations table + RLS)
-2. Edge function (`deck-generate`)
-3. API service (`deckApi.ts`)
-4. UI components (DeckPromptBar, DeckThemePicker, DeckSlideCard, DeckSlideViewer, DeckHistory, DeckActions)
-5. Main page (DeckPage.tsx)
-6. Route registration (App.jsx)
-7. Config update (config.toml)
-
----
-
-## Technical Notes
-
-- **LLM Model**: `openai/gpt-4o-mini` via OpenRouter (cheap, fast, good at structured JSON output)
-- **Image Model**: `black-forest-labs/flux.2-klein-4b` via OpenRouter (same as Imagine tool)
-- **Image generation is parallel**: All slide images are generated concurrently using `Promise.allSettled()` in the edge function
-- **No new dependencies needed**: Uses existing framer-motion, lucide-react, tailwind, sonner
-- **Reuses existing components**: AnalysisTimer, UpgradePlanModal, Skeleton
-- **Theme is stored per-presentation** so history recalls preserve the look
-- **Files created**: 9 new files (1 page, 7 components, 1 service, 1 edge function)
-- **Files modified**: 2 files (App.jsx route, config.toml)
+### No new dependencies needed
+All built with existing Tailwind, framer-motion, lucide-react, and Radix dialog.
