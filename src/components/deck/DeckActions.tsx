@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, FileText, FileSpreadsheet, Loader2 } from 'lucide-react';
+import { Download, FileText, FileSpreadsheet, Loader2, Play } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Slide } from '@/services/deckApi';
 import type { DeckTheme } from './DeckThemePicker';
@@ -8,6 +8,7 @@ interface DeckActionsProps {
   slides: Slide[];
   title: string;
   theme: DeckTheme;
+  onSlideshow?: () => void;
 }
 
 const themeColors: Record<string, { bg: string; text: string; accent: string }> = {
@@ -35,7 +36,7 @@ const themeColors: Record<string, { bg: string; text: string; accent: string }> 
   coal: { bg: '#134e4a', text: '#ffffff', accent: '#9ca3af' },
 };
 
-const DeckActions: React.FC<DeckActionsProps> = ({ slides, title, theme }) => {
+const DeckActions: React.FC<DeckActionsProps> = ({ slides, title, theme, onSlideshow }) => {
   const [exporting, setExporting] = useState<string | null>(null);
 
   if (slides.length === 0) return null;
@@ -236,6 +237,15 @@ const DeckActions: React.FC<DeckActionsProps> = ({ slides, title, theme }) => {
 
   return (
     <div className="flex items-center gap-2 flex-wrap">
+      {onSlideshow && (
+        <button
+          onClick={onSlideshow}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs bg-primary/10 hover:bg-primary/20 text-primary transition-colors font-medium"
+        >
+          <Play className="w-3.5 h-3.5" />
+          Slideshow
+        </button>
+      )}
       <button
         onClick={handleExportPDF}
         disabled={!!exporting}
