@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Presentation, History, X } from 'lucide-react';
+import DeckSlideshow from '@/components/deck/DeckSlideshow';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useChatStore } from '@/stores/chatStore';
@@ -32,6 +33,7 @@ const DeckPage: React.FC = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [refreshHistory, setRefreshHistory] = useState(0);
+  const [showSlideshow, setShowSlideshow] = useState(false);
 
   const effectiveSlideCount = showCustomInput && customSlideCount ? parseInt(customSlideCount) || slideCount : slideCount;
   const tokensRemaining = user.tokensLimit - user.tokensUsed;
@@ -182,7 +184,7 @@ const DeckPage: React.FC = () => {
           </p>
 
           {/* Actions */}
-          {slides.length > 0 && <DeckActions slides={slides} title={title} theme={selectedTheme} />}
+          {slides.length > 0 && <DeckActions slides={slides} title={title} theme={selectedTheme} onSlideshow={() => setShowSlideshow(true)} />}
 
           {/* Slides */}
           <DeckSlideViewer
@@ -228,6 +230,12 @@ const DeckPage: React.FC = () => {
       </AnimatePresence>
 
       <UpgradePlanModal isOpen={showUpgrade} onClose={() => setShowUpgrade(false)} />
+
+      <AnimatePresence>
+        {showSlideshow && slides.length > 0 && (
+          <DeckSlideshow slides={slides} theme={selectedTheme} onClose={() => setShowSlideshow(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

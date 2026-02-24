@@ -97,10 +97,16 @@ serve(async (req) => {
     else if (textContent === "detailed") textInstruction = "4-6 longer, more detailed bullet points per slide";
     else if (textContent === "extensive") textInstruction = "5-8 detailed bullet points with thorough descriptions per slide";
 
-    // Build art style instruction
-    const artInstruction = artStyle && artStyle !== "illustration"
-      ? `\nImage style: "${artStyle}". Prepend "${artStyle} style, " to every image_prompt you generate.`
-      : "";
+    // Build art style instruction — always enforce style
+    const artStyleMap: Record<string, string> = {
+      "illustration": "digital illustration, hand-drawn artistic style",
+      "photo": "photorealistic high-resolution photograph",
+      "abstract": "abstract art, geometric shapes, vibrant non-representational",
+      "3d": "3D rendered CGI, three-dimensional modeling, studio lighting, Blender quality",
+      "line-art": "minimalist line art, clean ink outlines, black and white sketch",
+    };
+    const artDescription = artStyleMap[artStyle] || artStyle;
+    const artInstruction = `\nCRITICAL: Every image_prompt MUST start with "${artDescription}, " — this is mandatory for all slides.`;
 
     const systemPrompt = `You are an expert presentation designer. Output a strict JSON array where each object represents a slide. Each slide must contain:
 - slide_number (integer starting from 1)
@@ -160,6 +166,13 @@ Rules:
         JSON.stringify({ error: "Failed to parse slide structure" }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // Prepend art style to each slide's image_prompt for guaranteed style enforcement
+    for (const slide of slides) {
+      if (slide.image_prompt && !slide.image_prompt.startsWith(artDescription)) {
+        slide.image_prompt = `${artDescription}, ${slide.image_prompt}`;
+      }
     }
 
     // Generate images in parallel
