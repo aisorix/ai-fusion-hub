@@ -207,6 +207,42 @@ export type Database = {
           },
         ]
       }
+      presentations: {
+        Row: {
+          created_at: string
+          id: string
+          prompt: string
+          slide_count: number
+          slides_data: Json
+          theme: string
+          title: string
+          tokens_used: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          prompt: string
+          slide_count?: number
+          slides_data?: Json
+          theme?: string
+          title?: string
+          tokens_used?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          prompt?: string
+          slide_count?: number
+          slides_data?: Json
+          theme?: string
+          title?: string
+          tokens_used?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
