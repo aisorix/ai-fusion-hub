@@ -176,9 +176,9 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   const moreTools = [
     { id: "agro", name: "Sorix Agro", desc: "AI-powered agricultural assistant", icon: Leaf, gradient: "bg-gradient-to-br from-green-500 to-lime-500", free: true },
     { id: "health", name: "Sorix Health", desc: "Your personal health companion", icon: Stethoscope, gradient: "bg-gradient-to-br from-emerald-500 to-teal-500", free: true },
-    { id: "legends", name: "Sorix Legends", desc: "Chat with historical legends", icon: Crown, gradient: "bg-gradient-to-br from-blue-500 to-cyan-500", free: false },
-    { id: "imagine", name: "Sorix Imagine", desc: "AI-powered image generation", icon: Palette, gradient: "bg-gradient-to-br from-cyan-500 to-blue-500", free: false },
     { id: "deck", name: "Sorix Deck", desc: "AI presentation builder", icon: Presentation, gradient: "bg-gradient-to-br from-cyan-500 to-blue-600", free: false },
+    { id: "imagine", name: "Sorix Imagine", desc: "AI-powered image generation", icon: Palette, gradient: "bg-gradient-to-br from-cyan-500 to-blue-500", free: false },
+    { id: "legends", name: "Sorix Legends", desc: "Chat with historical legends", icon: Crown, gradient: "bg-gradient-to-br from-blue-500 to-cyan-500", free: false },
   ];
 
   const userInitials = authUser?.email
