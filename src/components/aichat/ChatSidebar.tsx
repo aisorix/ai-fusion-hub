@@ -19,7 +19,7 @@ import {
   Heart,
   Stethoscope,
   BookOpen,
-  ImageIcon,
+  Palette,
   Presentation,
   PanelLeftClose,
   PanelLeft,
@@ -223,8 +223,8 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
       id: "imagine",
       name: "Sorix Imagine",
       description: "AI-powered image generation",
-      icon: ImageIcon,
-      gradient: "bg-gradient-to-br from-purple-500 to-pink-500",
+      icon: Palette,
+      gradient: "bg-gradient-to-br from-cyan-500 to-blue-500",
       free: false,
     },
     {
@@ -306,17 +306,17 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
               side="right"
               className="w-48 bg-popover border border-border shadow-lg z-50"
             >
-              <DropdownMenuItem onClick={() => navigate("/health")}>
-                <Heart className="w-4 h-4 mr-2 text-red-500" /> Sorix Health
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate("/agro")}>
                 <Leaf className="w-4 h-4 mr-2 text-green-500" /> Sorix Agro
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/health")}>
+                <Stethoscope className="w-4 h-4 mr-2 text-teal-500" /> Sorix Health
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate("/legends")}>
-                <BookOpen className="w-4 h-4 mr-2 text-amber-500" /> Sorix Legends
+                <Crown className="w-4 h-4 mr-2 text-cyan-500" /> Sorix Legends
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate("/imagine")}>
-                <ImageIcon className="w-4 h-4 mr-2 text-purple-500" /> Sorix Imagine
+                <Palette className="w-4 h-4 mr-2 text-blue-500" /> Sorix Imagine
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate("/deck")}>
                 <Presentation className="w-4 h-4 mr-2 text-cyan-500" /> Sorix Deck
