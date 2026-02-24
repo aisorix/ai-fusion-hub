@@ -212,11 +212,11 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
       free: true,
     },
     {
-      id: "legends",
-      name: "Sorix Legends",
-      description: "Chat with historical legends",
-      icon: Crown,
-      gradient: "bg-gradient-to-br from-blue-500 to-cyan-500",
+      id: "deck",
+      name: "Sorix Deck",
+      description: "AI presentation builder",
+      icon: Presentation,
+      gradient: "bg-gradient-to-br from-cyan-500 to-blue-600",
       free: false,
     },
     {
@@ -228,11 +228,11 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
       free: false,
     },
     {
-      id: "deck",
-      name: "Sorix Deck",
-      description: "AI presentation builder",
-      icon: Presentation,
-      gradient: "bg-gradient-to-br from-cyan-500 to-blue-600",
+      id: "legends",
+      name: "Sorix Legends",
+      description: "Chat with historical legends",
+      icon: Crown,
+      gradient: "bg-gradient-to-br from-blue-500 to-cyan-500",
       free: false,
     },
   ];
@@ -312,14 +312,14 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
               <DropdownMenuItem onClick={() => navigate("/health")}>
                 <Stethoscope className="w-4 h-4 mr-2 text-teal-500" /> Sorix Health
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/legends")}>
-                <Crown className="w-4 h-4 mr-2 text-cyan-500" /> Sorix Legends
+              <DropdownMenuItem onClick={() => navigate("/deck")}>
+                <Presentation className="w-4 h-4 mr-2 text-cyan-500" /> Sorix Deck
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate("/imagine")}>
                 <Palette className="w-4 h-4 mr-2 text-blue-500" /> Sorix Imagine
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/deck")}>
-                <Presentation className="w-4 h-4 mr-2 text-cyan-500" /> Sorix Deck
+              <DropdownMenuItem onClick={() => navigate("/legends")}>
+                <Crown className="w-4 h-4 mr-2 text-cyan-500" /> Sorix Legends
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
