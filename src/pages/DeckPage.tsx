@@ -7,12 +7,14 @@ import { useChatStore } from '@/stores/chatStore';
 import { deckApi, type Slide, type DeckHistoryItem } from '@/services/deckApi';
 import DeckPromptBar from '@/components/deck/DeckPromptBar';
 import DeckThemePicker, { type DeckTheme } from '@/components/deck/DeckThemePicker';
+import DeckTextContentPicker, { type TextContent } from '@/components/deck/DeckTextContentPicker';
+import DeckArtStylePicker, { type ArtStyle } from '@/components/deck/DeckArtStylePicker';
 import DeckSlideViewer from '@/components/deck/DeckSlideViewer';
 import DeckHistory from '@/components/deck/DeckHistory';
 import DeckActions from '@/components/deck/DeckActions';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 
-const SLIDE_COUNTS = [3, 5, 8, 10];
+const SLIDE_COUNTS = [3, 5, 8, 10, 12, 15, 20, 25, 30];
 
 const DeckPage: React.FC = () => {
   const { user, setUser } = useChatStore();
@@ -21,13 +23,19 @@ const DeckPage: React.FC = () => {
   const [title, setTitle] = useState('');
   const [selectedTheme, setSelectedTheme] = useState<DeckTheme>('dark');
   const [slideCount, setSlideCount] = useState(5);
+  const [customSlideCount, setCustomSlideCount] = useState('');
+  const [showCustomInput, setShowCustomInput] = useState(false);
+  const [textContent, setTextContent] = useState<TextContent>('concise');
+  const [artStyle, setArtStyle] = useState<ArtStyle>('illustration');
+  const [customArtStyle, setCustomArtStyle] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [refreshHistory, setRefreshHistory] = useState(0);
 
+  const effectiveSlideCount = showCustomInput && customSlideCount ? parseInt(customSlideCount) || slideCount : slideCount;
   const tokensRemaining = user.tokensLimit - user.tokensUsed;
-  const estimatedCost = slideCount * 2000 + slideCount * 12000;
+  const estimatedCost = effectiveSlideCount * 2000 + effectiveSlideCount * 12000;
 
   const handleGenerate = async (prompt: string) => {
     if (tokensRemaining < estimatedCost) {
@@ -39,8 +47,10 @@ const DeckPage: React.FC = () => {
     setSlides([]);
     setTitle('');
 
+    const finalArtStyle = artStyle === 'custom' ? customArtStyle : artStyle;
+
     try {
-      const result = await deckApi.generate(prompt, slideCount, selectedTheme, true);
+      const result = await deckApi.generate(prompt, effectiveSlideCount, selectedTheme, true, textContent, finalArtStyle);
       setSlides(result.slides);
       setTitle(result.title);
       setRefreshHistory((p) => p + 1);
@@ -109,17 +119,16 @@ const DeckPage: React.FC = () => {
         <div className="max-w-3xl mx-auto px-4 py-8 md:py-12 flex flex-col items-center gap-5">
           <DeckPromptBar onGenerate={handleGenerate} isGenerating={isGenerating} />
 
-          {/* Controls row */}
-          <div className="w-full flex flex-wrap items-center justify-between gap-3">
-            {/* Slide count */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs text-muted-foreground">Slides:</span>
+          {/* Slide count row */}
+          <div className="w-full">
+            <span className="text-xs text-muted-foreground mb-2 block">Slides:</span>
+            <div className="flex items-center gap-1.5 flex-wrap">
               {SLIDE_COUNTS.map((n) => (
                 <button
                   key={n}
-                  onClick={() => setSlideCount(n)}
+                  onClick={() => { setSlideCount(n); setShowCustomInput(false); }}
                   className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
-                    slideCount === n
+                    slideCount === n && !showCustomInput
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted/50 text-muted-foreground hover:bg-muted'
                   }`}
@@ -127,8 +136,43 @@ const DeckPage: React.FC = () => {
                   {n}
                 </button>
               ))}
+              <button
+                onClick={() => setShowCustomInput(!showCustomInput)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                  showCustomInput
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                }`}
+              >
+                Custom
+              </button>
+              {showCustomInput && (
+                <input
+                  type="number"
+                  min={1}
+                  max={50}
+                  value={customSlideCount}
+                  onChange={(e) => setCustomSlideCount(e.target.value)}
+                  placeholder="1-50"
+                  className="w-16 px-2 py-1 rounded-lg text-xs border border-border bg-card text-foreground outline-none focus:border-primary"
+                />
+              )}
             </div>
+          </div>
 
+          {/* Text Content */}
+          <DeckTextContentPicker selected={textContent} onSelect={setTextContent} />
+
+          {/* Art Style */}
+          <DeckArtStylePicker
+            selected={artStyle}
+            onSelect={setArtStyle}
+            customStyle={customArtStyle}
+            onCustomStyleChange={setCustomArtStyle}
+          />
+
+          {/* Theme */}
+          <div className="w-full flex items-center gap-3">
             <DeckThemePicker selected={selectedTheme} onSelect={setSelectedTheme} />
           </div>
 
@@ -145,7 +189,7 @@ const DeckPage: React.FC = () => {
             slides={slides}
             theme={selectedTheme}
             isGenerating={isGenerating}
-            skeletonCount={slideCount}
+            skeletonCount={effectiveSlideCount}
             onUpdateSlide={handleUpdateSlide}
           />
         </div>

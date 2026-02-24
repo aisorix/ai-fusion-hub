@@ -15,37 +15,35 @@ interface DeckSlideCardProps {
 }
 
 const themeClasses: Record<DeckTheme, { card: string; heading: string; text: string; badge: string }> = {
-  dark: {
-    card: 'bg-gradient-to-br from-gray-900 to-gray-800 border-gray-700',
-    heading: 'text-white',
-    text: 'text-gray-300',
-    badge: 'bg-cyan-500/20 text-cyan-400',
-  },
-  'cyan-blue': {
-    card: 'bg-gradient-to-br from-cyan-600 to-blue-700 border-cyan-500/30',
-    heading: 'text-white',
-    text: 'text-cyan-100',
-    badge: 'bg-white/20 text-white',
-  },
-  minimalist: {
-    card: 'bg-white border-gray-200',
-    heading: 'text-gray-900',
-    text: 'text-gray-600',
-    badge: 'bg-gray-100 text-gray-600',
-  },
-  sunset: {
-    card: 'bg-gradient-to-br from-orange-500 to-purple-700 border-orange-400/30',
-    heading: 'text-white',
-    text: 'text-orange-100',
-    badge: 'bg-white/20 text-white',
-  },
+  dark: { card: 'bg-gradient-to-br from-gray-900 to-gray-800 border-gray-700', heading: 'text-white', text: 'text-gray-300', badge: 'bg-cyan-500/20 text-cyan-400' },
+  'cyan-blue': { card: 'bg-gradient-to-br from-cyan-600 to-blue-700 border-cyan-500/30', heading: 'text-white', text: 'text-cyan-100', badge: 'bg-white/20 text-white' },
+  minimalist: { card: 'bg-white border-gray-200', heading: 'text-gray-900', text: 'text-gray-600', badge: 'bg-gray-100 text-gray-600' },
+  sunset: { card: 'bg-gradient-to-br from-orange-500 to-purple-700 border-orange-400/30', heading: 'text-white', text: 'text-orange-100', badge: 'bg-white/20 text-white' },
+  pearl: { card: 'bg-gray-100 border-gray-200', heading: 'text-gray-900', text: 'text-gray-600', badge: 'bg-gray-200 text-gray-600' },
+  vortex: { card: 'bg-black border-gray-800', heading: 'text-white', text: 'text-gray-400', badge: 'bg-white/10 text-white' },
+  clementa: { card: 'bg-amber-100 border-amber-200', heading: 'text-amber-800', text: 'text-amber-600', badge: 'bg-amber-200 text-amber-700' },
+  stratos: { card: 'bg-slate-900 border-slate-700', heading: 'text-white', text: 'text-slate-300', badge: 'bg-slate-700 text-slate-300' },
+  nova: { card: 'bg-gradient-to-br from-blue-500 to-purple-500 border-blue-400/30', heading: 'text-white', text: 'text-blue-100', badge: 'bg-white/20 text-white' },
+  twilight: { card: 'bg-gradient-to-br from-rose-200 to-slate-400 border-rose-300/50', heading: 'text-rose-900', text: 'text-rose-700', badge: 'bg-rose-300/30 text-rose-800' },
+  creme: { card: 'bg-stone-200 border-stone-300', heading: 'text-stone-800', text: 'text-stone-500', badge: 'bg-stone-300 text-stone-600' },
+  lux: { card: 'bg-teal-900 border-teal-700', heading: 'text-emerald-200', text: 'text-emerald-400', badge: 'bg-emerald-800 text-emerald-300' },
+  marine: { card: 'bg-teal-800 border-teal-600', heading: 'text-white', text: 'text-teal-200', badge: 'bg-teal-700 text-teal-200' },
+  consultant: { card: 'bg-gray-100 border-gray-200', heading: 'text-gray-800', text: 'text-gray-500', badge: 'bg-gray-200 text-gray-600' },
+  lavender: { card: 'bg-violet-200 border-violet-300', heading: 'text-violet-900', text: 'text-violet-600', badge: 'bg-violet-300 text-violet-700' },
+  indigo: { card: 'bg-indigo-900 border-indigo-700', heading: 'text-white', text: 'text-indigo-300', badge: 'bg-indigo-800 text-indigo-300' },
+  gamma: { card: 'bg-rose-50 border-rose-200', heading: 'text-orange-600', text: 'text-gray-600', badge: 'bg-orange-100 text-orange-600' },
+  founder: { card: 'bg-purple-900 border-purple-700', heading: 'text-white', text: 'text-gray-300', badge: 'bg-purple-800 text-purple-300' },
+  atmosphere: { card: 'bg-gradient-to-br from-pink-300 to-pink-500 border-pink-400/30', heading: 'text-white', text: 'text-pink-100', badge: 'bg-white/20 text-white' },
+  blueberry: { card: 'bg-purple-900 border-purple-700', heading: 'text-white', text: 'text-purple-300', badge: 'bg-purple-800 text-purple-300' },
+  sage: { card: 'bg-green-100 border-green-200', heading: 'text-green-900', text: 'text-green-600', badge: 'bg-green-200 text-green-700' },
+  coal: { card: 'bg-teal-900 border-gray-700', heading: 'text-white', text: 'text-gray-400', badge: 'bg-gray-700 text-gray-300' },
 };
 
 const DeckSlideCard: React.FC<DeckSlideCardProps> = ({ slide, theme, index, onUpdateSlide, onRegenerateImage }) => {
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
   const [imageLoaded, setImageLoaded] = useState(false);
-  const tc = themeClasses[theme];
+  const tc = themeClasses[theme] || themeClasses.dark;
 
   const startEdit = (field: string, value: string) => {
     setEditingField(field);

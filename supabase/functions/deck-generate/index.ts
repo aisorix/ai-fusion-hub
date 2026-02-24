@@ -47,7 +47,7 @@ serve(async (req) => {
     }
     const userId = claimsData.claims.sub;
 
-    const { prompt, slideCount = 5, theme = "dark", generateImages = true } = await req.json();
+    const { prompt, slideCount = 5, theme = "dark", generateImages = true, textContent = "concise", artStyle = "illustration" } = await req.json();
 
     if (!prompt || typeof prompt !== "string") {
       return new Response(JSON.stringify({ error: "Prompt is required" }), {
@@ -90,10 +90,22 @@ serve(async (req) => {
       });
     }
 
+    // Build text density instruction
+    let textInstruction = "3-5 bullet points per slide";
+    if (textContent === "minimal") textInstruction = "2-3 very short bullet points per slide";
+    else if (textContent === "concise") textInstruction = "3-4 concise bullet points per slide";
+    else if (textContent === "detailed") textInstruction = "4-6 longer, more detailed bullet points per slide";
+    else if (textContent === "extensive") textInstruction = "5-8 detailed bullet points with thorough descriptions per slide";
+
+    // Build art style instruction
+    const artInstruction = artStyle && artStyle !== "illustration"
+      ? `\nImage style: "${artStyle}". Prepend "${artStyle} style, " to every image_prompt you generate.`
+      : "";
+
     const systemPrompt = `You are an expert presentation designer. Output a strict JSON array where each object represents a slide. Each slide must contain:
 - slide_number (integer starting from 1)
 - heading (string, concise title)
-- bullet_points (array of 3-5 short strings)
+- bullet_points (array of ${textInstruction})
 - image_prompt (a highly detailed prompt optimized for FLUX.2 image generation, describing a professional visual for the slide)
 - layout (one of: "split", "text-only", "full-image")
 
@@ -102,7 +114,7 @@ Rules:
 - First slide should be a title slide with layout "full-image"
 - Last slide should be a summary/conclusion with layout "text-only"
 - Most middle slides should use "split" layout
-- Make image_prompts vivid, specific, and professional
+- Make image_prompts vivid, specific, and professional${artInstruction}
 - Output ONLY the JSON array, no markdown, no explanation`;
 
     const llmResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
