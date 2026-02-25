@@ -513,15 +513,29 @@ textarea {
 }
 
 /* Hero rotating word animations */
+.hero-word-visible {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+.hero-word-exit {
+  animation: heroWordOut 0.35s ease-in forwards;
+}
+
+.hero-word-enter {
+  animation: heroWordIn 0.4s ease-out forwards;
+}
+
 @keyframes heroWordIn {
   0% {
     opacity: 0;
-    transform: translateY(100%) rotateX(-45deg);
-    filter: blur(4px);
+    transform: translateY(60%);
+    filter: blur(3px);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) rotateX(0deg);
+    transform: translateY(0);
     filter: blur(0);
   }
 }
@@ -529,12 +543,12 @@ textarea {
 @keyframes heroWordOut {
   0% {
     opacity: 1;
-    transform: translateY(0) rotateX(0deg);
+    transform: translateY(0);
     filter: blur(0);
   }
   100% {
     opacity: 0;
-    transform: translateY(-100%) rotateX(45deg);
-    filter: blur(4px);
+    transform: translateY(-60%);
+    filter: blur(3px);
   }
 }
