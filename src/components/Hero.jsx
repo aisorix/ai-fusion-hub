@@ -109,10 +109,10 @@ const Hero = () => {
         {/* Main Title with Animation */}
         <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center leading-tight tracking-tight max-w-5xl mx-auto px-2 font-display">
           <span className="text-foreground block mb-2">{t("heroTitle1")}</span>
-          <span className="animated-gradient-text block">
+          <span className="animated-gradient-text">
             {language === "en" ? "Ecosystem — One " : "ইকোসিস্টেম — এক "}
           </span>
-          <span className={`animated-gradient-text inline-block ${animClass}`}>
+          <span className={`animated-gradient-text ${animClass}`}>
             {displayWord}
           </span>
         </h1>
