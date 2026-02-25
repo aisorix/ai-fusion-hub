@@ -30,14 +30,14 @@ const translations = {
     
     // Hero
     heroBadge: 'New: Now with Grok 4 & Claude Sonnet 4',
-    heroTitle1: 'All Premium AI in',
-    heroTitle2: 'One Powerful Platform',
-    heroDesc: 'Stop juggling multiple AI subscriptions. Get ChatGPT, Claude, DeepSeek, Gemini, Grok +10 more — all in one place for a fraction of the cost.',
+    heroTitle1: 'The Ultimate AI Research',
+    heroTitle2: 'Ecosystem — One Platform',
+    heroDesc: 'Access 10+ frontier AI models in a single, secure workspace. Faster responses. Enterprise-grade privacy. Built for researchers, professionals & teams worldwide.',
     startFreeTrial: 'Start Free Trial',
     viewPricing: 'View Pricing',
     tokensMonth: '3M+ Tokens/Month',
     premiumModels: '15+ Premium AI Models',
-    securePrivate: '100% Secure & Private',
+    securePrivate: 'Enterprise-Grade Security',
     
     // Features
     featuresLabel: 'Premium Features',
@@ -51,12 +51,12 @@ const translations = {
     sorixHealth: 'Sorix Health',
     sorixHealthDesc: 'AI-powered health insights and wellness tracking.',
     comingSoon: 'Coming Soon',
-    funEmotional: 'Fun & Emotional',
-    funEmotionalDesc: 'AI with personality that understands emotions.',
-    superIntelligent: 'Super Intelligent',
-    superIntelligentDesc: 'Access to the most advanced AI reasoning capabilities.',
-    instantReplies: 'Instant Replies',
-    instantRepliesDesc: 'Lightning-fast responses with minimal latency.',
+    funEmotional: 'Adaptive & Context-Aware',
+    funEmotionalDesc: 'AI that understands nuance, tone, and context.',
+    superIntelligent: 'Multi-Modal Intelligence',
+    superIntelligentDesc: 'From code to creative writing — one platform, limitless capability.',
+    instantReplies: 'Ultra-Fast Responses',
+    instantRepliesDesc: 'Sub-second latency with optimized inference.',
     
     // Workflow / AI Models
     aiModelsLabel: 'AI Models',
@@ -116,7 +116,7 @@ const translations = {
     faqDesc: 'Find answers to common questions about AI Sorix.',
     
     // Footer
-    footerDesc: 'All Premium AI models in one powerful platform. Get ChatGPT, Claude, DeepSeek, Gemini, Grok +10 more — together.',
+    footerDesc: 'The ultimate AI research ecosystem — 10+ frontier models unified in one intelligent workspace for professionals & teams worldwide.',
     product: 'Product',
     legal: 'Legal',
     privacyPolicy: 'Privacy Policy',
@@ -138,14 +138,14 @@ const translations = {
     
     // Hero
     heroBadge: 'নতুন: এখন Grok 4 এবং Claude Sonnet 4 সহ',
-    heroTitle1: 'সব প্রিমিয়াম AI',
-    heroTitle2: 'একটি শক্তিশালী প্ল্যাটফর্মে',
-    heroDesc: 'একাধিক AI সাবস্ক্রিপশন পরিচালনা বন্ধ করুন। ChatGPT, Claude, DeepSeek, Gemini, Grok +১০টি আরও — সব এক জায়গায় অল্প খরচে পান।',
+    heroTitle1: 'চূড়ান্ত AI রিসার্চ',
+    heroTitle2: 'ইকোসিস্টেম — এক প্ল্যাটফর্ম',
+    heroDesc: '১০+ ফ্রন্টিয়ার AI মডেল একটি নিরাপদ ওয়ার্কস্পেসে অ্যাক্সেস করুন। দ্রুত রেসপন্স। এন্টারপ্রাইজ-গ্রেড প্রাইভেসি। বিশ্বব্যাপী গবেষক, পেশাদার ও টিমদের জন্য।',
     startFreeTrial: 'ফ্রি ট্রায়াল শুরু',
     viewPricing: 'মূল্য দেখুন',
     tokensMonth: '৩০ লক্ষ+ টোকেন/মাস',
     premiumModels: '১৫+ প্রিমিয়াম AI মডেল',
-    securePrivate: '১০০% নিরাপদ ও গোপনীয়',
+    securePrivate: 'এন্টারপ্রাইজ-গ্রেড সিকিউরিটি',
     
     // Features
     featuresLabel: 'প্রিমিয়াম ফিচার',
@@ -159,12 +159,12 @@ const translations = {
     sorixHealth: 'সোরিক্স হেলথ',
     sorixHealthDesc: 'AI-চালিত স্বাস্থ্য অন্তর্দৃষ্টি এবং সুস্থতা ট্র্যাকিং।',
     comingSoon: 'শীঘ্রই আসছে',
-    funEmotional: 'মজার এবং আবেগময়',
-    funEmotionalDesc: 'আবেগ বোঝে এমন ব্যক্তিত্বসম্পন্ন AI।',
-    superIntelligent: 'অতি বুদ্ধিমান',
-    superIntelligentDesc: 'সবচেয়ে উন্নত AI যুক্তি ক্ষমতায় অ্যাক্সেস।',
-    instantReplies: 'তাৎক্ষণিক উত্তর',
-    instantRepliesDesc: 'ন্যূনতম বিলম্বে বিদ্যুৎ-দ্রুত প্রতিক্রিয়া।',
+    funEmotional: 'অভিযোজিত ও প্রসঙ্গ-সচেতন',
+    funEmotionalDesc: 'AI যা সূক্ষ্মতা, টোন এবং প্রসঙ্গ বোঝে।',
+    superIntelligent: 'মাল্টি-মোডাল ইন্টেলিজেন্স',
+    superIntelligentDesc: 'কোড থেকে সৃজনশীল লেখা — এক প্ল্যাটফর্ম, সীমাহীন সক্ষমতা।',
+    instantReplies: 'অতি-দ্রুত রেসপন্স',
+    instantRepliesDesc: 'অপটিমাইজড ইনফারেন্স সহ সাব-সেকেন্ড লেটেন্সি।',
     
     // Workflow / AI Models
     aiModelsLabel: 'AI মডেল',
@@ -224,7 +224,7 @@ const translations = {
     faqDesc: 'AI Sorix সম্পর্কে সাধারণ প্রশ্নের উত্তর খুঁজুন।',
     
     // Footer
-    footerDesc: 'সব প্রিমিয়াম AI মডেল একটি শক্তিশালী প্ল্যাটফর্মে। ChatGPT, Claude, DeepSeek, Gemini, Grok +১০টি আরও — একসাথে পান।',
+    footerDesc: 'চূড়ান্ত AI রিসার্চ ইকোসিস্টেম — ১০+ ফ্রন্টিয়ার মডেল একটি বুদ্ধিমান ওয়ার্কস্পেসে বিশ্বব্যাপী পেশাদার ও টিমদের জন্য।',
     product: 'পণ্য',
     legal: 'আইনি',
     privacyPolicy: 'গোপনীয়তা নীতি',

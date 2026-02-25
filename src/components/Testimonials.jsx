@@ -55,8 +55,8 @@ const Testimonials = () => {
       name: "Nusrat Jahan",
       role: language === 'en' ? "Business Consultant" : "ব্যবসায় পরামর্শদাতা",
       review: language === 'en'
-        ? "Finally, a platform that understands our needs! The multi-model approach and local payment options make it perfect for Bangladesh."
-        : "অবশেষে একটি প্ল্যাটফর্ম যা আমাদের চাহিদা বোঝে! মাল্টি-মডেল এবং স্থানীয় পেমেন্ট অপশন বাংলাদেশের জন্য উপযুক্ত।",
+        ? "Finally, a platform that truly unifies AI! The multi-model approach gives me flexibility no single provider can match. Enterprise-grade and effortless."
+        : "অবশেষে একটি প্ল্যাটফর্ম যা সত্যিই AI একত্রিত করে! মাল্টি-মডেল পদ্ধতি আমাকে এমন নমনীয়তা দেয় যা কোনো একক প্রদানকারী দিতে পারে না।",
       rating: 5
     }
   ];
