@@ -23,15 +23,24 @@ const rotatingWords = {
 const Hero = () => {
   const { t, language } = useLanguage();
   const [wordIndex, setWordIndex] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [displayWord, setDisplayWord] = useState(rotatingWords.en[0]);
+  const [animClass, setAnimClass] = useState("hero-word-visible");
+
+  useEffect(() => {
+    const words = language === "en" ? rotatingWords.en : rotatingWords.bn;
+    setDisplayWord(words[wordIndex]);
+  }, [language, wordIndex]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setIsAnimating(true);
+      setAnimClass("hero-word-exit");
       setTimeout(() => {
         setWordIndex((prev) => (prev + 1) % rotatingWords.en.length);
-        setIsAnimating(false);
-      }, 400);
+        setAnimClass("hero-word-enter");
+        setTimeout(() => {
+          setAnimClass("hero-word-visible");
+        }, 400);
+      }, 350);
     }, 2500);
     return () => clearInterval(interval);
   }, []);
@@ -102,16 +111,8 @@ const Hero = () => {
           <span className="text-foreground block mb-2">{t("heroTitle1")}</span>
           <span className="animated-gradient-text block">
             {language === "en" ? "Ecosystem — One " : "ইকোসিস্টেম — এক "}
-            <span
-              key={wordIndex}
-              className="inline-block"
-              style={{
-                animation: isAnimating
-                  ? "heroWordOut 0.4s ease-in forwards"
-                  : "heroWordIn 0.4s ease-out forwards",
-              }}
-            >
-              {(language === "en" ? rotatingWords.en : rotatingWords.bn)[wordIndex]}
+            <span className={`inline-block ${animClass}`}>
+              {displayWord}
             </span>
           </span>
         </h1>
