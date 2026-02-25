@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowUpRight, Sparkles, Zap, Shield, Play } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import {
@@ -15,8 +15,26 @@ import {
 import logo from "../assets/logo.png";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
 
+const rotatingWords = {
+  en: ["Platform", "Workspace", "Hub", "Engine", "Suite"],
+  bn: ["প্ল্যাটফর্ম", "ওয়ার্কস্পেস", "হাব", "ইঞ্জিন", "স্যুট"],
+};
+
 const Hero = () => {
   const { t, language } = useLanguage();
+  const [wordIndex, setWordIndex] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsAnimating(true);
+      setTimeout(() => {
+        setWordIndex((prev) => (prev + 1) % rotatingWords.en.length);
+        setIsAnimating(false);
+      }, 400);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
 
   // All 10+ models available across plans - displayed in serial format
   const aiModels = [
@@ -82,7 +100,22 @@ const Hero = () => {
         {/* Main Title with Animation */}
         <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center leading-tight tracking-tight max-w-5xl mx-auto px-2 font-display">
           <span className="text-foreground block mb-2">{t("heroTitle1")}</span>
-          <span className="animated-gradient-text">{t("heroTitle2")}</span>
+          <span className="animated-gradient-text">
+            {language === "en" ? "Ecosystem — One " : "ইকোসিস্টেম — এক "}
+            <span className="inline-block relative overflow-hidden align-bottom" style={{ minWidth: language === "en" ? "180px" : "160px", height: "1.15em" }}>
+              <span
+                key={wordIndex}
+                className="inline-block transition-all duration-400"
+                style={{
+                  animation: isAnimating
+                    ? "heroWordOut 0.4s ease-in forwards"
+                    : "heroWordIn 0.4s ease-out forwards",
+                }}
+              >
+                {(language === "en" ? rotatingWords.en : rotatingWords.bn)[wordIndex]}
+              </span>
+            </span>
+          </span>
         </h1>
 
         {/* Description */}
