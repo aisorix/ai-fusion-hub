@@ -6,6 +6,40 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
+// ── AES-256-GCM encryption helpers ──
+const ALGO = 'AES-GCM';
+const IV_LEN = 12;
+
+async function getEncryptionKey(): Promise<CryptoKey> {
+  const raw = Deno.env.get('GITHUB_TOKEN_ENCRYPTION_KEY');
+  if (!raw) throw new Error('Encryption key not configured');
+  // Derive a 256-bit key from the secret using SHA-256
+  const keyMaterial = new TextEncoder().encode(raw);
+  const hash = await crypto.subtle.digest('SHA-256', keyMaterial);
+  return crypto.subtle.importKey('raw', hash, { name: ALGO }, false, ['encrypt', 'decrypt']);
+}
+
+async function encryptToken(plaintext: string): Promise<string> {
+  const key = await getEncryptionKey();
+  const iv = crypto.getRandomValues(new Uint8Array(IV_LEN));
+  const encoded = new TextEncoder().encode(plaintext);
+  const ciphertext = await crypto.subtle.encrypt({ name: ALGO, iv }, key, encoded);
+  // Format: base64(iv + ciphertext)
+  const combined = new Uint8Array(iv.length + new Uint8Array(ciphertext).length);
+  combined.set(iv);
+  combined.set(new Uint8Array(ciphertext), iv.length);
+  return btoa(String.fromCharCode(...combined));
+}
+
+async function decryptToken(encrypted: string): Promise<string> {
+  const key = await getEncryptionKey();
+  const combined = Uint8Array.from(atob(encrypted), c => c.charCodeAt(0));
+  const iv = combined.slice(0, IV_LEN);
+  const ciphertext = combined.slice(IV_LEN);
+  const decrypted = await crypto.subtle.decrypt({ name: ALGO, iv }, key, ciphertext);
+  return new TextDecoder().decode(decrypted);
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -125,7 +159,7 @@ serve(async (req) => {
 
       if (filesErr) throw filesErr;
 
-      // 4. Push each file to GitHub (sequentially to avoid race conditions)
+      // 4. Push each file to GitHub
       if (files && files.length > 0) {
         for (const file of files) {
           const filePath = file.path === '/' ? file.name : `${file.path.replace(/^\//, '')}/${file.name}`;
@@ -146,11 +180,12 @@ serve(async (req) => {
         }
       }
 
-      // 5. Save connection
+      // 5. Encrypt token and save connection
+      const encryptedToken = await encryptToken(accessToken);
       await serviceClient.from('project_github').delete().eq('project_id', projectId).eq('user_id', user.id);
       const { data: conn, error: connErr } = await serviceClient.from('project_github').insert({
         project_id: projectId, user_id: user.id,
-        repo_owner: repoOwner, repo_name: repoName, branch, access_token: accessToken,
+        repo_owner: repoOwner, repo_name: repoName, branch, access_token: encryptedToken,
       }).select('id, project_id, repo_owner, repo_name, branch, connected_at').single();
       if (connErr) throw connErr;
 
@@ -190,9 +225,12 @@ serve(async (req) => {
         });
       }
 
+      // Decrypt the stored token
+      const decryptedToken = await decryptToken(conn.access_token);
+
       const apiBase = `https://api.github.com/repos/${conn.repo_owner}/${conn.repo_name}/contents/${filePath}`;
       const headers = {
-        Authorization: `Bearer ${conn.access_token}`,
+        Authorization: `Bearer ${decryptedToken}`,
         Accept: 'application/vnd.github+json',
         'Content-Type': 'application/json',
       };
