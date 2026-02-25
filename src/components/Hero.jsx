@@ -23,27 +23,34 @@ const rotatingWords = {
 const Hero = () => {
   const { t, language } = useLanguage();
   const [wordIndex, setWordIndex] = useState(0);
-  const [displayWord, setDisplayWord] = useState(rotatingWords.en[0]);
-  const [animClass, setAnimClass] = useState("hero-word-visible");
+  const [typedText, setTypedText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const words = language === "en" ? rotatingWords.en : rotatingWords.bn;
-    setDisplayWord(words[wordIndex]);
-  }, [language, wordIndex]);
+    const currentWord = words[wordIndex];
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setAnimClass("hero-word-exit");
-      setTimeout(() => {
-        setWordIndex((prev) => (prev + 1) % rotatingWords.en.length);
-        setAnimClass("hero-word-enter");
-        setTimeout(() => {
-          setAnimClass("hero-word-visible");
-        }, 400);
-      }, 350);
-    }, 2500);
-    return () => clearInterval(interval);
-  }, []);
+    let timeout;
+    if (!isDeleting) {
+      if (typedText.length < currentWord.length) {
+        timeout = setTimeout(() => {
+          setTypedText(currentWord.slice(0, typedText.length + 1));
+        }, 80);
+      } else {
+        timeout = setTimeout(() => setIsDeleting(true), 1800);
+      }
+    } else {
+      if (typedText.length > 0) {
+        timeout = setTimeout(() => {
+          setTypedText(typedText.slice(0, -1));
+        }, 50);
+      } else {
+        setIsDeleting(false);
+        setWordIndex((prev) => (prev + 1) % words.length);
+      }
+    }
+    return () => clearTimeout(timeout);
+  }, [typedText, isDeleting, wordIndex, language]);
 
   // All 10+ models available across plans - displayed in serial format
   const aiModels = [
@@ -113,9 +120,10 @@ const Hero = () => {
             <span className="animated-gradient-text">
               {language === "en" ? "Ecosystem — One " : "ইকোসিস্টেম — এক "}
             </span>
-            <span className={`animated-gradient-text ${animClass}`}>
-              {displayWord}
+            <span className="animated-gradient-text">
+              {typedText}
             </span>
+            <span className="hero-cursor animated-gradient-text">|</span>
           </span>
         </h1>
 
