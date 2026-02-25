@@ -16,8 +16,8 @@ import logo from "../assets/logo.png";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
 
 const rotatingWords = {
-  en: ["Platform", "Workspace", "Hub", "Engine", "Suite"],
-  bn: ["প্ল্যাটফর্ম", "ওয়ার্কস্পেস", "হাব", "ইঞ্জিন", "স্যুট"],
+  en: ["Platform", "Workspace", "Subscription"],
+  bn: ["প্ল্যাটফর্ম", "ওয়ার্কস্পেস", "সাবস্ক্রিপশন"],
 };
 
 const Hero = () => {
