@@ -100,20 +100,18 @@ const Hero = () => {
         {/* Main Title with Animation */}
         <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center leading-tight tracking-tight max-w-5xl mx-auto px-2 font-display">
           <span className="text-foreground block mb-2">{t("heroTitle1")}</span>
-          <span className="animated-gradient-text">
+          <span className="animated-gradient-text block">
             {language === "en" ? "Ecosystem — One " : "ইকোসিস্টেম — এক "}
-            <span className="inline-block relative overflow-hidden align-bottom" style={{ minWidth: language === "en" ? "180px" : "160px", height: "1.15em" }}>
-              <span
-                key={wordIndex}
-                className="inline-block transition-all duration-400"
-                style={{
-                  animation: isAnimating
-                    ? "heroWordOut 0.4s ease-in forwards"
-                    : "heroWordIn 0.4s ease-out forwards",
-                }}
-              >
-                {(language === "en" ? rotatingWords.en : rotatingWords.bn)[wordIndex]}
-              </span>
+            <span
+              key={wordIndex}
+              className="inline-block"
+              style={{
+                animation: isAnimating
+                  ? "heroWordOut 0.4s ease-in forwards"
+                  : "heroWordIn 0.4s ease-out forwards",
+              }}
+            >
+              {(language === "en" ? rotatingWords.en : rotatingWords.bn)[wordIndex]}
             </span>
           </span>
         </h1>
