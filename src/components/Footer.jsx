@@ -49,24 +49,24 @@ const Footer = () => {
             <h4 className="font-bold text-foreground mb-4 sm:mb-6 text-sm sm:text-base">{t("product")}</h4>
             <ul className="space-y-3 sm:space-y-4">
               <li>
-                <a href="#Features" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  {t("Features")}
-                </a>
+                <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Features
+                </button>
               </li>
               <li>
-                <a href="#pricing" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  {t("Pricing")}
-                </a>
+                <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Pricing
+                </button>
               </li>
               <li>
-                <a href="#faq" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  {t("FAQs")}
-                </a>
+                <button onClick={() => document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  FAQs
+                </button>
               </li>
               <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <button className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   {t("Changelog")}
-                </a>
+                </button>
               </li>
             </ul>
           </div>
