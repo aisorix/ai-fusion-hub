@@ -127,6 +127,28 @@ serve(async (req) => {
     const body = await req.json();
     const { mode, messages, stream = true, analysisType = 'general', patientData, files } = body;
 
+    // === INPUT VALIDATION ===
+    if (messages && messages.length > 100) {
+      return new Response(JSON.stringify({ error: 'Too many messages (max 100)' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (messages && messages.some((m: any) => m.content && m.content.length > 100_000)) {
+      return new Response(JSON.stringify({ error: 'Message content too large (max 100KB)' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (files && files.length > 10) {
+      return new Response(JSON.stringify({ error: 'Too many files (max 10)' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (files && files.some((f: any) => f.base64 && f.base64.length > 5 * 1024 * 1024)) {
+      return new Response(JSON.stringify({ error: 'File too large (max 5MB)' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (patientData && JSON.stringify(patientData).length > 50_000) {
+      return new Response(JSON.stringify({ error: 'Patient data too large (max 50KB)' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
     if (!OPENROUTER_API_KEY) {
       return new Response(
