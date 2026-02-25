@@ -205,6 +205,16 @@ serve(async (req) => {
 
     const { messages, personaId, stream = true } = await req.json();
 
+    // === INPUT VALIDATION ===
+    if (messages && messages.length > 200) {
+      return new Response(JSON.stringify({ error: 'Too many messages (max 200)' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (messages && messages.some((m: any) => m.content && m.content.length > 50_000)) {
+      return new Response(JSON.stringify({ error: 'Message too long (max 50KB)' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
     if (!OPENROUTER_API_KEY) {
       return new Response(
