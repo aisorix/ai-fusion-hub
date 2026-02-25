@@ -511,3 +511,30 @@ textarea {
 .animate-gradient {
   animation: gradient-text-shift 3s ease-in-out infinite;
 }
+
+/* Hero rotating word animations */
+@keyframes heroWordIn {
+  0% {
+    opacity: 0;
+    transform: translateY(100%) rotateX(-45deg);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotateX(0deg);
+    filter: blur(0);
+  }
+}
+
+@keyframes heroWordOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotateX(0deg);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100%) rotateX(45deg);
+    filter: blur(4px);
+  }
+}
