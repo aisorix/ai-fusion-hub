@@ -1,122 +1,71 @@
+## Plan: Rebrand Landing Page Text — Global AI Research Ecosystem
 
-
-# Sorix Deck — Fix Art Style Image Prompts + Add Slideshow Mode
-
-## Overview
-Two improvements:
-1. **Fix art style handling** so the selected style (3D, Photo, etc.) is strongly enforced in image generation prompts — currently the instruction is weak and only skips "illustration" style entirely
-2. **Add fullscreen slideshow mode** so users can present slides directly in the browser with keyboard navigation
+This plan rewrites all landing page copy to position AI Sorix as a **global AI Research Ecosystem** with professional, futuristic messaging. All Bangladesh-specific and casual/informal text will be removed or replaced.
 
 ---
 
-## 1. Fix Art Style in Image Prompts
+### Summary of Changes
 
-### Problem
-The current edge function only adds the art style instruction when the style is NOT "illustration" (line 101-103). Even when it does add it, it's a weak instruction at the end of the system prompt. The LLM may not consistently prepend the style to every `image_prompt`.
+**Files to modify:** 8 files
 
-### Solution
-Make the art style instruction mandatory for ALL styles (including "illustration") and make it more explicit:
-
-**File: `supabase/functions/deck-generate/index.ts`**
-- Change the art style instruction to ALWAYS be included (remove the `artStyle !== "illustration"` skip)
-- Make the instruction stronger and more specific for each style:
-  - `illustration` -> "digital illustration style, hand-drawn aesthetic"
-  - `photo` -> "photorealistic, high-resolution photograph"
-  - `abstract` -> "abstract art style, geometric shapes, non-representational"
-  - `3d` -> "3D rendered, CGI, three-dimensional modeling, Blender/Cinema4D quality"
-  - `line-art` -> "minimalist line art, black and white ink drawing, clean outlines"
-  - Custom -> user's description
-- Add the style directive BOTH in the system prompt AND by modifying each slide's `image_prompt` after LLM generation (belt-and-suspenders approach) before sending to FLUX.2
-
-### Changes
-- Modify the system prompt to always include art style with stronger wording
-- After parsing LLM JSON, prepend the art style description to each slide's `image_prompt` before image generation to guarantee the style is applied
+1. `**src/contexts/LanguageContext.jsx**` — Update all English translation strings (hero, features, footer, pricing, workflow, FAQs)
+2. `**src/components/Hero.jsx**` — Update hardcoded text ("Powered by world's leading AI models", trust indicators)
+3. `**src/components/Features.jsx**` — Rewrite all feature descriptions to be professional/global, remove casual tone ("best friend", "roasting", "secret")
+4. `**src/components/AboutUs.jsx**` — Complete rewrite: remove all Bangladesh references, "Proudly Made in Bangladesh" badge, change to global AI research ecosystem messaging
+5. `**src/components/RolesSection.jsx**` — Remove Bangladesh/South Asian references from all role descriptions, make global
+6. `**src/components/ProductivityGains.jsx**` — Remove Bangladesh references, rewrite for global audience
+7. `**src/components/Testimonials.jsx**` — Update testimonial text to remove Bangladesh-specific references
 
 ---
 
-## 2. Add Fullscreen Slideshow Mode
+### Detailed Text Changes
 
-### New File: `src/components/deck/DeckSlideshow.tsx`
+#### Hero Section (`LanguageContext.jsx` + `Hero.jsx`)
 
-A fullscreen overlay component that renders slides one at a time:
+- **heroTitle1**: "All Premium AI in" → "The Ultimate AI Research"
+- **heroTitle2**: "One Powerful Platform" → "Ecosystem — One Platform"
+- **heroDesc**: Remove "fraction of the cost" casual tone → "Access 10+ frontier AI models in a single, secure workspace. Faster responses. Enterprise-grade privacy. Built for researchers, professionals & teams worldwide."
+- **Trust indicators**: "100% Secure & Private" → "Enterprise-Grade Security"
+- **Hardcoded**: "Powered by world's leading AI models" → "Powered by the world's most advanced AI models"
 
-**Features:**
-- Fullscreen dark overlay covering entire viewport
-- Current slide rendered at aspect-ratio 16:9, centered and scaled to fit
-- Slide number indicator (e.g., "3 / 10") in bottom-right corner
-- Keyboard navigation: Left/Right arrows, Space for next, Escape to exit
-- Smooth fade/slide transitions between slides using framer-motion
-- Uses the same theme styling as `DeckSlideCard` (reuses `themeClasses`)
-- Close button (X) in top-right corner
+#### Features Section (`Features.jsx`)
 
-**Layout per slide:**
-- `full-image`: Full background image with heading overlay at bottom
-- `split`: Left half text, right half image (same as card but larger)
-- `text-only`: Centered heading + bullet points
+- Remove "Bangladesh farmers" from Agro → "Smart agricultural AI — crop planning, climate analytics, pest detection, and yield optimization for modern farming."
+- Remove casual tone from regular features:
+  - "Fun & Emotional" → "Adaptive & Context-Aware" — "AI that understands nuance, tone, and context — delivering responses that feel natural and intuitive."
+  - "Super Intelligent" → "Multi-Modal Intelligence" — "From code generation to creative writing, image analysis to deep research — one platform, limitless capability."
+  - "Instant Replies" → "Ultra-Fast Responses" — "Sub-second latency with optimized inference. No waiting, no buffering — just instant results."
+  - "Long-term Memory" → rewrite professionally
+  - "100% Private" → "Zero-Trust Security" — "End-to-end encrypted conversations. Your data is never stored, shared, or used for training."
+  - "50+ Languages" stays but description becomes professional
+- "Not just chat — the entire AI universe in the palm of your hand" → "Not just a chatbot — a complete AI-powered research and productivity ecosystem."
 
-### Modified Files
+#### About Us Section (`AboutUs.jsx`)
 
-**`src/components/deck/DeckActions.tsx`**
-- Add a "Slideshow" button (Play icon) that triggers the slideshow
+- Header: "Empowering Bangladesh With AI Innovation" → "Pioneering the Future of AI Research"
+- Description: Remove "Bangladesh's first unified AI platform" → "AI Sorix is a next-generation AI research ecosystem, unifying the world's most powerful AI models into a single, intelligent workspace for professionals, researchers, and teams globally."
+- Mission: Remove all Bangladesh references → "We believe breakthrough AI should be accessible to everyone. AI Sorix was built to eliminate the friction of managing multiple AI subscriptions — delivering enterprise-grade intelligence at a fraction of the cost."
+- **Remove** "Proudly Made in Bangladesh" badge entirely
+- Values: "Local Focus" → "Global Scale" — "Serving users across 100+ countries with localized payment options and multi-language support."
 
-**`src/pages/DeckPage.tsx`**
-- Add `showSlideshow` state
-- Render `DeckSlideshow` component when active
-- Pass slides, theme, and close handler
+#### Roles Section (`RolesSection.jsx`)
 
-**`src/components/deck/index.tsx`**
-- Export new `DeckSlideshow` component
+- Remove "Bangladesh" from all descriptions (entrepreneurs, creators, students, consultants, HR)
+- Make all copy globally relevant
 
----
+#### Productivity Gains (`ProductivityGains.jsx`)
 
-## Technical Details
+- Remove "built for Bangladesh", "Bangladeshi professionals" references
+- "all-in-one AI workspace built for Bangladesh" → "your all-in-one AI research workspace"
 
-### Edge Function Art Style Fix (deck-generate/index.ts)
 
-The art style mapping will be:
-```text
-const artStyleMap = {
-  "illustration": "digital illustration, hand-drawn artistic style",
-  "photo": "photorealistic high-resolution photograph",
-  "abstract": "abstract art, geometric shapes, vibrant non-representational",
-  "3d": "3D rendered CGI, three-dimensional modeling, studio lighting",
-  "line-art": "minimalist line art, clean ink outlines, black and white sketch",
-};
-```
 
-After LLM returns slides JSON, each slide's `image_prompt` will be prefixed:
-```text
-slide.image_prompt = `${artStyleDescription}, ${slide.image_prompt}`
-```
+#### Testimonials (`Testimonials.jsx`)
 
-This guarantees FLUX.2 receives the style directive directly in the prompt, not relying on LLM to include it.
+- Remove "local payment options make it perfect for Bangladesh" from Nusrat's review
+- Update to globally relevant testimonial text
 
-### Slideshow Component Structure
+#### Footer & Translations
 
-```text
-+--------------------------------------------------+
-|                                          [X]     |
-|                                                  |
-|         +-----------------------------+          |
-|         |                             |          |
-|         |     Slide Content           |          |
-|         |     (themed, 16:9)          |          |
-|         |                             |          |
-|         +-----------------------------+          |
-|                                                  |
-|    [<]              3 / 10               [>]     |
-+--------------------------------------------------+
-```
-
-Keyboard: Arrow Left/Right, Space (next), Escape (close)
-
-### Files Summary
-
-| File | Action |
-|------|--------|
-| `supabase/functions/deck-generate/index.ts` | Fix art style prompt injection |
-| `src/components/deck/DeckSlideshow.tsx` | New fullscreen slideshow component |
-| `src/components/deck/DeckActions.tsx` | Add Slideshow button |
-| `src/pages/DeckPage.tsx` | Add slideshow state and rendering |
-| `src/components/deck/index.tsx` | Export DeckSlideshow |
-
+- **footerDesc**: Keep model list, just ensure professional tone
+- Bangla translations will also be updated to match the new global messaging
