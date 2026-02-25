@@ -512,51 +512,12 @@ textarea {
   animation: gradient-text-shift 3s ease-in-out infinite;
 }
 
-/* Hero rotating word animations */
-.hero-word-visible {
-  opacity: 1;
-  transform: translateY(0);
-  filter: blur(0);
+/* Hero typing cursor */
+.hero-cursor {
+  animation: blink-cursor 0.75s step-end infinite;
 }
 
-.hero-word-exit {
-  animation: heroWordOut 0.35s ease-in forwards;
-}
-
-.hero-word-enter {
-  animation: heroWordIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes heroWordIn {
-  0% {
-    opacity: 0;
-    transform: translateY(100%);
-    filter: blur(6px);
-  }
-  40% {
-    opacity: 1;
-    filter: blur(1px);
-  }
-  70% {
-    transform: translateY(-8%);
-    filter: blur(0);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
-}
-
-@keyframes heroWordOut {
-  0% {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-100%);
-    filter: blur(4px);
-  }
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
