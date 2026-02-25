@@ -189,12 +189,8 @@ const Navbar = () => {
                         Go to Chat
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/reviews" className="flex items-center gap-2 cursor-pointer focus:bg-primary/10">
-                        <User className="w-4 h-4" />
-                        My Reviews
-                      </Link>
-                    </DropdownMenuItem>
+
+
                     {isEmployee && (
                       <DropdownMenuItem asChild>
                         <Link to="/admin/chat" className="flex items-center gap-2 cursor-pointer focus:bg-primary/10">
@@ -357,21 +353,12 @@ const Navbar = () => {
                       >
                         <MessageSquare className="w-5 h-5" /> Go to Chat
                       </Link>
-                      <div className="grid grid-cols-2 gap-3">
-                        <Link
-                          to="/reviews"
-                          className="flex items-center justify-center gap-2 py-3.5 border border-border rounded-xl font-semibold hover:bg-muted/50"
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          <User className="w-4 h-4" /> Profile
-                        </Link>
-                        <button
-                          onClick={handleSignOut}
-                          className="flex items-center justify-center gap-2 py-3.5 border border-destructive/20 text-destructive rounded-xl font-semibold hover:bg-destructive/5"
-                        >
-                          <LogOut className="w-4 h-4" /> Log Out
-                        </button>
-                      </div>
+                      <button
+                        onClick={handleSignOut}
+                        className="w-full flex items-center justify-center gap-2 py-3.5 border border-destructive/20 text-destructive rounded-xl font-semibold hover:bg-destructive/5"
+                      >
+                        <LogOut className="w-4 h-4" /> Log Out
+                      </button>
                     </>
                   ) : (
                     <div className="flex flex-col gap-3">
