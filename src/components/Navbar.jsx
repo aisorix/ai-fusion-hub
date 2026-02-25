@@ -91,30 +91,23 @@ const Navbar = () => {
 
             {/* Desktop Menu */}
             <div className="hidden lg:flex items-center gap-10">
-              <a
-                href="#features"
-                className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all"
-              >
-                {t("Features")}
-              </a>
-              <a
-                href="#pricing"
-                className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all"
-              >
-                {t("Pricing")}
-              </a>
-              <a
-                href="#faq"
-                className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all"
-              >
-                {t("FAQs")}
-              </a>
-              <a
-                href="#about"
-                className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all"
-              >
-                {t("AboutUs")}
-              </a>
+              {[
+                { id: "features", label: "Features" },
+                { id: "pricing", label: "Pricing" },
+                { id: "faq", label: "FAQs" },
+                { id: "about", label: "About Us" },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    const el = document.getElementById(item.id);
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                  className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all"
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
 
             {/* Right Side: Theme + Language + Auth */}
@@ -292,20 +285,25 @@ const Navbar = () => {
                 {/* Navigation Links */}
                 <div className="grid gap-2">
                   {[
-                    { href: "#Features", label: t("features") },
-                    { href: "#pricing", label: t("pricing") },
-                    { href: "#faq", label: t("faqs") },
-                    { href: "#about", label: t("aboutUs") },
-                  ].map((link) => (
-                    <a
-                      key={link.href}
-                      href={link.href}
-                      className="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-primary/10 text-foreground font-medium transition-all border border-transparent hover:border-primary/10"
-                      onClick={() => setMobileMenuOpen(false)}
+                    { id: "features", label: "Features" },
+                    { id: "pricing", label: "Pricing" },
+                    { id: "faq", label: "FAQs" },
+                    { id: "about", label: "About Us" },
+                  ].map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        setTimeout(() => {
+                          const el = document.getElementById(item.id);
+                          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }, 300);
+                      }}
+                      className="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-primary/10 text-foreground font-medium transition-all border border-transparent hover:border-primary/10 text-left"
                     >
                       <div className="w-2 h-2 rounded-full bg-primary" />
-                      {link.label}
-                    </a>
+                      {item.label}
+                    </button>
                   ))}
                 </div>
 

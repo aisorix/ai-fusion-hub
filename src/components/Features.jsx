@@ -130,7 +130,7 @@ const Features = () => {
   ];
 
   return (
-    <section id="Features" className="py-10 sm:py-16 md:py-20 relative overflow-hidden">
+    <section id="features" className="py-10 sm:py-16 md:py-20 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-muted/30 via-background to-background" />
       
