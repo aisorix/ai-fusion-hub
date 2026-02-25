@@ -27,29 +27,29 @@ const RolesSection = () => {
         icon: Presentation,
         title: language === 'en' ? 'Business Plans' : 'বিজনেস প্ল্যান',
         desc: language === 'en' 
-          ? 'Create comprehensive business plans and pitch decks to secure funding from investors in Bangladesh and abroad.'
-          : 'বাংলাদেশ ও বিদেশে বিনিয়োগকারীদের কাছ থেকে ফান্ডিং পেতে ব্যাপক বিজনেস প্ল্যান এবং পিচ ডেক তৈরি করুন।'
+          ? 'Create comprehensive business plans and pitch decks to secure funding from investors worldwide.'
+          : 'বিশ্বব্যাপী বিনিয়োগকারীদের কাছ থেকে ফান্ডিং পেতে ব্যাপক বিজনেস প্ল্যান এবং পিচ ডেক তৈরি করুন।'
       },
       {
         icon: TrendingUp,
         title: language === 'en' ? 'Market Research' : 'মার্কেট রিসার্চ',
         desc: language === 'en'
-          ? 'Analyze market trends, competitors, and opportunities in the Bangladeshi market with AI-driven insights.'
-          : 'AI-চালিত ইনসাইট দিয়ে বাংলাদেশি মার্কেটে ট্রেন্ড, প্রতিযোগী এবং সুযোগ বিশ্লেষণ করুন।'
+          ? 'Analyze market trends, competitors, and emerging opportunities with AI-driven insights and real-time data.'
+          : 'AI-চালিত ইনসাইট এবং রিয়েল-টাইম ডাটা দিয়ে মার্কেট ট্রেন্ড, প্রতিযোগী এবং উদীয়মান সুযোগ বিশ্লেষণ করুন।'
       },
       {
         icon: Target,
         title: language === 'en' ? 'Product Strategy' : 'প্রোডাক্ট স্ট্র্যাটেজি',
         desc: language === 'en'
-          ? 'Develop product roadmaps, features, and go-to-market strategies for the South Asian market.'
-          : 'দক্ষিণ এশিয়ান মার্কেটের জন্য প্রোডাক্ট রোডম্যাপ, ফিচার এবং গো-টু-মার্কেট স্ট্র্যাটেজি তৈরি করুন।'
+          ? 'Develop product roadmaps, feature prioritization, and go-to-market strategies for any industry.'
+          : 'যেকোনো শিল্পের জন্য প্রোডাক্ট রোডম্যাপ, ফিচার প্রায়োরিটাইজেশন এবং গো-টু-মার্কেট স্ট্র্যাটেজি তৈরি করুন।'
       },
       {
         icon: DollarSign,
         title: language === 'en' ? 'Financial Modeling' : 'ফিন্যান্সিয়াল মডেলিং',
         desc: language === 'en'
-          ? 'Build financial projections, budgets, and forecasts for your startup in BDT and USD.'
-          : 'আপনার স্টার্টআপের জন্য BDT ও USD-তে আর্থিক প্রজেকশন, বাজেট এবং ফোরকাস্ট তৈরি করুন।'
+          ? 'Build financial projections, budgets, and forecasts with multi-currency support for global operations.'
+          : 'গ্লোবাল অপারেশনের জন্য মাল্টি-কারেন্সি সাপোর্ট সহ আর্থিক প্রজেকশন, বাজেট এবং ফোরকাস্ট তৈরি করুন।'
       }
     ],
     creators: [
@@ -57,15 +57,15 @@ const RolesSection = () => {
         icon: Lightbulb,
         title: language === 'en' ? 'Content Ideas' : 'কন্টেন্ট আইডিয়া',
         desc: language === 'en'
-          ? 'Generate endless content ideas for blogs, videos, and social media that resonate with Bangladeshi audiences.'
-          : 'বাংলাদেশি দর্শকদের সাথে মিলে যায় এমন ব্লগ, ভিডিও এবং সোশ্যাল মিডিয়ার জন্য অসীম কন্টেন্ট আইডিয়া তৈরি করুন।'
+          ? 'Generate endless content ideas for blogs, videos, and social media that resonate with global audiences.'
+          : 'গ্লোবাল দর্শকদের সাথে মিলে যায় এমন ব্লগ, ভিডিও এবং সোশ্যাল মিডিয়ার জন্য অসীম কন্টেন্ট আইডিয়া তৈরি করুন।'
       },
       {
         icon: FileEdit,
         title: language === 'en' ? 'Script Writing' : 'স্ক্রিপ্ট রাইটিং',
         desc: language === 'en'
-          ? 'Create engaging scripts for videos, podcasts, and presentations in minutes — in Bengali or English.'
-          : 'মিনিটেই ভিডিও, পডকাস্ট এবং প্রেজেন্টেশনের জন্য আকর্ষণীয় স্ক্রিপ্ট তৈরি করুন — বাংলা বা ইংরেজিতে।'
+          ? 'Create engaging scripts for videos, podcasts, and presentations in minutes — in any language.'
+          : 'মিনিটেই ভিডিও, পডকাস্ট এবং প্রেজেন্টেশনের জন্য আকর্ষণীয় স্ক্রিপ্ট তৈরি করুন — যেকোনো ভাষায়।'
       },
       {
         icon: Search,
@@ -87,8 +87,8 @@ const RolesSection = () => {
         icon: BookOpen,
         title: language === 'en' ? 'Essay Writing' : 'প্রবন্ধ লেখা',
         desc: language === 'en'
-          ? 'Get help with research, outlines, and drafting essays for any subject — from SSC to university level.'
-          : 'SSC থেকে বিশ্ববিদ্যালয় পর্যন্ত যেকোনো বিষয়ে রিসার্চ, আউটলাইন এবং প্রবন্ধ লেখায় সাহায্য পান।'
+          ? 'Get help with research, outlines, and drafting essays for any subject — from undergraduate to doctoral level.'
+          : 'আন্ডারগ্র্যাজুয়েট থেকে ডক্টরাল পর্যন্ত যেকোনো বিষয়ে রিসার্চ, আউটলাইন এবং প্রবন্ধ লেখায় সাহায্য পান।'
       },
       {
         icon: ClipboardList,
@@ -108,8 +108,8 @@ const RolesSection = () => {
         icon: Briefcase,
         title: language === 'en' ? 'Career Planning' : 'ক্যারিয়ার প্ল্যানিং',
         desc: language === 'en'
-          ? 'Build resumes, prepare for interviews, and explore career paths in Bangladesh and globally.'
-          : 'রেজিউম তৈরি করুন, ইন্টারভিউয়ের জন্য প্রস্তুতি নিন এবং বাংলাদেশ ও বিশ্বে ক্যারিয়ার পথ অন্বেষণ করুন।'
+          ? 'Build resumes, prepare for interviews, and explore career paths across industries worldwide.'
+          : 'রেজিউম তৈরি করুন, ইন্টারভিউয়ের জন্য প্রস্তুতি নিন এবং বিশ্বব্যাপী শিল্প জুড়ে ক্যারিয়ার পথ অন্বেষণ করুন।'
       }
     ],
     consultants: [
@@ -131,8 +131,8 @@ const RolesSection = () => {
         icon: PenTool,
         title: language === 'en' ? 'Proposal Writing' : 'প্রপোজাল রাইটিং',
         desc: language === 'en'
-          ? 'Create winning proposals and statements of work to land new clients in Bangladesh.'
-          : 'বাংলাদেশে নতুন ক্লায়েন্ট পেতে বিজয়ী প্রপোজাল এবং স্টেটমেন্ট অফ ওয়ার্ক তৈরি করুন।'
+          ? 'Create winning proposals and statements of work to land new clients globally.'
+          : 'বিশ্বব্যাপী নতুন ক্লায়েন্ট পেতে বিজয়ী প্রপোজাল এবং স্টেটমেন্ট অফ ওয়ার্ক তৈরি করুন।'
       },
       {
         icon: Library,

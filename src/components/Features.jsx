@@ -10,8 +10,8 @@ const Features = () => {
       icon: Leaf,
       title: language === 'en' ? 'Sorix Agro' : 'সোরিক্স অ্যাগ্রো',
       desc: language === 'en'
-        ? 'Smart farming assistant — crop planning, weather insights, pest detection, and yield optimization for Bangladesh farmers.'
-        : 'স্মার্ট কৃষি সহায়ক — ফসল পরিকল্পনা, আবহাওয়া তথ্য, পোকা সনাক্তকরণ এবং বাংলাদেশি কৃষকদের জন্য ফলন অপ্টিমাইজেশন।',
+        ? 'Smart agricultural AI — crop planning, climate analytics, pest detection, and yield optimization for modern farming.'
+        : 'স্মার্ট কৃষি AI — ফসল পরিকল্পনা, জলবায়ু বিশ্লেষণ, পোকা সনাক্তকরণ এবং আধুনিক কৃষির জন্য ফলন অপ্টিমাইজেশন।',
       gradient: "from-green-500 to-lime-500",
       bgGradient: "from-green-500/10 to-lime-500/10",
       comingSoon: false
@@ -20,8 +20,8 @@ const Features = () => {
       icon: Stethoscope,
       title: t('Sorix Health'),
       desc: language === 'en'
-        ? 'Share your reports, symptoms — get doctor-level analysis and suggestions within seconds.'
-        : 'তোমার রিপোর্ট, লক্ষণ দাও — সেকেন্ডের মধ্যে ডাক্তার লেভেলের অ্যানালাইসিস + সাজেশন।',
+        ? 'Upload reports and symptoms — receive clinical-grade analysis and actionable health insights within seconds.'
+        : 'রিপোর্ট ও লক্ষণ আপলোড করুন — সেকেন্ডের মধ্যে ক্লিনিক্যাল-গ্রেড বিশ্লেষণ ও কার্যকর স্বাস্থ্য ইনসাইট পান।',
       gradient: "from-emerald-500 to-teal-500",
       bgGradient: "from-emerald-500/10 to-teal-500/10",
       comingSoon: false
@@ -50,8 +50,8 @@ const Features = () => {
       icon: Crown,
       title: language === 'en' ? 'Sorix Legends' : 'সোরিক্স লিজেন্ডস',
       desc: language === 'en'
-        ? 'Build Your Elite AI Team — Doctors, Lawyers, Coders, and Marketing Experts Working Together for You.'
-        : 'তোমার এলিট AI টিম তৈরি করো — ডাক্তার, উকিল, কোডার এবং মার্কেটিং বিশেষজ্ঞ তোমার জন্য একসাথে কাজ করছে।',
+        ? 'Assemble your elite AI team — domain-specific experts in medicine, law, engineering, and strategy working in concert.'
+        : 'আপনার এলিট AI টিম তৈরি করুন — চিকিৎসা, আইন, প্রকৌশল ও কৌশলে ডোমেইন-নির্দিষ্ট বিশেষজ্ঞরা একসাথে কাজ করছে।',
       gradient: "from-blue-500 to-cyan-500",
       bgGradient: "from-blue-500/10 to-cyan-500/10",
       comingSoon: false
@@ -60,8 +60,8 @@ const Features = () => {
       icon: Search,
       title: language === 'en' ? 'Sorix Search' : 'সোরিক্স সার্চ',
       desc: language === 'en'
-        ? 'Best Google alternative — AI-powered search with instant answers, citations, and real-time web results.'
-        : 'গুগলের সেরা বিকল্প — AI চালিত সার্চ, তাৎক্ষণিক উত্তর, সাইটেশন এবং রিয়েল-টাইম ওয়েব রেজাল্ট।',
+        ? 'Next-generation AI search — instant answers with verified citations, source attribution, and real-time web intelligence.'
+        : 'পরবর্তী প্রজন্মের AI সার্চ — যাচাইকৃত সাইটেশন, সোর্স অ্যাট্রিবিউশন এবং রিয়েল-টাইম ওয়েব ইন্টেলিজেন্স সহ তাৎক্ষণিক উত্তর।',
       gradient: "from-orange-500 to-amber-500",
       bgGradient: "from-orange-500/10 to-amber-500/10",
       comingSoon: false
@@ -70,8 +70,8 @@ const Features = () => {
       icon: Gem,
       title: t('Sorix Chat'),
       desc: language === 'en' 
-        ? 'All Premium AI in One Chat — ChatGPT, Gemini Pro, DeepSeek; all together. Switch whenever you want.'
-        : 'সব প্রিমিয়াম AI একটি চ্যাটে — ChatGPT, Gemini Pro, DeepSeek; সব একসাথে। যখন খুশি সুইচ করো।',
+        ? 'Unified AI interface — access ChatGPT, Gemini, DeepSeek, and 10+ models seamlessly. Switch models mid-conversation.'
+        : 'ইউনিফাইড AI ইন্টারফেস — ChatGPT, Gemini, DeepSeek এবং ১০+ মডেল নির্বিঘ্নে অ্যাক্সেস করুন। কথোপকথনের মাঝে মডেল সুইচ করুন।',
       gradient: "from-purple-500 to-pink-500",
       bgGradient: "from-purple-500/10 to-pink-500/10",
       comingSoon: false
@@ -83,48 +83,48 @@ const Features = () => {
       icon: Sparkles, 
       title: t('funEmotional'), 
       desc: language === 'en' 
-        ? "We're not just AI — we're your best friend. Laughter, anger, love — we understand it all."
-        : 'আমরা শুধু AI না — তোমার বেস্ট ফ্রেন্ড। হাসি, রাগ, ভালোবাসা — সব বোঝি।', 
+        ? "AI that understands nuance, tone, and context — delivering responses that feel natural and intuitive."
+        : 'AI যা সূক্ষ্মতা, টোন এবং প্রসঙ্গ বোঝে — স্বাভাবিক ও স্বজ্ঞাত রেসপন্স দেয়।', 
       gradient: "from-pink-500 to-rose-500" 
     },
     { 
       icon: Brain, 
       title: t('superIntelligent'), 
       desc: language === 'en'
-        ? 'Coding, songwriting, image creation, roasting — whatever you ask, we can do it.'
-        : 'কোডিং, গান লেখা, ছবি বানানো, রোস্টিং — যা বলবে তাই পারব।', 
+        ? 'From code generation to creative writing, image analysis to deep research — one platform, limitless capability.'
+        : 'কোড জেনারেশন থেকে সৃজনশীল লেখা, ইমেজ বিশ্লেষণ থেকে গভীর গবেষণা — এক প্ল্যাটফর্ম, সীমাহীন সক্ষমতা।', 
       gradient: "from-purple-500 to-indigo-500" 
     },
     { 
       icon: Zap, 
       title: t('instantReplies'), 
       desc: language === 'en'
-        ? 'No loading. Fun answers within seconds.'
-        : 'কোনো লোডিং নেই। সেকেন্ডের মধ্যে মজার মজার উত্তর।', 
+        ? 'Sub-second latency with optimized inference. No waiting, no buffering — just instant results.'
+        : 'অপটিমাইজড ইনফারেন্স সহ সাব-সেকেন্ড লেটেন্সি। কোনো অপেক্ষা নেই — শুধু তাৎক্ষণিক ফলাফল।', 
       gradient: "from-amber-500 to-orange-500" 
     },
     { 
       icon: Heart, 
-      title: language === 'en' ? 'Long-term Memory' : 'দীর্ঘমেয়াদী স্মৃতি', 
+      title: language === 'en' ? 'Persistent Memory' : 'স্থায়ী মেমোরি', 
       desc: language === 'en'
-        ? "Your name, preferences, yesterday's conversation — we remember everything."
-        : 'তোমার নাম, পছন্দ, গতকালের কথা — সব মনে রাখি।', 
+        ? "Context-aware conversations that remember your preferences, past interactions, and project details across sessions."
+        : 'প্রসঙ্গ-সচেতন কথোপকথন যা সেশন জুড়ে আপনার পছন্দ, পূর্ববর্তী ইন্টারঅ্যাকশন এবং প্রজেক্টের বিবরণ মনে রাখে।', 
       gradient: "from-red-500 to-pink-500" 
     },
     { 
       icon: Shield, 
-      title: language === 'en' ? '100% Private' : '১০০% প্রাইভেট', 
+      title: language === 'en' ? 'Zero-Trust Security' : 'জিরো-ট্রাস্ট সিকিউরিটি', 
       desc: language === 'en'
-        ? "No one sees your chat. Your secret, our secret."
-        : 'তোমার চ্যাট কেউ দেখে না। তোমার সিক্রেট, আমার সিক্রেট।', 
+        ? "End-to-end encrypted conversations. Your data is never stored, shared, or used for training."
+        : 'এন্ড-টু-এন্ড এনক্রিপ্টেড কথোপকথন। আপনার ডেটা কখনো সংরক্ষণ, শেয়ার বা ট্রেনিংয়ে ব্যবহার হয় না।', 
       gradient: "from-emerald-500 to-teal-500" 
     },
     { 
       icon: Globe, 
       title: language === 'en' ? '50+ Languages' : '৫০+ ভাষা', 
       desc: language === 'en'
-        ? 'Bengali, English, Hindi, Spanish — we speak any language.'
-        : 'বাংলা, ইংরেজি, হিন্দি, স্প্যানিশ — যেকোনো ভাষায় কথা বলি।', 
+        ? 'Native-quality output in 50+ languages — seamless multilingual support for global teams and research.'
+        : '৫০+ ভাষায় নেটিভ-কোয়ালিটি আউটপুট — গ্লোবাল টিম ও গবেষণার জন্য নির্বিঘ্ন বহুভাষিক সাপোর্ট।', 
       gradient: "from-blue-500 to-cyan-500" 
     }
   ];
@@ -145,15 +145,15 @@ const Features = () => {
         <div className="text-center mb-8 sm:mb-12">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-primary text-xs sm:text-sm font-semibold mb-4 sm:mb-6">
             <Sparkles className="w-4 h-4" />
-            {language === 'en' ? 'Why Choose Us' : 'আমাদের কেন বেছে নেবেন'}
+            {language === 'en' ? 'The AI Research Ecosystem' : 'AI রিসার্চ ইকোসিস্টেম'}
           </span>
           <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-4 sm:mb-6 px-2 font-display">
             {language === 'en' ? 'Why Choose' : 'কেন বেছে নেবেন'} <span className="animated-gradient-text">AI Sorix</span>
           </h2>
           <p className="text-sm sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
             {language === 'en' 
-              ? "Not just chat — the entire AI universe in the palm of your hand."
-              : 'এখানে শুধু চ্যাট নয় — পুরো AI ইউনিভার্স তোমার হাতের মুঠোয়।'}
+              ? "Not just a chatbot — a complete AI-powered research and productivity ecosystem."
+              : 'শুধু চ্যাটবট নয় — একটি সম্পূর্ণ AI-চালিত গবেষণা ও উৎপাদনশীলতা ইকোসিস্টেম।'}
           </p>
         </div>
 

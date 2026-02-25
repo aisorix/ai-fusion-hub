@@ -26,24 +26,24 @@ const ProductivityGains = () => {
       icon: Rocket,
       title: language === 'en' ? 'Boost Work Efficiency' : 'কাজের দক্ষতা বাড়ান',
       desc: language === 'en'
-        ? 'No more switching tabs or juggling multiple platforms. With AI Sorix, you keep everything in one seamless workspace — perfect for busy professionals in Bangladesh.'
-        : 'আর ট্যাব সুইচ বা একাধিক প্ল্যাটফর্মে ঝামেলা নয়। AI Sorix-এ সব কিছু একটি সিমলেস ওয়ার্কস্পেসে — বাংলাদেশের ব্যস্ত প্রফেশনালদের জন্য পারফেক্ট।',
+        ? 'No more switching tabs or juggling multiple platforms. With AI Sorix, you keep everything in one seamless workspace — designed for maximum productivity.'
+        : 'আর ট্যাব সুইচ বা একাধিক প্ল্যাটফর্মে ঝামেলা নয়। AI Sorix-এ সব কিছু একটি সিমলেস ওয়ার্কস্পেসে — সর্বোচ্চ উৎপাদনশীলতার জন্য ডিজাইন করা।',
       size: 'small'
     },
     {
       icon: Target,
       title: language === 'en' ? 'Stay Focused, Stay Productive' : 'ফোকাস থাকুন, উৎপাদনশীল থাকুন',
       desc: language === 'en'
-        ? 'Workflows flow without interruptions. Move from chat to research to creation without losing momentum — designed for the way Bangladeshi professionals work.'
-        : 'ওয়ার্কফ্লো কোনো বাধা ছাড়াই চলে। চ্যাট থেকে রিসার্চ থেকে তৈরি — কোনো গতি না হারিয়ে — বাংলাদেশি প্রফেশনালদের কাজের ধরনে ডিজাইন করা।',
+        ? 'Workflows flow without interruptions. Move from chat to research to creation without losing momentum — engineered for modern professionals.'
+        : 'ওয়ার্কফ্লো কোনো বাধা ছাড়াই চলে। চ্যাট থেকে রিসার্চ থেকে তৈরি — কোনো গতি না হারিয়ে — আধুনিক পেশাদারদের জন্য ইঞ্জিনিয়ার করা।',
       size: 'small'
     },
     {
       icon: ShieldCheck,
       title: language === 'en' ? 'Plagiarism-Free & Reliable' : 'প্লেজিয়ারিজম-মুক্ত ও নির্ভরযোগ্য',
       desc: language === 'en'
-        ? 'Every output is 100% original, so you can publish, present, and ship with confidence. Perfect for students, researchers, and content creators across Bangladesh.'
-        : 'প্রতিটি আউটপুট ১০০% অরিজিনাল, তাই আত্মবিশ্বাসের সাথে পাবলিশ, প্রেজেন্ট এবং শেয়ার করুন। বাংলাদেশের শিক্ষার্থী, গবেষক এবং কন্টেন্ট ক্রিয়েটরদের জন্য পারফেক্ট।',
+        ? 'Every output is 100% original, so you can publish, present, and ship with confidence. Trusted by researchers, students, and content creators worldwide.'
+        : 'প্রতিটি আউটপুট ১০০% অরিজিনাল, তাই আত্মবিশ্বাসের সাথে পাবলিশ, প্রেজেন্ট এবং শেয়ার করুন। বিশ্বব্যাপী গবেষক, শিক্ষার্থী এবং কন্টেন্ট ক্রিয়েটরদের বিশ্বস্ত।',
       size: 'small'
     }
   ];
@@ -64,8 +64,8 @@ const ProductivityGains = () => {
           </h2>
           <p className="text-sm sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto px-4">
             {language === 'en' 
-              ? 'Do more, spend less, and stay focused with your all-in-one AI workspace built for Bangladesh.'
-              : 'বেশি করুন, কম খরচ করুন, এবং বাংলাদেশের জন্য তৈরি আপনার অল-ইন-ওয়ান AI ওয়ার্কস্পেসে ফোকাস থাকুন।'}
+              ? 'Do more, spend less, and stay focused with your all-in-one AI research workspace.'
+              : 'বেশি করুন, কম খরচ করুন, এবং আপনার অল-ইন-ওয়ান AI রিসার্চ ওয়ার্কস্পেসে ফোকাস থাকুন।'}
           </p>
         </div>
 

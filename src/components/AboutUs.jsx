@@ -12,32 +12,32 @@ const AboutUs = () => {
       title: language === "en" ? "Innovation First" : "উদ্ভাবন প্রথম",
       description:
         language === "en"
-          ? "We push boundaries to bring cutting-edge AI technology to everyone."
-          : "আমরা সবার কাছে অত্যাধুনিক AI প্রযুক্তি পৌঁছে দিতে সীমানা ভাঙি।",
+          ? "Pushing the boundaries of AI research to deliver cutting-edge intelligence to every user."
+          : "প্রতিটি ব্যবহারকারীর কাছে অত্যাধুনিক ইন্টেলিজেন্স পৌঁছাতে AI গবেষণার সীমানা ভাঙি।",
     },
     {
       icon: Users,
       title: language === "en" ? "User Centric" : "ব্যবহারকারী কেন্দ্রিক",
       description:
         language === "en"
-          ? "Every feature we build starts with understanding our users' needs."
-          : "প্রতিটি ফিচার তৈরি করি ব্যবহারকারীদের চাহিদা বুঝে।",
+          ? "Every feature is designed around real user workflows — built for researchers, professionals, and teams."
+          : "প্রতিটি ফিচার বাস্তব ব্যবহারকারীর ওয়ার্কফ্লো ঘিরে ডিজাইন করা — গবেষক, পেশাদার ও টিমদের জন্য।",
     },
     {
       icon: Globe,
-      title: language === "en" ? "Local Focus" : "স্থানীয় ফোকাস",
+      title: language === "en" ? "Global Scale" : "বৈশ্বিক পরিসর",
       description:
         language === "en"
-          ? "Built in Bangladesh, for Bangladesh, with local payment support."
-          : "বাংলাদেশে তৈরি, বাংলাদেশের জন্য, স্থানীয় পেমেন্ট সাপোর্ট সহ।",
+          ? "Serving users across 100+ countries with localized payment options and multi-language support."
+          : "১০০+ দেশে ব্যবহারকারীদের সেবা দিচ্ছি স্থানীয় পেমেন্ট অপশন এবং বহুভাষিক সাপোর্ট সহ।",
     },
     {
       icon: Heart,
       title: language === "en" ? "Accessibility" : "সহজলভ্যতা",
       description:
         language === "en"
-          ? "Making premium AI accessible and affordable for everyone."
-          : "প্রিমিয়াম AI সবার জন্য সহজলভ্য ও সাশ্রয়ী করা।",
+          ? "Enterprise-grade AI made accessible and affordable — democratizing intelligence for everyone."
+          : "এন্টারপ্রাইজ-গ্রেড AI সহজলভ্য ও সাশ্রয়ী — সবার জন্য ইন্টেলিজেন্স গণতান্ত্রিক করা।",
     },
   ];
 
@@ -83,16 +83,16 @@ const AboutUs = () => {
             {language === "en" ? "About Us" : "আমাদের সম্পর্কে"}
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-foreground mb-4 font-display">
-            {language === "en" ? "Empowering Bangladesh" : "বাংলাদেশকে শক্তিশালী করা"}
+            {language === "en" ? "Pioneering the Future" : "ভবিষ্যৎ গড়ছি"}
             <br />
             <span className="animated-gradient-text">
-              {language === "en" ? "With AI Innovation" : "AI উদ্ভাবনের মাধ্যমে"}
+              {language === "en" ? "Of AI Research" : "AI গবেষণার"}
             </span>
           </h2>
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             {language === "en"
-              ? "AI Sorix is Bangladesh's first unified AI platform, bringing together the world's most powerful AI models in one place. We're on a mission to democratize AI access for every Bangladeshi."
-              : "AI Sorix হল বাংলাদেশের প্রথম ইউনিফাইড AI প্ল্যাটফর্ম, বিশ্বের সবচেয়ে শক্তিশালী AI মডেলগুলোকে এক জায়গায় একত্রিত করে। আমরা প্রতিটি বাংলাদেশীর জন্য AI অ্যাক্সেস গণতান্ত্রিক করার মিশনে আছি।"}
+              ? "AI Sorix is a next-generation AI research ecosystem, unifying the world's most powerful AI models into a single, intelligent workspace for professionals, researchers, and teams globally."
+              : "AI Sorix একটি পরবর্তী প্রজন্মের AI রিসার্চ ইকোসিস্টেম, বিশ্বের সবচেয়ে শক্তিশালী AI মডেলগুলোকে একটি একক, বুদ্ধিমান ওয়ার্কস্পেসে একত্রিত করে — বিশ্বব্যাপী পেশাদার, গবেষক ও টিমদের জন্য।"}
           </p>
         </div>
 
@@ -113,14 +113,9 @@ const AboutUs = () => {
             </div>
             <p className="text-muted-foreground text-base sm:text-lg leading-relaxed mb-6">
               {language === "en"
-                ? "We believe everyone deserves access to powerful AI tools. AI Sorix was founded to break down barriers and make premium AI models accessible to students, professionals, and businesses in Bangladesh at affordable prices with local payment options."
-                : "আমরা বিশ্বাস করি সবাই শক্তিশালী AI টুলস অ্যাক্সেস পাওয়ার যোগ্য। AI Sorix প্রতিষ্ঠিত হয়েছে বাধা ভেঙে বাংলাদেশের ছাত্র, পেশাদার এবং ব্যবসায়ীদের কাছে প্রিমিয়াম AI মডেল সাশ্রয়ী মূল্যে স্থানীয় পেমেন্ট অপশন সহ সহজলভ্য করতে।"}
+                ? "We believe breakthrough AI should be accessible to everyone. AI Sorix was built to eliminate the friction of managing multiple AI subscriptions — delivering enterprise-grade intelligence at a fraction of the cost."
+                : "আমরা বিশ্বাস করি যুগান্তকারী AI সবার কাছে পৌঁছানো উচিত। AI Sorix তৈরি হয়েছে একাধিক AI সাবস্ক্রিপশন পরিচালনার ঝামেলা দূর করতে — অল্প খরচে এন্টারপ্রাইজ-গ্রেড ইন্টেলিজেন্স প্রদান করতে।"}
             </p>
-            <div className="glass-card inline-flex items-center gap-3 px-6 py-3 rounded-xl">
-              <span className="text-sm font-semibold text-foreground">
-                📍 {language === "en" ? "Proudly Made in Bangladesh" : "গর্বের সাথে বাংলাদেশে তৈরি"}
-              </span>
-            </div>
           </div>
         </div>
 
