@@ -1,14 +1,17 @@
 
 
-## Fix: Show Edit & Copy Actions on Mobile User Messages
+## Fix Mobile Message Actions — Professional Polish
 
-The issue is in `src/components/aichat/MessageBubble.tsx` line 162. The user message edit/copy buttons are explicitly hidden on mobile with `!isMobile`. On mobile there's no hover, so these actions should always be visible.
+The floating action bar above user messages looks disconnected and unprofessional. The fix is to remove the floating bar approach on mobile and instead show the edit/copy icons inline below the message bubble (right-aligned), matching how assistant actions appear below their messages.
 
 ### Changes — `src/components/aichat/MessageBubble.tsx`
 
-1. **Line 162**: Remove `!isMobile` from the condition — change `{showActions && !isEditing && !isMobile && (` to `{(showActions || isMobile) && !isEditing && (`
-2. **Line 163**: Adjust positioning for mobile — the `-left-20` absolute positioning works on desktop but needs to also work on mobile. Change to use responsive positioning so buttons appear above the bubble on mobile instead of to the left.
-3. **Line 282-287**: For assistant message actions, similarly make them always visible on mobile — change `showActions ? "opacity-100" : "opacity-0"` to `showActions || isMobile ? "opacity-100" : "opacity-0"`
+1. **User message actions (lines 162-168)**: Remove the absolute-positioned floating bar on mobile. Instead, render the edit/copy buttons as a right-aligned row below the user bubble (not floating/absolute), with no background/border/shadow — just subtle icons like the assistant actions.
 
-This ensures both user and assistant message actions are accessible on mobile, matching the desktop experience.
+   - Remove the `absolute -top-8 right-0 bg-muted/90 backdrop-blur-sm rounded-lg px-1 py-0.5 shadow-sm border border-border/50` mobile styling
+   - Move the action buttons outside the bubble's relative container on mobile, placing them below the bubble in a `flex justify-end` row with `gap-0.5 pt-1` styling
+   - Use the same `ActionButton` component used for assistant messages for consistency
+   - On desktop, keep the existing absolute left-positioned hover behavior unchanged
+
+2. **Overall approach**: Match the assistant message action pattern — clean inline icons below the content, always visible on mobile, hover-revealed on desktop. No floating pills or borders.
 
