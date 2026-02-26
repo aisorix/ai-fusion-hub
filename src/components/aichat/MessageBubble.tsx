@@ -159,8 +159,13 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
         {isUser ? (
           <div className="flex justify-end">
             <div className="relative max-w-[90%] sm:max-w-[85%]">
-              {showActions && !isEditing && !isMobile && (
-                <div className="absolute -left-20 top-1/2 -translate-y-1/2 flex items-center gap-1">
+              {(showActions || isMobile) && !isEditing && (
+                <div className={cn(
+                  "flex items-center gap-1",
+                  isMobile
+                    ? "absolute -top-8 right-0 bg-muted/90 backdrop-blur-sm rounded-lg px-1 py-0.5 shadow-sm border border-border/50"
+                    : "absolute -left-20 top-1/2 -translate-y-1/2"
+                )}>
                   <button
                     onClick={handleEdit}
                     className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
@@ -283,7 +288,7 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
                 <div
                   className={cn(
                     "flex items-center gap-0.5 pt-2 transition-opacity duration-150",
-                    showActions ? "opacity-100" : "opacity-0"
+                    (showActions || isMobile) ? "opacity-100" : "opacity-0"
                   )}
                 >
                   <ActionButton
