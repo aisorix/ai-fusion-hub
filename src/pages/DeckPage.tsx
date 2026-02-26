@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Presentation, History, X } from 'lucide-react';
 import DeckSlideshow from '@/components/deck/DeckSlideshow';
@@ -32,8 +32,17 @@ const DeckPage: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
-  const [refreshHistory, setRefreshHistory] = useState(0);
   const [showSlideshow, setShowSlideshow] = useState(false);
+  const [historyItems, setHistoryItems] = useState<DeckHistoryItem[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+
+  // Pre-fetch history on mount
+  useEffect(() => {
+    deckApi.getHistory().then(items => {
+      setHistoryItems(items);
+      setHistoryLoading(false);
+    }).catch(() => setHistoryLoading(false));
+  }, []);
 
   const effectiveSlideCount = showCustomInput && customSlideCount ? parseInt(customSlideCount) || slideCount : slideCount;
   const tokensRemaining = user.tokensLimit - user.tokensUsed;
@@ -55,7 +64,15 @@ const DeckPage: React.FC = () => {
       const result = await deckApi.generate(prompt, effectiveSlideCount, selectedTheme, true, textContent, finalArtStyle);
       setSlides(result.slides);
       setTitle(result.title);
-      setRefreshHistory((p) => p + 1);
+      // Instantly add to local history cache
+      const newHistoryItem: DeckHistoryItem = {
+        id: crypto.randomUUID(),
+        title: result.title,
+        input_data: { prompt, slideCount: effectiveSlideCount, theme: selectedTheme },
+        result_data: { slides: result.slides, tokens_used: result.tokensUsed },
+        created_at: new Date().toISOString(),
+      };
+      setHistoryItems(prev => [newHistoryItem, ...prev]);
       setUser({ ...user, tokensUsed: result.totalTokensUsed });
       toast.success(`Generated ${result.slides.length} slides`);
     } catch (err: any) {
@@ -222,7 +239,7 @@ const DeckPage: React.FC = () => {
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto">
-                <DeckHistory onLoad={handleHistoryLoad} refreshTrigger={refreshHistory} />
+                <DeckHistory onLoad={handleHistoryLoad} items={historyItems} loading={historyLoading} onDelete={(id) => setHistoryItems(prev => prev.filter(i => i.id !== id))} />
               </div>
             </motion.div>
           </>
