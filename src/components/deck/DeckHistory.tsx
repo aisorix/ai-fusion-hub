@@ -6,10 +6,11 @@ interface DeckHistoryProps {
   onLoad: (item: DeckHistoryItem) => void;
   items: DeckHistoryItem[];
   loading: boolean;
+  loadingId?: string | null;
   onDelete: (id: string) => void;
 }
 
-const DeckHistory: React.FC<DeckHistoryProps> = ({ onLoad, items, loading, onDelete }) => {
+const DeckHistory: React.FC<DeckHistoryProps> = ({ onLoad, items, loading, loadingId, onDelete }) => {
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
@@ -43,7 +44,11 @@ const DeckHistory: React.FC<DeckHistoryProps> = ({ onLoad, items, loading, onDel
           className="w-full text-left p-3 rounded-lg bg-muted/30 hover:bg-muted/60 border border-border/50 transition-colors group"
         >
           <div className="flex items-start gap-2">
-            <Presentation className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+            {loadingId === item.id ? (
+              <Loader2 className="w-4 h-4 text-primary shrink-0 mt-0.5 animate-spin" />
+            ) : (
+              <Presentation className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+            )}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">{item.title}</p>
               <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground">
