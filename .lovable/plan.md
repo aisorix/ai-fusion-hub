@@ -1,71 +1,37 @@
-## Plan: Rebrand Landing Page Text — Global AI Research Ecosystem
-
-This plan rewrites all landing page copy to position AI Sorix as a **global AI Research Ecosystem** with professional, futuristic messaging. All Bangladesh-specific and casual/informal text will be removed or replaced.
-
----
-
-### Summary of Changes
-
-**Files to modify:** 8 files
-
-1. `**src/contexts/LanguageContext.jsx**` — Update all English translation strings (hero, features, footer, pricing, workflow, FAQs)
-2. `**src/components/Hero.jsx**` — Update hardcoded text ("Powered by world's leading AI models", trust indicators)
-3. `**src/components/Features.jsx**` — Rewrite all feature descriptions to be professional/global, remove casual tone ("best friend", "roasting", "secret")
-4. `**src/components/AboutUs.jsx**` — Complete rewrite: remove all Bangladesh references, "Proudly Made in Bangladesh" badge, change to global AI research ecosystem messaging
-5. `**src/components/RolesSection.jsx**` — Remove Bangladesh/South Asian references from all role descriptions, make global
-6. `**src/components/ProductivityGains.jsx**` — Remove Bangladesh references, rewrite for global audience
-7. `**src/components/Testimonials.jsx**` — Update testimonial text to remove Bangladesh-specific references
-
----
-
-### Detailed Text Changes
-
-#### Hero Section (`LanguageContext.jsx` + `Hero.jsx`)
-
-- **heroTitle1**: "All Premium AI in" → "The Ultimate AI Research"
-- **heroTitle2**: "One Powerful Platform" → "Ecosystem — One Platform"
-- **heroDesc**: Remove "fraction of the cost" casual tone → "Access 10+ frontier AI models in a single, secure workspace. Faster responses. Enterprise-grade privacy. Built for researchers, professionals & teams worldwide."
-- **Trust indicators**: "100% Secure & Private" → "Enterprise-Grade Security"
-- **Hardcoded**: "Powered by world's leading AI models" → "Powered by the world's most advanced AI models"
-
-#### Features Section (`Features.jsx`)
-
-- Remove "Bangladesh farmers" from Agro → "Smart agricultural AI — crop planning, climate analytics, pest detection, and yield optimization for modern farming."
-- Remove casual tone from regular features:
-  - "Fun & Emotional" → "Adaptive & Context-Aware" — "AI that understands nuance, tone, and context — delivering responses that feel natural and intuitive."
-  - "Super Intelligent" → "Multi-Modal Intelligence" — "From code generation to creative writing, image analysis to deep research — one platform, limitless capability."
-  - "Instant Replies" → "Ultra-Fast Responses" — "Sub-second latency with optimized inference. No waiting, no buffering — just instant results."
-  - "Long-term Memory" → rewrite professionally
-  - "100% Private" → "Zero-Trust Security" — "End-to-end encrypted conversations. Your data is never stored, shared, or used for training."
-  - "50+ Languages" stays but description becomes professional
-- "Not just chat — the entire AI universe in the palm of your hand" → "Not just a chatbot — a complete AI-powered research and productivity ecosystem."
-
-#### About Us Section (`AboutUs.jsx`)
-
-- Header: "Empowering Bangladesh With AI Innovation" → "Pioneering the Future of AI Research"
-- Description: Remove "Bangladesh's first unified AI platform" → "AI Sorix is a next-generation AI research ecosystem, unifying the world's most powerful AI models into a single, intelligent workspace for professionals, researchers, and teams globally."
-- Mission: Remove all Bangladesh references → "We believe breakthrough AI should be accessible to everyone. AI Sorix was built to eliminate the friction of managing multiple AI subscriptions — delivering enterprise-grade intelligence at a fraction of the cost."
-- **Remove** "Proudly Made in Bangladesh" badge entirely
-- Values: "Local Focus" → "Global Scale" — "Serving users across 100+ countries with localized payment options and multi-language support."
-
-#### Roles Section (`RolesSection.jsx`)
-
-- Remove "Bangladesh" from all descriptions (entrepreneurs, creators, students, consultants, HR)
-- Make all copy globally relevant
-
-#### Productivity Gains (`ProductivityGains.jsx`)
-
-- Remove "built for Bangladesh", "Bangladeshi professionals" references
-- "all-in-one AI workspace built for Bangladesh" → "your all-in-one AI research workspace"
 
 
+## Problem Analysis
 
-#### Testimonials (`Testimonials.jsx`)
+Two issues identified:
 
-- Remove "local payment options make it perfect for Bangladesh" from Nusrat's review
-- Update to globally relevant testimonial text
+1. **Slow history loading**: The `getHistory()` query uses `select('*')` on `analysis_history` which fetches full `result_data` (containing all slide data with image URLs) for every history item. This is heavy data that's not needed for the list view. The network logs confirm statement timeouts (503/500 errors).
 
-#### Footer & Translations
+2. **History not immediately updated after generation**: After generating a presentation, the code increments `refreshHistory` which triggers a full database refetch. Instead, the newly generated presentation should be added to the local history cache instantly.
 
-- **footerDesc**: Keep model list, just ensure professional tone
-- Bangla translations will also be updated to match the new global messaging
+## Plan
+
+### 1. Optimize `deckApi.getHistory()` in `src/services/deckApi.ts`
+- Change `select('*')` to `select('id, title, input_data, created_at, result_data')` -- but more importantly, we need to avoid fetching full slide data for the list
+- Actually, the list only needs `id`, `title`, `created_at`, and the slide count from `result_data`. But since we can't partially select JSONB fields via PostgREST, we should keep the select but add `user_id` filter explicitly (RLS already handles this but explicit filter helps the query planner use the composite index)
+- Add explicit `.eq('user_id', userId)` filter to leverage the composite index `(user_id, tool, created_at DESC)`
+- Select only needed columns: `id, title, input_data, result_data, created_at`
+
+### 2. Pre-fetch history on page mount in `src/pages/DeckPage.tsx`
+- Fetch history eagerly when DeckPage mounts (not just when panel opens)
+- Store history items in DeckPage state
+- Pass cached items to DeckHistory component
+
+### 3. Instant local cache update after generation in `src/pages/DeckPage.tsx`
+- After successful generation, immediately prepend the new item to the local history array
+- No need for a full refetch -- the new item is already known locally
+
+### 4. Update `DeckHistory.tsx` to accept pre-fetched data
+- Accept optional `items` prop from parent
+- Only fetch if no cached items provided, or on explicit refresh
+
+## Files to Modify
+
+1. **`src/services/deckApi.ts`**: Optimize `getHistory` with explicit user_id filter and column selection
+2. **`src/pages/DeckPage.tsx`**: Pre-fetch history on mount, maintain local history state, instantly add new items after generation
+3. **`src/components/deck/DeckHistory.tsx`**: Accept cached items from parent, avoid redundant fetches
+
