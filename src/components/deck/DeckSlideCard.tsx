@@ -133,8 +133,8 @@ const DeckSlideCard: React.FC<DeckSlideCardProps> = ({ slide, theme, index, onUp
         <div className={cn('absolute top-3 left-3 text-[10px] font-mono px-2 py-0.5 rounded-full', tc.badge)}>
           {slide.slide_number}
         </div>
-        <div className="absolute bottom-0 left-0 right-0 p-5">
-          <h3 className="text-xl md:text-2xl font-bold text-white">
+        <div className="absolute bottom-0 left-0 right-0 p-3 md:p-5">
+          <h3 className="text-base md:text-2xl font-bold text-white">
             {renderEditable('heading', slide.heading, 'text-white')}
           </h3>
         </div>
@@ -148,18 +148,18 @@ const DeckSlideCard: React.FC<DeckSlideCardProps> = ({ slide, theme, index, onUp
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.1 }}
-        className={cn('rounded-xl border p-5 md:p-6 aspect-video flex flex-col justify-center', tc.card)}
+        className={cn('rounded-xl border p-4 md:p-6 md:aspect-video flex flex-col justify-center', tc.card)}
       >
-        <div className={cn('text-[10px] font-mono px-2 py-0.5 rounded-full w-fit mb-3', tc.badge)}>
+        <div className={cn('text-[10px] font-mono px-2 py-0.5 rounded-full w-fit mb-2 md:mb-3', tc.badge)}>
           {slide.slide_number}
         </div>
-        <h3 className={cn('text-lg md:text-xl font-bold mb-3', tc.heading)}>
+        <h3 className={cn('text-sm md:text-xl font-bold mb-2 md:mb-3', tc.heading)}>
           {renderEditable('heading', slide.heading, tc.heading)}
         </h3>
-        <ul className="space-y-1.5">
+        <ul className="space-y-1 md:space-y-1.5">
           {slide.bullet_points.map((bp, i) => (
-            <li key={i} className={cn('text-sm flex items-start gap-2', tc.text)}>
-              <span className="w-1.5 h-1.5 rounded-full bg-current mt-1.5 shrink-0 opacity-50" />
+            <li key={i} className={cn('text-xs md:text-sm flex items-start gap-1.5 md:gap-2', tc.text)}>
+              <span className="w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-current mt-1.5 shrink-0 opacity-50" />
               {renderEditable(`bullet_${i}`, bp, tc.text)}
             </li>
           ))}
@@ -174,25 +174,25 @@ const DeckSlideCard: React.FC<DeckSlideCardProps> = ({ slide, theme, index, onUp
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
-      className={cn('rounded-xl border overflow-hidden grid grid-cols-2 aspect-video', tc.card)}
+      className={cn('rounded-xl border overflow-hidden grid grid-cols-1 md:grid-cols-2', tc.card)}
     >
-      <div className="p-4 md:p-5 flex flex-col justify-center">
-        <div className={cn('text-[10px] font-mono px-2 py-0.5 rounded-full w-fit mb-3', tc.badge)}>
+      <div className="p-3 md:p-5 flex flex-col justify-center order-1">
+        <div className={cn('text-[10px] font-mono px-2 py-0.5 rounded-full w-fit mb-2 md:mb-3', tc.badge)}>
           {slide.slide_number}
         </div>
-        <h3 className={cn('text-base md:text-lg font-bold mb-2', tc.heading)}>
+        <h3 className={cn('text-sm md:text-lg font-bold mb-1.5 md:mb-2', tc.heading)}>
           {renderEditable('heading', slide.heading, tc.heading)}
         </h3>
-        <ul className="space-y-1">
+        <ul className="space-y-0.5 md:space-y-1">
           {slide.bullet_points.map((bp, i) => (
-            <li key={i} className={cn('text-xs flex items-start gap-1.5', tc.text)}>
+            <li key={i} className={cn('text-[11px] md:text-xs flex items-start gap-1 md:gap-1.5', tc.text)}>
               <span className="w-1 h-1 rounded-full bg-current mt-1.5 shrink-0 opacity-50" />
               {renderEditable(`bullet_${i}`, bp, tc.text)}
             </li>
           ))}
         </ul>
       </div>
-      <div className="p-2">{renderImage()}</div>
+      <div className="p-2 order-2 aspect-video md:aspect-auto">{renderImage()}</div>
     </motion.div>
   );
 };
