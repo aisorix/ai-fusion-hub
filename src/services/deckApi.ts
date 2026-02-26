@@ -63,12 +63,15 @@ export const deckApi = {
   },
 
   getHistory: async (): Promise<DeckHistoryItem[]> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
     const { data, error } = await supabase
       .from('analysis_history' as any)
-      .select('*')
+      .select('id, title, input_data, result_data, created_at')
       .eq('tool', 'deck')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
-      .limit(30);
+      .limit(100);
 
     if (error) throw error;
     return (data as any) || [];

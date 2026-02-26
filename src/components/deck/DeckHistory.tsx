@@ -1,36 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Presentation, Trash2, Loader2, Clock } from 'lucide-react';
 import { deckApi, type DeckHistoryItem } from '@/services/deckApi';
 
 interface DeckHistoryProps {
   onLoad: (item: DeckHistoryItem) => void;
-  refreshTrigger: number;
+  items: DeckHistoryItem[];
+  loading: boolean;
+  onDelete: (id: string) => void;
 }
 
-const DeckHistory: React.FC<DeckHistoryProps> = ({ onLoad, refreshTrigger }) => {
-  const [items, setItems] = useState<DeckHistoryItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchHistory = async () => {
-    setLoading(true);
-    try {
-      const data = await deckApi.getHistory();
-      setItems(data);
-    } catch {
-      // silent
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchHistory();
-  }, [refreshTrigger]);
+const DeckHistory: React.FC<DeckHistoryProps> = ({ onLoad, items, loading, onDelete }) => {
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     await deckApi.deletePresentation(id);
-    setItems((prev) => prev.filter((i) => i.id !== id));
+    onDelete(id);
   };
 
   if (loading) {
