@@ -185,7 +185,7 @@ const PrivacyPolicy = () => {
           <div className="flex items-center justify-between">
             <Link
               to="/"
-              className="flex items-center gap-2 sm:gap-3 group transition-all duration-300 hover:opacity-80"
+              className="flex items-center gap-1.5 group transition-all duration-300 hover:opacity-80"
             >
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                 <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />

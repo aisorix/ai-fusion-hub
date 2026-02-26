@@ -142,7 +142,7 @@ const VerifyEmail = () => {
       <div className="flex-1 flex items-center justify-center px-4 py-8">
         <Card className="w-full max-w-md border-border/50 shadow-2xl backdrop-blur-sm">
           <CardHeader className="text-center space-y-4">
-            <Link to="/" className="inline-flex items-center justify-center gap-3 mx-auto">
+            <Link to="/" className="inline-flex items-center justify-center gap-1.5 mx-auto">
               <img src={logo} alt="AI Sorix" className="w-12 h-12 object-contain" />
               <span className="text-2xl font-bold text-foreground">AI Sorix</span>
             </Link>
