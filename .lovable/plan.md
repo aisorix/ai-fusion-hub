@@ -1,41 +1,14 @@
 
 
-## Tighten Logo-Text Alignment Everywhere
+## Fix: Show Edit & Copy Actions on Mobile User Messages
 
-The logo icon and "AI Sorix" text currently have `gap-2` (8px) or `gap-3` (12px) spacing, making them look disconnected. The fix is to reduce all logo-text gaps to `gap-1.5` (6px) consistently across the app for a tight, professional enterprise look.
+The issue is in `src/components/aichat/MessageBubble.tsx` line 162. The user message edit/copy buttons are explicitly hidden on mobile with `!isMobile`. On mobile there's no hover, so these actions should always be visible.
 
-### Changes
+### Changes — `src/components/aichat/MessageBubble.tsx`
 
-**1. `src/components/Navbar.jsx`**
-- Line 87: Desktop logo — change `gap-2 sm:gap-3` to `gap-1.5`
-- Line 268: Mobile menu logo — change `gap-2` to `gap-1.5`
+1. **Line 162**: Remove `!isMobile` from the condition — change `{showActions && !isEditing && !isMobile && (` to `{(showActions || isMobile) && !isEditing && (`
+2. **Line 163**: Adjust positioning for mobile — the `-left-20` absolute positioning works on desktop but needs to also work on mobile. Change to use responsive positioning so buttons appear above the bubble on mobile instead of to the left.
+3. **Line 282-287**: For assistant message actions, similarly make them always visible on mobile — change `showActions ? "opacity-100" : "opacity-0"` to `showActions || isMobile ? "opacity-100" : "opacity-0"`
 
-**2. `src/components/Footer.jsx`**
-- Line 24: Footer logo — change `gap-2 sm:gap-3` to `gap-1.5`
-
-**3. `src/pages/Login.jsx`**
-- Line 98: Login logo — change `gap-3` to `gap-1.5`
-
-**4. `src/pages/Register.jsx`**
-- Line 160: Register logo — change `gap-3` to `gap-1.5`
-
-**5. `src/pages/VerifyEmail.jsx`**
-- Line 145: Verify email logo — change `gap-3` to `gap-1.5`
-
-**6. `src/pages/CookiePolicy.jsx`**
-- Logo-text container — reduce gap to `gap-1.5`
-
-**7. `src/pages/PrivacyPolicy.jsx`**
-- Logo-text container — reduce gap to `gap-1.5`
-
-**8. `src/pages/TermsOfService.jsx`**
-- Logo-text container — reduce gap to `gap-1.5`
-
-**9. `src/pages/RefundPolicy.jsx`**
-- Logo-text container — reduce gap to `gap-1.5`
-
-**10. `src/pages/AboutSorixLab.jsx`**
-- Logo-text container — reduce gap to `gap-1.5`
-
-All 10 files get a consistent `gap-1.5` (6px) between logo icon and "AI Sorix" text, matching enterprise-grade brand alignment.
+This ensures both user and assistant message actions are accessible on mobile, matching the desktop experience.
 
