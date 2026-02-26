@@ -110,7 +110,7 @@ const DeckSlideshow: React.FC<DeckSlideshowProps> = ({ slides, theme, onClose, s
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -40 }}
             transition={{ duration: 0.25 }}
-            className={cn('w-full rounded-xl md:rounded-2xl overflow-hidden relative', tc.bg, slide.layout === 'split' ? 'min-h-[60vw] md:aspect-video' : 'aspect-video')}
+            className={cn('w-full rounded-xl md:rounded-2xl overflow-hidden relative aspect-video', tc.bg)}
             style={{ maxHeight: '85vh' }}
           >
             {slide.layout === 'full-image' ? (
@@ -142,7 +142,7 @@ const DeckSlideshow: React.FC<DeckSlideshowProps> = ({ slides, theme, onClose, s
                 </ul>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 h-full">
+              <div className="grid grid-cols-2 h-full">
                 <div className="flex flex-col justify-center p-4 md:p-12 order-1">
                   <div className={cn('text-[10px] md:text-xs font-mono px-2 md:px-3 py-0.5 md:py-1 rounded-full w-fit mb-2 md:mb-4', tc.badge)}>
                     {slide.slide_number}

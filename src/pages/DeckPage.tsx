@@ -35,6 +35,7 @@ const DeckPage: React.FC = () => {
   const [showSlideshow, setShowSlideshow] = useState(false);
   const [historyItems, setHistoryItems] = useState<DeckHistoryItem[]>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
+  const [historyLoadingId, setHistoryLoadingId] = useState<string | null>(null);
 
   // Pre-fetch history on mount
   useEffect(() => {
@@ -87,17 +88,24 @@ const DeckPage: React.FC = () => {
   };
 
   const handleHistoryLoad = async (item: DeckHistoryItem) => {
-    const full = await deckApi.getPresentation(item.id);
-    if (!full?.result_data?.slides) {
-      toast.error('Failed to load presentation data');
-      return;
+    setHistoryLoadingId(item.id);
+    try {
+      const full = await deckApi.getPresentation(item.id);
+      if (!full?.result_data?.slides) {
+        toast.error('Failed to load presentation data');
+        return;
+      }
+      setSlides(full.result_data.slides);
+      setTitle(full.title);
+      if (full.input_data?.theme) {
+        setSelectedTheme(full.input_data.theme as DeckTheme);
+      }
+      setShowHistory(false);
+    } catch {
+      toast.error('Failed to load presentation');
+    } finally {
+      setHistoryLoadingId(null);
     }
-    setSlides(full.result_data.slides);
-    setTitle(full.title);
-    if (full.input_data?.theme) {
-      setSelectedTheme(full.input_data.theme as DeckTheme);
-    }
-    setShowHistory(false);
   };
 
   const handleUpdateSlide = (index: number, updated: Slide) => {
@@ -244,7 +252,7 @@ const DeckPage: React.FC = () => {
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto">
-                <DeckHistory onLoad={handleHistoryLoad} items={historyItems} loading={historyLoading} onDelete={(id) => setHistoryItems(prev => prev.filter(i => i.id !== id))} />
+                <DeckHistory onLoad={handleHistoryLoad} items={historyItems} loading={historyLoading} loadingId={historyLoadingId} onDelete={(id) => setHistoryItems(prev => prev.filter(i => i.id !== id))} />
               </div>
             </motion.div>
           </>
