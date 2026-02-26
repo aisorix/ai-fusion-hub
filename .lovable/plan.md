@@ -1,17 +1,41 @@
 
 
-## Change "AI Sorix" Logo Text Color
+## Tighten Logo-Text Alignment Everywhere
 
-Replace `text-gradient-primary` with `text-foreground` on the "AI Sorix" brand text in these 5 files (6 occurrences total):
+The logo icon and "AI Sorix" text currently have `gap-2` (8px) or `gap-3` (12px) spacing, making them look disconnected. The fix is to reduce all logo-text gaps to `gap-1.5` (6px) consistently across the app for a tight, professional enterprise look.
 
-### Files to modify
+### Changes
 
-1. **`src/components/Navbar.jsx`** (line 89) — Desktop logo: `text-gradient-primary tracking-tight` → `text-foreground tracking-tight`
-2. **`src/components/Navbar.jsx`** (line 270) — Mobile menu logo: `text-gradient-primary` → `text-foreground`
-3. **`src/components/Footer.jsx`** (line 26) — Footer logo: `text-gradient-primary` → `text-foreground`
-4. **`src/pages/Login.jsx`** (line 100) — Login page logo: `text-gradient-primary` → `text-foreground`
-5. **`src/pages/Register.jsx`** (line 162) — Register page logo: `text-gradient-primary` → `text-foreground`
-6. **`src/pages/VerifyEmail.jsx`** (line 147) — Verify email page logo: `text-gradient-primary` → `text-foreground`
+**1. `src/components/Navbar.jsx`**
+- Line 87: Desktop logo — change `gap-2 sm:gap-3` to `gap-1.5`
+- Line 268: Mobile menu logo — change `gap-2` to `gap-1.5`
 
-This makes the "AI Sorix" text match the chat sidebar style (white in dark mode, dark in light mode). No other text or styling is changed.
+**2. `src/components/Footer.jsx`**
+- Line 24: Footer logo — change `gap-2 sm:gap-3` to `gap-1.5`
+
+**3. `src/pages/Login.jsx`**
+- Line 98: Login logo — change `gap-3` to `gap-1.5`
+
+**4. `src/pages/Register.jsx`**
+- Line 160: Register logo — change `gap-3` to `gap-1.5`
+
+**5. `src/pages/VerifyEmail.jsx`**
+- Line 145: Verify email logo — change `gap-3` to `gap-1.5`
+
+**6. `src/pages/CookiePolicy.jsx`**
+- Logo-text container — reduce gap to `gap-1.5`
+
+**7. `src/pages/PrivacyPolicy.jsx`**
+- Logo-text container — reduce gap to `gap-1.5`
+
+**8. `src/pages/TermsOfService.jsx`**
+- Logo-text container — reduce gap to `gap-1.5`
+
+**9. `src/pages/RefundPolicy.jsx`**
+- Logo-text container — reduce gap to `gap-1.5`
+
+**10. `src/pages/AboutSorixLab.jsx`**
+- Logo-text container — reduce gap to `gap-1.5`
+
+All 10 files get a consistent `gap-1.5` (6px) between logo icon and "AI Sorix" text, matching enterprise-grade brand alignment.
 
