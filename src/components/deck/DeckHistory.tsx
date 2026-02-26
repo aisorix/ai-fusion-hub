@@ -51,7 +51,7 @@ const DeckHistory: React.FC<DeckHistoryProps> = ({ onLoad, items, loading, onDel
                   <Clock className="w-3 h-3" />
                   {new Date(item.created_at).toLocaleDateString()}
                 </span>
-                <span>{item.result_data?.slides?.length || 0} slides</span>
+                <span>{item.input_data?.slideCount || 0} slides</span>
               </div>
             </div>
             <button

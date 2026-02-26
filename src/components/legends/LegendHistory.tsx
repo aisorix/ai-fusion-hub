@@ -11,7 +11,7 @@ interface HistoryItem {
   id: string;
   title: string;
   input_data: any;
-  result_data: any;
+  result_data?: any;
   created_at: string;
 }
 
@@ -25,7 +25,7 @@ const LegendHistory: React.FC<LegendHistoryProps> = ({ onLoad }) => {
     setLoading(true);
     const { data } = await supabase
       .from('analysis_history' as any)
-      .select('*')
+      .select('id, title, input_data, created_at')
       .eq('user_id', user.id)
       .eq('tool', 'legends')
       .order('created_at', { ascending: false })
@@ -39,6 +39,15 @@ const LegendHistory: React.FC<LegendHistoryProps> = ({ onLoad }) => {
   const handleDelete = async (id: string) => {
     await supabase.from('analysis_history' as any).delete().eq('id', id);
     setItems(prev => prev.filter(i => i.id !== id));
+  };
+
+  const handleLoad = async (item: HistoryItem) => {
+    const { data } = await supabase
+      .from('analysis_history' as any)
+      .select('input_data, result_data')
+      .eq('id', item.id)
+      .single();
+    if (data) onLoad((data as any).input_data, (data as any).result_data);
   };
 
   if (loading) {
@@ -63,7 +72,7 @@ const LegendHistory: React.FC<LegendHistoryProps> = ({ onLoad }) => {
       {items.map(item => (
         <button
           key={item.id}
-          onClick={() => onLoad(item.input_data, item.result_data)}
+          onClick={() => handleLoad(item)}
           className="w-full text-left p-3 rounded-lg bg-muted/30 hover:bg-muted/60 border border-border/50 transition-colors group"
         >
           <div className="flex items-start gap-2">
