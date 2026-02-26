@@ -157,15 +157,11 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
     >
       <div className="max-w-3xl mx-auto px-3 sm:px-4">
         {isUser ? (
-          <div className="flex justify-end">
+          <div className="flex flex-col items-end gap-0">
             <div className="relative max-w-[90%] sm:max-w-[85%]">
-              {(showActions || isMobile) && !isEditing && (
-                <div className={cn(
-                  "flex items-center gap-1",
-                  isMobile
-                    ? "absolute -top-8 right-0 bg-muted/90 backdrop-blur-sm rounded-lg px-1 py-0.5 shadow-sm border border-border/50"
-                    : "absolute -left-20 top-1/2 -translate-y-1/2"
-                )}>
+              {/* Desktop: hover actions to the left */}
+              {showActions && !isEditing && !isMobile && (
+                <div className="absolute -left-20 top-1/2 -translate-y-1/2 flex items-center gap-1">
                   <button
                     onClick={handleEdit}
                     className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
@@ -238,6 +234,18 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
                 </div>
               )}
             </div>
+
+            {/* Mobile: inline actions below bubble */}
+            {isMobile && !isEditing && (
+              <div className="flex items-center gap-0.5 pt-1">
+                <ActionButton onClick={handleEdit} tooltip="Edit" theme={theme}>
+                  <Pencil className="w-4 h-4" />
+                </ActionButton>
+                <ActionButton onClick={handleCopy} active={copied} activeColor="text-green-500" tooltip="Copy" theme={theme}>
+                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                </ActionButton>
+              </div>
+            )}
           </div>
         ) : (
           <div className="flex gap-3 sm:gap-4">
