@@ -32,7 +32,7 @@ export interface DeckHistoryItem {
   id: string;
   title: string;
   input_data: { prompt: string; slideCount: number; theme: string };
-  result_data: { slides: Slide[]; tokens_used: number };
+  result_data?: { slides: Slide[]; tokens_used: number };
   created_at: string;
 }
 
@@ -67,7 +67,7 @@ export const deckApi = {
     if (!user) return [];
     const { data, error } = await supabase
       .from('analysis_history' as any)
-      .select('id, title, input_data, result_data, created_at')
+      .select('id, title, input_data, created_at')
       .eq('tool', 'deck')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
@@ -75,6 +75,16 @@ export const deckApi = {
 
     if (error) throw error;
     return (data as any) || [];
+  },
+
+  getPresentation: async (id: string): Promise<DeckHistoryItem | null> => {
+    const { data, error } = await supabase
+      .from('analysis_history' as any)
+      .select('id, title, input_data, result_data, created_at')
+      .eq('id', id)
+      .single();
+    if (error) return null;
+    return data as any;
   },
 
   deletePresentation: async (id: string): Promise<void> => {

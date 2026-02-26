@@ -86,11 +86,16 @@ const DeckPage: React.FC = () => {
     }
   };
 
-  const handleHistoryLoad = (item: DeckHistoryItem) => {
-    setSlides(item.result_data.slides || []);
-    setTitle(item.title);
-    if (item.input_data?.theme) {
-      setSelectedTheme(item.input_data.theme as DeckTheme);
+  const handleHistoryLoad = async (item: DeckHistoryItem) => {
+    const full = await deckApi.getPresentation(item.id);
+    if (!full?.result_data?.slides) {
+      toast.error('Failed to load presentation data');
+      return;
+    }
+    setSlides(full.result_data.slides);
+    setTitle(full.title);
+    if (full.input_data?.theme) {
+      setSelectedTheme(full.input_data.theme as DeckTheme);
     }
     setShowHistory(false);
   };
