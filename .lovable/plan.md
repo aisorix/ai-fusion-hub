@@ -1,37 +1,35 @@
 
 
-## Problem
+## Problem Analysis
 
-The history **is saving correctly** to the database (confirmed: 10+ deck entries exist in `analysis_history`). The problem is the **query times out** when reading history back. The `analysis_history` table is **158 MB** and the query selects `result_data` which contains full slide data with base64-encoded images. Every query returns a 500 error: `"canceling statement due to statement timeout"`.
+1. **History loading is slow**: The `analysis_history` table is 159 MB across 60 rows (deck entries are 5-9 MB each with base64 images). Even though `getHistory` excludes `result_data`, the table's TOAST overhead slows queries. When clicking a history item, `getPresentation` fetches 8+ MB with no loading indicator -- user sees nothing for a long time or gets a timeout error.
+
+2. **Mobile slide cards**: Already using `grid-cols-2` -- this matches what the user wants (desktop-like layout). No change needed here.
+
+3. **Mobile slideshow**: Currently uses `grid-cols-1 md:grid-cols-2` for split layout, stacking on mobile. User wants desktop-like side-by-side layout on mobile too.
 
 ## Plan
 
-### 1. Stop selecting `result_data` in `getHistory()` — `src/services/deckApi.ts`
-- Change `.select('id, title, input_data, result_data, created_at')` to `.select('id, title, input_data, created_at')`
-- This avoids fetching massive base64 image blobs for the list view
-- Update `DeckHistoryItem` type: make `result_data` optional since it won't be in list responses
-- For slide count display, use `input_data.slideCount` instead of `result_data.slides.length`
+### 1. Add loading state when clicking history item -- `DeckPage.tsx`
+- Add `historyLoadingId` state to show a spinner on the clicked history item while `getPresentation` fetches the full 8MB+ data
+- Pass this loading state to `DeckHistory` so the clicked item shows a spinner
+- Add a timeout/error handling with toast feedback
 
-### 2. Fetch full data only when loading a specific presentation — `src/services/deckApi.ts`
-- Add a new `getPresentation(id: string)` method that fetches a single row with `result_data` included
-- This is fast because it's a single row by primary key
+### 2. Add loading indicator to history items -- `DeckHistory.tsx`  
+- Accept `loadingId` prop
+- Show a spinner on the item being loaded instead of the Presentation icon
 
-### 3. Update `DeckHistory.tsx` to show slide count from `input_data`
-- Change `{item.result_data?.slides?.length || 0} slides` to `{item.input_data?.slideCount || 0} slides`
+### 3. Fix history query with statement timeout -- `deckApi.ts`
+- Add `.abortSignal()` or increase timeout awareness
+- Add error handling that retries once on timeout
 
-### 4. Update `DeckPage.tsx` history load flow
-- When user clicks a history item, call `deckApi.getPresentation(item.id)` to fetch the full slide data before loading it
-
-### 5. Fix other tools too — `AgroHistory.tsx`, `HealthHistory.tsx`, `LegendHistory.tsx`
-- All use `select('*')` which will hit the same timeout as the table grows
-- Change to exclude `result_data` from list queries
-- Each already shows minimal info in the list so this is safe
+### 4. Fix mobile slideshow to use desktop layout -- `DeckSlideshow.tsx`
+- Change split layout from `grid-cols-1 md:grid-cols-2` to `grid-cols-2` (always side-by-side)
+- Keep `aspect-video` on mobile for consistent 16:9 ratio
+- Remove `min-h-[60vw] md:aspect-video` conditional and use `aspect-video` always
 
 ## Files to Modify
-1. `src/services/deckApi.ts` — Remove `result_data` from list query, add `getPresentation()` method
-2. `src/components/deck/DeckHistory.tsx` — Use `input_data.slideCount` for count display
-3. `src/pages/DeckPage.tsx` — Fetch full presentation data on history item click
-4. `src/components/agro/AgroHistory.tsx` — Exclude `result_data` from list query
-5. `src/components/health/HealthHistory.tsx` — Exclude `result_data` from list query
-6. `src/components/legends/LegendHistory.tsx` — Exclude `result_data` from list query
+1. `src/pages/DeckPage.tsx` -- Add loading state for history item click
+2. `src/components/deck/DeckHistory.tsx` -- Show spinner on loading item
+3. `src/components/deck/DeckSlideshow.tsx` -- Use `grid-cols-2` always for split layout on mobile
 
