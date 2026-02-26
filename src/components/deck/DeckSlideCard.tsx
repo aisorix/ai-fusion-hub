@@ -148,7 +148,7 @@ const DeckSlideCard: React.FC<DeckSlideCardProps> = ({ slide, theme, index, onUp
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.1 }}
-        className={cn('rounded-xl border p-4 md:p-6 md:aspect-video flex flex-col justify-center', tc.card)}
+        className={cn('rounded-xl border p-4 md:p-6 aspect-video flex flex-col justify-center', tc.card)}
       >
         <div className={cn('text-[10px] font-mono px-2 py-0.5 rounded-full w-fit mb-2 md:mb-3', tc.badge)}>
           {slide.slide_number}
@@ -174,7 +174,7 @@ const DeckSlideCard: React.FC<DeckSlideCardProps> = ({ slide, theme, index, onUp
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
-      className={cn('rounded-xl border overflow-hidden grid grid-cols-1 md:grid-cols-2', tc.card)}
+      className={cn('rounded-xl border overflow-hidden grid grid-cols-2', tc.card)}
     >
       <div className="p-3 md:p-5 flex flex-col justify-center order-1">
         <div className={cn('text-[10px] font-mono px-2 py-0.5 rounded-full w-fit mb-2 md:mb-3', tc.badge)}>
