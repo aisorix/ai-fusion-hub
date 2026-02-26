@@ -135,7 +135,7 @@ const DeckPage: React.FC = () => {
 
       {/* Main */}
       <main className="flex-1 overflow-y-auto">
-        <div className="max-w-3xl mx-auto px-4 py-8 md:py-12 flex flex-col items-center gap-5">
+        <div className="max-w-3xl mx-auto px-3 md:px-4 py-4 md:py-12 flex flex-col items-center gap-4 md:gap-5">
           <DeckPromptBar onGenerate={handleGenerate} isGenerating={isGenerating} />
 
           {/* Slide count row */}
