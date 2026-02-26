@@ -84,7 +84,7 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 sm:h-20 items-center">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 sm:gap-3 group relative z-10">
+            <Link to="/" className="flex items-center gap-1.5 group relative z-10">
               <img src={logo} alt="AI Sorix" className="w-9 h-9 sm:w-12 sm:h-12 object-contain" />
               <span className="text-lg sm:text-2xl font-bold text-foreground tracking-tight">AI Sorix</span>
             </Link>
@@ -265,7 +265,7 @@ const Navbar = () => {
             <div className="bg-background/80 backdrop-blur-2xl border-b border-border/50 shadow-2xl max-h-[90vh] overflow-y-auto rounded-b-[2.5rem]">
               {/* Mobile Header */}
               <div className="flex items-center justify-between px-6 py-5 border-b border-border/30">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <img src={logo} alt="AI Sorix" className="w-8 h-8 object-contain" />
                   <span className="text-lg font-bold text-foreground">AI Sorix</span>
                 </div>

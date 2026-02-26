@@ -21,7 +21,7 @@ const Footer = () => {
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12">
           {/* Brand */}
           <div className="col-span-2 sm:col-span-2 lg:col-span-2">
-            <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <div className="flex items-center gap-1.5 mb-4 sm:mb-6">
               <img src={logo} alt="AI Sorix" className="w-10 h-10 sm:w-14 sm:h-14 object-contain" />
               <span className="text-xl sm:text-2xl font-bold text-foreground">AI Sorix</span>
             </div>
