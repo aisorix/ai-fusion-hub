@@ -2,36 +2,38 @@
 
 ## Problem Analysis
 
-Two issues identified:
+The Deck page has two mobile issues:
 
-1. **Slow history loading**: The `getHistory()` query uses `select('*')` on `analysis_history` which fetches full `result_data` (containing all slide data with image URLs) for every history item. This is heavy data that's not needed for the list view. The network logs confirm statement timeouts (503/500 errors).
+1. **Slideshow (fullscreen mode)**: Uses `aspect-video` with fixed padding (`p-8`), `grid-cols-2` for split layouts, and large font sizes that don't adapt well to small screens. Nav buttons overlap content. No touch/swipe support.
 
-2. **History not immediately updated after generation**: After generating a presentation, the code increments `refreshHistory` which triggers a full database refetch. Instead, the newly generated presentation should be added to the local history cache instantly.
+2. **Slide cards (after generation)**: `DeckSlideCard` uses `aspect-video` with `grid-cols-2` for split layouts, making text unreadably small on mobile. Font sizes and padding don't scale down enough.
 
 ## Plan
 
-### 1. Optimize `deckApi.getHistory()` in `src/services/deckApi.ts`
-- Change `select('*')` to `select('id, title, input_data, created_at, result_data')` -- but more importantly, we need to avoid fetching full slide data for the list
-- Actually, the list only needs `id`, `title`, `created_at`, and the slide count from `result_data`. But since we can't partially select JSONB fields via PostgREST, we should keep the select but add `user_id` filter explicitly (RLS already handles this but explicit filter helps the query planner use the composite index)
-- Add explicit `.eq('user_id', userId)` filter to leverage the composite index `(user_id, tool, created_at DESC)`
-- Select only needed columns: `id, title, input_data, result_data, created_at`
+### 1. Fix `DeckSlideshow.tsx` - Mobile fullscreen presentation
 
-### 2. Pre-fetch history on page mount in `src/pages/DeckPage.tsx`
-- Fetch history eagerly when DeckPage mounts (not just when panel opens)
-- Store history items in DeckPage state
-- Pass cached items to DeckHistory component
+- Reduce padding from `p-8` to `p-2 md:p-8`
+- For **split layout** slides: change `grid-cols-2` to `grid-cols-1 md:grid-cols-2` on mobile -- stack image below text
+- Scale down font sizes with mobile breakpoints (e.g. `text-lg md:text-2xl`)
+- Make nav buttons smaller on mobile (`w-8 h-8` with smaller icons)
+- Reduce slide counter and close button sizes for mobile
+- Add touch swipe support using `onTouchStart`/`onTouchEnd` handlers for left/right navigation
 
-### 3. Instant local cache update after generation in `src/pages/DeckPage.tsx`
-- After successful generation, immediately prepend the new item to the local history array
-- No need for a full refetch -- the new item is already known locally
+### 2. Fix `DeckSlideCard.tsx` - Slide cards in the results list
 
-### 4. Update `DeckHistory.tsx` to accept pre-fetched data
-- Accept optional `items` prop from parent
-- Only fetch if no cached items provided, or on explicit refresh
+- For **split layout**: change `grid-cols-2` to `grid-cols-1 md:grid-cols-2` on mobile -- stack vertically
+- Remove `aspect-video` on mobile for split/text-only layouts so content isn't squished: use `aspect-auto md:aspect-video` or remove aspect constraint on small screens
+- Adjust font sizes: headings `text-sm md:text-base lg:text-lg`, bullets `text-xs`
+- Reduce padding on mobile
+
+### 3. Fix `DeckPage.tsx` - Main page layout
+
+- Reduce vertical padding on mobile: `py-4 md:py-8`
+- Ensure slide count buttons wrap nicely on small screens (already uses `flex-wrap`, just verify)
 
 ## Files to Modify
 
-1. **`src/services/deckApi.ts`**: Optimize `getHistory` with explicit user_id filter and column selection
-2. **`src/pages/DeckPage.tsx`**: Pre-fetch history on mount, maintain local history state, instantly add new items after generation
-3. **`src/components/deck/DeckHistory.tsx`**: Accept cached items from parent, avoid redundant fetches
+1. **`src/components/deck/DeckSlideshow.tsx`**: Mobile-responsive slideshow with stacked layouts, smaller controls, touch swipe
+2. **`src/components/deck/DeckSlideCard.tsx`**: Mobile-responsive slide cards with stacked split layout, adjusted aspect ratio
+3. **`src/pages/DeckPage.tsx`**: Minor padding adjustments for mobile
 
