@@ -1,17 +1,39 @@
 
 
-## Fix Mobile Message Actions — Professional Polish
+## Fix Message Actions: Click-to-Show + Edit-and-Send
 
-The floating action bar above user messages looks disconnected and unprofessional. The fix is to remove the floating bar approach on mobile and instead show the edit/copy icons inline below the message bubble (right-aligned), matching how assistant actions appear below their messages.
+Two issues to address based on the screenshot reference:
+
+### Problem
+1. Mobile user message actions (edit/copy) are always visible — should only show on tap/click
+2. Edit "Save" button does nothing useful — should update the message content and re-send it to get a new AI response
 
 ### Changes — `src/components/aichat/MessageBubble.tsx`
 
-1. **User message actions (lines 162-168)**: Remove the absolute-positioned floating bar on mobile. Instead, render the edit/copy buttons as a right-aligned row below the user bubble (not floating/absolute), with no background/border/shadow — just subtle icons like the assistant actions.
+**1. Click-to-toggle actions on both mobile and desktop user messages**
+- Remove the `onMouseEnter`/`onMouseLeave` hover pattern for user messages
+- Instead, make the user message bubble itself clickable to toggle `showActions`
+- On mobile: actions appear below bubble only when tapped (not always visible)
+- On desktop: keep hover behavior for assistant messages, but user messages use click-toggle too
+- Remove the `{isMobile && !isEditing && (` always-visible block (lines 238-248)
+- Unify: show actions below the user bubble when `showActions` is true, hide when false, for both mobile and desktop
 
-   - Remove the `absolute -top-8 right-0 bg-muted/90 backdrop-blur-sm rounded-lg px-1 py-0.5 shadow-sm border border-border/50` mobile styling
-   - Move the action buttons outside the bubble's relative container on mobile, placing them below the bubble in a `flex justify-end` row with `gap-0.5 pt-1` styling
-   - Use the same `ActionButton` component used for assistant messages for consistency
-   - On desktop, keep the existing absolute left-positioned hover behavior unchanged
+**2. Edit + Save = re-send message**
+- Accept `sendMessage` from the `useAIChat` hook (passed via props or store)
+- On "Save": update the message content in the store via `setMessages`, truncate messages after the edited one, then trigger `sendMessage(editContent)` to get a fresh AI response
+- Add `onEditAndResend` callback prop to `MessageBubble` (or use store directly)
 
-2. **Overall approach**: Match the assistant message action pattern — clean inline icons below the content, always visible on mobile, hover-revealed on desktop. No floating pills or borders.
+**3. Props change — pass `onEditAndResend` from parent**
+- In `MessageList.tsx` or `ChatArea.tsx`, pass a handler that:
+  1. Finds the edited message index
+  2. Truncates messages to that point
+  3. Updates the user message content
+  4. Calls `sendMessage` with the new content
+
+### Changes — `src/components/aichat/MessageList.tsx`
+- Import `useAIChat` or get `sendMessage` + `setMessages` from store
+- Pass `onEditAndResend` callback to each `MessageBubble`
+
+### Changes — `src/components/aichat/ChatArea.tsx`
+- Ensure `sendMessage` is accessible and passed down (may already be available)
 
