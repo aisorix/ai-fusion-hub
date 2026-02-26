@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Presentation, History, X } from 'lucide-react';
 import DeckSlideshow from '@/components/deck/DeckSlideshow';
@@ -35,11 +35,6 @@ const DeckPage: React.FC = () => {
   const [refreshHistory, setRefreshHistory] = useState(0);
   const [showSlideshow, setShowSlideshow] = useState(false);
 
-  // Preload history cache on mount so panel opens instantly
-  useEffect(() => {
-    deckApi.getHistory();
-  }, []);
-
   const effectiveSlideCount = showCustomInput && customSlideCount ? parseInt(customSlideCount) || slideCount : slideCount;
   const tokensRemaining = user.tokensLimit - user.tokensUsed;
   const estimatedCost = effectiveSlideCount * 2000 + effectiveSlideCount * 12000;
@@ -60,13 +55,6 @@ const DeckPage: React.FC = () => {
       const result = await deckApi.generate(prompt, effectiveSlideCount, selectedTheme, true, textContent, finalArtStyle);
       setSlides(result.slides);
       setTitle(result.title);
-      // Optimistically add to cache so history panel shows it instantly
-      deckApi.addToCache({
-        title: result.title,
-        input_data: { prompt: '', slideCount: effectiveSlideCount, theme: selectedTheme },
-        result_data: { slides: result.slides, tokens_used: result.tokensUsed },
-        created_at: new Date().toISOString(),
-      });
       setRefreshHistory((p) => p + 1);
       setUser({ ...user, tokensUsed: result.totalTokensUsed });
       toast.success(`Generated ${result.slides.length} slides`);

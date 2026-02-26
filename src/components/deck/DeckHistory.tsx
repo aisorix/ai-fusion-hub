@@ -8,17 +8,13 @@ interface DeckHistoryProps {
 }
 
 const DeckHistory: React.FC<DeckHistoryProps> = ({ onLoad, refreshTrigger }) => {
-  const [items, setItems] = useState<DeckHistoryItem[]>(() => deckApi._cache || []);
-  const [loading, setLoading] = useState(!deckApi._cache);
+  const [items, setItems] = useState<DeckHistoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchHistory = async () => {
-    // Show cached data immediately, then refresh in background
-    if (deckApi._cache && items.length === 0) {
-      setItems(deckApi._cache);
-      setLoading(false);
-    }
+    setLoading(true);
     try {
-      const data = await deckApi.getHistory(true);
+      const data = await deckApi.getHistory();
       setItems(data);
     } catch {
       // silent
@@ -28,11 +24,6 @@ const DeckHistory: React.FC<DeckHistoryProps> = ({ onLoad, refreshTrigger }) => 
   };
 
   useEffect(() => {
-    // If we have cache, show it instantly and refresh in background
-    if (deckApi._cache) {
-      setItems(deckApi._cache);
-      setLoading(false);
-    }
     fetchHistory();
   }, [refreshTrigger]);
 

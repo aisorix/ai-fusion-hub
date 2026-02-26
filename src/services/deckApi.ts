@@ -62,48 +62,16 @@ export const deckApi = {
     return data;
   },
 
-  // In-memory cache for instant panel open
-  _cache: null as DeckHistoryItem[] | null,
-  _cacheTime: 0,
-
-  getHistory: async (forceRefresh = false): Promise<DeckHistoryItem[]> => {
-    // Return cache if fresh (within 30s) and not forced
-    if (!forceRefresh && deckApi._cache && Date.now() - deckApi._cacheTime < 30000) {
-      return deckApi._cache;
-    }
-
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) throw new Error('Not authenticated');
-
+  getHistory: async (): Promise<DeckHistoryItem[]> => {
     const { data, error } = await supabase
       .from('analysis_history' as any)
-      .select('id,title,input_data,result_data,created_at')
+      .select('*')
       .eq('tool', 'deck')
-      .eq('user_id', session.user.id)
       .order('created_at', { ascending: false })
-      .limit(100);
+      .limit(30);
 
     if (error) throw error;
-    const items = (data as any) || [];
-    deckApi._cache = items;
-    deckApi._cacheTime = Date.now();
-    return items;
-  },
-
-  addToCache: (item: Omit<DeckHistoryItem, 'id'> & { id?: string }) => {
-    const newItem: DeckHistoryItem = {
-      id: item.id || crypto.randomUUID(),
-      title: item.title,
-      input_data: item.input_data,
-      result_data: item.result_data,
-      created_at: item.created_at || new Date().toISOString(),
-    };
-    if (deckApi._cache) {
-      deckApi._cache = [newItem, ...deckApi._cache];
-    } else {
-      deckApi._cache = [newItem];
-    }
-    deckApi._cacheTime = Date.now();
+    return (data as any) || [];
   },
 
   deletePresentation: async (id: string): Promise<void> => {
