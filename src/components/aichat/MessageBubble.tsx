@@ -78,9 +78,10 @@ interface MessageBubbleProps {
   message: Message;
   isStreaming: boolean;
   isLast: boolean;
+  onEditAndResend?: (messageId: string, newContent: string) => void;
 }
 
-const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps) => {
+const MessageBubble = memo(({ message, isStreaming, isLast, onEditAndResend }: MessageBubbleProps) => {
   // Use selectors for only what's needed
   const theme = useChatStore(s => s.theme);
   const openShareModal = useChatStore(s => s.openShareModal);
@@ -152,36 +153,13 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
         isUser ? 'py-3 sm:py-4' : 'py-4 sm:py-6',
         isAssistant && (theme === 'dark' ? 'bg-muted/10' : 'bg-muted/30')
       )}
-      onMouseEnter={() => setShowActions(true)}
-      onMouseLeave={() => setShowActions(false)}
+      onMouseEnter={() => !isUser && setShowActions(true)}
+      onMouseLeave={() => !isUser && setShowActions(false)}
     >
       <div className="max-w-3xl mx-auto px-3 sm:px-4">
         {isUser ? (
           <div className="flex flex-col items-end gap-0">
             <div className="relative max-w-[90%] sm:max-w-[85%]">
-              {/* Desktop: hover actions to the left */}
-              {showActions && !isEditing && !isMobile && (
-                <div className="absolute -left-20 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                  <button
-                    onClick={handleEdit}
-                    className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-                    title="Edit"
-                  >
-                    <Pencil className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={handleCopy}
-                    className={cn(
-                      "p-1.5 rounded-lg hover:bg-muted transition-colors",
-                      copied ? "text-green-500" : "text-muted-foreground hover:text-foreground"
-                    )}
-                    title="Copy"
-                  >
-                    {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
-              )}
-
               {isEditing ? (
                 <div className="flex flex-col gap-2">
                   <textarea
@@ -199,20 +177,29 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
                       Cancel
                     </button>
                     <button
-                      onClick={() => setIsEditing(false)}
+                      onClick={() => {
+                        setIsEditing(false);
+                        setShowActions(false);
+                        if (onEditAndResend && editContent.trim()) {
+                          onEditAndResend(message.id, editContent.trim());
+                        }
+                      }}
                       className="px-3 py-1.5 text-xs rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
                     >
-                      Save
+                      Save & Send
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className={cn(
-                  'px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl',
-                  theme === 'dark' 
-                    ? 'bg-primary/20 text-foreground' 
-                    : 'bg-primary/10 text-foreground'
-                )}>
+                <div
+                  onClick={() => setShowActions(prev => !prev)}
+                  className={cn(
+                    'px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl cursor-pointer select-none',
+                    theme === 'dark' 
+                      ? 'bg-primary/20 text-foreground' 
+                      : 'bg-primary/10 text-foreground'
+                  )}
+                >
                   <p className="whitespace-pre-wrap break-words leading-relaxed text-[15px]">
                     {message.content}
                   </p>
@@ -235,8 +222,8 @@ const MessageBubble = memo(({ message, isStreaming, isLast }: MessageBubbleProps
               )}
             </div>
 
-            {/* Mobile: inline actions below bubble */}
-            {isMobile && !isEditing && (
+            {/* Actions below bubble — shown on click/tap */}
+            {showActions && !isEditing && (
               <div className="flex items-center gap-0.5 pt-1">
                 <ActionButton onClick={handleEdit} tooltip="Edit" theme={theme}>
                   <Pencil className="w-4 h-4" />

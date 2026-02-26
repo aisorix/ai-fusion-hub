@@ -2,12 +2,14 @@ import React, { useState, useCallback, useMemo } from "react";
 import MessageBubble from "./MessageBubble";
 import useAutoScroll from "@/hooks/useAutoScroll";
 import { useChatStore } from "@/stores/chatStore";
+import { useAIChat } from "@/hooks/useAIChat";
 import { cn } from "@/lib/utils";
 
 const INITIAL_VISIBLE = 100;
 
 const MessageList = () => {
-  const { chats, activeChatId, isStreaming } = useChatStore();
+  const { chats, activeChatId, isStreaming, setMessages } = useChatStore();
+  const { sendMessage } = useAIChat();
   const allMessages = useMemo(
     () => chats.find((c) => c.id === activeChatId)?.messages || [],
     [chats, activeChatId]
@@ -24,6 +26,16 @@ const MessageList = () => {
   const { containerRef } = useAutoScroll(messages, isStreaming);
 
   const handleLoadMore = useCallback(() => setShowAll(true), []);
+
+  const handleEditAndResend = useCallback((messageId: string, newContent: string) => {
+    const allMsgs = chats.find((c) => c.id === activeChatId)?.messages || [];
+    const msgIndex = allMsgs.findIndex((m) => m.id === messageId);
+    if (msgIndex === -1) return;
+    // Truncate everything from this message onward, then resend
+    const truncated = allMsgs.slice(0, msgIndex);
+    setMessages(truncated);
+    sendMessage(newContent);
+  }, [chats, activeChatId, setMessages, sendMessage]);
 
   return (
     <div
@@ -53,6 +65,7 @@ const MessageList = () => {
             message={message}
             isStreaming={isStreaming && index === messages.length - 1}
             isLast={index === messages.length - 1}
+            onEditAndResend={handleEditAndResend}
           />
         ))}
       </div>
