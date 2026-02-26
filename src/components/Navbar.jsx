@@ -86,7 +86,7 @@ const Navbar = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 sm:gap-3 group relative z-10">
               <img src={logo} alt="AI Sorix" className="w-9 h-9 sm:w-12 sm:h-12 object-contain" />
-              <span className="text-lg sm:text-2xl font-bold text-gradient-primary tracking-tight">AI Sorix</span>
+              <span className="text-lg sm:text-2xl font-bold text-foreground tracking-tight">AI Sorix</span>
             </Link>
 
             {/* Desktop Menu */}
@@ -267,7 +267,7 @@ const Navbar = () => {
               <div className="flex items-center justify-between px-6 py-5 border-b border-border/30">
                 <div className="flex items-center gap-2">
                   <img src={logo} alt="AI Sorix" className="w-8 h-8 object-contain" />
-                  <span className="text-lg font-bold text-gradient-primary">AI Sorix</span>
+                  <span className="text-lg font-bold text-foreground">AI Sorix</span>
                 </div>
                 <button
                   onClick={() => setMobileMenuOpen(false)}

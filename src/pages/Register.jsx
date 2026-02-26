@@ -159,7 +159,7 @@ const Register = () => {
           <CardHeader className="text-center space-y-4">
             <Link to="/" className="inline-flex items-center justify-center gap-3 mx-auto">
               <img src={logo} alt="AI Sorix" className="w-12 h-12 object-contain" />
-              <span className="text-2xl font-bold text-gradient-primary">AI Sorix</span>
+              <span className="text-2xl font-bold text-foreground">AI Sorix</span>
             </Link>
             <div>
               <CardTitle className="text-2xl font-bold text-foreground">

@@ -23,7 +23,7 @@ const Footer = () => {
           <div className="col-span-2 sm:col-span-2 lg:col-span-2">
             <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
               <img src={logo} alt="AI Sorix" className="w-10 h-10 sm:w-14 sm:h-14 object-contain" />
-              <span className="text-xl sm:text-2xl font-bold text-gradient-primary">AI Sorix</span>
+              <span className="text-xl sm:text-2xl font-bold text-foreground">AI Sorix</span>
             </div>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md mb-4 sm:mb-6">
               {t("footerDesc")}
