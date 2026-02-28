@@ -48,9 +48,21 @@ const DeckPage: React.FC = () => {
   const effectiveSlideCount = showCustomInput && customSlideCount ? parseInt(customSlideCount) || slideCount : slideCount;
   const tokensRemaining = user.tokensLimit - user.tokensUsed;
   const estimatedCost = effectiveSlideCount * 2000 + effectiveSlideCount * 12000;
+  const isFreeUser = user.plan === 'free';
+
+  // Count total slides from history for free users
+  const totalSlidesUsed = isFreeUser
+    ? historyItems.reduce((sum, item) => sum + (item.result_data?.slides?.length || 0), 0)
+    : 0;
+  const freeSlidesRemaining = 20 - totalSlidesUsed;
 
   const handleGenerate = async (prompt: string) => {
-    if (tokensRemaining < estimatedCost) {
+    if (isFreeUser) {
+      if (freeSlidesRemaining <= 0) {
+        setShowUpgrade(true);
+        return;
+      }
+    } else if (tokensRemaining < estimatedCost) {
       setShowUpgrade(true);
       return;
     }
@@ -208,9 +220,12 @@ const DeckPage: React.FC = () => {
             <DeckThemePicker selected={selectedTheme} onSelect={setSelectedTheme} />
           </div>
 
-          {/* Token info */}
+          {/* Token / Free slides info */}
           <p className="text-[10px] text-muted-foreground/50 text-center -mt-2">
-            {tokensRemaining.toLocaleString()} tokens remaining • Est. cost: {estimatedCost.toLocaleString()} tokens
+            {isFreeUser
+              ? `${totalSlidesUsed}/20 free slides used • ${freeSlidesRemaining > 0 ? `${freeSlidesRemaining} remaining` : 'Upgrade for more'}`
+              : `${tokensRemaining.toLocaleString()} tokens remaining • Est. cost: ${estimatedCost.toLocaleString()} tokens`
+            }
           </p>
 
           {/* Actions */}
