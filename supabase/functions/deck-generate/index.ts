@@ -73,11 +73,32 @@ serve(async (req) => {
     const estimatedImageTokens = generateImages ? slideCount * TOKENS_PER_IMAGE : 0;
     const estimatedTotal = estimatedTextTokens + estimatedImageTokens;
 
-    if (currentUsed + estimatedTotal > limit) {
-      return new Response(
-        JSON.stringify({ error: "insufficient_tokens", tokensUsed: currentUsed, tokensLimit: limit }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    // Free plan: allow 20 slides free, no token deduction
+    let isFreeSlides = false;
+    if (planId === "free") {
+      const { data: presentations } = await supabase
+        .from("presentations")
+        .select("slide_count")
+        .eq("user_id", userId);
+      const totalSlidesUsed = (presentations || []).reduce((sum: number, p: any) => sum + (p.slide_count || 0), 0);
+      const slidesRemaining = 20 - totalSlidesUsed;
+
+      if (slidesRemaining <= 0) {
+        return new Response(
+          JSON.stringify({ error: "insufficient_tokens", tokensUsed: currentUsed, tokensLimit: limit, freeSlidesUsed: totalSlidesUsed, freeSlidesLimit: 20 }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      // Free user still has slides left — allow without token check
+      isFreeSlides = true;
+    } else {
+      // Paid users: normal token check
+      if (currentUsed + estimatedTotal > limit) {
+        return new Response(
+          JSON.stringify({ error: "insufficient_tokens", tokensUsed: currentUsed, tokensLimit: limit }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
     // Call LLM for slide structure
@@ -253,8 +274,8 @@ Rules:
       result_data: { slides, tokens_used: totalTokens },
     });
 
-    // Deduct tokens
-    if (sub) {
+    // Deduct tokens only for paid users
+    if (sub && !isFreeSlides) {
       await supabase
         .from("subscriptions")
         .update({ tokens_used: currentUsed + totalTokens })

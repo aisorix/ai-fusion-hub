@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sparkles, Zap, Check, Heart, Leaf, Gamepad2, RotateCcw } from "lucide-react";
+import { Sparkles, Zap, Check, Heart, Leaf, Gamepad2, Presentation, RotateCcw } from "lucide-react";
 import { useChatStore, type UserPlan } from "@/stores/chatStore";
 import { cn } from "@/lib/utils";
 import { translations } from "@/lib/translations";
@@ -153,6 +153,23 @@ const PlansTokensTab = () => {
                 </div>
                 <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-green-500/10 text-green-500 border border-green-500/20 whitespace-nowrap">
                   Free
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg bg-muted/50">
+                <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-md sm:rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+                  <Presentation className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground text-xs sm:text-sm">Sorix Deck</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground truncate">AI Presentations</p>
+                </div>
+                <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full whitespace-nowrap ${
+                  user.plan === 'free'
+                    ? 'bg-cyan-500/10 text-cyan-500 border border-cyan-500/20'
+                    : 'bg-green-500/10 text-green-500 border border-green-500/20'
+                }`}>
+                  {user.plan === 'free' ? '20 Free Slides' : 'Included'}
                 </span>
               </div>
 
