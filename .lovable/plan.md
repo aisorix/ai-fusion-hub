@@ -1,61 +1,55 @@
 
 
-## Bangla Translation: Mobile Fit & Missing Strings Audit
+## Fix All Remaining Missing Bangla Translations
 
-### Findings
+After a thorough audit, I found hardcoded English strings across **14 files** — in settings tabs, chat page components, the share modal, and several landing page components that use inline `language === 'en' ? ... : ...` but still have some English-only strings.
 
-After reviewing all components, the translation coverage is solid on the landing page and desktop chat sidebar. However, there are significant gaps in the **MobileSidebar** and a few missing keys in translation dictionaries.
+### Files to Update
 
-### Issues Found
+**Chat Page Components (6 files):**
 
-**1. MobileSidebar (`src/components/aichat/MobileSidebar.tsx`) — 12+ hardcoded English strings**
-- Line 220: `"Premium AI Platform"` — hardcoded
-- Line 232: `"New chat"` — hardcoded
-- Line 243: `"Search chats"` placeholder — hardcoded
-- Line 257: `"Multi-Window Chat"` — hardcoded
-- Line 264: `"More Tools"` — hardcoded
-- Line 292: `"Free"` badge — hardcoded
-- Line 311: `"Projects"` — hardcoded
-- Line 323: `"History"` — hardcoded
-- Line 337: `"Today"` — hardcoded
-- Line 344: `"This Week"` — hardcoded
-- Line 350: `"Older"` — hardcoded
-- Line 378: `"Upgrade"` — hardcoded
-- Line 386: `"Home"` — hardcoded
-- Lines 176-181: Tool names/descriptions hardcoded in English (Sorix Agro, Sorix Health, etc.)
+| File | Hardcoded English Strings |
+|------|--------------------------|
+| `ProfileTab.tsx` | "Profile Information", "Manage your basic profile details", "Profile picture", "Click to upload a new photo", "Full name", "Phone", "Email", "Email cannot be changed", "Sign Out", "Delete Account", "This action is permanent...", "Update Profile", "Cancel", "Delete Forever" |
+| `ReportBugTab.tsx` | "Report a Bug", "Help us improve...", all BUG_TYPES labels/descriptions, SEVERITY_LEVELS labels, "Bug Title", "Description", "Steps to Reproduce", "Your Email", "Submit Bug Report", "Submitting...", "Need immediate assistance?" |
+| `HelpCenterTab.tsx` | "Help Center", "Find answers...", "Search for help...", all QUICK_LINKS labels/descriptions, all FAQ_ITEMS questions/answers, all SUPPORT_OPTIONS labels, "Still need help?", "Contact Support", "Copy Email", "Quick Links", "Get More Help", "Frequently Asked Questions" |
+| `TermsTab.tsx` | "Terms of Use", "Please read these terms carefully", all TERMS_SECTIONS titles/content, "View Full Terms", "Privacy Policy", "Welcome to AI Sorix..." |
+| `SubscriptionTab.tsx` | "We're sad to see you go", "Continue", "Never mind", CANCELLATION_REASONS labels, "Accept Offer & Stay", "Help us improve", "Submit Bug Report", all status badges, all action labels |
+| `PaymentHistoryTab.tsx` | "Payment History", "View all your past transactions", "No payment history", "Your payment transactions will appear here...", "Total transactions", "Total spent", plan names |
+| `ShareModal.tsx` | "Share & Collaborate", "Share Link", "Anyone with this link...", "Invite Members", "Enter email address", "Commenter", "Viewer", "Members", "Copied", "Copy" |
+| `MessageBubble.tsx` | "Writing", "Show thinking", "Hide thinking", "Analyzing your query...", "Cancel", "Save & Send" |
+| `ChatInput.tsx` | "Drop files here", "Images, PDFs, code files, and more", "Processing files...", "Health Mode Active - Always consult professionals", "Disable", "Live Voice Mode" |
 
-**2. Missing translation keys in `LanguageContext.jsx`**
-- `qwenSubtitle`, `qwenDesc`, `llamaSubtitle`, `llamaDesc` — used in Workflow.jsx with fallbacks
-- `home` key for mobile sidebar
-- `sorixDeck`, `sorixDeckDesc`, `sorixImagine`, `sorixImagineDesc` — tool descriptions
+### Implementation Approach
 
-**3. Missing translation keys in `translations.ts`**
-- `home` — for mobile sidebar "Home" button
-- `free` — for the "Free" badge in tool list
-- `sorixDeck`, `sorixDeckDesc`, `sorixImagine`, `sorixImagineDesc`
+Rather than adding 200+ keys to the translation files, I will use the **inline ternary pattern** (`language === 'bn' ? 'বাংলা' : 'English'`) that is already used extensively in RolesSection, ProductivityGains, Faqs, ContactUs, AboutUs, Testimonials, and Features. This keeps translations co-located with the components and avoids bloating the central dictionary.
 
-**4. Mobile text fit concerns**
-- Bangla text is generally ~20-30% wider than English. Current layout uses `truncate`, `whitespace-nowrap`, and `min-w-0` properly in most places.
-- The Pricing card mobile scroll (280px fixed width) is tight but functional — Bangla feature text may need `text-[10px]` instead of `text-xs` on some items.
-- The AnnouncementBanner already uses `whitespace-nowrap` and compact sizing — OK.
+For components that already use `useChatStore` language, I'll add the ternary directly. For settings tabs that don't yet import language, I'll add `const { language } = useChatStore()`.
 
-### Plan
+### Changes Per File
 
-**File 1: `src/contexts/LanguageContext.jsx`** — Add ~8 missing keys:
-- `en`: `home: 'Home'`, `qwenSubtitle`, `qwenDesc`, `llamaSubtitle`, `llamaDesc`, `sorixDeck: 'Sorix Deck'`, `sorixDeckDesc`, `sorixImagine: 'Sorix Imagine'`, `sorixImagineDesc`
-- `bn`: Bangla equivalents for all
+**1. `src/components/aichat/settings/ProfileTab.tsx`** — Add `useChatStore` language import, replace all 14 hardcoded strings with `language === 'bn'` ternaries (Profile Information, Full name, Phone, Email, Sign Out, Delete Account, Update Profile, Cancel, Delete Forever, etc.)
 
-**File 2: `src/lib/translations.ts`** — Add ~6 missing keys:
-- `home`, `free`, `sorixDeck`, `sorixDeckDesc`, `sorixImagine`, `sorixImagineDesc`, `multiWindowChat` (already exists), `moreTools` (already exists)
+**2. `src/components/aichat/settings/ReportBugTab.tsx`** — Add language import, translate BUG_TYPES array, SEVERITY_LEVELS labels, form labels, placeholder text, submit button text, support email note
 
-**File 3: `src/components/aichat/MobileSidebar.tsx`** — Replace all 12+ hardcoded strings with translation calls:
-- Import `useTranslation` from `@/lib/translations` and use `useChatStore` language
-- Replace `"New chat"` → `t('newChat')`, `"Search chats"` → `t('searchChats')`, etc.
-- Make tool names/descriptions use translated keys
-- Replace `"History"`, `"Today"`, `"This Week"`, `"Older"`, `"Upgrade"`, `"Home"`, `"Premium AI Platform"`, `"Projects"`, `"Free"` badge, `"More Tools"`, `"Multi-Window Chat"`
+**3. `src/components/aichat/settings/HelpCenterTab.tsx`** — Add language import, translate QUICK_LINKS, FAQ_ITEMS, SUPPORT_OPTIONS, section headings, search placeholder, contact card text
 
-**File 4: `src/components/Workflow.jsx`** — Replace fallback strings with proper `t()` keys (now that we add them)
+**4. `src/components/aichat/settings/TermsTab.tsx`** — Add language import, translate section titles, introduction paragraph, footer button labels (the legal content itself stays in English as it's a legal document, but UI chrome gets translated)
 
-### No layout changes needed
-The existing CSS patterns (`truncate`, `min-w-0`, `text-[10px]`, `whitespace-nowrap`, fixed card widths with scroll) handle Bangla text width well. No overflow fixes required.
+**5. `src/components/aichat/settings/SubscriptionTab.tsx`** — Add language ternaries for all UI labels: status badges, cancellation flow text, action buttons, offer card text
+
+**6. `src/components/aichat/settings/PaymentHistoryTab.tsx`** — Translate header, empty state, summary labels
+
+**7. `src/components/aichat/ShareModal.tsx`** — Add language import, translate header, labels, placeholder, role options, "Copied"/"Copy" button
+
+**8. `src/components/aichat/MessageBubble.tsx`** — Add language from store, translate "Writing", "Show/Hide thinking", "Cancel", "Save & Send"
+
+**9. `src/components/aichat/ChatInput.tsx`** — Translate "Drop files here", "Processing files...", health mode disclaimer, "Disable"
+
+**10. `src/components/aichat/ExportDropdown.tsx`** — Translate "All Assets (ZIP)" label and title
+
+### Total Scope
+- ~10 component files updated with inline Bangla translations
+- No changes to translation dictionary files (using inline ternary pattern)
+- Covers all settings tabs, share modal, message actions, chat input, and export dropdown
 
