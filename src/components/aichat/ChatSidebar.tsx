@@ -31,6 +31,7 @@ import {
   X,
 } from "lucide-react";
 import { useChatStore } from "@/stores/chatStore";
+import { useTranslation } from "@/lib/translations";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
@@ -159,7 +160,9 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
     user,
     setProjectsModalOpen,
     historyCollapsed,
+    language,
   } = useChatStore();
+  const { t } = useTranslation(language as 'en' | 'bn');
   const { avatarUrl, fullName } = useUserProfile();
 
   const [showMoreTools, setShowMoreTools] = useState(false);
@@ -347,11 +350,11 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => setShowUpgradeModal(true)}>
                   <Crown className="w-4 h-4 mr-2 text-primary" />
-                  Upgrade Plan
+                  {t('upgradePlan')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setShowSettings(true)}>
                   <Settings className="w-4 h-4 mr-2" />
-                  Settings
+                  {t('settings')}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => {
@@ -360,12 +363,12 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                   }}
                 >
                   <HelpCircle className="w-4 h-4 mr-2" />
-                  Help & Support
+                  {t('helpAndSupport')}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
                   <LogOut className="w-4 h-4 mr-2" />
-                  Log Out
+                  {t('logout')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -410,7 +413,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                 AI Sorix
                 {isPaidUser && <PlanBadge plan={user.plan as PlanType} />}
               </h1>
-              <p className="text-[10px] text-muted-foreground">Premium AI Platform</p>
+              <p className="text-[10px] text-muted-foreground">{t('premiumAIPlatform')}</p>
             </div>
           </Link>
           <button
@@ -425,7 +428,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
         <div className="px-3">
           <Button onClick={onNewChat} className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
             <Plus className="w-4 h-4" />
-            New chat
+            {t('newChat')}
           </Button>
         </div>
 
@@ -435,7 +438,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search chats"
+              placeholder={t('searchChats')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full h-9 pl-9 pr-3 rounded-lg bg-muted/50 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -453,7 +456,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             )}
           >
             <LayoutGrid className="w-4 h-4" />
-            <span>Multi-Window Chat</span>
+            <span>{t('multiWindowChat')}</span>
           </button>
 
           <div>
@@ -463,7 +466,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             >
               <div className="flex items-center gap-3">
                 <Sparkles className="w-4 h-4 text-primary" />
-                <span>More Tools</span>
+                <span>{t('moreTools')}</span>
               </div>
               <ChevronDown
                 className={cn("w-4 h-4 transition-transform text-muted-foreground", showMoreTools && "rotate-180")}
@@ -517,7 +520,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
           >
             <div className="flex items-center gap-3">
               <FolderKanban className="w-4 h-4" />
-              <span>Projects</span>
+              <span>{t('projects')}</span>
             </div>
             {user.plan === "free" && <span className="text-muted-foreground">🔒</span>}
           </button>
@@ -525,7 +528,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
 
         {/* Chat History */}
         <div className="px-3 mt-4 flex items-center justify-between">
-          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-3">History</h3>
+          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-3">{t('history')}</h3>
           <button
             onClick={() => useChatStore.setState({ historyCollapsed: !historyCollapsed })}
             className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground"
@@ -540,7 +543,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
               {todayChats.length > 0 && (
                 <div>
                   <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">
-                    Today
+                    {t('today')}
                   </h3>
                   <div className="space-y-0.5">{renderChatList(todayChats)}</div>
                 </div>
@@ -548,7 +551,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
               {thisWeekChats.length > 0 && (
                 <div>
                   <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">
-                    This Week
+                    {t('thisWeek')}
                   </h3>
                   <div className="space-y-0.5">{renderChatList(thisWeekChats)}</div>
                 </div>
@@ -556,7 +559,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
               {olderChats.length > 0 && (
                 <div>
                   <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">
-                    Older
+                    {t('older')}
                   </h3>
                   <div className="space-y-0.5">{renderChatList(olderChats.slice(0, 10))}</div>
                 </div>
@@ -583,11 +586,11 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             <DropdownMenuContent align="end" className="w-56 bg-popover border border-border shadow-lg z-50">
               <DropdownMenuItem onClick={() => setShowUpgradeModal(true)}>
                 <Crown className="w-4 h-4 mr-2 text-primary" />
-                Upgrade Plan
+                {t('upgradePlan')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setShowSettings(true)}>
                 <Settings className="w-4 h-4 mr-2" />
-                Settings
+                {t('settings')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
@@ -596,12 +599,12 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                 }}
               >
                 <HelpCircle className="w-4 h-4 mr-2" />
-                Help & Support
+                {t('helpAndSupport')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
                 <LogOut className="w-4 h-4 mr-2" />
-                Log Out
+                {t('logout')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -611,7 +614,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
           >
             <Home className="w-4 h-4" />
-            <span>Back to Home</span>
+            <span>{t('backToHome')}</span>
           </Link>
         </div>
       </div>

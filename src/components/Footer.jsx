@@ -50,22 +50,22 @@ const Footer = () => {
             <ul className="space-y-3 sm:space-y-4">
               <li>
                 <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Features
+                  {t("features")}
                 </button>
               </li>
               <li>
                 <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Pricing
+                  {t("pricing")}
                 </button>
               </li>
               <li>
                 <button onClick={() => document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  FAQs
+                  {t("faqs")}
                 </button>
               </li>
               <li>
                 <button className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  {t("Changelog")}
+                  {t("changelog")}
                 </button>
               </li>
             </ul>

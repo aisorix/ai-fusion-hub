@@ -92,10 +92,10 @@ const Navbar = () => {
             {/* Desktop Menu */}
             <div className="hidden lg:flex items-center gap-10">
               {[
-                { id: "features", label: "Features" },
-                { id: "pricing", label: "Pricing" },
-                { id: "faq", label: "FAQs" },
-                { id: "about", label: "About Us" },
+                { id: "features", label: t("features") },
+                { id: "pricing", label: t("pricing") },
+                { id: "faq", label: t("faqs") },
+                { id: "about", label: t("aboutUs") },
               ].map((item) => (
                 <button
                   key={item.id}
@@ -116,7 +116,7 @@ const Navbar = () => {
                 <Link
                   to="/chat"
                   className="p-2.5 rounded-xl hover:bg-muted/50 backdrop-blur-sm transition-colors text-muted-foreground hover:text-primary border border-transparent hover:border-border/50"
-                  title="Go to Chat"
+                  title={t("goToChat")}
                 >
                   <MessageSquare className="w-5 h-5" />
                 </Link>
@@ -186,7 +186,7 @@ const Navbar = () => {
                     <DropdownMenuItem asChild>
                       <Link to="/chat" className="flex items-center gap-2 cursor-pointer focus:bg-primary/10">
                         <MessageSquare className="w-4 h-4" />
-                        Go to Chat
+                        {t("goToChat")}
                       </Link>
                     </DropdownMenuItem>
 
@@ -195,7 +195,7 @@ const Navbar = () => {
                       <DropdownMenuItem asChild>
                         <Link to="/admin/chat" className="flex items-center gap-2 cursor-pointer focus:bg-primary/10">
                           <MessageSquare className="w-4 h-4" />
-                          Support Dashboard
+                          {t("supportDashboard")}
                         </Link>
                       </DropdownMenuItem>
                     )}
@@ -205,7 +205,7 @@ const Navbar = () => {
                       className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
                     >
                       <LogOut className="w-4 h-4 mr-2" />
-                      Sign Out
+                      {t("signOut")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -281,10 +281,10 @@ const Navbar = () => {
                 {/* Navigation Links */}
                 <div className="grid gap-2">
                   {[
-                    { id: "features", label: "Features" },
-                    { id: "pricing", label: "Pricing" },
-                    { id: "faq", label: "FAQs" },
-                    { id: "about", label: "About Us" },
+                    { id: "features", label: t("features") },
+                    { id: "pricing", label: t("pricing") },
+                    { id: "faq", label: t("faqs") },
+                    { id: "about", label: t("aboutUs") },
                   ].map((item) => (
                     <button
                       key={item.id}
@@ -309,7 +309,7 @@ const Navbar = () => {
                 <div className="bg-muted/30 backdrop-blur-md rounded-2xl p-5 border border-border/50">
                   <div className="flex items-center gap-3 mb-4">
                     <Globe className="w-4 h-4 text-primary" />
-                    <span className="text-sm font-semibold">Switch Language</span>
+                    <span className="text-sm font-semibold">{t("switchLanguage")}</span>
                   </div>
                   <div className="flex gap-3">
                     <button
@@ -351,13 +351,13 @@ const Navbar = () => {
                         className="flex items-center justify-center gap-2 w-full py-4 gradient-primary text-foreground font-bold rounded-2xl shadow-xl transition-all active:scale-95"
                         onClick={() => setMobileMenuOpen(false)}
                       >
-                        <MessageSquare className="w-5 h-5" /> Go to Chat
+                        <MessageSquare className="w-5 h-5" /> {t("goToChat")}
                       </Link>
                       <button
                         onClick={handleSignOut}
                         className="w-full flex items-center justify-center gap-2 py-3.5 border border-destructive/20 text-destructive rounded-xl font-semibold hover:bg-destructive/5"
                       >
-                        <LogOut className="w-4 h-4" /> Log Out
+                        <LogOut className="w-4 h-4" /> {t("signOut")}
                       </button>
                     </>
                   ) : (

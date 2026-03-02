@@ -106,6 +106,21 @@ export const translations = {
     
     // Models
     selectModel: 'Select model',
+    freeModels: 'FREE MODELS',
+    basicModels: 'BASIC MODELS',
+    proModels: 'PRO MODELS',
+    premiumModelsLabel: 'PREMIUM MODELS',
+    chooseModel: 'Choose Model',
+    selectModelDesc: 'Select an AI model for your conversation',
+    tokenMultiplier: 'Token multiplier affects usage',
+    freeTrial: 'Free Trial',
+    current: 'Current',
+    used: 'used',
+    backToHome: 'Back to Home',
+    history: 'History',
+    rename: 'Rename',
+    delete: 'Delete',
+    premiumAIPlatform: 'Premium AI Platform',
   },
   bn: {
     // Sidebar
@@ -213,6 +228,21 @@ export const translations = {
     
     // Models
     selectModel: 'মডেল নির্বাচন করুন',
+    freeModels: 'ফ্রি মডেল',
+    basicModels: 'বেসিক মডেল',
+    proModels: 'প্রো মডেল',
+    premiumModelsLabel: 'প্রিমিয়াম মডেল',
+    chooseModel: 'মডেল বেছে নিন',
+    selectModelDesc: 'আপনার কথোপকথনের জন্য একটি AI মডেল নির্বাচন করুন',
+    tokenMultiplier: 'টোকেন গুণক ব্যবহারকে প্রভাবিত করে',
+    freeTrial: 'ফ্রি ট্রায়াল',
+    current: 'বর্তমান',
+    used: 'ব্যবহৃত',
+    backToHome: 'হোমে ফিরে যান',
+    history: 'ইতিহাস',
+    rename: 'নাম পরিবর্তন',
+    delete: 'মুছুন',
+    premiumAIPlatform: 'প্রিমিয়াম AI প্ল্যাটফর্ম',
   }
 } as const;
 
