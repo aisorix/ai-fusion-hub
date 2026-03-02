@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 const AnnouncementBanner = () => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
   return (
     <div className="absolute top-1 left-1/2 -translate-x-1/2 z-20 w-auto max-w-[95%]">
@@ -24,7 +24,7 @@ const AnnouncementBanner = () => {
               bg-primary/10 dark:bg-primary/20 text-primary
               hover:bg-primary/20 dark:hover:bg-primary/30 transition"
           >
-            Built by Sorixlab
+            {t("builtBySorixlab")}
           </Link>
 
           <span className="h-1 w-1 rounded-full bg-primary" />

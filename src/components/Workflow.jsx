@@ -135,9 +135,9 @@ const Workflow = () => {
             <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 gradient-primary rounded-2xl flex items-center justify-center group-hover:scale-110 group-hover:shadow-glow transition-all duration-500">
               <span className="text-2xl sm:text-3xl font-bold text-foreground">+4</span>
             </div>
-            <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2 text-center">Premium Models</h3>
+            <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2 text-center">{t('premiumModelsCard')}</h3>
             <p className="text-sm text-muted-foreground leading-relaxed text-center">
-              Unlock Perplexity, Kimi, Claude, Grok & Mistral in Pro & Premium plans.
+              {t('unlockPremiumModels')}
             </p>
           </div>
         </div>

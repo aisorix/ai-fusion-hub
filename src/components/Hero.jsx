@@ -155,7 +155,7 @@ const Hero = () => {
         <div className="mt-8 sm:mt-12 flex flex-wrap justify-center items-center gap-3 sm:gap-4 md:gap-6 px-4">
           {[
             { icon: Sparkles, text: t("tokensMonth") },
-            { icon: Zap, text: language === "en" ? "10+ Frontier AI Models" : "১০+ ফ্রন্টিয়ার AI মডেল" },
+            { icon: Zap, text: t("frontierModels") },
             { icon: Shield, text: t("securePrivate") },
           ].map((item, i) => (
             <div
@@ -171,7 +171,7 @@ const Hero = () => {
         {/* AI Model Showcase */}
         <div className="mt-8 sm:mt-12">
           <p className="text-center text-xs sm:text-sm text-muted-foreground mb-4">
-            Powered by the world's most advanced AI models
+            {t("poweredByModels")}
           </p>
           <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 px-2">
             {aiModels.map((model, i) => (
@@ -185,7 +185,7 @@ const Hero = () => {
               </div>
             ))}
             <div className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-primary/10 border border-primary/20">
-              <span className="text-xs sm:text-sm font-bold text-primary">+3 more</span>
+              <span className="text-xs sm:text-sm font-bold text-primary">{t("moreModels")}</span>
             </div>
           </div>
         </div>

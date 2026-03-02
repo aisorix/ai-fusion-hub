@@ -45,10 +45,10 @@ const Pricing = () => {
   const navigate = useNavigate();
   const scrollContainerRef = React.useRef(null);
 
-  const sorixHealthLabel = language === 'en' ? 'Sorix Health' : 'সোরিক্স হেলথ';
+  const sorixHealthLabel = t('sorixHealth');
   const sorixAgroLabel = language === 'en' ? 'Sorix Agro' : 'সোরিক্স অ্যাগ্রো';
   const sorixLegendsLabel = language === 'en' ? 'Sorix Legends' : 'সোরিক্স লিজেন্ডস';
-  const comingSoon = language === 'en' ? 'Coming Soon' : 'শীঘ্রই আসছে';
+  const comingSoon = t('comingSoon');
 
   const plans = [
     {
@@ -67,15 +67,15 @@ const Pricing = () => {
         { text: sorixHealthLabel, included: true },
         { text: sorixAgroLabel, included: true },
         { text: sorixLegendsLabel, included: true },
-        { text: 'Sorix Deck', subtext: language === 'en' ? '20 slides free' : '২০ স্লাইড ফ্রি', included: true },
+        { text: 'Sorix Deck', subtext: t('slideFree'), included: true },
         { text: t('webSearch'), included: false },
         { text: t('projects'), included: false },
         { text: t('voiceAI'), included: false },
-        { text: language === 'en' ? 'File Upload' : 'ফাইল আপলোড', included: false },
-        { text: language === 'en' ? 'Image Gen' : 'ইমেজ জেন', included: false },
+        { text: t('fileUpload'), included: false },
+        { text: t('imageGen'), included: false },
         { text: t('memory'), included: false },
       ],
-      buttonText: language === 'en' ? 'Get Started' : 'শুরু করুন',
+      buttonText: t('getStartedBtn'),
       buttonStyle: 'bg-muted hover:bg-muted/80 text-foreground',
       isFree: true,
     },
@@ -95,14 +95,14 @@ const Pricing = () => {
         { text: sorixAgroLabel, included: true },
         { text: sorixLegendsLabel, included: true },
         { text: 'Sorix Deck', included: true },
-        { text: language === 'en' ? 'Web Search (Basic)' : 'ওয়েব সার্চ (বেসিক)', included: true },
+        { text: t('webSearchBasic'), included: true },
         { text: `${t('voiceAIBasic')}`, subtext: '10 min/day', included: true },
-        { text: language === 'en' ? 'File Upload: PDF/DOC' : 'ফাইল আপলোড: PDF/DOC', subtext: language === 'en' ? 'Max 5mb' : 'সর্বোচ্চ ৫MB', included: true },
-        { text: language === 'en' ? 'Image Gen' : 'ইমেজ জেন', included: true },
+        { text: t('fileUpload') + ': PDF/DOC', subtext: t('maxSize') + ' 5MB', included: true },
+        { text: t('imageGen'), included: true },
         { text: t('memory'), included: true },
         { text: `2 ${t('projects')}`, included: true },
       ],
-      buttonText: language === 'en' ? 'Get Started' : 'শুরু করুন',
+      buttonText: t('getStartedBtn'),
       buttonStyle: 'border-2 border-foreground/20 text-foreground hover:bg-muted',
     },
     {
@@ -123,14 +123,14 @@ const Pricing = () => {
         { text: sorixAgroLabel, included: true },
         { text: sorixLegendsLabel, included: true },
         { text: 'Sorix Deck', included: true },
-        { text: language === 'en' ? 'Web Search (Pro)' : 'ওয়েব সার্চ (প্রো)', included: true },
+        { text: t('webSearchPro'), included: true },
         { text: t('voiceAIHigh'), included: true },
-        { text: language === 'en' ? 'File Upload: PDF/DOC' : 'ফাইল আপলোড: PDF/DOC', subtext: language === 'en' ? 'Max 10mb' : 'সর্বোচ্চ ১০MB', included: true },
-        { text: language === 'en' ? 'Image Gen' : 'ইমেজ জেন', included: true },
+        { text: t('fileUpload') + ': PDF/DOC', subtext: t('maxSize') + ' 10MB', included: true },
+        { text: t('imageGen'), included: true },
         { text: t('memoryLong'), included: true },
         { text: `5 ${t('projects')}`, included: true },
       ],
-      buttonText: language === 'en' ? 'Get Pro' : 'প্রো নিন',
+      buttonText: t('getPro'),
       buttonStyle: 'bg-primary text-primary-foreground shadow-glow hover:shadow-glow-lg',
     },
     {
@@ -149,15 +149,15 @@ const Pricing = () => {
         { text: sorixAgroLabel, included: true },
         { text: sorixLegendsLabel, included: true },
         { text: 'Sorix Deck', included: true },
-        { text: language === 'en' ? 'Web Search (Premium)' : 'ওয়েব সার্চ (প্রিমিয়াম)', included: true },
+        { text: t('webSearchPremium'), included: true },
         { text: t('voiceAIUnlimited'), included: true },
-        { text: language === 'en' ? 'File Upload: PDF/DOC' : 'ফাইল আপলোড: PDF/DOC', subtext: language === 'en' ? 'Max 15mb' : 'সর্বোচ্চ ১৫MB', included: true },
-        { text: language === 'en' ? 'Image Gen' : 'ইমেজ জেন', included: true },
+        { text: t('fileUpload') + ': PDF/DOC', subtext: t('maxSize') + ' 15MB', included: true },
+        { text: t('imageGen'), included: true },
         { text: t('memoryUltra'), included: true },
         { text: `10 ${t('projects')}`, included: true },
-        { text: t('teamAccess'), subtext: language === 'en' ? 'Up to 3 members' : '৩ জন পর্যন্ত', included: true },
+        { text: t('teamAccess'), subtext: t('upToMembers'), included: true },
       ],
-      buttonText: language === 'en' ? 'Go Premium' : 'প্রিমিয়াম নিন',
+      buttonText: t('goPremium'),
       buttonStyle: 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-lg hover:shadow-xl',
     },
   ];
@@ -283,8 +283,8 @@ const Pricing = () => {
               
               {isCurrentUserPlan && (
                 <div className="absolute top-0 left-0 right-0">
-                  <div className="bg-muted text-center py-2 text-xs font-medium text-muted-foreground flex items-center justify-center gap-1.5 border-b border-border">
-                    {language === 'en' ? 'Your Current Plan' : 'আপনার বর্তমান প্ল্যান'}
+                   <div className="bg-muted text-center py-2 text-xs font-medium text-muted-foreground flex items-center justify-center gap-1.5 border-b border-border">
+                    {t('yourCurrentPlan')}
                   </div>
                 </div>
               )}
@@ -311,7 +311,7 @@ const Pricing = () => {
                   </div>
                   {isYearly && plan.price > 0 && (
                     <p className="text-[10px] text-green-600 dark:text-green-400 mt-0.5 font-medium">
-                      {language === 'en' ? 'Billed yearly' : 'বাৎসরিক বিল'}
+                      {t('billedYearly')}
                     </p>
                   )}
                 </div>
@@ -355,7 +355,7 @@ const Pricing = () => {
                     </div>
                   ))}
                   {plan.features.length > 6 && (
-                    <p className="text-[10px] text-muted-foreground pl-6">+{plan.features.length - 6} more features</p>
+                    <p className="text-[10px] text-muted-foreground pl-6">+{plan.features.length - 6} {t('moreFeatures')}</p>
                   )}
                 </div>
 
@@ -370,7 +370,7 @@ const Pricing = () => {
                   }`}
                 >
                   {currentPlan === plan.name 
-                    ? (language === 'en' ? 'Current Plan' : 'বর্তমান প্ল্যান')
+                    ? t('currentPlan')
                     : plan.buttonText}
                   {currentPlan !== plan.name && <ArrowRight className="w-3.5 h-3.5" />}
                 </button>
@@ -426,8 +426,8 @@ const Pricing = () => {
               
               {isCurrentUserPlan && (
                 <div className="absolute top-0 left-0 right-0">
-                  <div className="bg-muted text-center py-2.5 text-sm font-medium text-muted-foreground flex items-center justify-center gap-2 border-b border-border">
-                    {language === 'en' ? 'Your Current Plan' : 'আপনার বর্তমান প্ল্যান'}
+                   <div className="bg-muted text-center py-2.5 text-sm font-medium text-muted-foreground flex items-center justify-center gap-2 border-b border-border">
+                    {t('yourCurrentPlan')}
                   </div>
                 </div>
               )}
@@ -454,7 +454,7 @@ const Pricing = () => {
                   </div>
                   {isYearly && plan.price > 0 && (
                     <p className="text-xs text-green-600 dark:text-green-400 mt-1 font-medium">
-                      {language === 'en' ? 'Billed yearly' : 'বাৎসরিক বিল'}
+                      {t('billedYearly')}
                     </p>
                   )}
                 </div>

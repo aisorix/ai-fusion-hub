@@ -7,11 +7,13 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ModelIcon } from "./ModelIcons";
 import { toast } from "sonner";
+import { useTranslation } from "@/lib/translations";
 
 const ModelSelector = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { selectedModel, models, setSelectedModel, user, theme, getDailyUsageRemaining } = useChatStore();
+  const { selectedModel, models, setSelectedModel, user, theme, getDailyUsageRemaining, language } = useChatStore();
+  const { t } = useTranslation(language as 'en' | 'bn');
   const isMobile = useIsMobile();
 
   useEffect(() => { setMounted(true); }, []);
@@ -99,8 +101,8 @@ const ModelSelector = () => {
                     <div className="flex-none px-6 pb-4 border-b border-border/40 bg-background">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h3 className="text-xl font-bold text-foreground">Choose Model</h3>
-                          <p className="text-sm text-muted-foreground mt-0.5">Select an AI model for your conversation</p>
+                          <h3 className="text-xl font-bold text-foreground">{t('chooseModel')}</h3>
+                          <p className="text-sm text-muted-foreground mt-0.5">{t('selectModelDesc')}</p>
                         </div>
                         <button onClick={() => setIsOpen(false)} className="p-2 rounded-full bg-muted/40 hover:bg-muted transition-colors">
                           <X className="w-5 h-5 text-muted-foreground" />
@@ -123,15 +125,15 @@ const ModelSelector = () => {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between">
                                 <p className="text-base font-semibold text-foreground truncate">
-                                  {user.plan === "free" ? "Free Trial" : `Sorix ${user.plan.charAt(0).toUpperCase() + user.plan.slice(1)}`}
+                                  {user.plan === "free" ? t('freeTrial') : `Sorix ${user.plan.charAt(0).toUpperCase() + user.plan.slice(1)}`}
                                 </p>
-                                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-background border border-border">Current</span>
+                                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-background border border-border">{t('current')}</span>
                               </div>
                               <div className="flex items-center gap-2 mt-2">
                                 <div className="h-1.5 flex-1 bg-muted rounded-full overflow-hidden">
                                   <div className={cn("h-full rounded-full transition-all duration-500", user.tokensUsed / user.tokensLimit > 0.8 ? "bg-destructive" : "bg-primary")} style={{ width: `${Math.min((user.tokensUsed / user.tokensLimit) * 100, 100)}%` }} />
                                 </div>
-                                <span className="text-[10px] text-muted-foreground whitespace-nowrap">{(user.tokensUsed / 1000).toFixed(0)}k used</span>
+                                <span className="text-[10px] text-muted-foreground whitespace-nowrap">{(user.tokensUsed / 1000).toFixed(0)}k {t('used')}</span>
                               </div>
                             </div>
                           </div>
@@ -143,10 +145,10 @@ const ModelSelector = () => {
                         {smartAutoModel && (
                           <SmartAutoItem model={smartAutoModel} isSelected={selectedModel === 'smart-auto'} onSelect={() => handleSelect(smartAutoModel)} isMobile={true} />
                         )}
-                        {freeModels.length > 0 && <ModelSection title="FREE MODELS" titleColor="text-green-500" dotColor="bg-green-500" models={freeModels} selectedModelId={selectedModel} userPlan={user.plan} onSelect={handleSelect} theme={theme} isAccessible={isModelAccessible} getRequiredPlan={getRequiredPlan} getPlanLabel={getPlanLabel} getPlanColor={getPlanColor} isMobile={true} getDailyUsageRemaining={getDailyUsageRemaining} />}
-                        {basicModels.length > 0 && <ModelSection title="BASIC MODELS" titleColor="text-blue-500" dotColor="bg-blue-500" models={basicModels} selectedModelId={selectedModel} userPlan={user.plan} onSelect={handleSelect} theme={theme} isAccessible={isModelAccessible} getRequiredPlan={getRequiredPlan} getPlanLabel={getPlanLabel} getPlanColor={getPlanColor} isMobile={true} getDailyUsageRemaining={getDailyUsageRemaining} />}
-                        {proModels.length > 0 && <ModelSection title="PRO MODELS" titleColor="text-purple-500" dotColor="bg-purple-500" models={proModels} selectedModelId={selectedModel} userPlan={user.plan} onSelect={handleSelect} theme={theme} isAccessible={isModelAccessible} getRequiredPlan={getRequiredPlan} getPlanLabel={getPlanLabel} getPlanColor={getPlanColor} isMobile={true} getDailyUsageRemaining={getDailyUsageRemaining} />}
-                        {premiumModels.length > 0 && <ModelSection title="PREMIUM MODELS" titleColor="text-amber-500" dotColor="bg-amber-500" models={premiumModels} selectedModelId={selectedModel} userPlan={user.plan} onSelect={handleSelect} theme={theme} isAccessible={isModelAccessible} getRequiredPlan={getRequiredPlan} getPlanLabel={getPlanLabel} getPlanColor={getPlanColor} isMobile={true} getDailyUsageRemaining={getDailyUsageRemaining} />}
+                        {freeModels.length > 0 && <ModelSection title={t('freeModels')} titleColor="text-green-500" dotColor="bg-green-500" models={freeModels} selectedModelId={selectedModel} userPlan={user.plan} onSelect={handleSelect} theme={theme} isAccessible={isModelAccessible} getRequiredPlan={getRequiredPlan} getPlanLabel={getPlanLabel} getPlanColor={getPlanColor} isMobile={true} getDailyUsageRemaining={getDailyUsageRemaining} />}
+                        {basicModels.length > 0 && <ModelSection title={t('basicModels')} titleColor="text-blue-500" dotColor="bg-blue-500" models={basicModels} selectedModelId={selectedModel} userPlan={user.plan} onSelect={handleSelect} theme={theme} isAccessible={isModelAccessible} getRequiredPlan={getRequiredPlan} getPlanLabel={getPlanLabel} getPlanColor={getPlanColor} isMobile={true} getDailyUsageRemaining={getDailyUsageRemaining} />}
+                        {proModels.length > 0 && <ModelSection title={t('proModels')} titleColor="text-purple-500" dotColor="bg-purple-500" models={proModels} selectedModelId={selectedModel} userPlan={user.plan} onSelect={handleSelect} theme={theme} isAccessible={isModelAccessible} getRequiredPlan={getRequiredPlan} getPlanLabel={getPlanLabel} getPlanColor={getPlanColor} isMobile={true} getDailyUsageRemaining={getDailyUsageRemaining} />}
+                        {premiumModels.length > 0 && <ModelSection title={t('premiumModelsLabel')} titleColor="text-amber-500" dotColor="bg-amber-500" models={premiumModels} selectedModelId={selectedModel} userPlan={user.plan} onSelect={handleSelect} theme={theme} isAccessible={isModelAccessible} getRequiredPlan={getRequiredPlan} getPlanLabel={getPlanLabel} getPlanColor={getPlanColor} isMobile={true} getDailyUsageRemaining={getDailyUsageRemaining} />}
                         <div className="h-8" />
                       </div>
                     </div>
@@ -162,8 +164,8 @@ const ModelSelector = () => {
                   <div className="px-4 py-3 border-b border-border/50 bg-muted/30">
                     <div className="flex items-center justify-between">
                       <div>
-                        <span className="text-sm font-medium">Choose Model</span>
-                        <p className="text-[10px] text-muted-foreground">Token multiplier affects usage</p>
+                        <span className="text-sm font-medium">{t('chooseModel')}</span>
+                        <p className="text-[10px] text-muted-foreground">{t('tokenMultiplier')}</p>
                       </div>
                       <div className={cn("px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5",
                         user.plan === "free" && "bg-muted text-muted-foreground",
@@ -172,7 +174,7 @@ const ModelSelector = () => {
                         user.plan === "premium" && "bg-amber-500/15 text-amber-400",
                       )}>
                         <Zap className="w-3 h-3" />
-                        {user.plan === "free" ? "Free Trial" : user.plan.charAt(0).toUpperCase() + user.plan.slice(1)}
+                        {user.plan === "free" ? t('freeTrial') : user.plan.charAt(0).toUpperCase() + user.plan.slice(1)}
                       </div>
                     </div>
                     <div className="mt-2 flex items-center gap-2">
@@ -188,10 +190,10 @@ const ModelSelector = () => {
                     {smartAutoModel && (
                       <SmartAutoItem model={smartAutoModel} isSelected={selectedModel === 'smart-auto'} onSelect={() => handleSelect(smartAutoModel)} isMobile={false} />
                     )}
-                    {freeModels.length > 0 && <ModelSection title="FREE MODELS" titleColor="text-green-500" dotColor="bg-green-500" models={freeModels} selectedModelId={selectedModel} userPlan={user.plan} onSelect={handleSelect} theme={theme} isAccessible={isModelAccessible} getRequiredPlan={getRequiredPlan} getPlanLabel={getPlanLabel} getPlanColor={getPlanColor} isMobile={false} getDailyUsageRemaining={getDailyUsageRemaining} />}
-                    {basicModels.length > 0 && <ModelSection title="BASIC MODELS" titleColor="text-blue-500" dotColor="bg-blue-500" models={basicModels} selectedModelId={selectedModel} userPlan={user.plan} onSelect={handleSelect} theme={theme} isAccessible={isModelAccessible} getRequiredPlan={getRequiredPlan} getPlanLabel={getPlanLabel} getPlanColor={getPlanColor} isMobile={false} getDailyUsageRemaining={getDailyUsageRemaining} />}
-                    {proModels.length > 0 && <ModelSection title="PRO MODELS" titleColor="text-purple-500" dotColor="bg-purple-500" models={proModels} selectedModelId={selectedModel} userPlan={user.plan} onSelect={handleSelect} theme={theme} isAccessible={isModelAccessible} getRequiredPlan={getRequiredPlan} getPlanLabel={getPlanLabel} getPlanColor={getPlanColor} isMobile={false} getDailyUsageRemaining={getDailyUsageRemaining} />}
-                    {premiumModels.length > 0 && <ModelSection title="PREMIUM MODELS" titleColor="text-amber-500" dotColor="bg-amber-500" models={premiumModels} selectedModelId={selectedModel} userPlan={user.plan} onSelect={handleSelect} theme={theme} isAccessible={isModelAccessible} getRequiredPlan={getRequiredPlan} getPlanLabel={getPlanLabel} getPlanColor={getPlanColor} isMobile={false} getDailyUsageRemaining={getDailyUsageRemaining} />}
+                    {freeModels.length > 0 && <ModelSection title={t('freeModels')} titleColor="text-green-500" dotColor="bg-green-500" models={freeModels} selectedModelId={selectedModel} userPlan={user.plan} onSelect={handleSelect} theme={theme} isAccessible={isModelAccessible} getRequiredPlan={getRequiredPlan} getPlanLabel={getPlanLabel} getPlanColor={getPlanColor} isMobile={false} getDailyUsageRemaining={getDailyUsageRemaining} />}
+                    {basicModels.length > 0 && <ModelSection title={t('basicModels')} titleColor="text-blue-500" dotColor="bg-blue-500" models={basicModels} selectedModelId={selectedModel} userPlan={user.plan} onSelect={handleSelect} theme={theme} isAccessible={isModelAccessible} getRequiredPlan={getRequiredPlan} getPlanLabel={getPlanLabel} getPlanColor={getPlanColor} isMobile={false} getDailyUsageRemaining={getDailyUsageRemaining} />}
+                    {proModels.length > 0 && <ModelSection title={t('proModels')} titleColor="text-purple-500" dotColor="bg-purple-500" models={proModels} selectedModelId={selectedModel} userPlan={user.plan} onSelect={handleSelect} theme={theme} isAccessible={isModelAccessible} getRequiredPlan={getRequiredPlan} getPlanLabel={getPlanLabel} getPlanColor={getPlanColor} isMobile={false} getDailyUsageRemaining={getDailyUsageRemaining} />}
+                    {premiumModels.length > 0 && <ModelSection title={t('premiumModelsLabel')} titleColor="text-amber-500" dotColor="bg-amber-500" models={premiumModels} selectedModelId={selectedModel} userPlan={user.plan} onSelect={handleSelect} theme={theme} isAccessible={isModelAccessible} getRequiredPlan={getRequiredPlan} getPlanLabel={getPlanLabel} getPlanColor={getPlanColor} isMobile={false} getDailyUsageRemaining={getDailyUsageRemaining} />}
                   </div>
                 </motion.div>
               </>
