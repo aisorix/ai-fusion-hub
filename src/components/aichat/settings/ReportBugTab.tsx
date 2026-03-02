@@ -2,23 +2,27 @@ import React, { useState } from 'react';
 import { Bug, Send, AlertTriangle, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-
-const BUG_TYPES = [
-  { id: 'ui', label: 'UI/Visual Issue', description: 'Layout, styling, or display problems' },
-  { id: 'functionality', label: 'Functionality Bug', description: 'Feature not working as expected' },
-  { id: 'performance', label: 'Performance Issue', description: 'Slow loading or lag' },
-  { id: 'crash', label: 'App Crash', description: 'Application stops working' },
-  { id: 'other', label: 'Other', description: 'Something else' },
-];
-
-const SEVERITY_LEVELS = [
-  { id: 'low', label: 'Low', icon: Info, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-  { id: 'medium', label: 'Medium', icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-  { id: 'high', label: 'High', icon: AlertTriangle, color: 'text-orange-500', bg: 'bg-orange-500/10' },
-  { id: 'critical', label: 'Critical', icon: Bug, color: 'text-red-500', bg: 'bg-red-500/10' },
-];
+import { useChatStore } from '@/stores/chatStore';
 
 const ReportBugTab = () => {
+  const { language } = useChatStore();
+  const bn = language === 'bn';
+
+  const BUG_TYPES = [
+    { id: 'ui', label: bn ? 'UI/ভিজ্যুয়াল সমস্যা' : 'UI/Visual Issue', description: bn ? 'লেআউট, স্টাইলিং বা প্রদর্শন সমস্যা' : 'Layout, styling, or display problems' },
+    { id: 'functionality', label: bn ? 'কার্যকারিতা বাগ' : 'Functionality Bug', description: bn ? 'ফিচার প্রত্যাশিতভাবে কাজ করছে না' : 'Feature not working as expected' },
+    { id: 'performance', label: bn ? 'পারফরম্যান্স সমস্যা' : 'Performance Issue', description: bn ? 'ধীর লোডিং বা ল্যাগ' : 'Slow loading or lag' },
+    { id: 'crash', label: bn ? 'অ্যাপ ক্র্যাশ' : 'App Crash', description: bn ? 'অ্যাপ্লিকেশন কাজ করা বন্ধ করে দেয়' : 'Application stops working' },
+    { id: 'other', label: bn ? 'অন্যান্য' : 'Other', description: bn ? 'অন্য কিছু' : 'Something else' },
+  ];
+
+  const SEVERITY_LEVELS = [
+    { id: 'low', label: bn ? 'কম' : 'Low', icon: Info, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+    { id: 'medium', label: bn ? 'মাঝারি' : 'Medium', icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    { id: 'high', label: bn ? 'উচ্চ' : 'High', icon: AlertTriangle, color: 'text-orange-500', bg: 'bg-orange-500/10' },
+    { id: 'critical', label: bn ? 'জটিল' : 'Critical', icon: Bug, color: 'text-red-500', bg: 'bg-red-500/10' },
+  ];
+
   const [bugType, setBugType] = useState('');
   const [severity, setSeverity] = useState('medium');
   const [title, setTitle] = useState('');
@@ -29,18 +33,13 @@ const ReportBugTab = () => {
 
   const handleSubmit = async () => {
     if (!bugType || !title || !description) {
-      toast.error('Please fill in all required fields');
+      toast.error(bn ? 'অনুগ্রহ করে সকল প্রয়োজনীয় ক্ষেত্র পূরণ করুন' : 'Please fill in all required fields');
       return;
     }
 
     setIsSubmitting(true);
-    
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    toast.success('Bug report submitted successfully! We\'ll look into it.');
-    
-    // Reset form
+    toast.success(bn ? 'বাগ রিপোর্ট সফলভাবে জমা হয়েছে!' : 'Bug report submitted successfully! We\'ll look into it.');
     setBugType('');
     setTitle('');
     setDescription('');
@@ -59,9 +58,9 @@ const ReportBugTab = () => {
             <Bug className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </div>
           <div>
-            <h3 className="text-lg sm:text-xl font-bold">Report a Bug</h3>
+            <h3 className="text-lg sm:text-xl font-bold">{bn ? 'বাগ রিপোর্ট করুন' : 'Report a Bug'}</h3>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              Help us improve by reporting issues you encounter
+              {bn ? 'সমস্যা জানিয়ে আমাদের উন্নত করতে সাহায্য করুন' : 'Help us improve by reporting issues you encounter'}
             </p>
           </div>
         </div>
@@ -72,7 +71,7 @@ const ReportBugTab = () => {
         {/* Bug Type */}
         <div className="space-y-2 sm:space-y-3">
           <label className="block text-xs sm:text-sm font-semibold">
-            Bug Type <span className="text-red-500">*</span>
+            {bn ? 'বাগের ধরন' : 'Bug Type'} <span className="text-red-500">*</span>
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {BUG_TYPES.map((type) => (
@@ -87,15 +86,10 @@ const ReportBugTab = () => {
                     : 'border-border bg-card hover:border-primary/30 hover:bg-accent/50'
                 )}
               >
-                <span className={cn(
-                  'text-sm font-medium',
-                  bugType === type.id ? 'text-primary' : 'text-foreground'
-                )}>
+                <span className={cn('text-sm font-medium', bugType === type.id ? 'text-primary' : 'text-foreground')}>
                   {type.label}
                 </span>
-                <span className="text-xs text-muted-foreground mt-0.5">
-                  {type.description}
-                </span>
+                <span className="text-xs text-muted-foreground mt-0.5">{type.description}</span>
               </button>
             ))}
           </div>
@@ -104,7 +98,7 @@ const ReportBugTab = () => {
         {/* Severity Level */}
         <div className="space-y-2 sm:space-y-3">
           <label className="block text-xs sm:text-sm font-semibold">
-            Severity Level
+            {bn ? 'তীব্রতার মাত্রা' : 'Severity Level'}
           </label>
           <div className="grid grid-cols-4 gap-2">
             {SEVERITY_LEVELS.map((level) => {
@@ -121,14 +115,8 @@ const ReportBugTab = () => {
                       : 'border-border bg-card hover:border-primary/30'
                   )}
                 >
-                  <Icon className={cn(
-                    'w-4 h-4 sm:w-5 sm:h-5',
-                    severity === level.id ? level.color : 'text-muted-foreground'
-                  )} />
-                  <span className={cn(
-                    'text-xs font-medium',
-                    severity === level.id ? level.color : 'text-muted-foreground'
-                  )}>
+                  <Icon className={cn('w-4 h-4 sm:w-5 sm:h-5', severity === level.id ? level.color : 'text-muted-foreground')} />
+                  <span className={cn('text-xs font-medium', severity === level.id ? level.color : 'text-muted-foreground')}>
                     {level.label}
                   </span>
                 </button>
@@ -140,13 +128,13 @@ const ReportBugTab = () => {
         {/* Title */}
         <div className="space-y-2">
           <label className="block text-xs sm:text-sm font-semibold">
-            Bug Title <span className="text-red-500">*</span>
+            {bn ? 'বাগের শিরোনাম' : 'Bug Title'} <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Brief description of the issue"
+            placeholder={bn ? 'সমস্যার সংক্ষিপ্ত বিবরণ' : 'Brief description of the issue'}
             className={cn(
               'w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl transition-all duration-200 text-sm',
               'bg-muted border border-border',
@@ -159,12 +147,12 @@ const ReportBugTab = () => {
         {/* Description */}
         <div className="space-y-2">
           <label className="block text-xs sm:text-sm font-semibold">
-            Description <span className="text-red-500">*</span>
+            {bn ? 'বিবরণ' : 'Description'} <span className="text-red-500">*</span>
           </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe the bug in detail. What happened? What did you expect to happen?"
+            placeholder={bn ? 'বাগটি বিস্তারিত বর্ণনা করুন। কী হয়েছিল? আপনি কী প্রত্যাশা করেছিলেন?' : 'Describe the bug in detail. What happened? What did you expect to happen?'}
             rows={4}
             className={cn(
               'w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl transition-all duration-200 text-sm resize-none',
@@ -178,12 +166,12 @@ const ReportBugTab = () => {
         {/* Steps to Reproduce */}
         <div className="space-y-2">
           <label className="block text-xs sm:text-sm font-semibold">
-            Steps to Reproduce <span className="text-muted-foreground font-normal">(optional)</span>
+            {bn ? 'পুনরুৎপাদনের ধাপ' : 'Steps to Reproduce'} <span className="text-muted-foreground font-normal">({bn ? 'ঐচ্ছিক' : 'optional'})</span>
           </label>
           <textarea
             value={steps}
             onChange={(e) => setSteps(e.target.value)}
-            placeholder="1. Go to...&#10;2. Click on...&#10;3. See error..."
+            placeholder={bn ? '১. যান...\n২. ক্লিক করুন...\n৩. ত্রুটি দেখুন...' : '1. Go to...\n2. Click on...\n3. See error...'}
             rows={3}
             className={cn(
               'w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl transition-all duration-200 text-sm resize-none',
@@ -197,7 +185,7 @@ const ReportBugTab = () => {
         {/* Contact Email */}
         <div className="space-y-2">
           <label className="block text-xs sm:text-sm font-semibold">
-            Your Email <span className="text-muted-foreground font-normal">(for follow-up)</span>
+            {bn ? 'আপনার ইমেইল' : 'Your Email'} <span className="text-muted-foreground font-normal">({bn ? 'ফলো-আপের জন্য' : 'for follow-up'})</span>
           </label>
           <input
             type="email"
@@ -214,16 +202,10 @@ const ReportBugTab = () => {
         </div>
 
         {/* Support Contact Info */}
-        <div className={cn(
-          'p-4 rounded-xl',
-          'bg-muted/50 border border-border'
-        )}>
+        <div className={cn('p-4 rounded-xl', 'bg-muted/50 border border-border')}>
           <p className="text-xs text-muted-foreground">
-            Need immediate assistance? Email us directly at{' '}
-            <a 
-              href="mailto:support@aisorix.com" 
-              className="text-primary hover:underline font-medium"
-            >
+            {bn ? 'তাৎক্ষণিক সহায়তা প্রয়োজন? সরাসরি ইমেইল করুন ' : 'Need immediate assistance? Email us directly at '}
+            <a href="mailto:support@aisorix.com" className="text-primary hover:underline font-medium">
               support@aisorix.com
             </a>
           </p>
@@ -246,12 +228,12 @@ const ReportBugTab = () => {
           {isSubmitting ? (
             <>
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Submitting...
+              {bn ? 'জমা হচ্ছে...' : 'Submitting...'}
             </>
           ) : (
             <>
               <Send className="w-4 h-4" />
-              Submit Bug Report
+              {bn ? 'বাগ রিপোর্ট জমা দিন' : 'Submit Bug Report'}
             </>
           )}
         </button>

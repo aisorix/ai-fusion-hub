@@ -1,11 +1,6 @@
 import React, { useState, useCallback, memo, useEffect, useRef } from 'react';
 import {
-  Copy,
-  Check,
-  RotateCcw,
-  Share,
-  Volume2,
-  Pencil
+  Copy, Check, RotateCcw, Share, Volume2, Pencil
 } from 'lucide-react';
 import copy from 'copy-to-clipboard';
 import { motion } from 'framer-motion';
@@ -17,7 +12,6 @@ import { cn } from '@/lib/utils';
 import { ModelIcon } from './ModelIcons';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-// Emoji reactions for rating AI responses
 const EMOJI_REACTIONS = [
   { emoji: '👍', label: 'Good', key: 'thumbsup' },
   { emoji: '👎', label: 'Bad', key: 'thumbsdown' },
@@ -26,17 +20,15 @@ const EMOJI_REACTIONS = [
   { emoji: '😊', label: 'Nice', key: 'smile' },
 ];
 
-// Thinking Section Component - collapsible "Show thinking" pill
 const ThinkingSection = memo(({ isActive }: { isActive: boolean }) => {
   const [elapsed, setElapsed] = useState(0);
   const [expanded, setExpanded] = useState(false);
   const startTimeRef = useRef<number>(Date.now());
+  const language = useChatStore(s => s.language);
+  const bn = language === 'bn';
 
   useEffect(() => {
-    if (!isActive) {
-      setElapsed(0);
-      return;
-    }
+    if (!isActive) { setElapsed(0); return; }
     startTimeRef.current = Date.now();
     const interval = setInterval(() => {
       setElapsed(Math.floor((Date.now() - startTimeRef.current) / 100) / 10);
@@ -53,18 +45,15 @@ const ThinkingSection = memo(({ isActive }: { isActive: boolean }) => {
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/80 hover:bg-muted transition-colors text-sm"
       >
         <span className="text-muted-foreground font-medium">
-          {expanded ? 'Hide thinking' : 'Show thinking'}
+          {expanded ? (bn ? 'চিন্তা লুকান' : 'Hide thinking') : (bn ? 'চিন্তা দেখান' : 'Show thinking')}
         </span>
-        <svg
-          className={cn("w-3.5 h-3.5 text-muted-foreground transition-transform duration-200", expanded && "rotate-180")}
-          fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-        >
+        <svg className={cn("w-3.5 h-3.5 text-muted-foreground transition-transform duration-200", expanded && "rotate-180")} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
       {expanded && (
         <div className="mt-2 pl-3 border-l-2 border-muted-foreground/20 text-sm text-muted-foreground">
-          <span>Analyzing your query...</span>
+          <span>{bn ? 'আপনার প্রশ্ন বিশ্লেষণ করা হচ্ছে...' : 'Analyzing your query...'}</span>
           <span className="ml-2 font-mono tabular-nums">{elapsed.toFixed(1)}s</span>
         </div>
       )}
@@ -82,13 +71,14 @@ interface MessageBubbleProps {
 }
 
 const MessageBubble = memo(({ message, isStreaming, isLast, onEditAndResend }: MessageBubbleProps) => {
-  // Use selectors for only what's needed
   const theme = useChatStore(s => s.theme);
   const openShareModal = useChatStore(s => s.openShareModal);
   const activeChatId = useChatStore(s => s.activeChatId);
   const chats = useChatStore(s => s.chats);
   const selectedModel = useChatStore(s => s.selectedModel);
   const models = useChatStore(s => s.models);
+  const language = useChatStore(s => s.language);
+  const bn = language === 'bn';
 
   const isMobile = useIsMobile();
 
@@ -105,18 +95,14 @@ const MessageBubble = memo(({ message, isStreaming, isLast, onEditAndResend }: M
   const handleReaction = useCallback((key: string) => {
     setSelectedReactions(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(key)) {
-        newSet.delete(key);
-      } else {
-        newSet.add(key);
-      }
+      if (newSet.has(key)) newSet.delete(key);
+      else newSet.add(key);
       return newSet;
     });
   }, []);
   
   const isUser = message.role === 'user';
   const isAssistant = message.role === 'assistant';
-  
   const currentMessages = chats.find(c => c.id === activeChatId)?.messages || [];
   
   const handleCopy = useCallback(() => {
@@ -135,15 +121,12 @@ const MessageBubble = memo(({ message, isStreaming, isLast, onEditAndResend }: M
     setEditContent(message.content);
   }, [message.content]);
 
-  // On mobile, skip framer-motion wrapper for performance
   const Wrapper: any = isMobile ? 'div' : motion.div;
-  const wrapperProps = isMobile
-    ? {}
-    : {
-        initial: { opacity: 0, y: 8 },
-        animate: { opacity: 1, y: 0 },
-        transition: { duration: 0.2, ease: 'easeOut' },
-      };
+  const wrapperProps = isMobile ? {} : {
+    initial: { opacity: 0, y: 8 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.2, ease: 'easeOut' },
+  };
   
   return (
     <Wrapper
@@ -170,11 +153,8 @@ const MessageBubble = memo(({ message, isStreaming, isLast, onEditAndResend }: M
                     autoFocus
                   />
                   <div className="flex justify-end gap-2">
-                    <button
-                      onClick={handleCancelEdit}
-                      className="px-3 py-1.5 text-xs rounded-lg border border-border hover:bg-muted transition-colors"
-                    >
-                      Cancel
+                    <button onClick={handleCancelEdit} className="px-3 py-1.5 text-xs rounded-lg border border-border hover:bg-muted transition-colors">
+                      {bn ? 'বাতিল' : 'Cancel'}
                     </button>
                     <button
                       onClick={() => {
@@ -186,7 +166,7 @@ const MessageBubble = memo(({ message, isStreaming, isLast, onEditAndResend }: M
                       }}
                       className="px-3 py-1.5 text-xs rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
                     >
-                      Save & Send
+                      {bn ? 'সংরক্ষণ ও পাঠান' : 'Save & Send'}
                     </button>
                   </div>
                 </div>
@@ -195,25 +175,16 @@ const MessageBubble = memo(({ message, isStreaming, isLast, onEditAndResend }: M
                   onClick={() => setShowActions(prev => !prev)}
                   className={cn(
                     'px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl cursor-pointer select-none',
-                    theme === 'dark' 
-                      ? 'bg-primary/20 text-foreground' 
-                      : 'bg-primary/10 text-foreground'
+                    theme === 'dark' ? 'bg-primary/20 text-foreground' : 'bg-primary/10 text-foreground'
                   )}
                 >
-                  <p className="whitespace-pre-wrap break-words leading-relaxed text-[15px]">
-                    {message.content}
-                  </p>
+                  <p className="whitespace-pre-wrap break-words leading-relaxed text-[15px]">{message.content}</p>
                   
                   {message.attachments && message.attachments.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-2">
                       {message.attachments.map((att, index) => (
                         att.type === 'image' && att.url && (
-                          <img
-                            key={index}
-                            src={att.url}
-                            alt="Attachment"
-                            className="max-w-[200px] sm:max-w-[250px] max-h-[200px] sm:max-h-[250px] rounded-xl cursor-pointer hover:opacity-90 transition-opacity"
-                          />
+                          <img key={index} src={att.url} alt="Attachment" className="max-w-[200px] sm:max-w-[250px] max-h-[200px] sm:max-h-[250px] rounded-xl cursor-pointer hover:opacity-90 transition-opacity" />
                         )
                       ))}
                     </div>
@@ -222,13 +193,12 @@ const MessageBubble = memo(({ message, isStreaming, isLast, onEditAndResend }: M
               )}
             </div>
 
-            {/* Actions below bubble — shown on click/tap */}
             {showActions && !isEditing && (
               <div className="flex items-center gap-0.5 pt-1">
-                <ActionButton onClick={handleEdit} tooltip="Edit" theme={theme}>
+                <ActionButton onClick={handleEdit} tooltip={bn ? 'সম্পাদনা' : 'Edit'} theme={theme}>
                   <Pencil className="w-4 h-4" />
                 </ActionButton>
-                <ActionButton onClick={handleCopy} active={copied} activeColor="text-green-500" tooltip="Copy" theme={theme}>
+                <ActionButton onClick={handleCopy} active={copied} activeColor="text-green-500" tooltip={bn ? 'কপি' : 'Copy'} theme={theme}>
                   {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 </ActionButton>
               </div>
@@ -238,25 +208,17 @@ const MessageBubble = memo(({ message, isStreaming, isLast, onEditAndResend }: M
           <div className="flex gap-3 sm:gap-4">
             <div className="flex-shrink-0 mt-0.5">
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center overflow-hidden">
-                <ModelIcon 
-                  modelId={messageModelId} 
-                  modelName={messageModelName} 
-                  size="lg" 
-                  showGlow={false}
-                  theme={theme}
-                />
+                <ModelIcon modelId={messageModelId} modelName={messageModelName} size="lg" showGlow={false} theme={theme} />
               </div>
             </div>
             
             <div className="flex-1 min-w-0 space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-foreground">
-                  {messageModelName}
-                </span>
+                <span className="text-sm font-semibold text-foreground">{messageModelName}</span>
                 {isStreaming && isLast && message.content && (
                   <div className="flex items-center">
                     <span className="px-2 py-0.5 text-xs rounded-full bg-green-500/10 text-green-500">
-                      Writing
+                      {bn ? 'লিখছে' : 'Writing'}
                     </span>
                   </div>
                 )}
@@ -266,9 +228,7 @@ const MessageBubble = memo(({ message, isStreaming, isLast, onEditAndResend }: M
                 {message.content ? (
                   <MarkdownRenderer content={message.content} />
                 ) : (
-                  isStreaming && isLast && (
-                    <ThinkingSection isActive={true} />
-                  )
+                  isStreaming && isLast && <ThinkingSection isActive={true} />
                 )}
                 {isStreaming && isLast && message.content && (
                   <span className="inline-block w-[3px] h-5 ml-0.5 bg-primary rounded-sm align-middle animate-[pulse_0.8s_ease-in-out_infinite]" />
@@ -280,66 +240,35 @@ const MessageBubble = memo(({ message, isStreaming, isLast, onEditAndResend }: M
               )}
               
               {message.content && !isStreaming && (
-                <div
-                  className={cn(
-                    "flex items-center gap-0.5 pt-2 transition-opacity duration-150",
-                    (showActions || isMobile) ? "opacity-100" : "opacity-0"
-                  )}
-                >
-                  <ActionButton
-                    onClick={handleCopy}
-                    active={copied}
-                    activeColor="text-green-500"
-                    tooltip="Copy"
-                    theme={theme}
-                  >
+                <div className={cn("flex items-center gap-0.5 pt-2 transition-opacity duration-150", (showActions || isMobile) ? "opacity-100" : "opacity-0")}>
+                  <ActionButton onClick={handleCopy} active={copied} activeColor="text-green-500" tooltip={bn ? 'কপি' : 'Copy'} theme={theme}>
                     {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   </ActionButton>
                   
-                  <ActionButton
-                    onClick={() => {}}
-                    tooltip="Read aloud"
-                    theme={theme}
-                  >
+                  <ActionButton onClick={() => {}} tooltip={bn ? 'জোরে পড়ুন' : 'Read aloud'} theme={theme}>
                     <Volume2 className="w-4 h-4" />
                   </ActionButton>
                   
                   <div className="relative">
                     <button
                       onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                      className={cn(
-                        'p-2 rounded-lg transition-all duration-150 text-muted-foreground',
-                        'hover:bg-secondary hover:text-foreground',
-                        selectedReactions.size > 0 && 'text-primary'
-                      )}
-                      title="React"
+                      className={cn('p-2 rounded-lg transition-all duration-150 text-muted-foreground', 'hover:bg-secondary hover:text-foreground', selectedReactions.size > 0 && 'text-primary')}
+                      title={bn ? 'প্রতিক্রিয়া' : 'React'}
                     >
                       {selectedReactions.size > 0 ? (
-                        <span className="text-base leading-none">
-                          {EMOJI_REACTIONS.find(r => selectedReactions.has(r.key))?.emoji || '😊'}
-                        </span>
+                        <span className="text-base leading-none">{EMOJI_REACTIONS.find(r => selectedReactions.has(r.key))?.emoji || '😊'}</span>
                       ) : (
                         <span className="text-base leading-none">😊</span>
                       )}
                     </button>
                     
                     {showEmojiPicker && (
-                      <div
-                        className={cn(
-                          'absolute bottom-full left-0 mb-2 flex items-center gap-1 px-2 py-1.5 rounded-xl shadow-lg z-50',
-                          theme === 'dark' ? 'bg-card border border-border' : 'bg-white border border-border shadow-md'
-                        )}
-                      >
+                      <div className={cn('absolute bottom-full left-0 mb-2 flex items-center gap-1 px-2 py-1.5 rounded-xl shadow-lg z-50', theme === 'dark' ? 'bg-card border border-border' : 'bg-white border border-border shadow-md')}>
                         {EMOJI_REACTIONS.map((reaction) => (
                           <button
                             key={reaction.key}
                             onClick={() => handleReaction(reaction.key)}
-                            className={cn(
-                              'p-1.5 rounded-lg transition-all duration-150 hover:scale-110 text-lg',
-                              selectedReactions.has(reaction.key) 
-                                ? 'bg-primary/20 scale-110' 
-                                : 'hover:bg-muted'
-                            )}
+                            className={cn('p-1.5 rounded-lg transition-all duration-150 hover:scale-110 text-lg', selectedReactions.has(reaction.key) ? 'bg-primary/20 scale-110' : 'hover:bg-muted')}
                             title={reaction.label}
                           >
                             {reaction.emoji}
@@ -357,21 +286,13 @@ const MessageBubble = memo(({ message, isStreaming, isLast, onEditAndResend }: M
                     </div>
                   )}
                   
-                  <ActionButton
-                    onClick={() => {}}
-                    tooltip="Regenerate"
-                    theme={theme}
-                  >
+                  <ActionButton onClick={() => {}} tooltip={bn ? 'পুনরায় তৈরি করুন' : 'Regenerate'} theme={theme}>
                     <RotateCcw className="w-4 h-4" />
                   </ActionButton>
                   
                   <ExportDropdown message={message} theme={theme} />
                   
-                  <ActionButton
-                    onClick={() => openShareModal(message.id)}
-                    tooltip="Share"
-                    theme={theme}
-                  >
+                  <ActionButton onClick={() => openShareModal(message.id)} tooltip={bn ? 'শেয়ার' : 'Share'} theme={theme}>
                     <Share className="w-4 h-4" />
                   </ActionButton>
                 </div>
@@ -384,7 +305,6 @@ const MessageBubble = memo(({ message, isStreaming, isLast, onEditAndResend }: M
   );
 });
 
-// Action Button Component
 interface ActionButtonProps {
   onClick: () => void;
   children: React.ReactNode;
@@ -397,12 +317,7 @@ interface ActionButtonProps {
 const ActionButton = memo(({ onClick, children, tooltip, active, activeColor, theme }: ActionButtonProps) => (
   <button
     onClick={onClick}
-    className={cn(
-      'p-2 rounded-lg transition-all duration-150',
-      'text-muted-foreground',
-      'hover:bg-secondary hover:text-foreground',
-      active && activeColor
-    )}
+    className={cn('p-2 rounded-lg transition-all duration-150', 'text-muted-foreground', 'hover:bg-secondary hover:text-foreground', active && activeColor)}
     title={tooltip}
   >
     {children}

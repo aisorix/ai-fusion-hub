@@ -8,7 +8,8 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 const ShareModal = () => {
-  const { theme, shareModalOpen, closeShareModal, chats, activeChatId, shareMessageId } = useChatStore();
+  const { theme, shareModalOpen, closeShareModal, chats, activeChatId, shareMessageId, language } = useChatStore();
+  const bn = language === 'bn';
   const { user } = useAuth();
   const [copied, setCopied] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
@@ -63,10 +64,10 @@ const ShareModal = () => {
       }
     } catch (err: any) {
       console.error('Share init error:', err);
-      toast.error('Failed to create share link');
+      toast.error(bn ? 'শেয়ার লিংক তৈরি ব্যর্থ' : 'Failed to create share link');
     }
     setLoading(false);
-  }, [user, activeChatId, chatTitle, messages]);
+  }, [user, activeChatId, chatTitle, messages, bn]);
 
   // Load members
   useEffect(() => {
@@ -99,7 +100,7 @@ const ShareModal = () => {
     navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    toast.success('Link copied!');
+    toast.success(bn ? 'লিংক কপি হয়েছে!' : 'Link copied!');
   };
 
   const handleInvite = async () => {
@@ -114,7 +115,7 @@ const ShareModal = () => {
           role: inviteRole,
         });
       if (error) throw error;
-      toast.success(`Invited ${inviteEmail}`);
+      toast.success(bn ? `${inviteEmail} কে আমন্ত্রণ জানানো হয়েছে` : `Invited ${inviteEmail}`);
       setInviteEmail('');
       // Reload members
       const { data } = await supabase
@@ -123,7 +124,7 @@ const ShareModal = () => {
         .eq('shared_chat_id', sharedChatId);
       if (data) setMembers(data);
     } catch (err: any) {
-      toast.error(err.message || 'Failed to invite');
+      toast.error(err.message || (bn ? 'আমন্ত্রণ ব্যর্থ' : 'Failed to invite'));
     }
     setInviting(false);
   };
@@ -131,7 +132,7 @@ const ShareModal = () => {
   const handleRemoveMember = async (memberId: string) => {
     await supabase.from('shared_chat_members').delete().eq('id', memberId);
     setMembers(prev => prev.filter(m => m.id !== memberId));
-    toast.success('Member removed');
+    toast.success(bn ? 'সদস্য সরানো হয়েছে' : 'Member removed');
   };
 
   return (
@@ -152,7 +153,7 @@ const ShareModal = () => {
               <div className="flex items-center justify-between px-6 py-4 border-b border-border">
                 <div className="flex items-center gap-2">
                   <MessageCircle className="w-5 h-5 text-primary" />
-                  <h2 className="text-lg font-semibold">Share & Collaborate</h2>
+                  <h2 className="text-lg font-semibold">{bn ? 'শেয়ার ও সহযোগিতা' : 'Share & Collaborate'}</h2>
                 </div>
                 <button onClick={closeShareModal} className="p-2 rounded-lg hover:bg-muted transition-colors">
                   <X className="w-5 h-5" />
@@ -168,7 +169,7 @@ const ShareModal = () => {
                   <>
                     {/* Share Link */}
                     <div>
-                      <label className="text-sm font-medium mb-2 block">Share Link</label>
+                      <label className="text-sm font-medium mb-2 block">{bn ? 'শেয়ার লিংক' : 'Share Link'}</label>
                       <div className="flex items-center gap-2 p-3 rounded-xl bg-muted/50 border border-border">
                         <Link className="w-4 h-4 text-muted-foreground shrink-0" />
                         <input type="text" value={shareUrl} readOnly className="flex-1 bg-transparent text-sm outline-none text-muted-foreground min-w-0" />
@@ -181,11 +182,11 @@ const ShareModal = () => {
                           )}
                         >
                           {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                          {copied ? 'Copied' : 'Copy'}
+                          {copied ? (bn ? 'কপি হয়েছে' : 'Copied') : (bn ? 'কপি' : 'Copy')}
                         </button>
                       </div>
                       <p className="text-xs text-muted-foreground mt-1.5">
-                        Anyone with this link can view the chat and join the discussion
+                        {bn ? 'এই লিংক দিয়ে যে কেউ চ্যাট দেখতে এবং আলোচনায় যোগ দিতে পারবে' : 'Anyone with this link can view the chat and join the discussion'}
                       </p>
                     </div>
 
@@ -193,14 +194,14 @@ const ShareModal = () => {
                     <div>
                       <label className="text-sm font-medium mb-2 block">
                         <UserPlus className="w-4 h-4 inline mr-1.5" />
-                        Invite Members
+                        {bn ? 'সদস্য আমন্ত্রণ করুন' : 'Invite Members'}
                       </label>
                       <div className="flex gap-2">
                         <input
                           type="email"
                           value={inviteEmail}
                           onChange={(e) => setInviteEmail(e.target.value)}
-                          placeholder="Enter email address"
+                          placeholder={bn ? 'ইমেইল ঠিকানা লিখুন' : 'Enter email address'}
                           onKeyDown={(e) => e.key === 'Enter' && handleInvite()}
                           className="flex-1 px-3 py-2.5 rounded-xl bg-muted/50 border border-border text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
                         />
@@ -209,8 +210,8 @@ const ShareModal = () => {
                           onChange={(e) => setInviteRole(e.target.value as any)}
                           className="px-2 py-2.5 rounded-xl bg-muted/50 border border-border text-sm focus:outline-none"
                         >
-                          <option value="commenter">Commenter</option>
-                          <option value="viewer">Viewer</option>
+                          <option value="commenter">{bn ? 'মন্তব্যকারী' : 'Commenter'}</option>
+                          <option value="viewer">{bn ? 'দর্শক' : 'Viewer'}</option>
                         </select>
                         <button
                           onClick={handleInvite}
@@ -225,7 +226,7 @@ const ShareModal = () => {
                     {/* Members List */}
                     {members.length > 0 && (
                       <div>
-                        <label className="text-sm font-medium mb-2 block">Members ({members.length})</label>
+                        <label className="text-sm font-medium mb-2 block">{bn ? 'সদস্য' : 'Members'} ({members.length})</label>
                         <div className="space-y-2">
                           {members.map((member) => (
                             <div key={member.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/30 border border-border/50">
