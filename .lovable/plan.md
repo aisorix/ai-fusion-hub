@@ -1,65 +1,61 @@
 
 
-## Complete Bangla Translation: Professional i18n Coverage
+## Bangla Translation: Mobile Fit & Missing Strings Audit
 
-### Problem
-The app has **two separate translation systems** that are out of sync, and many components still have hardcoded English strings that don't translate when the user switches to Bangla:
+### Findings
 
-**Two translation files:**
-1. `src/contexts/LanguageContext.jsx` — used by landing page components (Navbar, Hero, Pricing, Footer, etc.)
-2. `src/lib/translations.ts` — used by chat page components (Sidebar, ChatInput, EmptyState, Settings, etc.)
+After reviewing all components, the translation coverage is solid on the landing page and desktop chat sidebar. However, there are significant gaps in the **MobileSidebar** and a few missing keys in translation dictionaries.
 
-**Hardcoded English strings found in:**
+### Issues Found
 
-| Component | Hardcoded Strings |
-|-----------|------------------|
-| `Navbar.jsx` | Desktop/mobile menu labels ("Features", "Pricing", "FAQs", "About Us"), "Go to Chat", "Sign Out", "Support Dashboard", "Switch Language" |
-| `Hero.jsx` | "Powered by the world's most advanced AI models", "+3 more" |
-| `Footer.jsx` | "Features", "Pricing", "FAQs" (product links) |
-| `Workflow.jsx` | "Premium Models", "Unlock Perplexity, Kimi, Claude, Grok & Mistral..." |
-| `Pricing.jsx` | "+X more features" |
-| `ModelSelector.tsx` | "FREE MODELS", "BASIC MODELS", "PRO MODELS", "PREMIUM MODELS" |
-| `ChatSidebar.tsx` | Various labels not using translation keys |
-| `AnnouncementBanner.jsx` | "Built by Sorixlab" |
+**1. MobileSidebar (`src/components/aichat/MobileSidebar.tsx`) — 12+ hardcoded English strings**
+- Line 220: `"Premium AI Platform"` — hardcoded
+- Line 232: `"New chat"` — hardcoded
+- Line 243: `"Search chats"` placeholder — hardcoded
+- Line 257: `"Multi-Window Chat"` — hardcoded
+- Line 264: `"More Tools"` — hardcoded
+- Line 292: `"Free"` badge — hardcoded
+- Line 311: `"Projects"` — hardcoded
+- Line 323: `"History"` — hardcoded
+- Line 337: `"Today"` — hardcoded
+- Line 344: `"This Week"` — hardcoded
+- Line 350: `"Older"` — hardcoded
+- Line 378: `"Upgrade"` — hardcoded
+- Line 386: `"Home"` — hardcoded
+- Lines 176-181: Tool names/descriptions hardcoded in English (Sorix Agro, Sorix Health, etc.)
+
+**2. Missing translation keys in `LanguageContext.jsx`**
+- `qwenSubtitle`, `qwenDesc`, `llamaSubtitle`, `llamaDesc` — used in Workflow.jsx with fallbacks
+- `home` key for mobile sidebar
+- `sorixDeck`, `sorixDeckDesc`, `sorixImagine`, `sorixImagineDesc` — tool descriptions
+
+**3. Missing translation keys in `translations.ts`**
+- `home` — for mobile sidebar "Home" button
+- `free` — for the "Free" badge in tool list
+- `sorixDeck`, `sorixDeckDesc`, `sorixImagine`, `sorixImagineDesc`
+
+**4. Mobile text fit concerns**
+- Bangla text is generally ~20-30% wider than English. Current layout uses `truncate`, `whitespace-nowrap`, and `min-w-0` properly in most places.
+- The Pricing card mobile scroll (280px fixed width) is tight but functional — Bangla feature text may need `text-[10px]` instead of `text-xs` on some items.
+- The AnnouncementBanner already uses `whitespace-nowrap` and compact sizing — OK.
 
 ### Plan
 
-**Step 1: Expand both translation dictionaries with ALL missing keys**
+**File 1: `src/contexts/LanguageContext.jsx`** — Add ~8 missing keys:
+- `en`: `home: 'Home'`, `qwenSubtitle`, `qwenDesc`, `llamaSubtitle`, `llamaDesc`, `sorixDeck: 'Sorix Deck'`, `sorixDeckDesc`, `sorixImagine: 'Sorix Imagine'`, `sorixImagineDesc`
+- `bn`: Bangla equivalents for all
 
-Add to `LanguageContext.jsx` translations (landing page):
-- `features`, `pricing`, `faqs`, `aboutUs` (nav labels — English `en` section is missing these)
-- `goToChat`, `signOut`, `supportDashboard`, `switchLanguage`
-- `poweredByModels`, `moreModels`
-- `premiumModels`, `unlockPremiumModels`
-- `moreFeatures`
-- `builtBySorixlab`
+**File 2: `src/lib/translations.ts`** — Add ~6 missing keys:
+- `home`, `free`, `sorixDeck`, `sorixDeckDesc`, `sorixImagine`, `sorixImagineDesc`, `multiWindowChat` (already exists), `moreTools` (already exists)
 
-Add to `src/lib/translations.ts` (chat page):
-- `freeModels`, `basicModels`, `proModels`, `premiumModels` (model tier labels)
-- Any other missing chat-specific keys
+**File 3: `src/components/aichat/MobileSidebar.tsx`** — Replace all 12+ hardcoded strings with translation calls:
+- Import `useTranslation` from `@/lib/translations` and use `useChatStore` language
+- Replace `"New chat"` → `t('newChat')`, `"Search chats"` → `t('searchChats')`, etc.
+- Make tool names/descriptions use translated keys
+- Replace `"History"`, `"Today"`, `"This Week"`, `"Older"`, `"Upgrade"`, `"Home"`, `"Premium AI Platform"`, `"Projects"`, `"Free"` badge, `"More Tools"`, `"Multi-Window Chat"`
 
-**Step 2: Update components to use `t()` instead of hardcoded strings**
+**File 4: `src/components/Workflow.jsx`** — Replace fallback strings with proper `t()` keys (now that we add them)
 
-Files to update (13 files):
-1. **`Navbar.jsx`** — Replace hardcoded "Features"/"Pricing"/"FAQs"/"About Us" in both desktop and mobile menus with `t('features')`, `t('pricing')`, `t('faqs')`, `t('aboutUs')`. Replace "Go to Chat", "Sign Out", "Support Dashboard", "Switch Language".
-2. **`Hero.jsx`** — Replace "Powered by the world's most advanced AI models" and "+3 more" with `t()` calls.
-3. **`Footer.jsx`** — Replace hardcoded "Features"/"Pricing"/"FAQs" product links with `t()`.
-4. **`Workflow.jsx`** — Replace "Premium Models" and unlock description with `t()`.
-5. **`Pricing.jsx`** — Replace "+X more features" with translated string.
-6. **`AnnouncementBanner.jsx`** — Replace "Built by Sorixlab" with `t()`.
-7. **`ModelSelector.tsx`** — Replace "FREE MODELS"/"BASIC MODELS"/"PRO MODELS"/"PREMIUM MODELS" section titles with translated keys from `src/lib/translations.ts`.
-8. **`ChatSidebar.tsx`** — Audit and replace any remaining hardcoded strings.
-9. **`UpgradePlanModal.tsx`** — Verify all plan feature text uses translations.
-10. **`settings/PlansTokensTab.tsx`** — Verify translated labels.
-11. **`settings/GeneralTab.tsx`** — Verify translated labels.
-12. **`settings/ProfileTab.tsx`** — Verify translated labels.
-13. **`settings/HelpCenterTab.tsx`** — Verify translated labels.
-
-**Step 3: Ensure both translation stores stay in sync**
-- The `LanguageSyncBridge` component already syncs the two systems bidirectionally — no changes needed here.
-
-### Scope
-- ~13 component files updated to use `t()` calls
-- 2 translation dictionary files expanded with ~25-30 new keys each (en + bn)
-- No structural/layout changes — purely string replacement
+### No layout changes needed
+The existing CSS patterns (`truncate`, `min-w-0`, `text-[10px]`, `whitespace-nowrap`, fixed card widths with scroll) handle Bangla text width well. No overflow fixes required.
 
