@@ -168,6 +168,15 @@ const translations = {
     basicModels: 'BASIC MODELS',
     proModels: 'PRO MODELS',
     premiumModelsLabel: 'PREMIUM MODELS',
+    home: 'Home',
+    qwenSubtitle: "Alibaba's AI",
+    qwenDesc: 'Advanced multilingual capabilities for diverse tasks.',
+    llamaSubtitle: "Meta's Open AI",
+    llamaDesc: 'Open-source power for efficient AI processing.',
+    sorixDeck: 'Sorix Deck',
+    sorixDeckDesc: 'AI presentation builder',
+    sorixImagine: 'Sorix Imagine',
+    sorixImagineDesc: 'AI-powered image generation',
   },
   bn: {
     // Navbar
@@ -314,6 +323,15 @@ const translations = {
     basicModels: 'বেসিক মডেল',
     proModels: 'প্রো মডেল',
     premiumModelsLabel: 'প্রিমিয়াম মডেল',
+    home: 'হোম',
+    qwenSubtitle: 'আলিবাবার AI',
+    qwenDesc: 'বিভিন্ন কাজের জন্য উন্নত বহুভাষিক সক্ষমতা।',
+    llamaSubtitle: 'মেটার ওপেন AI',
+    llamaDesc: 'দক্ষ AI প্রক্রিয়াকরণের জন্য ওপেন-সোর্স শক্তি।',
+    sorixDeck: 'সরিক্স ডেক',
+    sorixDeckDesc: 'AI প্রেজেন্টেশন বিল্ডার',
+    sorixImagine: 'সরিক্স ইমাজিন',
+    sorixImagineDesc: 'AI-চালিত ইমেজ জেনারেশন',
   }
 };
 

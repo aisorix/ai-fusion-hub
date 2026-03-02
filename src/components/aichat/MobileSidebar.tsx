@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useChatStore } from "@/stores/chatStore";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/translations";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import sorixLogo from "@/assets/logo.png";
@@ -140,9 +141,10 @@ const MobileChatItem = ({
 const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   const navigate = useNavigate();
   const { signOut, user: authUser } = useAuth();
-  const { theme, toggleTheme, chats, activeChatId, setActiveChat, deleteChat, updateChatTitle, viewMode, setViewMode, user, setProjectsModalOpen, historyCollapsed } =
+  const { theme, toggleTheme, chats, activeChatId, setActiveChat, deleteChat, updateChatTitle, viewMode, setViewMode, user, setProjectsModalOpen, historyCollapsed, language } =
     useChatStore();
   const { avatarUrl, fullName } = useUserProfile();
+  const { t } = useTranslation(language as 'en' | 'bn');
 
   const [showMoreTools, setShowMoreTools] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -174,11 +176,11 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   const olderChats = filteredChats.filter((c) => new Date(c.createdAt) < weekAgo);
 
   const moreTools = [
-    { id: "agro", name: "Sorix Agro", desc: "AI-powered agricultural assistant", icon: Leaf, gradient: "bg-gradient-to-br from-green-500 to-lime-500", free: true },
-    { id: "health", name: "Sorix Health", desc: "Your personal health companion", icon: Stethoscope, gradient: "bg-gradient-to-br from-emerald-500 to-teal-500", free: true },
-    { id: "deck", name: "Sorix Deck", desc: "AI presentation builder", icon: Presentation, gradient: "bg-gradient-to-br from-cyan-500 to-blue-600", free: false },
-    { id: "imagine", name: "Sorix Imagine", desc: "AI-powered image generation", icon: Palette, gradient: "bg-gradient-to-br from-cyan-500 to-blue-500", free: false },
-    { id: "legends", name: "Sorix Legends", desc: "Chat with historical legends", icon: Crown, gradient: "bg-gradient-to-br from-blue-500 to-cyan-500", free: false },
+    { id: "agro", name: t('sorixAgro'), desc: t('sorixAgroDesc'), icon: Leaf, gradient: "bg-gradient-to-br from-green-500 to-lime-500", free: true },
+    { id: "health", name: t('sorixHealth'), desc: t('sorixHealthDesc'), icon: Stethoscope, gradient: "bg-gradient-to-br from-emerald-500 to-teal-500", free: true },
+    { id: "deck", name: t('sorixDeck'), desc: t('sorixDeckDesc'), icon: Presentation, gradient: "bg-gradient-to-br from-cyan-500 to-blue-600", free: false },
+    { id: "imagine", name: t('sorixImagine'), desc: t('sorixImagineDesc'), icon: Palette, gradient: "bg-gradient-to-br from-cyan-500 to-blue-500", free: false },
+    { id: "legends", name: t('sorixLegends'), desc: t('sorixLegendsDesc'), icon: Crown, gradient: "bg-gradient-to-br from-blue-500 to-cyan-500", free: false },
   ];
 
   const userInitials = authUser?.email
@@ -217,7 +219,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                   AI Sorix
                   {isPaidUser && <PlanBadge plan={user.plan as PlanType} />}
                 </h1>
-                <p className="text-[10px] text-muted-foreground">Premium AI Platform</p>
+                <p className="text-[10px] text-muted-foreground">{t('premiumAIPlatform')}</p>
               </div>
             </Link>
             <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-md transition-colors text-muted-foreground">
@@ -229,7 +231,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
           <div className="px-3 mt-1">
             <Button onClick={handleNewChat} className="w-full h-10 gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-xl">
               <Plus className="w-4 h-4" />
-              New chat
+              {t('newChat')}
             </Button>
           </div>
 
@@ -239,7 +241,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search chats"
+                placeholder={t('searchChats')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full h-10 pl-9 pr-3 rounded-xl bg-muted/30 border border-border/50 text-sm focus:outline-none focus:ring-1 focus:ring-primary/30 transition-all"
@@ -254,14 +256,14 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
               className={cn("w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors", viewMode === "multi" ? "bg-primary/10 text-primary font-medium" : "text-foreground/80 hover:bg-muted/50")}
             >
               <LayoutGrid className="w-4 h-4" />
-              <span>Multi-Window Chat</span>
+              <span>{t('multiWindowChat')}</span>
             </button>
 
             <div>
               <button onClick={() => setShowMoreTools(!showMoreTools)} className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-foreground/80 hover:bg-muted/50 transition-colors">
                 <div className="flex items-center gap-3">
                   <Sparkles className="w-4 h-4 text-primary" />
-                  <span>More Tools</span>
+                  <span>{t('moreTools')}</span>
                 </div>
                 <ChevronDown className={cn("w-4 h-4 transition-transform text-muted-foreground", showMoreTools && "rotate-180")} />
               </button>
@@ -289,7 +291,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                             <div className="flex items-center gap-1.5">
                               <span className="text-[13px] font-medium">{tool.name}</span>
                               {tool.free && (
-                                <span className="text-[8px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400 font-bold uppercase tracking-wide">Free</span>
+                                <span className="text-[8px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400 font-bold uppercase tracking-wide">{t('free')}</span>
                               )}
                             </div>
                             <p className="text-[10px] text-muted-foreground truncate">{tool.desc}</p>
@@ -308,7 +310,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             >
               <div className="flex items-center gap-3">
                 <FolderKanban className="w-4 h-4" />
-                <span>Projects</span>
+                <span>{t('projects')}</span>
               </div>
               {user.plan === 'free' && (
                 <div className="flex items-center gap-1.5">
@@ -320,7 +322,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
 
           {/* Chat History */}
           <div className="px-3 mt-2 flex items-center justify-between">
-            <h3 className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest px-3">History</h3>
+            <h3 className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest px-3">{t('history')}</h3>
             <button
               onClick={() => useChatStore.setState({ historyCollapsed: !historyCollapsed })}
               className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground"
@@ -334,19 +336,19 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             <div className="px-3 space-y-3 pb-4">
               {todayChats.length > 0 && (
                 <div>
-                  <h3 className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest px-3 mb-1.5">Today</h3>
+                  <h3 className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest px-3 mb-1.5">{t('today')}</h3>
                   <div className="space-y-0.5">{renderChatList(todayChats)}</div>
                 </div>
               )}
               {thisWeekChats.length > 0 && (
                 <div>
-                  <h3 className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest px-3 mb-1.5">This Week</h3>
+                  <h3 className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest px-3 mb-1.5">{t('thisWeek')}</h3>
                   <div className="space-y-0.5">{renderChatList(thisWeekChats)}</div>
                 </div>
               )}
               {olderChats.length > 0 && (
                 <div>
-                  <h3 className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest px-3 mb-1.5">Older</h3>
+                  <h3 className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest px-3 mb-1.5">{t('older')}</h3>
                   <div className="space-y-0.5">{renderChatList(olderChats)}</div>
                 </div>
               )}
@@ -375,7 +377,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                 className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-foreground hover:bg-muted transition-colors border border-border/50"
               >
                 <Crown className="w-3.5 h-3.5 text-primary" />
-                <span>Upgrade</span>
+                <span>{t('upgrade')}</span>
               </button>
               <Link
                 to="/"
@@ -383,7 +385,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                 className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-foreground hover:bg-muted transition-colors border border-border/50"
               >
                 <Home className="w-3.5 h-3.5" />
-                <span>Home</span>
+                <span>{t('home')}</span>
               </Link>
             </div>
           </div>
