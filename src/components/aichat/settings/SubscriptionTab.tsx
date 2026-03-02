@@ -40,13 +40,13 @@ const PLAN_DETAILS: Record<string, { name: string; price: number; features: stri
 };
 
 // Cancellation reasons
-const CANCELLATION_REASONS = [
-  { id: 'too_expensive', label: 'Too expensive', icon: DollarSign },
-  { id: 'not_using', label: 'Not using it enough', icon: Clock },
-  { id: 'missing_features', label: 'Missing features I need', icon: Lightbulb },
-  { id: 'found_alternative', label: 'Found an alternative', icon: RefreshCw },
-  { id: 'technical_issues', label: 'Technical issues', icon: AlertCircle },
-  { id: 'other', label: 'Other reason', icon: MessageSquare },
+const getCancellationReasons = (bn: boolean) => [
+  { id: 'too_expensive', label: bn ? 'খুব ব্যয়বহুল' : 'Too expensive', icon: DollarSign },
+  { id: 'not_using', label: bn ? 'যথেষ্ট ব্যবহার করছি না' : 'Not using it enough', icon: Clock },
+  { id: 'missing_features', label: bn ? 'প্রয়োজনীয় ফিচার নেই' : 'Missing features I need', icon: Lightbulb },
+  { id: 'found_alternative', label: bn ? 'বিকল্প পেয়েছি' : 'Found an alternative', icon: RefreshCw },
+  { id: 'technical_issues', label: bn ? 'প্রযুক্তিগত সমস্যা' : 'Technical issues', icon: AlertCircle },
+  { id: 'other', label: bn ? 'অন্যান্য কারণ' : 'Other reason', icon: MessageSquare },
 ];
 
 type SubscriptionStatus = 'active' | 'paused' | 'cancelled' | 'expired';
@@ -78,7 +78,9 @@ const mockSubscription: Subscription = {
 };
 
 const SubscriptionTab: React.FC = () => {
-  const { user } = useChatStore();
+  const { user, language } = useChatStore();
+  const bn = language === 'bn';
+  const CANCELLATION_REASONS = getCancellationReasons(bn);
   const [subscription, setSubscription] = useState<Subscription | null>(
     user.plan !== 'free' ? mockSubscription : null
   );
@@ -245,10 +247,10 @@ const SubscriptionTab: React.FC = () => {
 
   const getStatusBadge = (status: SubscriptionStatus) => {
     const badges = {
-      active: { label: 'Active', color: 'bg-green-500/10 text-green-500 border-green-500/20', icon: CheckCircle2 },
-      paused: { label: 'Paused', color: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20', icon: Pause },
-      cancelled: { label: 'Cancelled', color: 'bg-red-500/10 text-red-500 border-red-500/20', icon: XCircle },
-      expired: { label: 'Expired', color: 'bg-gray-500/10 text-gray-500 border-gray-500/20', icon: AlertCircle },
+      active: { label: bn ? 'সক্রিয়' : 'Active', color: 'bg-green-500/10 text-green-500 border-green-500/20', icon: CheckCircle2 },
+      paused: { label: bn ? 'বিরতি' : 'Paused', color: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20', icon: Pause },
+      cancelled: { label: bn ? 'বাতিল' : 'Cancelled', color: 'bg-red-500/10 text-red-500 border-red-500/20', icon: XCircle },
+      expired: { label: bn ? 'মেয়াদোত্তীর্ণ' : 'Expired', color: 'bg-gray-500/10 text-gray-500 border-gray-500/20', icon: AlertCircle },
     };
     const badge = badges[status];
     const Icon = badge.icon;
@@ -280,9 +282,9 @@ const SubscriptionTab: React.FC = () => {
                 <div className="w-16 h-16 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-4">
                   <HeartCrack className="w-8 h-8 text-red-500" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground">We're sad to see you go</h3>
+                <h3 className="text-xl font-bold text-foreground">{bn ? 'আপনাকে হারাতে আমরা দুঃখিত' : "We're sad to see you go"}</h3>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Please tell us why you're leaving so we can improve
+                  {bn ? 'আপনি কেন চলে যাচ্ছেন তা বলুন যাতে আমরা উন্নতি করতে পারি' : 'Please tell us why you\'re leaving so we can improve'}
                 </p>
               </div>
 
@@ -331,7 +333,7 @@ const SubscriptionTab: React.FC = () => {
                   onClick={resetCancellationFlow}
                   className="flex-1 px-4 py-3 rounded-xl border border-border text-foreground font-medium hover:bg-muted transition-colors"
                 >
-                  Never mind
+                  {bn ? 'কিছু মনে করবেন না' : 'Never mind'}
                 </button>
                 <button
                   onClick={() => setCancellationStep('offer')}
@@ -343,7 +345,7 @@ const SubscriptionTab: React.FC = () => {
                       : 'bg-muted text-muted-foreground cursor-not-allowed'
                   )}
                 >
-                  Continue
+                  {bn ? 'চালিয়ে যান' : 'Continue'}
                 </button>
               </div>
             </motion.div>
@@ -370,22 +372,22 @@ const SubscriptionTab: React.FC = () => {
                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mx-auto mb-4">
                   <Gift className="w-8 h-8 text-primary-foreground" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground">Wait! We have a special offer</h3>
+                <h3 className="text-xl font-bold text-foreground">{bn ? 'অপেক্ষা করুন! আমাদের একটি বিশেষ অফার আছে' : 'Wait! We have a special offer'}</h3>
                 <p className="text-sm text-muted-foreground mt-2">
-                  We'd love for you to stay. How about this?
+                  {bn ? 'আমরা চাই আপনি থাকুন। এটা কেমন হয়?' : "We'd love for you to stay. How about this?"}
                 </p>
               </div>
 
               {/* Special Offer Card */}
               <div className="p-5 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 border-2 border-primary/30">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-medium text-primary">Limited Time Offer</span>
+                  <span className="text-sm font-medium text-primary">{bn ? 'সীমিত সময়ের অফার' : 'Limited Time Offer'}</span>
                   <span className="px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-bold">
                     30% OFF
                   </span>
                 </div>
                 <h4 className="text-lg font-bold text-foreground mb-2">
-                  Get 30% off for the next 3 months
+                  {bn ? 'পরবর্তী ৩ মাসের জন্য ৩০% ছাড় পান' : 'Get 30% off for the next 3 months'}
                 </h4>
                 <p className="text-sm text-muted-foreground mb-4">
                   Continue enjoying {planDetails.name} at a discounted price of{' '}
@@ -411,7 +413,7 @@ const SubscriptionTab: React.FC = () => {
                   ) : (
                     <>
                       <Gift className="w-5 h-5" />
-                      Accept Offer & Stay
+                      {bn ? 'অফার গ্রহণ করুন ও থাকুন' : 'Accept Offer & Stay'}
                     </>
                   )}
                 </button>
@@ -422,7 +424,7 @@ const SubscriptionTab: React.FC = () => {
                   onClick={() => setCancellationStep('feedback')}
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors underline"
                 >
-                  No thanks, I still want to cancel
+                  {bn ? 'না ধন্যবাদ, আমি এখনও বাতিল করতে চাই' : 'No thanks, I still want to cancel'}
                 </button>
               </div>
             </motion.div>
@@ -449,20 +451,20 @@ const SubscriptionTab: React.FC = () => {
                 <div className="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center mx-auto mb-4">
                   <MessageSquare className="w-8 h-8 text-blue-500" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground">Help us improve</h3>
+                <h3 className="text-xl font-bold text-foreground">{bn ? 'আমাদের উন্নত করতে সাহায্য করুন' : 'Help us improve'}</h3>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Any additional feedback would be greatly appreciated
+                  {bn ? 'যেকোনো অতিরিক্ত মতামত অত্যন্ত মূল্যবান' : 'Any additional feedback would be greatly appreciated'}
                 </p>
               </div>
 
               <div className="space-y-3">
                 <label className="block text-sm font-medium text-foreground">
-                  Additional comments (optional)
+                  {bn ? 'অতিরিক্ত মন্তব্য (ঐচ্ছিক)' : 'Additional comments (optional)'}
                 </label>
                 <textarea
                   value={feedbackText}
                   onChange={(e) => setFeedbackText(e.target.value)}
-                  placeholder="Tell us more about your experience..."
+                  placeholder={bn ? 'আপনার অভিজ্ঞতা সম্পর্কে আরো বলুন...' : 'Tell us more about your experience...'}
                   rows={4}
                   className={cn(
                     'w-full px-4 py-3 rounded-xl transition-all duration-200 text-sm resize-none',
@@ -478,13 +480,13 @@ const SubscriptionTab: React.FC = () => {
                   onClick={resetCancellationFlow}
                   className="flex-1 px-4 py-3 rounded-xl border border-border text-foreground font-medium hover:bg-muted transition-colors"
                 >
-                  Keep Subscription
+                  {bn ? 'সাবস্ক্রিপশন রাখুন' : 'Keep Subscription'}
                 </button>
                 <button
                   onClick={() => setCancellationStep('confirm')}
                   className="flex-1 px-4 py-3 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition-all"
                 >
-                  Continue to Cancel
+                  {bn ? 'বাতিল চালিয়ে যান' : 'Continue to Cancel'}
                 </button>
               </div>
             </motion.div>
@@ -511,15 +513,15 @@ const SubscriptionTab: React.FC = () => {
                 <div className="w-16 h-16 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-4">
                   <XCircle className="w-8 h-8 text-red-500" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground">Confirm Cancellation</h3>
+                <h3 className="text-xl font-bold text-foreground">{bn ? 'বাতিল নিশ্চিত করুন' : 'Confirm Cancellation'}</h3>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Please review what you'll lose
+                  {bn ? 'আপনি কী হারাবেন তা দেখুন' : 'Please review what you\'ll lose'}
                 </p>
               </div>
 
               {/* What you'll lose */}
               <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/20 space-y-3">
-                <h4 className="text-sm font-semibold text-red-500">You will lose access to:</h4>
+                <h4 className="text-sm font-semibold text-red-500">{bn ? 'আপনি যা হারাবেন:' : 'You will lose access to:'}</h4>
                 <ul className="space-y-2">
                   {planDetails.features.map((feature, i) => (
                     <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -535,7 +537,7 @@ const SubscriptionTab: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <Calendar className="w-5 h-5 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium text-foreground">Access until</p>
+                    <p className="text-sm font-medium text-foreground">{bn ? 'অ্যাক্সেস শেষ' : 'Access until'}</p>
                     <p className="text-xs text-muted-foreground">
                       {subscription ? formatDate(subscription.currentPeriodEnd) : 'N/A'}
                     </p>
@@ -548,7 +550,7 @@ const SubscriptionTab: React.FC = () => {
                   onClick={resetCancellationFlow}
                   className="flex-1 px-4 py-3 rounded-xl bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
                 >
-                  Keep Subscription
+                  {bn ? 'সাবস্ক্রিপশন রাখুন' : 'Keep Subscription'}
                 </button>
                 <button
                   onClick={handleConfirmCancellation}
@@ -558,7 +560,7 @@ const SubscriptionTab: React.FC = () => {
                   {isLoading === 'cancel' ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
-                    'Cancel Subscription'
+                    bn ? 'সাবস্ক্রিপশন বাতিল করুন' : 'Cancel Subscription'
                   )}
                 </button>
               </div>
@@ -613,30 +615,30 @@ const SubscriptionTab: React.FC = () => {
 
     const actionDetails = {
       pause: {
-        title: 'Pause Subscription',
-        description: 'Your subscription will be paused. You won\'t be charged until you resume.',
-        confirmText: 'Pause Subscription',
+        title: bn ? 'সাবস্ক্রিপশন বিরতি' : 'Pause Subscription',
+        description: bn ? 'আপনার সাবস্ক্রিপশন বিরতিতে থাকবে। পুনরায় শুরু না করা পর্যন্ত চার্জ হবে না।' : 'Your subscription will be paused. You won\'t be charged until you resume.',
+        confirmText: bn ? 'সাবস্ক্রিপশন বিরতি দিন' : 'Pause Subscription',
         icon: Pause,
         color: 'bg-yellow-500',
       },
       resume: {
-        title: 'Resume Subscription',
-        description: 'Your subscription will be reactivated immediately.',
-        confirmText: 'Resume Subscription',
+        title: bn ? 'সাবস্ক্রিপশন পুনরায় শুরু' : 'Resume Subscription',
+        description: bn ? 'আপনার সাবস্ক্রিপশন অবিলম্বে পুনরায় সক্রিয় হবে।' : 'Your subscription will be reactivated immediately.',
+        confirmText: bn ? 'সাবস্ক্রিপশন পুনরায় শুরু করুন' : 'Resume Subscription',
         icon: Play,
         color: 'bg-green-500',
       },
       cancel: {
-        title: 'Cancel Subscription',
-        description: 'You\'ll lose access to premium features at the end of your billing period.',
-        confirmText: 'Cancel Subscription',
+        title: bn ? 'সাবস্ক্রিপশন বাতিল' : 'Cancel Subscription',
+        description: bn ? 'বিলিং সময়কাল শেষে আপনি প্রিমিয়াম ফিচার হারাবেন।' : 'You\'ll lose access to premium features at the end of your billing period.',
+        confirmText: bn ? 'সাবস্ক্রিপশন বাতিল করুন' : 'Cancel Subscription',
         icon: XCircle,
         color: 'bg-red-500',
       },
       renew: {
-        title: 'Renew Subscription',
-        description: 'Your subscription will be renewed for another billing cycle.',
-        confirmText: 'Renew Now',
+        title: bn ? 'সাবস্ক্রিপশন নবায়ন' : 'Renew Subscription',
+        description: bn ? 'আপনার সাবস্ক্রিপশন আরেকটি বিলিং সাইকেলের জন্য নবায়ন হবে।' : 'Your subscription will be renewed for another billing cycle.',
+        confirmText: bn ? 'এখনই নবায়ন করুন' : 'Renew Now',
         icon: RefreshCw,
         color: 'bg-primary',
       },
@@ -671,7 +673,7 @@ const SubscriptionTab: React.FC = () => {
                 onClick={() => setShowConfirmModal({ ...showConfirmModal, open: false })}
                 className="flex-1 px-4 py-2.5 rounded-xl border border-border text-foreground font-medium hover:bg-muted transition-colors"
               >
-                Cancel
+                {bn ? 'বাতিল' : 'Cancel'}
               </button>
               <button
                 onClick={() => handleAction(showConfirmModal.action)}
@@ -708,7 +710,7 @@ const SubscriptionTab: React.FC = () => {
               <div>
                 <h3 className="font-semibold text-foreground">{planDetails.name}</h3>
                 <p className="text-sm text-muted-foreground">
-                  {user.plan === 'free' ? 'Free forever' : `৳${planDetails.price}/month`}
+                  {user.plan === 'free' ? (bn ? 'চিরকাল ফ্রি' : 'Free forever') : `৳${planDetails.price}/${bn ? 'মাস' : 'month'}`}
                 </p>
               </div>
             </div>
@@ -723,7 +725,7 @@ const SubscriptionTab: React.FC = () => {
               <div className="p-4 rounded-xl bg-muted/50">
                 <div className="flex items-center gap-2 text-muted-foreground mb-1">
                   <Calendar className="w-4 h-4" />
-                  <span className="text-xs">Next Billing</span>
+                   <span className="text-xs">{bn ? 'পরবর্তী বিলিং' : 'Next Billing'}</span>
                 </div>
                 <p className="font-semibold text-foreground">
                   {subscription.status === 'cancelled' 
@@ -734,9 +736,9 @@ const SubscriptionTab: React.FC = () => {
               <div className="p-4 rounded-xl bg-muted/50">
                 <div className="flex items-center gap-2 text-muted-foreground mb-1">
                   <Clock className="w-4 h-4" />
-                  <span className="text-xs">Days Remaining</span>
+                  <span className="text-xs">{bn ? 'বাকি দিন' : 'Days Remaining'}</span>
                 </div>
-                <p className="font-semibold text-foreground">{getDaysRemaining()} days</p>
+                <p className="font-semibold text-foreground">{getDaysRemaining()} {bn ? 'দিন' : 'days'}</p>
               </div>
             </div>
 
@@ -750,7 +752,7 @@ const SubscriptionTab: React.FC = () => {
                     className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border text-foreground hover:bg-muted transition-colors text-sm font-medium"
                   >
                     {isLoading === 'pause' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Pause className="w-4 h-4" />}
-                    Pause
+                    {bn ? 'বিরতি' : 'Pause'}
                   </button>
                   <button
                     onClick={() => setShowConfirmModal({ action: 'cancel', open: true })}
@@ -758,7 +760,7 @@ const SubscriptionTab: React.FC = () => {
                     className="flex items-center gap-2 px-4 py-2 rounded-xl border border-red-500/20 text-red-500 hover:bg-red-500/10 transition-colors text-sm font-medium"
                   >
                     {isLoading === 'cancel' ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
-                    Cancel
+                    {bn ? 'বাতিল' : 'Cancel'}
                   </button>
                 </>
               )}
@@ -769,7 +771,7 @@ const SubscriptionTab: React.FC = () => {
                   className="flex items-center gap-2 px-4 py-2 rounded-xl bg-green-500 text-white hover:bg-green-600 transition-colors text-sm font-medium"
                 >
                   {isLoading === 'resume' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-                  Resume Subscription
+                  {bn ? 'সাবস্ক্রিপশন পুনরায় শুরু করুন' : 'Resume Subscription'}
                 </button>
               )}
               {(subscription.status === 'cancelled' || subscription.status === 'expired') && (
@@ -779,7 +781,7 @@ const SubscriptionTab: React.FC = () => {
                   className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm font-medium"
                 >
                   {isLoading === 'renew' ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                  Renew Subscription
+                  {bn ? 'সাবস্ক্রিপশন নবায়ন করুন' : 'Renew Subscription'}
                 </button>
               )}
             </div>
@@ -788,7 +790,7 @@ const SubscriptionTab: React.FC = () => {
             {subscription.status === 'paused' && subscription.pausedAt && (
               <div className="p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
                 <p className="text-sm text-yellow-600 dark:text-yellow-400">
-                  ⏸️ Paused on {formatDate(subscription.pausedAt)}. Resume anytime to continue your subscription.
+                  {bn ? `⏸️ ${formatDate(subscription.pausedAt)} তারিখে বিরতি দেওয়া হয়েছে। যেকোনো সময় পুনরায় শুরু করুন।` : `⏸️ Paused on ${formatDate(subscription.pausedAt)}. Resume anytime to continue your subscription.`}
                 </p>
               </div>
             )}
@@ -797,7 +799,7 @@ const SubscriptionTab: React.FC = () => {
             {subscription.status === 'cancelled' && (
               <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20">
                 <p className="text-sm text-red-600 dark:text-red-400">
-                  ❌ Your subscription will end on {formatDate(subscription.currentPeriodEnd)}. Renew to keep your premium features.
+                  {bn ? `❌ আপনার সাবস্ক্রিপশন ${formatDate(subscription.currentPeriodEnd)} তারিখে শেষ হবে। প্রিমিয়াম ফিচার রাখতে নবায়ন করুন।` : `❌ Your subscription will end on ${formatDate(subscription.currentPeriodEnd)}. Renew to keep your premium features.`}
                 </p>
               </div>
             )}
@@ -807,14 +809,14 @@ const SubscriptionTab: React.FC = () => {
         {!subscription && (
           <div className="p-5">
             <p className="text-sm text-muted-foreground mb-4">
-              You're on the free plan. Upgrade to unlock premium features!
+              {bn ? 'আপনি ফ্রি প্ল্যানে আছেন। প্রিমিয়াম ফিচার আনলক করতে আপগ্রেড করুন!' : "You're on the free plan. Upgrade to unlock premium features!"}
             </p>
             <button
               onClick={() => setShowUpgradeModal(true)}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm font-medium"
             >
               <Sparkles className="w-4 h-4" />
-              Upgrade Plan
+              {bn ? 'প্ল্যান আপগ্রেড করুন' : 'Upgrade Plan'}
             </button>
           </div>
         )}
@@ -822,7 +824,7 @@ const SubscriptionTab: React.FC = () => {
 
       {/* Quick Actions */}
       <div className="space-y-2">
-        <h4 className="text-sm font-medium text-foreground px-1">Quick Actions</h4>
+        <h4 className="text-sm font-medium text-foreground px-1">{bn ? 'দ্রুত কাজ' : 'Quick Actions'}</h4>
         
         <button
           onClick={() => setShowUpgradeModal(true)}
@@ -833,8 +835,8 @@ const SubscriptionTab: React.FC = () => {
               <CreditCard className="w-4 h-4 text-primary" />
             </div>
             <div className="text-left">
-              <p className="text-sm font-medium text-foreground">Change Plan</p>
-              <p className="text-xs text-muted-foreground">Upgrade or downgrade your subscription</p>
+              <p className="text-sm font-medium text-foreground">{bn ? 'প্ল্যান পরিবর্তন' : 'Change Plan'}</p>
+              <p className="text-xs text-muted-foreground">{bn ? 'আপনার সাবস্ক্রিপশন আপগ্রেড বা ডাউনগ্রেড করুন' : 'Upgrade or downgrade your subscription'}</p>
             </div>
           </div>
           <ChevronRight className="w-5 h-5 text-muted-foreground" />
@@ -848,8 +850,8 @@ const SubscriptionTab: React.FC = () => {
               <Receipt className="w-4 h-4 text-blue-500" />
             </div>
             <div className="text-left">
-              <p className="text-sm font-medium text-foreground">Payment History</p>
-              <p className="text-xs text-muted-foreground">View past transactions and invoices</p>
+              <p className="text-sm font-medium text-foreground">{bn ? 'পেমেন্ট ইতিহাস' : 'Payment History'}</p>
+              <p className="text-xs text-muted-foreground">{bn ? 'পূর্ববর্তী লেনদেন ও ইনভয়েস দেখুন' : 'View past transactions and invoices'}</p>
             </div>
           </div>
           <ChevronRight className="w-5 h-5 text-muted-foreground" />

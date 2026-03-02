@@ -1,21 +1,12 @@
 import React, { useState } from 'react';
 import { Download, FileText, File, FileArchive, Loader2 } from 'lucide-react';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import type { Message } from '@/stores/chatStore';
-import {
-  exportAsPDF,
-  exportAsMarkdown,
-  exportAsDOCX,
-  exportAsZIP,
-} from '@/lib/exportUtils';
+import { useChatStore, type Message } from '@/stores/chatStore';
+import { exportAsPDF, exportAsMarkdown, exportAsDOCX, exportAsZIP } from '@/lib/exportUtils';
 
 interface ExportDropdownProps {
   message: Message;
@@ -24,10 +15,12 @@ interface ExportDropdownProps {
 
 const ExportDropdown = ({ message, theme }: ExportDropdownProps) => {
   const [isExporting, setIsExporting] = useState<string | null>(null);
+  const language = useChatStore(s => s.language);
+  const bn = language === 'bn';
 
   const handleExport = async (type: 'pdf' | 'markdown' | 'docx' | 'zip') => {
     if (!message.content) {
-      toast.error('No content to export');
+      toast.error(bn ? 'এক্সপোর্ট করার মতো কোনো কন্টেন্ট নেই' : 'No content to export');
       return;
     }
 
@@ -36,24 +29,24 @@ const ExportDropdown = ({ message, theme }: ExportDropdownProps) => {
       switch (type) {
         case 'pdf':
           await exportAsPDF(message);
-          toast.success('PDF exported successfully!');
+          toast.success(bn ? 'PDF সফলভাবে এক্সপোর্ট হয়েছে!' : 'PDF exported successfully!');
           break;
         case 'markdown':
           exportAsMarkdown(message);
-          toast.success('Markdown exported successfully!');
+          toast.success(bn ? 'Markdown সফলভাবে এক্সপোর্ট হয়েছে!' : 'Markdown exported successfully!');
           break;
         case 'docx':
           await exportAsDOCX(message);
-          toast.success('DOCX exported successfully!');
+          toast.success(bn ? 'DOCX সফলভাবে এক্সপোর্ট হয়েছে!' : 'DOCX exported successfully!');
           break;
         case 'zip':
           await exportAsZIP(message);
-          toast.success('ZIP archive exported successfully!');
+          toast.success(bn ? 'ZIP আর্কাইভ সফলভাবে এক্সপোর্ট হয়েছে!' : 'ZIP archive exported successfully!');
           break;
       }
     } catch (error) {
       console.error('Export error:', error);
-      toast.error(`Failed to export as ${type.toUpperCase()}`);
+      toast.error(bn ? `${type.toUpperCase()} হিসেবে এক্সপোর্ট ব্যর্থ` : `Failed to export as ${type.toUpperCase()}`);
     } finally {
       setIsExporting(null);
     }
@@ -63,60 +56,32 @@ const ExportDropdown = ({ message, theme }: ExportDropdownProps) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className={cn(
-            'p-2 rounded-lg transition-all duration-150',
-            'text-muted-foreground',
-            'hover:bg-secondary hover:text-foreground'
-          )}
-          title="Export"
+          className={cn('p-2 rounded-lg transition-all duration-150', 'text-muted-foreground', 'hover:bg-secondary hover:text-foreground')}
+          title={bn ? 'এক্সপোর্ট' : 'Export'}
         >
-          {isExporting ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Download className="w-4 h-4" />
-          )}
+          {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-48 bg-card border-border">
-        <DropdownMenuItem
-          onClick={() => handleExport('pdf')}
-          disabled={isExporting !== null}
-          className="flex items-center gap-3 cursor-pointer"
-        >
+        <DropdownMenuItem onClick={() => handleExport('pdf')} disabled={isExporting !== null} className="flex items-center gap-3 cursor-pointer">
           <FileText className="w-4 h-4 text-red-500" />
           <span>PDF</span>
           {isExporting === 'pdf' && <Loader2 className="w-3 h-3 ml-auto animate-spin" />}
         </DropdownMenuItem>
-        
-        <DropdownMenuItem
-          onClick={() => handleExport('markdown')}
-          disabled={isExporting !== null}
-          className="flex items-center gap-3 cursor-pointer"
-        >
+        <DropdownMenuItem onClick={() => handleExport('markdown')} disabled={isExporting !== null} className="flex items-center gap-3 cursor-pointer">
           <FileText className="w-4 h-4 text-gray-500" />
           <span>Markdown</span>
           {isExporting === 'markdown' && <Loader2 className="w-3 h-3 ml-auto animate-spin" />}
         </DropdownMenuItem>
-        
-        <DropdownMenuItem
-          onClick={() => handleExport('docx')}
-          disabled={isExporting !== null}
-          className="flex items-center gap-3 cursor-pointer"
-        >
+        <DropdownMenuItem onClick={() => handleExport('docx')} disabled={isExporting !== null} className="flex items-center gap-3 cursor-pointer">
           <File className="w-4 h-4 text-blue-500" />
           <span>DOCX</span>
           {isExporting === 'docx' && <Loader2 className="w-3 h-3 ml-auto animate-spin" />}
         </DropdownMenuItem>
-        
         <DropdownMenuSeparator />
-        
-        <DropdownMenuItem
-          onClick={() => handleExport('zip')}
-          disabled={isExporting !== null}
-          className="flex items-center gap-3 cursor-pointer"
-        >
+        <DropdownMenuItem onClick={() => handleExport('zip')} disabled={isExporting !== null} className="flex items-center gap-3 cursor-pointer">
           <FileArchive className="w-4 h-4 text-amber-500" />
-          <span>All Assets (ZIP)</span>
+          <span>{bn ? 'সকল অ্যাসেট (ZIP)' : 'All Assets (ZIP)'}</span>
           {isExporting === 'zip' && <Loader2 className="w-3 h-3 ml-auto animate-spin" />}
         </DropdownMenuItem>
       </DropdownMenuContent>

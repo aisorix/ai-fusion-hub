@@ -34,6 +34,8 @@ const ProfileTab = () => {
   const { user, signOut, session } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { language } = useChatStore();
+  const bn = language === 'bn';
 
   const [fullName, setFullName] = useState('');
   const [countryCode, setCountryCode] = useState('+1');
@@ -78,11 +80,11 @@ const ProfileTab = () => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
     if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
+      toast.error(bn ? 'অনুগ্রহ করে একটি ছবি নির্বাচন করুন' : 'Please select an image file');
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be less than 5MB');
+      toast.error(bn ? 'ছবি ৫MB এর কম হতে হবে' : 'Image must be less than 5MB');
       return;
     }
 
@@ -99,17 +101,15 @@ const ProfileTab = () => {
         .from('profile-avatars')
         .getPublicUrl(path);
       
-      // Add cache buster
       const url = `${publicUrl}?t=${Date.now()}`;
       setAvatarUrl(url);
       
       await supabase.from('profiles').update({ avatar_url: url }).eq('user_id', user.id);
-      // Sync to Zustand store instantly
       const store = useChatStore.getState();
       store.setUser({ ...store.user, avatar: url });
-      toast.success('Profile picture updated');
+      toast.success(bn ? 'প্রোফাইল ছবি আপডেট হয়েছে' : 'Profile picture updated');
     } catch (err: any) {
-      toast.error(err.message || 'Failed to upload');
+      toast.error(err.message || (bn ? 'আপলোড ব্যর্থ হয়েছে' : 'Failed to upload'));
     } finally {
       setUploading(false);
     }
@@ -121,20 +121,15 @@ const ProfileTab = () => {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ 
-          full_name: fullName, 
-          phone, 
-          country_code: countryCode 
-        })
+        .update({ full_name: fullName, phone, country_code: countryCode })
         .eq('user_id', user.id);
       if (error) throw error;
       setHasChanges(false);
-      // Sync to Zustand store instantly
       const store = useChatStore.getState();
       store.setUser({ ...store.user, name: fullName || store.user.name });
-      toast.success('Profile updated successfully');
+      toast.success(bn ? 'প্রোফাইল আপডেট হয়েছে' : 'Profile updated successfully');
     } catch (err: any) {
-      toast.error(err.message || 'Failed to update profile');
+      toast.error(err.message || (bn ? 'প্রোফাইল আপডেট ব্যর্থ' : 'Failed to update profile'));
     } finally {
       setSaving(false);
     }
@@ -148,9 +143,9 @@ const ProfileTab = () => {
       if (res.error) throw res.error;
       await signOut();
       navigate('/');
-      toast.success('Account deleted successfully');
+      toast.success(bn ? 'অ্যাকাউন্ট মুছে ফেলা হয়েছে' : 'Account deleted successfully');
     } catch (err: any) {
-      toast.error(err.message || 'Failed to delete account');
+      toast.error(err.message || (bn ? 'অ্যাকাউন্ট মুছতে ব্যর্থ' : 'Failed to delete account'));
     } finally {
       setDeleting(false);
       setShowDeleteDialog(false);
@@ -182,8 +177,8 @@ const ProfileTab = () => {
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
 
       <div className="mb-4 sm:mb-6">
-        <h3 className="text-lg sm:text-xl font-bold">Profile Information</h3>
-        <p className="text-xs sm:text-sm mt-1 text-muted-foreground">Manage your basic profile details</p>
+        <h3 className="text-lg sm:text-xl font-bold">{bn ? 'প্রোফাইল তথ্য' : 'Profile Information'}</h3>
+        <p className="text-xs sm:text-sm mt-1 text-muted-foreground">{bn ? 'আপনার মৌলিক প্রোফাইল বিবরণ পরিচালনা করুন' : 'Manage your basic profile details'}</p>
       </div>
 
       <div className="flex-1 overflow-y-auto pr-1 sm:pr-2 space-y-4 sm:space-y-5">
@@ -210,14 +205,14 @@ const ProfileTab = () => {
             </button>
           </div>
           <div>
-            <p className="font-medium text-sm sm:text-base">Profile picture</p>
-            <p className="text-xs sm:text-sm text-muted-foreground">Click to upload a new photo</p>
+            <p className="font-medium text-sm sm:text-base">{bn ? 'প্রোফাইল ছবি' : 'Profile picture'}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">{bn ? 'নতুন ছবি আপলোড করতে ক্লিক করুন' : 'Click to upload a new photo'}</p>
           </div>
         </div>
 
         {/* Full Name */}
         <div>
-          <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">Full name</label>
+          <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">{bn ? 'পুরো নাম' : 'Full name'}</label>
           <input
             type="text"
             value={fullName}
@@ -233,7 +228,7 @@ const ProfileTab = () => {
 
         {/* Phone */}
         <div>
-          <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">Phone</label>
+          <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">{bn ? 'ফোন' : 'Phone'}</label>
           <div className="flex gap-2">
             <div className="relative">
               <button
@@ -287,21 +282,21 @@ const ProfileTab = () => {
 
         {/* Email */}
         <div>
-          <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">Email</label>
+          <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">{bn ? 'ইমেইল' : 'Email'}</label>
           <input
             type="email"
             value={email}
             disabled
             className={cn('w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl cursor-not-allowed text-sm sm:text-base', 'bg-muted/50 border border-border text-muted-foreground')}
           />
-          <p className="text-[10px] sm:text-xs mt-1 text-muted-foreground">Email cannot be changed</p>
+          <p className="text-[10px] sm:text-xs mt-1 text-muted-foreground">{bn ? 'ইমেইল পরিবর্তন করা যাবে না' : 'Email cannot be changed'}</p>
         </div>
 
         {/* Sign Out */}
         <div className="pt-2">
           <button onClick={handleSignOut} className={cn('w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-medium text-sm sm:text-base transition-all duration-200', 'bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20')}>
             <LogOut className="w-4 h-4" />
-            Sign Out
+            {bn ? 'সাইন আউট' : 'Sign Out'}
           </button>
         </div>
 
@@ -309,9 +304,9 @@ const ProfileTab = () => {
         <div>
           <button onClick={() => setShowDeleteDialog(true)} className={cn('w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-medium text-sm sm:text-base transition-all duration-200', 'bg-destructive text-destructive-foreground hover:bg-destructive/90')}>
             <Trash2 className="w-4 h-4" />
-            Delete Account
+            {bn ? 'অ্যাকাউন্ট মুছুন' : 'Delete Account'}
           </button>
-          <p className="text-[10px] sm:text-xs mt-1 text-muted-foreground text-center">This action is permanent and cannot be undone</p>
+          <p className="text-[10px] sm:text-xs mt-1 text-muted-foreground text-center">{bn ? 'এই কাজটি স্থায়ী এবং পূর্বাবস্থায় ফেরানো যাবে না' : 'This action is permanent and cannot be undone'}</p>
         </div>
       </div>
 
@@ -327,7 +322,7 @@ const ProfileTab = () => {
               : 'bg-primary/50 text-primary-foreground/50 cursor-not-allowed'
           )}
         >
-          {saving ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Update Profile'}
+          {saving ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : (bn ? 'প্রোফাইল আপডেট করুন' : 'Update Profile')}
         </button>
       </div>
 
@@ -335,16 +330,16 @@ const ProfileTab = () => {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Account</AlertDialogTitle>
+            <AlertDialogTitle>{bn ? 'অ্যাকাউন্ট মুছুন' : 'Delete Account'}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete your account, all your data, projects, and subscription. This action cannot be undone.
+              {bn ? 'এটি আপনার অ্যাকাউন্ট, সমস্ত ডেটা, প্রকল্প এবং সাবস্ক্রিপশন স্থায়ীভাবে মুছে ফেলবে। এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।' : 'This will permanently delete your account, all your data, projects, and subscription. This action cannot be undone.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleting}>{bn ? 'বাতিল' : 'Cancel'}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteAccount} disabled={deleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               {deleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Delete Forever
+              {bn ? 'চিরতরে মুছুন' : 'Delete Forever'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

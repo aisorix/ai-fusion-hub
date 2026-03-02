@@ -393,9 +393,9 @@ const ChatInput = ({ onSend, disabled, onOpenVoiceMode, onStop }: ChatInputProps
               <Upload className="w-8 h-8 text-primary" />
             </motion.div>
             <div className="text-center">
-              <p className="text-lg font-medium text-primary">Drop files here</p>
+             <p className="text-lg font-medium text-primary">{language === 'bn' ? 'ফাইল এখানে ড্রপ করুন' : 'Drop files here'}</p>
               <p className="text-sm text-muted-foreground">
-                Images, PDFs, code files, and more
+                {language === 'bn' ? 'ছবি, PDF, কোড ফাইল এবং আরও অনেক কিছু' : 'Images, PDFs, code files, and more'}
               </p>
             </div>
           </motion.div>
@@ -475,7 +475,7 @@ const ChatInput = ({ onSend, disabled, onOpenVoiceMode, onStop }: ChatInputProps
                 <div className="flex items-center gap-2">
                   <Loader2 className="w-4 h-4 text-primary animate-spin" />
                   <span className="text-sm text-primary font-medium">
-                    Processing files...
+                    {language === 'bn' ? 'ফাইল প্রসেস হচ্ছে...' : 'Processing files...'}
                   </span>
                 </div>
                 {parseProgress.total > 1 && (
@@ -672,7 +672,7 @@ const ChatInput = ({ onSend, disabled, onOpenVoiceMode, onStop }: ChatInputProps
                 'hover:bg-background text-muted-foreground hover:text-primary',
                 'relative'
               )}
-              title="Live Voice Mode"
+              title={language === 'bn' ? 'লাইভ ভয়েস মোড' : 'Live Voice Mode'}
             >
               <Mic className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-green-500 rounded-full" />
@@ -706,7 +706,7 @@ const ChatInput = ({ onSend, disabled, onOpenVoiceMode, onStop }: ChatInputProps
       <div className="flex items-center justify-center gap-1.5 mt-2 pb-1 sm:pb-2">
         <p className="text-[10px] sm:text-xs text-muted-foreground/60 text-center">
           {isHealthMode 
-            ? '🏥 Health Mode Active - Always consult professionals'
+            ? (language === 'bn' ? '🏥 হেলথ মোড সক্রিয় - সর্বদা পেশাদারদের সাথে পরামর্শ করুন' : '🏥 Health Mode Active - Always consult professionals')
             : t.sorixCanMakeMistakes
           }
         </p>
@@ -715,7 +715,7 @@ const ChatInput = ({ onSend, disabled, onOpenVoiceMode, onStop }: ChatInputProps
             onClick={() => setHealthMode(false)}
             className="text-[10px] sm:text-xs text-rose-500 hover:text-rose-600 font-medium"
           >
-            Disable
+            {language === 'bn' ? 'নিষ্ক্রিয়' : 'Disable'}
           </button>
         )}
       </div>
