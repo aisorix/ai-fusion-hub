@@ -1,19 +1,65 @@
 
 
-## Reorder Features: Show Tools Below Tokens in All Pricing Displays
+## Complete Bangla Translation: Professional i18n Coverage
 
-The user wants Sorix tools (Health, Agro, Legends, Deck) listed immediately after the token count row, not at the bottom of the feature list. This applies to all 3 pricing locations.
+### Problem
+The app has **two separate translation systems** that are out of sync, and many components still have hardcoded English strings that don't translate when the user switches to Bangla:
 
-### Changes
+**Two translation files:**
+1. `src/contexts/LanguageContext.jsx` — used by landing page components (Navbar, Hero, Pricing, Footer, etc.)
+2. `src/lib/translations.ts` — used by chat page components (Sidebar, ChatInput, EmptyState, Settings, etc.)
 
-**1. `src/components/Pricing.jsx`** — Reorder `features` arrays in all 4 plans
-- Move Sorix Legends, Sorix Health, Sorix Agro, Sorix Deck entries to positions 1-4 (right after the tokens row)
-- Keep all other features (Web Search, Voice AI, File Upload, etc.) below the tools
+**Hardcoded English strings found in:**
 
-**2. `src/components/aichat/UpgradePlanModal.tsx`** — Same reordering in all 4 plan `features` arrays
-- Move Sorix tools to positions 1-4 after tokens row
+| Component | Hardcoded Strings |
+|-----------|------------------|
+| `Navbar.jsx` | Desktop/mobile menu labels ("Features", "Pricing", "FAQs", "About Us"), "Go to Chat", "Sign Out", "Support Dashboard", "Switch Language" |
+| `Hero.jsx` | "Powered by the world's most advanced AI models", "+3 more" |
+| `Footer.jsx` | "Features", "Pricing", "FAQs" (product links) |
+| `Workflow.jsx` | "Premium Models", "Unlock Perplexity, Kimi, Claude, Grok & Mistral..." |
+| `Pricing.jsx` | "+X more features" |
+| `ModelSelector.tsx` | "FREE MODELS", "BASIC MODELS", "PRO MODELS", "PREMIUM MODELS" |
+| `ChatSidebar.tsx` | Various labels not using translation keys |
+| `AnnouncementBanner.jsx` | "Built by Sorixlab" |
 
-**3. `src/components/aichat/settings/PlansTokensTab.tsx`** — Move the "Free Tools for Everyone" section above the "Need more tokens?" info card (it's already a separate section, just reorder if needed — currently tools section is already below tokens, which is correct)
+### Plan
 
-All 3 files get the same reordering: `Tokens → Sorix Health → Sorix Agro → Sorix Legends → Sorix Deck → Web Search → Voice AI → ...`
+**Step 1: Expand both translation dictionaries with ALL missing keys**
+
+Add to `LanguageContext.jsx` translations (landing page):
+- `features`, `pricing`, `faqs`, `aboutUs` (nav labels — English `en` section is missing these)
+- `goToChat`, `signOut`, `supportDashboard`, `switchLanguage`
+- `poweredByModels`, `moreModels`
+- `premiumModels`, `unlockPremiumModels`
+- `moreFeatures`
+- `builtBySorixlab`
+
+Add to `src/lib/translations.ts` (chat page):
+- `freeModels`, `basicModels`, `proModels`, `premiumModels` (model tier labels)
+- Any other missing chat-specific keys
+
+**Step 2: Update components to use `t()` instead of hardcoded strings**
+
+Files to update (13 files):
+1. **`Navbar.jsx`** — Replace hardcoded "Features"/"Pricing"/"FAQs"/"About Us" in both desktop and mobile menus with `t('features')`, `t('pricing')`, `t('faqs')`, `t('aboutUs')`. Replace "Go to Chat", "Sign Out", "Support Dashboard", "Switch Language".
+2. **`Hero.jsx`** — Replace "Powered by the world's most advanced AI models" and "+3 more" with `t()` calls.
+3. **`Footer.jsx`** — Replace hardcoded "Features"/"Pricing"/"FAQs" product links with `t()`.
+4. **`Workflow.jsx`** — Replace "Premium Models" and unlock description with `t()`.
+5. **`Pricing.jsx`** — Replace "+X more features" with translated string.
+6. **`AnnouncementBanner.jsx`** — Replace "Built by Sorixlab" with `t()`.
+7. **`ModelSelector.tsx`** — Replace "FREE MODELS"/"BASIC MODELS"/"PRO MODELS"/"PREMIUM MODELS" section titles with translated keys from `src/lib/translations.ts`.
+8. **`ChatSidebar.tsx`** — Audit and replace any remaining hardcoded strings.
+9. **`UpgradePlanModal.tsx`** — Verify all plan feature text uses translations.
+10. **`settings/PlansTokensTab.tsx`** — Verify translated labels.
+11. **`settings/GeneralTab.tsx`** — Verify translated labels.
+12. **`settings/ProfileTab.tsx`** — Verify translated labels.
+13. **`settings/HelpCenterTab.tsx`** — Verify translated labels.
+
+**Step 3: Ensure both translation stores stay in sync**
+- The `LanguageSyncBridge` component already syncs the two systems bidirectionally — no changes needed here.
+
+### Scope
+- ~13 component files updated to use `t()` calls
+- 2 translation dictionary files expanded with ~25-30 new keys each (en + bn)
+- No structural/layout changes — purely string replacement
 
