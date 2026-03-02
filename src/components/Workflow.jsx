@@ -40,8 +40,8 @@ const Workflow = () => {
     },
     {
       title: "Qwen",
-      subtitle: t('qwenSubtitle') || 'Alibaba\'s AI',
-      desc: t('qwenDesc') || 'Advanced multilingual capabilities for diverse tasks.',
+      subtitle: t('qwenSubtitle'),
+      desc: t('qwenDesc'),
       Logo: QwenLogo,
       gradient: 'from-[#6366F1]/20 to-[#6366F1]/5',
       borderColor: 'border-[#6366F1]/30',
@@ -50,8 +50,8 @@ const Workflow = () => {
     },
     {
       title: "Llama",
-      subtitle: t('llamaSubtitle') || 'Meta\'s Open AI',
-      desc: t('llamaDesc') || 'Open-source power for efficient AI processing.',
+      subtitle: t('llamaSubtitle'),
+      desc: t('llamaDesc'),
       Logo: LlamaLogo,
       gradient: 'from-[#0668E1]/20 to-[#0668E1]/5',
       borderColor: 'border-[#0668E1]/30',

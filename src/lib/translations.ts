@@ -121,6 +121,12 @@ export const translations = {
     rename: 'Rename',
     delete: 'Delete',
     premiumAIPlatform: 'Premium AI Platform',
+    home: 'Home',
+    free: 'Free',
+    sorixDeck: 'Sorix Deck',
+    sorixDeckDesc: 'AI presentation builder',
+    sorixImagine: 'Sorix Imagine',
+    sorixImagineDesc: 'AI-powered image generation',
   },
   bn: {
     // Sidebar
@@ -243,6 +249,12 @@ export const translations = {
     rename: 'নাম পরিবর্তন',
     delete: 'মুছুন',
     premiumAIPlatform: 'প্রিমিয়াম AI প্ল্যাটফর্ম',
+    home: 'হোম',
+    free: 'ফ্রি',
+    sorixDeck: 'সরিক্স ডেক',
+    sorixDeckDesc: 'AI প্রেজেন্টেশন বিল্ডার',
+    sorixImagine: 'সরিক্স ইমাজিন',
+    sorixImagineDesc: 'AI-চালিত ইমেজ জেনারেশন',
   }
 } as const;
 
