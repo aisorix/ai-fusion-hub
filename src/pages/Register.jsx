@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import SEOHead from '@/components/SEOHead';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, User, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -145,6 +146,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-background flex flex-col">
+      <SEOHead title="Register | AI Sorix" description="Create your free AI Sorix account and access the world's most advanced AI models for research, content creation, and image generation." path="/register" />
       {/* Header */}
       <div className="p-4 md:p-6">
         <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">

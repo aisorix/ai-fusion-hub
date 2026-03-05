@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import SEOHead from '@/components/SEOHead';
 import { ArrowLeft, Leaf, Bug, Sprout, History, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AgroIntakeForm } from '@/components/agro';
@@ -138,6 +139,7 @@ const AgroPage: React.FC = () => {
 
   return (
     <div className="h-[100dvh] flex flex-col bg-background overflow-hidden">
+      <SEOHead title="Sorix Agro | AI Agriculture | AI Sorix" description="AI-powered agricultural analysis and insights. Get crop diagnosis, pest identification, and farming recommendations." path="/agro" />
       {/* Header */}
       <header className="shrink-0 border-b border-border bg-card/80 backdrop-blur-xl">
         <div className="flex items-center justify-between px-4 md:px-6 h-14">

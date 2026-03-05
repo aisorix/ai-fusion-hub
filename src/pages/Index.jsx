@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import SEOHead from "@/components/SEOHead";
 import Navbar from "@/components/Navbar";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
 import Hero from "@/components/Hero";
@@ -36,6 +37,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="AI Sorix | Global AI Research Ecosystem"
+        description="Welcome to the ultimate AI Research Ecosystem. A single, powerful workspace powered by the world's most advanced AI models for content, research, and image generation."
+        path="/"
+      />
       <Navbar />
 
       <Hero />

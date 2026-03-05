@@ -2,6 +2,7 @@
 // Protected route that requires authentication
 
 import React, { useEffect, useState } from 'react';
+import SEOHead from '@/components/SEOHead';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
@@ -60,6 +61,11 @@ const ChatPage = () => {
        'flex h-[100dvh] overflow-hidden transition-colors duration-200',
       'bg-background text-foreground'
     )}>
+      <SEOHead
+        title="AI Chat | AI Sorix"
+        description="Chat with 15+ premium AI models including GPT-5, Claude, Gemini, and more. Get instant answers, generate code, and research anything."
+        path="/chat"
+      />
       
       
       {/* Desktop Sidebar - hidden on mobile */}

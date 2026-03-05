@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import SEOHead from "@/components/SEOHead";
 import { ArrowLeft, Rocket, Code, Star, Lightbulb, Globe, Target, Home, ChevronRight } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import logo from "../assets/logo.png";
@@ -54,6 +55,7 @@ const AboutSorixLab = () => {
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
+      <SEOHead title="About Sorix Lab | AI Sorix" description="Meet the team behind AI Sorix. A Bangladesh-based R&D hub dedicated to shaping the future of AI, Education, and Social Innovation." path="/about-sorix-lab" />
       {/* Professional Header */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">

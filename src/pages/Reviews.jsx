@@ -1,4 +1,5 @@
 import { useLanguage } from '../contexts/LanguageContext';
+import SEOHead from '@/components/SEOHead';
 import { useAuth } from '../contexts/AuthContext';
 import { Star, StarHalf, ArrowLeft, Filter, Search, PenLine, X, ArrowUpDown, Loader2, LogIn } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -1013,6 +1014,7 @@ const Reviews = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead title="Reviews | AI Sorix" description="See what users say about AI Sorix. Real reviews from researchers, developers, students, and professionals worldwide." path="/reviews" />
       <Navbar />
       
       <main className="pt-20 pb-16">

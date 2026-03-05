@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import SEOHead from '@/components/SEOHead';
 import { ArrowLeft, ImageIcon, History, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -58,6 +59,7 @@ const ImaginePage: React.FC = () => {
 
   return (
     <div className="h-[100dvh] flex flex-col bg-background overflow-hidden">
+      <SEOHead title="Sorix Imagine | AI Image Generation | AI Sorix" description="Generate beautiful AI images with multiple artistic styles. Create stunning visuals from text prompts instantly." path="/imagine" />
       {/* Header */}
       <header className="shrink-0 bg-card/80 backdrop-blur-xl relative">
         <div className="flex items-center justify-between px-4 md:px-6 h-14">
