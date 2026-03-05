@@ -49,24 +49,24 @@ const Footer = () => {
             <h4 className="font-bold text-foreground mb-4 sm:mb-6 text-sm sm:text-base">{t("product")}</h4>
             <ul className="space-y-3 sm:space-y-4">
               <li>
-                <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <a href="/#features" onClick={(e) => { e.preventDefault(); document.getElementById('features')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   {t("features")}
-                </button>
+                </a>
               </li>
               <li>
-                <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <a href="/#pricing" onClick={(e) => { e.preventDefault(); document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   {t("pricing")}
-                </button>
+                </a>
               </li>
               <li>
-                <button onClick={() => document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <a href="/#faq" onClick={(e) => { e.preventDefault(); document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   {t("faqs")}
-                </button>
+                </a>
               </li>
               <li>
-                <button className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/about-sorix-lab" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   {t("changelog")}
-                </button>
+                </Link>
               </li>
             </ul>
           </div>
