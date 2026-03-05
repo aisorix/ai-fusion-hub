@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import SEOHead from '@/components/SEOHead';
 import { ArrowLeft, Heart, Activity, FileText, History, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -149,6 +150,7 @@ const HealthPage: React.FC = () => {
 
   return (
     <div className="h-[100dvh] flex flex-col bg-background overflow-hidden">
+      <SEOHead title="Sorix Health | AI Health Analysis | AI Sorix" description="Get AI-powered health insights and analysis. Understand symptoms, receive wellness recommendations, and track your health journey." path="/health" />
       {/* Header */}
       <header className="shrink-0 border-b border-border bg-card/80 backdrop-blur-xl">
         <div className="flex items-center justify-between px-4 md:px-6 h-14">

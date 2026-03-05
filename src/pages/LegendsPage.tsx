@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import SEOHead from '@/components/SEOHead';
 import { ArrowLeft, History, X, BookOpen, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -61,6 +62,7 @@ const LegendsPage: React.FC = () => {
 
   return (
     <div className="h-[100dvh] flex flex-col bg-background">
+      <SEOHead title="Sorix Legends | AI Historical Conversations | AI Sorix" description="Chat with history's greatest minds powered by AI. Converse with Einstein, Tesla, Nazrul, and more legendary figures." path="/legends" />
       {/* Header */}
       {!selectedPersona && (
         <div className="shrink-0 border-b border-border px-4 py-3 flex items-center gap-3 bg-card/80 backdrop-blur-sm">

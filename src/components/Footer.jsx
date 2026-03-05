@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Mail, Twitter, Linkedin, Youtube, Facebook, Instagram } from "lucide-react";
+import { Mail, Twitter, Linkedin, Youtube, Facebook, Instagram, MessageSquare, Presentation, ImageIcon, Heart, Leaf, Crown } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import logo from "../assets/logo.png";
 
@@ -18,7 +18,7 @@ const Footer = () => {
   return (
     <footer className="bg-card border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-10 sm:py-16">
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-12">
           {/* Brand */}
           <div className="col-span-2 sm:col-span-2 lg:col-span-2">
             <div className="flex items-center gap-1.5 mb-4 sm:mb-6">
@@ -66,6 +66,43 @@ const Footer = () => {
               <li>
                 <Link to="/about-sorix-lab" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   {t("changelog")}
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Tools */}
+          <div>
+            <h4 className="font-bold text-foreground mb-4 sm:mb-6 text-sm sm:text-base">{t("product") === "Product" ? "Tools" : "টুলস"}</h4>
+            <ul className="space-y-3 sm:space-y-4">
+              <li>
+                <Link to="/chat" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
+                  <MessageSquare className="w-3.5 h-3.5" /> AI Chat
+                </Link>
+              </li>
+              <li>
+                <Link to="/deck" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
+                  <Presentation className="w-3.5 h-3.5" /> Sorix Deck
+                </Link>
+              </li>
+              <li>
+                <Link to="/imagine" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
+                  <ImageIcon className="w-3.5 h-3.5" /> Sorix Imagine
+                </Link>
+              </li>
+              <li>
+                <Link to="/health" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
+                  <Heart className="w-3.5 h-3.5" /> Sorix Health
+                </Link>
+              </li>
+              <li>
+                <Link to="/agro" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
+                  <Leaf className="w-3.5 h-3.5" /> Sorix Agro
+                </Link>
+              </li>
+              <li>
+                <Link to="/legends" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
+                  <Crown className="w-3.5 h-3.5" /> Sorix Legends
                 </Link>
               </li>
             </ul>
