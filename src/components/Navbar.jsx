@@ -92,21 +92,23 @@ const Navbar = () => {
             {/* Desktop Menu */}
             <div className="hidden lg:flex items-center gap-10">
               {[
-                { id: "features", label: t("features") },
-                { id: "pricing", label: t("pricing") },
-                { id: "faq", label: t("faqs") },
-                { id: "about", label: t("aboutUs") },
+                { id: "features", label: t("features"), href: "/#features" },
+                { id: "pricing", label: t("pricing"), href: "/#pricing" },
+                { id: "faq", label: t("faqs"), href: "/#faq" },
+                { id: "about", label: t("aboutUs"), href: "/#about" },
               ].map((item) => (
-                <button
+                <a
                   key={item.id}
-                  onClick={() => {
+                  href={item.href}
+                  onClick={(e) => {
+                    e.preventDefault();
                     const el = document.getElementById(item.id);
                     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
                   }}
                   className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all"
                 >
                   {item.label}
-                </button>
+                </a>
               ))}
             </div>
 
@@ -281,14 +283,16 @@ const Navbar = () => {
                 {/* Navigation Links */}
                 <div className="grid gap-2">
                   {[
-                    { id: "features", label: t("features") },
-                    { id: "pricing", label: t("pricing") },
-                    { id: "faq", label: t("faqs") },
-                    { id: "about", label: t("aboutUs") },
+                    { id: "features", label: t("features"), href: "/#features" },
+                    { id: "pricing", label: t("pricing"), href: "/#pricing" },
+                    { id: "faq", label: t("faqs"), href: "/#faq" },
+                    { id: "about", label: t("aboutUs"), href: "/#about" },
                   ].map((item) => (
-                    <button
+                    <a
                       key={item.id}
-                      onClick={() => {
+                      href={item.href}
+                      onClick={(e) => {
+                        e.preventDefault();
                         setMobileMenuOpen(false);
                         setTimeout(() => {
                           const el = document.getElementById(item.id);
@@ -299,7 +303,7 @@ const Navbar = () => {
                     >
                       <div className="w-2 h-2 rounded-full bg-primary" />
                       {item.label}
-                    </button>
+                    </a>
                   ))}
                 </div>
 
