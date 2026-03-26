@@ -15,6 +15,7 @@ interface CoWorkLayoutProps {
 
 const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
   const [showMonitor, setShowMonitor] = useState(true);
+  const [showMobileConnectors, setShowMobileConnectors] = useState(false);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
