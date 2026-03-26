@@ -121,10 +121,10 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled 
 
       {/* Gradient glow wrapper */}
       <div className="p-px rounded-2xl bg-gradient-to-r from-primary/40 via-pink-500/20 to-primary/40 shadow-lg shadow-primary/5">
-        <div className={cn('relative flex items-end gap-2 rounded-2xl transition-all duration-300', 'bg-card/90 backdrop-blur-sm')}>
+        <div className={cn('relative flex items-end gap-2 rounded-2xl transition-all duration-300 overflow-visible', 'bg-card/90 backdrop-blur-sm')}>
           <div className="flex-1 flex items-end gap-2 px-2 py-3">
             {/* Plus button */}
-            <div className="relative">
+            <div className="relative z-50">
               <button
                 onClick={() => setShowAttachMenu(!showAttachMenu)}
                 disabled={isGenerating || disabled}
