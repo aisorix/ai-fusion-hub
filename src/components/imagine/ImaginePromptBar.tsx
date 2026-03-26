@@ -121,10 +121,10 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled 
 
       {/* Gradient glow wrapper */}
       <div className="p-px rounded-2xl bg-gradient-to-r from-primary/40 via-pink-500/20 to-primary/40 shadow-lg shadow-primary/5">
-        <div className={cn('relative flex items-end gap-2 rounded-2xl transition-all duration-300', 'bg-card/90 backdrop-blur-sm')}>
+        <div className={cn('relative flex items-end gap-2 rounded-2xl transition-all duration-300 overflow-visible', 'bg-card/90 backdrop-blur-sm')}>
           <div className="flex-1 flex items-end gap-2 px-2 py-3">
             {/* Plus button */}
-            <div className="relative">
+            <div className="relative z-50">
               <button
                 onClick={() => setShowAttachMenu(!showAttachMenu)}
                 disabled={isGenerating || disabled}
@@ -140,10 +140,10 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled 
               <AnimatePresence>
                 {showAttachMenu && (
                   <motion.div
-                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                    className="absolute top-full left-0 mt-2 rounded-xl shadow-xl overflow-hidden bg-popover border border-border backdrop-blur-xl min-w-[200px] z-50"
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute bottom-full left-0 mb-2 rounded-xl shadow-xl bg-popover border border-border backdrop-blur-xl min-w-[200px] z-[100]"
                   >
                     <div className="px-4 py-2 border-b border-border bg-muted/50">
                       <div className="flex items-center justify-between gap-2">
