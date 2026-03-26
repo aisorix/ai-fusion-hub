@@ -1,5 +1,5 @@
 import React from "react";
-import { HardDrive, Mail, Linkedin, Twitter, Plug, Unplug } from "lucide-react";
+import { HardDrive, Mail, Linkedin, Twitter, Plug, Unplug, Facebook, Instagram, MessageCircle, MessageCircleMore, Youtube, Send, Hash, Pin, Music } from "lucide-react";
 import { useCoWorkStore, type ConnectorService } from "@/stores/coworkStore";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -13,6 +13,15 @@ const iconMap: Record<string, React.FC<{ className?: string }>> = {
   mail: Mail,
   linkedin: Linkedin,
   twitter: Twitter,
+  facebook: Facebook,
+  instagram: Instagram,
+  "message-circle": MessageCircle,
+  "message-circle-more": MessageCircleMore,
+  youtube: Youtube,
+  send: Send,
+  hash: Hash,
+  pin: Pin,
+  music: Music,
 };
 
 const ConnectorPanel: React.FC<ConnectorPanelProps> = ({ language }) => {
@@ -37,7 +46,7 @@ const ConnectorPanel: React.FC<ConnectorPanelProps> = ({ language }) => {
       <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1">
         {language === "bn" ? "কানেক্টর" : "Connectors"}
       </h4>
-      <div className="space-y-1.5">
+      <div className="space-y-1.5 max-h-[60vh] overflow-y-auto pr-1">
         {connectors.map((connector) => {
           const Icon = iconMap[connector.icon] || Plug;
           return (
