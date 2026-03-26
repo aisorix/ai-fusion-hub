@@ -259,6 +259,14 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
               <span>{t('multiWindowChat')}</span>
             </button>
 
+            <button
+              onClick={() => { navigate("/cowork"); onClose(); }}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground/80 hover:bg-muted/50 transition-colors"
+            >
+              <Bot className="w-4 h-4 text-cyan-500" />
+              <span>Sorix Co-Work</span>
+            </button>
+
             <div>
               <button onClick={() => setShowMoreTools(!showMoreTools)} className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-foreground/80 hover:bg-muted/50 transition-colors">
                 <div className="flex items-center gap-3">
