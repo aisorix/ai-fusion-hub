@@ -21,57 +21,77 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="h-[100dvh] flex flex-col bg-background">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-border/30 bg-background/80 backdrop-blur-sm">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate("/chat")}>
-            <ArrowLeft className="w-4 h-4" />
+      <header className="flex items-center justify-between px-3 sm:px-5 py-2.5 border-b border-border/40 bg-background/90 backdrop-blur-md shrink-0">
+        <div className="flex items-center gap-2.5">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 rounded-xl hover:bg-muted/60"
+            onClick={() => navigate("/chat")}
+          >
+            <ArrowLeft className="w-4.5 h-4.5" />
           </Button>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center">
-              <Bot className="w-4 h-4 text-white" />
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center shadow-md shadow-cyan-500/15">
+              <Bot className="w-[18px] h-[18px] text-white" />
             </div>
             <div>
-              <h1 className="text-sm font-bold text-foreground">Sorix Agent</h1>
-              <p className="text-[10px] text-muted-foreground">Your Tasks, Handled by Intelligence.</p>
+              <h1 className="text-sm font-bold text-foreground leading-tight">Sorix Agent</h1>
+              <p className="text-[10px] text-muted-foreground leading-tight">
+                {language === "bn" ? "আপনার কাজ, বুদ্ধিমত্তার হাতে।" : "Your Tasks, Handled by Intelligence."}
+              </p>
             </div>
           </div>
         </div>
-        {isMobile ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => setShowMobileConnectors(true)}
-          >
-            <Plug className="w-4 h-4" />
-          </Button>
-        ) : (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => setShowMonitor(!showMonitor)}
-          >
-            {showMonitor ? <PanelRightClose className="w-4 h-4" /> : <PanelRight className="w-4 h-4" />}
-          </Button>
-        )}
-      </div>
+        <div className="flex items-center gap-1.5">
+          {isMobile ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-xl hover:bg-muted/60"
+              onClick={() => setShowMobileConnectors(true)}
+            >
+              <Plug className="w-4.5 h-4.5" />
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-xl hover:bg-muted/60"
+              onClick={() => setShowMonitor(!showMonitor)}
+              title={showMonitor ? "Hide panel" : "Show panel"}
+            >
+              {showMonitor ? <PanelRightClose className="w-4.5 h-4.5" /> : <PanelRight className="w-4.5 h-4.5" />}
+            </Button>
+          )}
+        </div>
+      </header>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden min-h-0">
         {/* Command Center */}
-        <div className={cn("flex-1 min-w-0", !showMonitor && "w-full")}>
+        <div className={cn("flex-1 min-w-0 min-h-0")}>
           <CommandCenter language={language} />
         </div>
 
-        {/* Task Monitor - right panel (desktop) */}
-        {showMonitor && !isMobile && (
-          <div className="w-72 xl:w-80 shrink-0">
-            <TaskMonitor language={language} />
-          </div>
-        )}
+        {/* Task Monitor + Connectors - right panel (desktop) */}
+        <AnimatePresence>
+          {showMonitor && !isMobile && (
+            <motion.aside
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 304, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="shrink-0 overflow-hidden"
+            >
+              <div className="w-[304px] h-full">
+                <TaskMonitor language={language} />
+              </div>
+            </motion.aside>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Mobile Connectors Modal */}
@@ -82,19 +102,22 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
               onClick={() => setShowMobileConnectors(false)}
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="fixed inset-x-4 top-16 bottom-auto max-h-[70vh] z-50 rounded-2xl border border-border/50 bg-background/95 backdrop-blur-xl shadow-2xl overflow-hidden"
+              initial={{ opacity: 0, y: "100%" }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: "100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 300 }}
+              className="fixed inset-x-0 bottom-0 max-h-[75vh] z-50 rounded-t-3xl border-t border-border/40 bg-background shadow-2xl overflow-hidden"
             >
-              <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
-                <div className="flex items-center gap-2">
-                  <Plug className="w-4 h-4 text-cyan-400" />
+              <div className="w-12 h-1 bg-muted-foreground/20 rounded-full mx-auto mt-2.5 mb-1" />
+              <div className="flex items-center justify-between px-5 py-3 border-b border-border/30">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center">
+                    <Plug className="w-4 h-4 text-cyan-500" />
+                  </div>
                   <h3 className="text-sm font-semibold">
                     {language === "bn" ? "কানেক্টর" : "Connectors"}
                   </h3>
@@ -102,13 +125,13 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7"
+                  className="h-8 w-8 rounded-lg"
                   onClick={() => setShowMobileConnectors(false)}
                 >
                   <X className="w-4 h-4" />
                 </Button>
               </div>
-              <div className="overflow-y-auto max-h-[calc(70vh-48px)] p-1">
+              <div className="overflow-y-auto max-h-[calc(75vh-80px)] p-4">
                 <ConnectorPanel language={language} />
               </div>
             </motion.div>
