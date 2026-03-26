@@ -264,7 +264,9 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
               onClick={() => { navigate("/agent"); onClose(); }}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground/80 hover:bg-muted/50 transition-colors"
             >
-              <Bot className="w-4 h-4 text-cyan-500" />
+              <div className="w-5 h-5 rounded-md bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center">
+                <Bot className="w-3 h-3 text-white" />
+              </div>
               <span>Sorix Agent</span>
             </button>
 
