@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { PanelRightClose, PanelRight, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CommandCenter from "./CommandCenter";
+import ConnectorPanel from "./ConnectorPanel";
 import TaskMonitor from "./TaskMonitor";
 import ApprovalModal from "./ApprovalModal";
 import { Button } from "@/components/ui/button";
