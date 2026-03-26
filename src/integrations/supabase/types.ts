@@ -118,6 +118,119 @@ export type Database = {
           },
         ]
       }
+      cowork_connectors: {
+        Row: {
+          config: Json
+          connected_at: string | null
+          created_at: string
+          id: string
+          service: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          config?: Json
+          connected_at?: string | null
+          created_at?: string
+          id?: string
+          service: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          config?: Json
+          connected_at?: string | null
+          created_at?: string
+          id?: string
+          service?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      cowork_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          model: string | null
+          role: string
+          task_id: string | null
+          tokens_used: number
+          tool_calls: Json | null
+          tool_results: Json | null
+          user_id: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          model?: string | null
+          role?: string
+          task_id?: string | null
+          tokens_used?: number
+          tool_calls?: Json | null
+          tool_results?: Json | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          model?: string | null
+          role?: string
+          task_id?: string | null
+          tokens_used?: number
+          tool_calls?: Json | null
+          tool_results?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cowork_messages_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "cowork_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cowork_tasks: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          result: string | null
+          status: string
+          steps: Json
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id?: string
+          result?: string | null
+          status?: string
+          steps?: Json
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          result?: string | null
+          status?: string
+          steps?: Json
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       image_generations: {
         Row: {
           created_at: string

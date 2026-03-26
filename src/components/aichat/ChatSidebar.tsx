@@ -29,6 +29,7 @@ import {
   Trash2,
   Check,
   X,
+  Bot,
 } from "lucide-react";
 import { useChatStore } from "@/stores/chatStore";
 import { useTranslation } from "@/lib/translations";
@@ -457,6 +458,14 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
           >
             <LayoutGrid className="w-4 h-4" />
             <span>{t('multiWindowChat')}</span>
+          </button>
+
+          <button
+            onClick={() => navigate("/cowork")}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
+          >
+            <Bot className="w-4 h-4 text-cyan-500" />
+            <span>Sorix Co-Work</span>
           </button>
 
           <div>
