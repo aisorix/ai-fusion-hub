@@ -48,6 +48,13 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
         )}
       </div>
 
+      {/* Mobile Connectors - horizontal strip below header */}
+      {isMobile && (
+        <div className="shrink-0 border-b border-border/30 bg-background/50 backdrop-blur-sm">
+          <ConnectorPanel language={language} />
+        </div>
+      )}
+
       {/* Main content */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Command Center */}
@@ -59,13 +66,6 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
         {showMonitor && !isMobile && (
           <div className="w-72 xl:w-80 shrink-0">
             <TaskMonitor language={language} />
-          </div>
-        )}
-
-        {/* Connectors - mobile bottom section */}
-        {isMobile && (
-          <div className="shrink-0 border-t border-border/30 bg-background/50 backdrop-blur-sm">
-            <ConnectorPanel language={language} />
           </div>
         )}
       </div>
