@@ -1,29 +1,22 @@
 
 
-## Rename "Sorix Co-Work" to "Sorix Agent" + Update Slogan
+## Add Sorix Agent Quick-Access Button to Chat Header
 
-Simple text replacement across 6 files.
+Add a small icon button next to the ModelSelector in the chat page header that navigates users directly to `/cowork` (Sorix Agent page).
 
 ### Changes
 
-**1. `src/components/cowork/CoWorkLayout.tsx`**
-- "Sorix Co-Work" → "Sorix Agent"
-- "AI Agent Workspace" → "Your Tasks, Handled by Intelligence."
+**`src/components/aichat/ChatArea.tsx`**
+- Import `Bot` icon from lucide-react and `Button` from UI
+- Add a Sorix Agent icon button to the right side of the header, next to the ModelSelector
+- The button navigates to `/cowork` on click
+- Style: small ghost button with a cyan/teal gradient icon matching the Sorix Agent branding, with a tooltip-like title attribute "Sorix Agent"
+- Position the header as `justify-between` with the model selector centered and the agent button on the right
 
-**2. `src/components/cowork/CommandCenter.tsx`**
-- "Sorix Co-Work" → "Sorix Agent" (both en/bn)
+### Layout
+```text
+[                    ] [ Smart Auto v ] [ 🤖 Agent ]
+```
 
-**3. `src/components/aichat/ChatSidebar.tsx`**
-- "Sorix Co-Work" → "Sorix Agent"
-
-**4. `src/components/aichat/MobileSidebar.tsx`**
-- "Sorix Co-Work" → "Sorix Agent"
-
-**5. `src/pages/CoWorkPage.tsx`**
-- SEO title: "Sorix Agent | AI Agent Workspace | AI Sorix"
-- Description updated to include the new slogan
-
-**6. `supabase/functions/cowork-agent/index.ts`**
-- System prompt: "Sorix Co-Work Agent" → "Sorix Agent"
-- X-Title header: "AI Sorix Co-Work" → "AI Sorix Agent"
+The header changes from `justify-center` to a 3-column layout: empty left spacer, centered ModelSelector, right-aligned Agent button.
 
