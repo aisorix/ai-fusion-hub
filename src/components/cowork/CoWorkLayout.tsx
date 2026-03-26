@@ -26,12 +26,13 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center">
               <span className="text-[10px] font-bold text-white">CO</span>
             </div>
-            <h1 className="text-sm font-bold bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent">
-              Sorix Co-Work
-            </h1>
+            <div>
+              <h1 className="text-sm font-bold text-foreground">Sorix Co-Work</h1>
+              <p className="text-[10px] text-muted-foreground">AI Agent Workspace</p>
+            </div>
           </div>
         </div>
         {!isMobile && (
