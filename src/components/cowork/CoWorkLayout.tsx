@@ -72,14 +72,8 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
   );
 };
 
-const MobileTaskToggle: React.FC<{ language: string }> = ({ language }) => {
-  const [open, setOpen] = useState(false);
-  const { tasks } = React.useMemo(() => {
-    const store = require("@/stores/coworkStore").useCoWorkStore;
-    return store.getState();
-  }, []);
-
-  return null; // Simplified for phase 1 - tasks show inline on mobile
+const MobileTaskToggle: React.FC<{ language: string }> = () => {
+  return null; // Tasks show inline on mobile in phase 1
 };
 
 export default CoWorkLayout;
