@@ -52,15 +52,13 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
         <div className="flex items-center gap-2">
           <ModelSelector />
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
+        <button
           onClick={() => navigate("/cowork")}
           title="Sorix Agent"
-          className="h-12 w-12 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10"
+          className="h-11 w-11 flex items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 hover:text-cyan-300 transition-colors"
         >
-          <Bot className="h-8 w-8" />
-        </Button>
+          <Bot className="h-6 w-6" />
+        </button>
       </header>
 
       {/* Main Content Area */}
