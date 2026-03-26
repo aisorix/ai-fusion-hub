@@ -43,11 +43,42 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [pendingImage, setPendingImage] = useState<string | null>(null);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const [isParsing, setIsParsing] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const documentInputRef = useRef<HTMLInputElement>(null);
   const hasSaved = useRef(false);
+
+  const FILE_SIZE_LIMITS: Record<string, number> = { free: 1*1024*1024, basic: 5*1024*1024, pro: 10*1024*1024, premium: 15*1024*1024 };
+  const sizeLimit = FILE_SIZE_LIMITS[user.plan] || FILE_SIZE_LIMITS.free;
+  const formatSize = (bytes: number): string => bytes < 1024*1024 ? `${(bytes/1024).toFixed(0)} KB` : `${(bytes/(1024*1024)).toFixed(0)} MB`;
+
+  const processFiles = useCallback(async (files: File[]) => {
+    if (files.length === 0) return;
+    setIsParsing(true);
+    for (const file of files) {
+      if (file.size > sizeLimit) { toast.error(`${file.name} exceeds ${formatSize(sizeLimit)} limit`); continue; }
+      try {
+        const fileType = getFileType(file.name);
+        if (fileType === 'image' || file.type.startsWith('image/')) {
+          const parsed = await parseFile(file);
+          setAttachments(prev => [...prev, { type: 'image', url: parsed.content, name: file.name, size: file.size, fileType: 'image' }]);
+        } else {
+          const parsed = await parseFile(file);
+          if (parsed.content.length >= 10) {
+            setAttachments(prev => [...prev, { type: 'file', url: '', name: file.name, size: file.size, parsedContent: parsed.content, fileType: parsed.type }]);
+          } else { toast.error(`${file.name} appears empty`); }
+        }
+      } catch { toast.error(`Failed to process ${file.name}`); }
+    }
+    setIsParsing(false);
+  }, [sizeLimit]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
