@@ -1,11 +1,14 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Send, Loader2, ArrowLeft, ImagePlus, X } from 'lucide-react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Send, Loader2, ArrowLeft, X, Plus, Image as ImageIcon, Camera, Paperclip } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { legendsApi } from '@/services/legendsApi';
-import { useChatStore } from '@/stores/chatStore';
+import { useChatStore, type Attachment } from '@/stores/chatStore';
+import { parseFile, getAcceptedFileTypes, getFileType } from '@/lib/fileParser';
+import FileChip from '@/components/aichat/FileChip';
+import { toast } from 'sonner';
 import type { Persona } from './LegendCard';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
