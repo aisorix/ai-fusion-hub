@@ -115,40 +115,68 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
-        <div className="p-4 space-y-4">
+        <div className="p-4 space-y-4 max-w-3xl mx-auto w-full">
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center">
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+              {/* Animated Hero Icon */}
               <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-teal-500/10 flex items-center justify-center mb-4"
+                initial={{ scale: 0.6, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                className="relative mb-6"
               >
-                <Bot className="w-8 h-8 text-cyan-400" />
+                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-cyan-500/15 to-teal-500/15 flex items-center justify-center border border-cyan-500/10 shadow-lg shadow-cyan-500/5">
+                  <Bot className="w-10 h-10 text-cyan-500" />
+                </div>
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                  className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-[3px] border-background"
+                />
               </motion.div>
-              <h3 className="text-lg font-semibold mb-1">
-                {language === "bn" ? "Sorix Agent" : "Sorix Agent"}
-              </h3>
-              <p className="text-sm text-muted-foreground max-w-sm">
-                {language === "bn"
-                  ? "আমি আপনার AI এজেন্ট। জটিল কাজ দিন, আমি ধাপে ধাপে সম্পন্ন করব।"
-                  : "I'm your AI agent. Give me complex tasks and I'll complete them step by step."}
-              </p>
-              <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-md">
-                {[
-                  language === "bn" ? "আমার প্রজেক্ট নিয়ে একটি রিপোর্ট তৈরি করো" : "Write a detailed report about my project",
-                  language === "bn" ? "সোশ্যাল মিডিয়ার জন্য কন্টেন্ট তৈরি করো" : "Create social media content for my brand",
-                  language === "bn" ? "ডেটা এনালাইসিস করো এবং সামারি দাও" : "Analyze this data and summarize findings",
-                  language === "bn" ? "ইমেইল ড্রাফট তৈরি করো" : "Draft a professional email response",
-                ].map((suggestion, i) => (
-                  <button
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+              >
+                <h3 className="text-xl font-bold mb-2 tracking-tight">
+                  {language === "bn" ? "Sorix Agent" : "Sorix Agent"}
+                </h3>
+                <p className="text-sm text-muted-foreground max-w-md leading-relaxed">
+                  {language === "bn"
+                    ? "আমি আপনার AI এজেন্ট। জটিল কাজ দিন, আমি ধাপে ধাপে সম্পন্ন করব।"
+                    : "Your personal AI agent. Delegate complex tasks and I'll handle them step by step with precision."}
+                </p>
+              </motion.div>
+
+              {/* Suggestion Cards */}
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg"
+              >
+                {([
+                  { icon: "📝", text: language === "bn" ? "আমার প্রজেক্ট নিয়ে একটি রিপোর্ট তৈরি করো" : "Write a detailed report about my project" },
+                  { icon: "📱", text: language === "bn" ? "সোশ্যাল মিডিয়ার জন্য কন্টেন্ট তৈরি করো" : "Create social media content for my brand" },
+                  { icon: "📊", text: language === "bn" ? "ডেটা এনালাইসিস করো এবং সামারি দাও" : "Analyze this data and summarize findings" },
+                  { icon: "✉️", text: language === "bn" ? "ইমেইল ড্রাফট তৈরি করো" : "Draft a professional email response" },
+                ]).map((suggestion, i) => (
+                  <motion.button
                     key={i}
-                    onClick={() => setInput(suggestion)}
-                    className="text-left text-xs px-3 py-2.5 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/40 transition-colors text-muted-foreground hover:text-foreground"
+                    whileHover={{ scale: 1.02, y: -1 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setInput(suggestion.text)}
+                    className="group flex items-start gap-3 text-left text-sm px-4 py-3.5 rounded-2xl border border-border/40 bg-card/50 hover:bg-accent/50 hover:border-border/60 transition-all duration-200 shadow-sm hover:shadow-md"
                   >
-                    {suggestion}
-                  </button>
+                    <span className="text-base mt-0.5 shrink-0">{suggestion.icon}</span>
+                    <span className="text-muted-foreground group-hover:text-foreground transition-colors leading-snug">
+                      {suggestion.text}
+                    </span>
+                  </motion.button>
                 ))}
-              </div>
+              </motion.div>
             </div>
           ) : (
             messages.map((msg) => (
@@ -166,7 +194,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
       </div>
 
       {/* Input */}
-      <div className="p-3 border-t border-border/30 backdrop-blur-sm">
+      <div className="p-3 sm:p-4 border-t border-border/30 backdrop-blur-md bg-background/60">
         <div className="flex items-end gap-2 max-w-3xl mx-auto">
           <div className="flex-1 relative">
             <TextareaAutosize
@@ -174,8 +202,8 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={language === "bn" ? "আপনার টাস্ক লিখুন..." : "Type your task..."}
-              className="w-full resize-none rounded-xl border border-border/50 bg-muted/30 px-4 py-3 pr-12 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 focus:border-cyan-500/50 backdrop-blur-sm"
+              placeholder={language === "bn" ? "আপনার টাস্ক লিখুন..." : "Describe your task..."}
+              className="w-full resize-none rounded-2xl border border-border/50 bg-card/60 px-4 py-3.5 pr-13 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/40 backdrop-blur-sm shadow-sm transition-all"
               minRows={1}
               maxRows={5}
               disabled={agentStatus !== "idle"}
@@ -184,12 +212,15 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
               size="icon"
               onClick={handleSend}
               disabled={!input.trim() || agentStatus !== "idle"}
-              className="absolute right-1.5 bottom-1.5 h-8 w-8 rounded-lg bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white shadow-lg shadow-cyan-500/20 disabled:opacity-40"
+              className="absolute right-2 bottom-2 h-9 w-9 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white shadow-lg shadow-cyan-500/20 disabled:opacity-30 transition-all"
             >
               <Send className="w-4 h-4" />
             </Button>
           </div>
         </div>
+        <p className="text-[10px] text-muted-foreground/40 text-center mt-2">
+          {language === "bn" ? "Sorix Agent ভুল করতে পারে। গুরুত্বপূর্ণ তথ্য যাচাই করুন।" : "Sorix Agent can make mistakes. Verify important information."}
+        </p>
       </div>
     </div>
   );
