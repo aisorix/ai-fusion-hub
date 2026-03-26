@@ -60,7 +60,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
   return (
     <div className="flex flex-col h-full bg-background/30">
       {/* Header - compact with model selector */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/30 backdrop-blur-sm">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/30 backdrop-blur-sm relative z-[100]">
         <div className="flex items-center gap-2">
           <div className="relative">
             <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
