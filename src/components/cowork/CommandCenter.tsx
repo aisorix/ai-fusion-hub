@@ -93,7 +93,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                   initial={{ opacity: 0, y: -5 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -5 }}
-                  className="fixed right-4 top-20 w-56 rounded-xl border border-border/50 bg-popover backdrop-blur-xl shadow-xl z-50"
+                  className="absolute right-0 top-full mt-1 w-56 rounded-xl border border-border/50 bg-popover backdrop-blur-xl shadow-2xl z-[100]"
                 >
                   {MODELS.map((m) => (
                     <button
