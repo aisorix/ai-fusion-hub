@@ -6,7 +6,7 @@ import { useCoWorkAgent } from "@/hooks/useCoWorkAgent";
 import AgentMessage from "./AgentMessage";
 import SmartClipboard from "./SmartClipboard";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
+// Button removed - using plain buttons for ChatGPT-style input
 import { cn } from "@/lib/utils";
 import TextareaAutosize from "react-textarea-autosize";
 
@@ -193,34 +193,50 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
         </div>
       </div>
 
-      {/* Input */}
+      {/* Input - ChatGPT style matching main chat */}
       <div className="p-3 sm:p-4 border-t border-border/30 backdrop-blur-md bg-background/60">
-        <div className="flex items-end gap-2 max-w-3xl mx-auto">
-          <div className="flex-1 relative">
+        <div className="w-full max-w-3xl mx-auto">
+          <div className={cn(
+            "relative flex items-end rounded-2xl sm:rounded-3xl border transition-all duration-200",
+            "bg-muted/40 border-border/50",
+            "focus-within:border-primary/40 focus-within:bg-muted/60",
+            "shadow-sm"
+          )}>
             <TextareaAutosize
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={language === "bn" ? "আপনার টাস্ক লিখুন..." : "Describe your task..."}
-              className="w-full resize-none rounded-2xl border border-border/50 bg-card/60 px-4 py-3.5 pr-13 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500/40 backdrop-blur-sm shadow-sm transition-all"
+              className={cn(
+                "flex-1 py-3 px-4 bg-transparent resize-none focus:outline-none",
+                "text-[15px] sm:text-base text-foreground placeholder:text-muted-foreground/70",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
+              )}
               minRows={1}
               maxRows={5}
               disabled={agentStatus !== "idle"}
             />
-            <Button
-              size="icon"
-              onClick={handleSend}
-              disabled={!input.trim() || agentStatus !== "idle"}
-              className="absolute right-2 bottom-2 h-9 w-9 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white shadow-lg shadow-cyan-500/20 disabled:opacity-30 transition-all"
-            >
-              <Send className="w-4 h-4" />
-            </Button>
+            <div className="flex items-center gap-0.5 p-1">
+              <button
+                onClick={handleSend}
+                disabled={!input.trim() || agentStatus !== "idle"}
+                className={cn(
+                  "p-2 sm:p-2.5 rounded-full transition-all duration-200",
+                  input.trim()
+                    ? "bg-foreground text-background hover:opacity-90"
+                    : "bg-muted text-muted-foreground opacity-50",
+                  "disabled:opacity-30 disabled:cursor-not-allowed"
+                )}
+              >
+                <Send className="w-5 h-5" />
+              </button>
+            </div>
           </div>
+          <p className="text-[10px] sm:text-xs text-muted-foreground/60 text-center mt-2">
+            {language === "bn" ? "Sorix Agent ভুল করতে পারে। গুরুত্বপূর্ণ তথ্য যাচাই করুন।" : "Sorix Agent can make mistakes. Verify important information."}
+          </p>
         </div>
-        <p className="text-[10px] text-muted-foreground/40 text-center mt-2">
-          {language === "bn" ? "Sorix Agent ভুল করতে পারে। গুরুত্বপূর্ণ তথ্য যাচাই করুন।" : "Sorix Agent can make mistakes. Verify important information."}
-        </p>
       </div>
     </div>
   );
