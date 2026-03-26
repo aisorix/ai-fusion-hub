@@ -407,7 +407,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
       >
         {/* Header */}
         <div className="p-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <div className="flex items-center gap-2">
             <img src={sorixLogo} alt="AI Sorix" className="w-8 h-8" />
             <div>
               <h1 className="font-bold text-foreground text-sm flex items-center gap-1.5">
@@ -416,7 +416,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
               </h1>
               <p className="text-[10px] text-muted-foreground">{t('premiumAIPlatform')}</p>
             </div>
-          </Link>
+          </div>
           <button
             onClick={toggleSidebarCollapse}
             className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
