@@ -41,9 +41,9 @@ const MobileHeader = ({ onOpenSidebar, onNewChat }: MobileHeaderProps) => {
       <button
         onClick={() => navigate("/agent")}
         title="Sorix Agent"
-        className="h-10 w-10 flex items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 hover:text-cyan-300 transition-colors shrink-0"
+        className="h-9 w-9 flex items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 shadow-sm hover:opacity-90 transition-opacity shrink-0"
       >
-        <Bot className="h-5 w-5" />
+        <Bot className="h-4 w-4 text-white" />
       </button>
     </header>
   );
