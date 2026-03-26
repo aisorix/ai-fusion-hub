@@ -42,50 +42,34 @@ const ConnectorPanel: React.FC<ConnectorPanelProps> = ({ language }) => {
   };
 
   return (
-    <div className="space-y-2.5">
-      <h4 className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold px-1">
+    <div className="space-y-2">
+      <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1">
         {language === "bn" ? "কানেক্টর" : "Connectors"}
       </h4>
-      <div className="space-y-1.5 max-h-[60vh] overflow-y-auto">
+      <div className="space-y-1.5 max-h-[60vh] overflow-y-auto pr-1">
         {connectors.map((connector) => {
           const Icon = iconMap[connector.icon] || Plug;
-          const isConnected = connector.status === "connected";
-          const isComingSoon = connector.status === "coming_soon";
-          
           return (
             <button
               key={connector.service}
               onClick={() => handleToggle(connector.service, connector.status)}
               className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border text-left transition-all duration-200 text-xs group",
-                isConnected
-                  ? "border-cyan-500/25 bg-cyan-500/5 hover:bg-cyan-500/10"
-                  : "border-border/30 bg-card/40 hover:bg-muted/40"
+                "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border text-left transition-all text-xs",
+                connector.status === "connected"
+                  ? "border-cyan-500/30 bg-cyan-500/5 text-foreground"
+                  : "border-border/30 bg-card/30 text-muted-foreground hover:bg-muted/30"
               )}
             >
-              <div className={cn(
-                "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors",
-                isConnected ? "bg-cyan-500/10" : "bg-muted/50 group-hover:bg-muted"
-              )}>
-                <Icon className={cn(
-                  "w-4 h-4",
-                  isConnected ? "text-cyan-500" : "text-muted-foreground"
-                )} />
-              </div>
-              <span className={cn(
-                "flex-1 font-medium",
-                isConnected ? "text-foreground" : "text-muted-foreground"
-              )}>
-                {connector.label}
-              </span>
-              {isComingSoon ? (
-                <span className="text-[10px] font-medium bg-muted/80 text-muted-foreground px-2 py-0.5 rounded-md">
+              <Icon className={cn("w-4 h-4 shrink-0", connector.status === "connected" && "text-cyan-400")} />
+              <span className="flex-1 font-medium">{connector.label}</span>
+              {connector.status === "coming_soon" ? (
+                <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
                   {language === "bn" ? "শীঘ্রই" : "Soon"}
                 </span>
-              ) : isConnected ? (
-                <div className="w-2 h-2 rounded-full bg-cyan-500 shadow-sm shadow-cyan-500/30" />
+              ) : connector.status === "connected" ? (
+                <Unplug className="w-3.5 h-3.5 text-cyan-400" />
               ) : (
-                <Plug className="w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" />
+                <Plug className="w-3.5 h-3.5" />
               )}
             </button>
           );
