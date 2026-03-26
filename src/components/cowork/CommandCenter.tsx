@@ -59,14 +59,14 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
 
   return (
     <div className="flex flex-col h-full bg-background/30">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border/30 backdrop-blur-sm">
-        <div className="flex items-center gap-3">
+      {/* Header - compact with model selector */}
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/30 backdrop-blur-sm">
+        <div className="flex items-center gap-2">
           <div className="relative">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500/20 to-teal-500/20 flex items-center justify-center">
-              <Bot className="w-4.5 h-4.5 text-cyan-400" />
+            <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Bot className="w-4 h-4 text-primary" />
             </div>
-            <span className={cn("absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-background", status.color)} />
+            <span className={cn("absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border-2 border-background", status.color)} />
           </div>
           <div>
             <h2 className="text-sm font-semibold">{language === "bn" ? "কমান্ড সেন্টার" : "Command Center"}</h2>
@@ -80,7 +80,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
             onClick={() => setShowModelPicker(!showModelPicker)}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs bg-muted/50 hover:bg-muted transition-colors border border-border/30"
           >
-            <Cpu className="w-3.5 h-3.5 text-cyan-400" />
+            <Cpu className="w-3.5 h-3.5 text-primary" />
             <span>{currentModel.short}</span>
             <ChevronDown className="w-3 h-3 text-muted-foreground" />
           </button>
@@ -99,7 +99,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                     onClick={() => { setSelectedModel(m.id); setShowModelPicker(false); }}
                     className={cn(
                       "w-full text-left px-3 py-2.5 text-xs hover:bg-muted/50 transition-colors first:rounded-t-xl last:rounded-b-xl",
-                      selectedModel === m.id && "bg-cyan-500/10 text-cyan-400"
+                      selectedModel === m.id && "bg-primary/10 text-primary"
                     )}
                   >
                     <span className="font-medium">{m.label}</span>
@@ -116,62 +116,75 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
         <div className="p-4 space-y-4 max-w-3xl mx-auto w-full">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-              {/* Animated Hero Icon */}
+              {/* Avatar Circle */}
               <motion.div
                 initial={{ scale: 0.6, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                className="relative mb-6"
+                className="mb-5"
               >
-                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-cyan-500/15 to-teal-500/15 flex items-center justify-center border border-cyan-500/10 shadow-lg shadow-cyan-500/5">
-                  <Bot className="w-10 h-10 text-cyan-500" />
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-sky-400 to-cyan-500 flex items-center justify-center shadow-lg shadow-sky-500/20">
+                  <span className="text-2xl font-bold text-white">S</span>
                 </div>
-                <motion.div
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                  className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-[3px] border-background"
-                />
               </motion.div>
 
+              {/* Greeting */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
+                transition={{ delay: 0.1 }}
+                className="mb-1"
               >
-                <h3 className="text-xl font-bold mb-2 tracking-tight">
-                  {language === "bn" ? "Sorix Agent" : "Sorix Agent"}
+                <h3 className="text-xl font-bold tracking-tight">
+                  {language === "bn" ? "হ্যালো!" : "Hello!"}
                 </h3>
-                <p className="text-sm text-muted-foreground max-w-md leading-relaxed">
-                  {language === "bn"
-                    ? "আমি আপনার AI এজেন্ট। জটিল কাজ দিন, আমি ধাপে ধাপে সম্পন্ন করব।"
-                    : "Your personal AI agent. Delegate complex tasks and I'll handle them step by step with precision."}
-                </p>
               </motion.div>
 
-              {/* Suggestion Cards */}
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="text-sm text-muted-foreground mb-4"
+              >
+                {language === "bn" ? "আজ আমি কীভাবে সাহায্য করতে পারি?" : "How can I help you today?"}
+              </motion.p>
+
+              {/* Model Badge */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/60 border border-border/40 mb-8"
+              >
+                <div className="w-4 h-4 rounded-full bg-gradient-to-br from-sky-400 to-cyan-500 flex items-center justify-center">
+                  <span className="text-[8px] font-bold text-white">S</span>
+                </div>
+                <span className="text-xs font-medium text-muted-foreground">Smart Auto</span>
+                <span className="text-xs">🤖</span>
+              </motion.div>
+
+              {/* 2x2 Suggestion Grid */}
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg"
+                className="grid grid-cols-2 gap-3 w-full max-w-sm"
               >
                 {([
-                  { icon: "📝", text: language === "bn" ? "আমার প্রজেক্ট নিয়ে একটি রিপোর্ট তৈরি করো" : "Write a detailed report about my project" },
-                  { icon: "📱", text: language === "bn" ? "সোশ্যাল মিডিয়ার জন্য কন্টেন্ট তৈরি করো" : "Create social media content for my brand" },
-                  { icon: "📊", text: language === "bn" ? "ডেটা এনালাইসিস করো এবং সামারি দাও" : "Analyze this data and summarize findings" },
-                  { icon: "✉️", text: language === "bn" ? "ইমেইল ড্রাফট তৈরি করো" : "Draft a professional email response" },
-                ]).map((suggestion, i) => (
+                  { icon: Code2, label: language === "bn" ? "কোড লিখুন" : "Write code", color: "text-sky-500" },
+                  { icon: MessageSquare, label: language === "bn" ? "ব্যাখ্যা করুন" : "Explain", color: "text-sky-500" },
+                  { icon: Zap, label: language === "bn" ? "ব্রেইনস্টর্ম" : "Brainstorm", color: "text-sky-500" },
+                  { icon: Sparkles, label: language === "bn" ? "তৈরি করুন" : "Create", color: "text-sky-500" },
+                ]).map((item, i) => (
                   <motion.button
                     key={i}
-                    whileHover={{ scale: 1.02, y: -1 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setInput(suggestion.text)}
-                    className="group flex items-start gap-3 text-left text-sm px-4 py-3.5 rounded-2xl border border-border/40 bg-card/50 hover:bg-accent/50 hover:border-border/60 transition-all duration-200 shadow-sm hover:shadow-md"
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => setInput(item.label)}
+                    className="flex flex-col items-center gap-2.5 py-5 px-3 rounded-2xl border border-border/50 bg-card/60 hover:bg-accent/50 hover:border-border/70 transition-all duration-200 shadow-sm"
                   >
-                    <span className="text-base mt-0.5 shrink-0">{suggestion.icon}</span>
-                    <span className="text-muted-foreground group-hover:text-foreground transition-colors leading-snug">
-                      {suggestion.text}
-                    </span>
+                    <item.icon className={cn("w-6 h-6", item.color)} />
+                    <span className="text-sm font-medium text-foreground">{item.label}</span>
                   </motion.button>
                 ))}
               </motion.div>
