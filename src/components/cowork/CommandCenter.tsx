@@ -6,7 +6,7 @@ import { useCoWorkAgent } from "@/hooks/useCoWorkAgent";
 import AgentMessage from "./AgentMessage";
 import SmartClipboard from "./SmartClipboard";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
+// Button removed - using plain buttons for ChatGPT-style input
 import { cn } from "@/lib/utils";
 import TextareaAutosize from "react-textarea-autosize";
 
