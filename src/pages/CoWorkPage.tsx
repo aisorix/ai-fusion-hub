@@ -11,7 +11,7 @@ const CoWorkPage: React.FC = () => {
       <SEOHead
         title="Sorix Agent | AI Agent Workspace | AI Sorix"
         description="Sorix Agent — Your Tasks, Handled by Intelligence. Delegate complex tasks to your AI agent with real-time progress and multi-model support."
-        path="/cowork"
+        path="/agent"
       />
       <CoWorkLayout language={language} />
     </>

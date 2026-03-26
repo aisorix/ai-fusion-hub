@@ -92,7 +92,7 @@ const App = () => (
                     <DeckPage />
                   </ProtectedRoute>
                 } />
-                <Route path="/cowork" element={
+                <Route path="/agent" element={
                   <ProtectedRoute>
                     <CoWorkPage />
                   </ProtectedRoute>
