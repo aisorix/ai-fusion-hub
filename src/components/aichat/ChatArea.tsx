@@ -8,7 +8,8 @@ import EmptyState from "./EmptyState";
 import SettingsModal from "./SettingsModal";
 import UpgradePlanModal from "./UpgradePlanModal";
 import { cn } from "@/lib/utils";
-import { Settings, LogOut } from "lucide-react";
+import { Settings, LogOut, Bot } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { ModelIcon } from "./ModelIcons";
@@ -46,10 +47,20 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
 
     <div className="flex flex-col h-[100dvh] w-full bg-background overflow-hidden">
       {/* Header */}
-      <header className="hidden md:flex items-center justify-center py-3 md:py-4 border-b border-border/50 px-4 shrink-0">
+      <header className="hidden md:flex items-center justify-between py-3 md:py-4 border-b border-border/50 px-4 shrink-0">
+        <div className="w-10" />
         <div className="flex items-center gap-2">
           <ModelSelector />
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate("/cowork")}
+          title="Sorix Agent"
+          className="h-9 w-9 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10"
+        >
+          <Bot className="h-5 w-5" />
+        </Button>
       </header>
 
       {/* Main Content Area */}
