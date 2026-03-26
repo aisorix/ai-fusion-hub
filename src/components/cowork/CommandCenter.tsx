@@ -1,12 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Bot, Cpu, ChevronDown } from "lucide-react";
+import { Send, Bot, Cpu, ChevronDown, Code2, MessageSquare, Zap, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCoWorkStore, type AgentStatus } from "@/stores/coworkStore";
 import { useCoWorkAgent } from "@/hooks/useCoWorkAgent";
 import AgentMessage from "./AgentMessage";
 import SmartClipboard from "./SmartClipboard";
-import { ScrollArea } from "@/components/ui/scroll-area";
-// Button removed - using plain buttons for ChatGPT-style input
 import { cn } from "@/lib/utils";
 import TextareaAutosize from "react-textarea-autosize";
 
