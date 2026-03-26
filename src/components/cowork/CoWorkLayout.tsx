@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { PanelRightClose, PanelRight, ArrowLeft, Plug, Bot } from "lucide-react";
+import { PanelRightClose, PanelRight, ArrowLeft, Plug, Bot, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CommandCenter from "./CommandCenter";
 import ConnectorPanel from "./ConnectorPanel";
@@ -8,6 +8,7 @@ import ApprovalModal from "./ApprovalModal";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface CoWorkLayoutProps {
   language: string;
@@ -42,9 +43,9 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
             variant="ghost"
             size="icon"
             className="h-8 w-8"
-            onClick={() => setShowMobileConnectors(!showMobileConnectors)}
+            onClick={() => setShowMobileConnectors(true)}
           >
-            <Plug className={cn("w-4 h-4", showMobileConnectors && "text-cyan-400")} />
+            <Plug className="w-4 h-4" />
           </Button>
         ) : (
           <Button
@@ -57,13 +58,6 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
           </Button>
         )}
       </div>
-
-      {/* Mobile Connectors - toggled by icon */}
-      {isMobile && showMobileConnectors && (
-        <div className="shrink-0 border-b border-border/30 bg-background/50 backdrop-blur-sm animate-in slide-in-from-top-2 duration-200">
-          <ConnectorPanel language={language} />
-        </div>
-      )}
 
       {/* Main content */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
@@ -80,14 +74,52 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
         )}
       </div>
 
+      {/* Mobile Connectors Modal */}
+      <AnimatePresence>
+        {isMobile && showMobileConnectors && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+              onClick={() => setShowMobileConnectors(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="fixed inset-x-4 top-16 bottom-auto max-h-[70vh] z-50 rounded-2xl border border-border/50 bg-background/95 backdrop-blur-xl shadow-2xl overflow-hidden"
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
+                <div className="flex items-center gap-2">
+                  <Plug className="w-4 h-4 text-cyan-400" />
+                  <h3 className="text-sm font-semibold">
+                    {language === "bn" ? "কানেক্টর" : "Connectors"}
+                  </h3>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={() => setShowMobileConnectors(false)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="overflow-y-auto max-h-[calc(70vh-48px)] p-1">
+                <ConnectorPanel language={language} />
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       {/* Approval Modal */}
       <ApprovalModal language={language} />
     </div>
   );
-};
-
-const MobileTaskToggle: React.FC<{ language: string }> = () => {
-  return null; // Tasks show inline on mobile in phase 1
 };
 
 export default CoWorkLayout;
