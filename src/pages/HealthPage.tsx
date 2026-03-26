@@ -166,7 +166,7 @@ const HealthPage: React.FC = () => {
                 <Heart className="w-4 h-4 text-white" />
               </div>
               <div>
-                <h1 className="text-sm font-bold bg-gradient-to-r from-red-400 to-pink-400 bg-clip-text text-transparent">Sorix Health</h1>
+                <h1 className="text-sm font-bold text-foreground">Sorix Health</h1>
                 <p className="text-[10px] text-muted-foreground">AI Medical Assistant</p>
               </div>
             </div>
