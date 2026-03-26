@@ -2,7 +2,7 @@
 // Full file upload support matching main ChatInput
 
 import React, { useState, useRef, useCallback } from "react";
-import { Send, Square, Loader2, Mic, Image as ImageIcon, Paperclip, Upload, X } from "lucide-react";
+import { Send, Square, Loader2, Mic, Image as ImageIcon, Paperclip, Upload, X, Plus, Camera } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import TextareaAutosize from "react-textarea-autosize";
 import { useChatStore, type Attachment, type UserPlan } from "@/stores/chatStore";
@@ -55,7 +55,7 @@ const SharedChatInput = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
-
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const streaming = isStreaming || isAnyStreaming || false;
   const sizeLimit = FILE_SIZE_LIMITS[userPlan] || FILE_SIZE_LIMITS.free;
 
@@ -191,8 +191,19 @@ const SharedChatInput = ({
           setShowAttachMenu(false);
         }}
       />
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={async (e) => {
+          await processFiles(Array.from(e.target.files || []).filter((f) => f.type.startsWith("image/")));
+          e.target.value = "";
+          setShowAttachMenu(false);
+        }}
+      />
 
-      {/* Attachment previews */}
       <AnimatePresence>
         {attachments.length > 0 && (
           <motion.div
@@ -231,18 +242,19 @@ const SharedChatInput = ({
           "shadow-lg",
         )}
       >
-        {/* Attach menu */}
+      {/* Attach menu */}
         <div className="relative">
           <button
             onClick={() => setShowAttachMenu(!showAttachMenu)}
             disabled={streaming}
             className={cn(
-              "p-3 rounded-xl transition-all duration-200",
-              "hover:bg-accent text-muted-foreground hover:text-primary",
+              "p-2.5 m-1 rounded-full transition-all duration-200",
+              "hover:bg-accent text-muted-foreground hover:text-foreground",
               "disabled:opacity-50",
+              showAttachMenu && "bg-accent text-foreground",
             )}
           >
-            <Paperclip className="w-5 h-5" />
+            <Plus className={cn("w-5 h-5 transition-transform duration-200", showAttachMenu && "rotate-45")} />
           </button>
           <AnimatePresence>
             {showAttachMenu && (
@@ -250,21 +262,48 @@ const SharedChatInput = ({
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                className="absolute bottom-full left-0 mb-2 bg-popover border border-border rounded-xl shadow-xl z-50 py-1 min-w-[160px]"
+                className="absolute bottom-full left-1 mb-2 rounded-xl shadow-xl overflow-hidden bg-popover border border-border backdrop-blur-xl z-50 min-w-[200px]"
               >
+                <div className="px-4 py-2 border-b border-border bg-muted/50">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-muted-foreground">Max file size</span>
+                    <span className={cn(
+                      "text-xs font-medium px-1.5 py-0.5 rounded",
+                      userPlan === "premium" && "bg-amber-500/10 text-amber-500",
+                      userPlan === "pro" && "bg-purple-500/10 text-purple-500",
+                      userPlan === "basic" && "bg-blue-500/10 text-blue-500",
+                      userPlan === "free" && "bg-muted text-muted-foreground",
+                    )}>
+                      {formatSize(sizeLimit)}
+                    </span>
+                  </div>
+                </div>
                 <button
                   onClick={() => imageInputRef.current?.click()}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-muted transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors"
                 >
-                  <ImageIcon className="w-4 h-4 text-blue-500" />
-                  Upload Image
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                    <ImageIcon className="w-4 h-4 text-blue-500" />
+                  </div>
+                  <span className="text-sm">Upload Image</span>
+                </button>
+                <button
+                  onClick={() => cameraInputRef.current?.click()}
+                  className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                    <Camera className="w-4 h-4 text-purple-500" />
+                  </div>
+                  <span className="text-sm">Take Photo</span>
                 </button>
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-muted transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors"
                 >
-                  <Paperclip className="w-4 h-4 text-emerald-500" />
-                  Upload Document
+                  <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+                    <Paperclip className="w-4 h-4 text-green-500" />
+                  </div>
+                  <span className="text-sm">Attach File</span>
                 </button>
               </motion.div>
             )}

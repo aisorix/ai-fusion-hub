@@ -1,11 +1,14 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Send, Loader2, ArrowLeft, ImagePlus, X } from 'lucide-react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Send, Loader2, ArrowLeft, X, Plus, Image as ImageIcon, Camera, Paperclip } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { legendsApi } from '@/services/legendsApi';
-import { useChatStore } from '@/stores/chatStore';
+import { useChatStore, type Attachment } from '@/stores/chatStore';
+import { parseFile, getAcceptedFileTypes, getFileType } from '@/lib/fileParser';
+import FileChip from '@/components/aichat/FileChip';
+import { toast } from 'sonner';
 import type { Persona } from './LegendCard';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -40,11 +43,42 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [pendingImage, setPendingImage] = useState<string | null>(null);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const [isParsing, setIsParsing] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const documentInputRef = useRef<HTMLInputElement>(null);
   const hasSaved = useRef(false);
+
+  const FILE_SIZE_LIMITS: Record<string, number> = { free: 1*1024*1024, basic: 5*1024*1024, pro: 10*1024*1024, premium: 15*1024*1024 };
+  const sizeLimit = FILE_SIZE_LIMITS[user.plan] || FILE_SIZE_LIMITS.free;
+  const formatSize = (bytes: number): string => bytes < 1024*1024 ? `${(bytes/1024).toFixed(0)} KB` : `${(bytes/(1024*1024)).toFixed(0)} MB`;
+
+  const processFiles = useCallback(async (files: File[]) => {
+    if (files.length === 0) return;
+    setIsParsing(true);
+    for (const file of files) {
+      if (file.size > sizeLimit) { toast.error(`${file.name} exceeds ${formatSize(sizeLimit)} limit`); continue; }
+      try {
+        const fileType = getFileType(file.name);
+        if (fileType === 'image' || file.type.startsWith('image/')) {
+          const parsed = await parseFile(file);
+          setAttachments(prev => [...prev, { type: 'image', url: parsed.content, name: file.name, size: file.size, fileType: 'image' }]);
+        } else {
+          const parsed = await parseFile(file);
+          if (parsed.content.length >= 10) {
+            setAttachments(prev => [...prev, { type: 'file', url: '', name: file.name, size: file.size, parsedContent: parsed.content, fileType: parsed.type }]);
+          } else { toast.error(`${file.name} appears empty`); }
+        }
+      } catch { toast.error(`Failed to process ${file.name}`); }
+    }
+    setIsParsing(false);
+  }, [sizeLimit]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
@@ -230,19 +264,78 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
 
       {/* Input */}
       <div className="shrink-0 border-t border-border p-4 pb-safe">
-        {pendingImage && (
-          <div className="max-w-2xl mx-auto mb-2 flex items-center gap-2">
-            <img src={pendingImage} alt="Preview" className="w-12 h-12 rounded-lg object-cover" />
-            <button onClick={() => setPendingImage(null)} className="p-1 hover:bg-muted rounded">
-              <X className="w-4 h-4 text-muted-foreground" />
-            </button>
+        {/* Hidden inputs */}
+        <input ref={imageInputRef} type="file" accept="image/*" multiple className="hidden"
+          onChange={async (e) => { await processFiles(Array.from(e.target.files || []).filter(f => f.type.startsWith('image/'))); e.target.value = ''; setShowAttachMenu(false); }} />
+        <input ref={documentInputRef} type="file" accept={getAcceptedFileTypes()} multiple className="hidden"
+          onChange={async (e) => { await processFiles(Array.from(e.target.files || [])); e.target.value = ''; setShowAttachMenu(false); }} />
+        <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden"
+          onChange={async (e) => { await processFiles(Array.from(e.target.files || []).filter(f => f.type.startsWith('image/'))); e.target.value = ''; setShowAttachMenu(false); }} />
+
+        {/* Attachment previews */}
+        <AnimatePresence>
+          {attachments.length > 0 && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex flex-wrap gap-2 mb-3 max-w-2xl mx-auto">
+              {attachments.map((att, i) => (
+                <FileChip key={i} name={att.name} type={att.fileType || 'unknown'} size={att.size}
+                  previewUrl={att.type === 'image' ? att.url : undefined}
+                  onRemove={() => setAttachments(prev => prev.filter((_, idx) => idx !== i))} />
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {isParsing && (
+          <div className="flex items-center gap-2 mb-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm max-w-2xl mx-auto">
+            <Loader2 className="w-4 h-4 animate-spin" />Processing files...
           </div>
         )}
+
         <div className="max-w-2xl mx-auto flex gap-2">
-          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-          <Button variant="outline" size="icon" onClick={() => fileInputRef.current?.click()} className="shrink-0">
-            <ImagePlus className="w-4 h-4" />
-          </Button>
+          {/* Plus button with attach menu */}
+          <div className="relative shrink-0">
+            <Button variant="outline" size="icon" onClick={() => setShowAttachMenu(!showAttachMenu)}
+              className={cn(showAttachMenu && 'bg-accent')}>
+              <Plus className={cn('w-4 h-4 transition-transform duration-200', showAttachMenu && 'rotate-45')} />
+            </Button>
+            <AnimatePresence>
+              {showAttachMenu && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute bottom-full left-0 mb-2 rounded-xl shadow-xl overflow-hidden bg-popover border border-border backdrop-blur-xl min-w-[200px] z-50"
+                >
+                  <div className="px-4 py-2 border-b border-border bg-muted/50">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs text-muted-foreground">Max file size</span>
+                      <span className={cn(
+                        'text-xs font-medium px-1.5 py-0.5 rounded',
+                        user.plan === 'premium' && 'bg-amber-500/10 text-amber-500',
+                        user.plan === 'pro' && 'bg-purple-500/10 text-purple-500',
+                        user.plan === 'basic' && 'bg-blue-500/10 text-blue-500',
+                        user.plan === 'free' && 'bg-muted text-muted-foreground'
+                      )}>
+                        {formatSize(sizeLimit)}
+                      </span>
+                    </div>
+                  </div>
+                  <button onClick={() => imageInputRef.current?.click()} className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center"><ImageIcon className="w-4 h-4 text-blue-500" /></div>
+                    <span className="text-sm">Upload Image</span>
+                  </button>
+                  <button onClick={() => cameraInputRef.current?.click()} className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center"><Camera className="w-4 h-4 text-purple-500" /></div>
+                    <span className="text-sm">Take Photo</span>
+                  </button>
+                  <button onClick={() => documentInputRef.current?.click()} className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center"><Paperclip className="w-4 h-4 text-green-500" /></div>
+                    <span className="text-sm">Attach File</span>
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
           <div className="flex-1 relative">
             <Textarea
               value={input}
