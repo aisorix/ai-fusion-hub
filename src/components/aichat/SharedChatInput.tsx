@@ -191,8 +191,19 @@ const SharedChatInput = ({
           setShowAttachMenu(false);
         }}
       />
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={async (e) => {
+          await processFiles(Array.from(e.target.files || []).filter((f) => f.type.startsWith("image/")));
+          e.target.value = "";
+          setShowAttachMenu(false);
+        }}
+      />
 
-      {/* Attachment previews */}
       <AnimatePresence>
         {attachments.length > 0 && (
           <motion.div
