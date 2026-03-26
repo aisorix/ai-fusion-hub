@@ -24,6 +24,7 @@ import {
   Trash2,
   Check,
   X,
+  Bot,
 } from "lucide-react";
 import { useChatStore } from "@/stores/chatStore";
 import { cn } from "@/lib/utils";
