@@ -75,7 +75,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
         </div>
 
         {/* Model selector */}
-        <div className="relative">
+        <div className="relative z-50">
           <button
             onClick={() => setShowModelPicker(!showModelPicker)}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs bg-muted/50 hover:bg-muted transition-colors border border-border/30"
@@ -87,25 +87,28 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
 
           <AnimatePresence>
             {showModelPicker && (
-              <motion.div
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                className="absolute right-0 top-full mt-1 w-56 rounded-xl border border-border/50 bg-popover/95 backdrop-blur-xl shadow-xl z-50"
-              >
-                {MODELS.map((m) => (
-                  <button
-                    key={m.id}
-                    onClick={() => { setSelectedModel(m.id); setShowModelPicker(false); }}
-                    className={cn(
-                      "w-full text-left px-3 py-2.5 text-xs hover:bg-muted/50 transition-colors first:rounded-t-xl last:rounded-b-xl",
-                      selectedModel === m.id && "bg-primary/10 text-primary"
-                    )}
-                  >
-                    <span className="font-medium">{m.label}</span>
-                  </button>
-                ))}
-              </motion.div>
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowModelPicker(false)} />
+                <motion.div
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -5 }}
+                  className="fixed right-4 top-20 w-56 rounded-xl border border-border/50 bg-popover backdrop-blur-xl shadow-xl z-50"
+                >
+                  {MODELS.map((m) => (
+                    <button
+                      key={m.id}
+                      onClick={() => { setSelectedModel(m.id); setShowModelPicker(false); }}
+                      className={cn(
+                        "w-full text-left px-3 py-2.5 text-xs hover:bg-muted/50 transition-colors first:rounded-t-xl last:rounded-b-xl",
+                        selectedModel === m.id && "bg-primary/10 text-primary"
+                      )}
+                    >
+                      <span className="font-medium">{m.label}</span>
+                    </button>
+                  ))}
+                </motion.div>
+              </>
             )}
           </AnimatePresence>
         </div>
