@@ -37,7 +37,16 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
             </div>
           </div>
         </div>
-        {!isMobile && (
+        {isMobile ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => setShowMobileConnectors(!showMobileConnectors)}
+          >
+            <Plug className={cn("w-4 h-4", showMobileConnectors && "text-cyan-400")} />
+          </Button>
+        ) : (
           <Button
             variant="ghost"
             size="icon"
@@ -49,9 +58,9 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
         )}
       </div>
 
-      {/* Mobile Connectors - horizontal strip below header */}
-      {isMobile && (
-        <div className="shrink-0 border-b border-border/30 bg-background/50 backdrop-blur-sm">
+      {/* Mobile Connectors - toggled by icon */}
+      {isMobile && showMobileConnectors && (
+        <div className="shrink-0 border-b border-border/30 bg-background/50 backdrop-blur-sm animate-in slide-in-from-top-2 duration-200">
           <ConnectorPanel language={language} />
         </div>
       )}
