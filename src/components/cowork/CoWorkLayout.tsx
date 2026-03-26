@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { PanelRightClose, PanelRight, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CommandCenter from "./CommandCenter";
+import ConnectorPanel from "./ConnectorPanel";
 import TaskMonitor from "./TaskMonitor";
 import ApprovalModal from "./ApprovalModal";
 import { Button } from "@/components/ui/button";
@@ -48,24 +49,26 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Command Center */}
         <div className={cn("flex-1 min-w-0", !showMonitor && "w-full")}>
           <CommandCenter language={language} />
         </div>
 
-        {/* Task Monitor - right panel */}
+        {/* Task Monitor - right panel (desktop) */}
         {showMonitor && !isMobile && (
           <div className="w-72 xl:w-80 shrink-0">
             <TaskMonitor language={language} />
           </div>
         )}
-      </div>
 
-      {/* Mobile bottom sheet for task monitor */}
-      {isMobile && (
-        <MobileTaskToggle language={language} />
-      )}
+        {/* Connectors - mobile bottom section */}
+        {isMobile && (
+          <div className="shrink-0 border-t border-border/30 bg-background/50 backdrop-blur-sm">
+            <ConnectorPanel language={language} />
+          </div>
+        )}
+      </div>
 
       {/* Approval Modal */}
       <ApprovalModal language={language} />
