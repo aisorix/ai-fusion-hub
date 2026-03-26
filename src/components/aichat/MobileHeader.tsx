@@ -38,15 +38,13 @@ const MobileHeader = ({ onOpenSidebar, onNewChat }: MobileHeaderProps) => {
       </div>
 
       {/* Right: Sorix Agent */}
-      <Button
-        variant="ghost"
-        size="icon"
+      <button
         onClick={() => navigate("/cowork")}
         title="Sorix Agent"
-        className="h-9 w-9 shrink-0 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10"
+        className="h-10 w-10 flex items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 hover:text-cyan-300 transition-colors shrink-0"
       >
         <Bot className="h-5 w-5" />
-      </Button>
+      </button>
     </header>
   );
 };
