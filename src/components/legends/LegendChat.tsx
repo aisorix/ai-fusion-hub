@@ -264,19 +264,78 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
 
       {/* Input */}
       <div className="shrink-0 border-t border-border p-4 pb-safe">
-        {pendingImage && (
-          <div className="max-w-2xl mx-auto mb-2 flex items-center gap-2">
-            <img src={pendingImage} alt="Preview" className="w-12 h-12 rounded-lg object-cover" />
-            <button onClick={() => setPendingImage(null)} className="p-1 hover:bg-muted rounded">
-              <X className="w-4 h-4 text-muted-foreground" />
-            </button>
+        {/* Hidden inputs */}
+        <input ref={imageInputRef} type="file" accept="image/*" multiple className="hidden"
+          onChange={async (e) => { await processFiles(Array.from(e.target.files || []).filter(f => f.type.startsWith('image/'))); e.target.value = ''; setShowAttachMenu(false); }} />
+        <input ref={documentInputRef} type="file" accept={getAcceptedFileTypes()} multiple className="hidden"
+          onChange={async (e) => { await processFiles(Array.from(e.target.files || [])); e.target.value = ''; setShowAttachMenu(false); }} />
+        <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden"
+          onChange={async (e) => { await processFiles(Array.from(e.target.files || []).filter(f => f.type.startsWith('image/'))); e.target.value = ''; setShowAttachMenu(false); }} />
+
+        {/* Attachment previews */}
+        <AnimatePresence>
+          {attachments.length > 0 && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex flex-wrap gap-2 mb-3 max-w-2xl mx-auto">
+              {attachments.map((att, i) => (
+                <FileChip key={i} name={att.name} type={att.fileType || 'unknown'} size={att.size}
+                  previewUrl={att.type === 'image' ? att.url : undefined}
+                  onRemove={() => setAttachments(prev => prev.filter((_, idx) => idx !== i))} />
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {isParsing && (
+          <div className="flex items-center gap-2 mb-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm max-w-2xl mx-auto">
+            <Loader2 className="w-4 h-4 animate-spin" />Processing files...
           </div>
         )}
+
         <div className="max-w-2xl mx-auto flex gap-2">
-          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-          <Button variant="outline" size="icon" onClick={() => fileInputRef.current?.click()} className="shrink-0">
-            <ImagePlus className="w-4 h-4" />
-          </Button>
+          {/* Plus button with attach menu */}
+          <div className="relative shrink-0">
+            <Button variant="outline" size="icon" onClick={() => setShowAttachMenu(!showAttachMenu)}
+              className={cn(showAttachMenu && 'bg-accent')}>
+              <Plus className={cn('w-4 h-4 transition-transform duration-200', showAttachMenu && 'rotate-45')} />
+            </Button>
+            <AnimatePresence>
+              {showAttachMenu && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute bottom-full left-0 mb-2 rounded-xl shadow-xl overflow-hidden bg-popover border border-border backdrop-blur-xl min-w-[200px] z-50"
+                >
+                  <div className="px-4 py-2 border-b border-border bg-muted/50">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs text-muted-foreground">Max file size</span>
+                      <span className={cn(
+                        'text-xs font-medium px-1.5 py-0.5 rounded',
+                        user.plan === 'premium' && 'bg-amber-500/10 text-amber-500',
+                        user.plan === 'pro' && 'bg-purple-500/10 text-purple-500',
+                        user.plan === 'basic' && 'bg-blue-500/10 text-blue-500',
+                        user.plan === 'free' && 'bg-muted text-muted-foreground'
+                      )}>
+                        {formatSize(sizeLimit)}
+                      </span>
+                    </div>
+                  </div>
+                  <button onClick={() => imageInputRef.current?.click()} className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center"><ImageIcon className="w-4 h-4 text-blue-500" /></div>
+                    <span className="text-sm">Upload Image</span>
+                  </button>
+                  <button onClick={() => cameraInputRef.current?.click()} className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center"><Camera className="w-4 h-4 text-purple-500" /></div>
+                    <span className="text-sm">Take Photo</span>
+                  </button>
+                  <button onClick={() => documentInputRef.current?.click()} className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center"><Paperclip className="w-4 h-4 text-green-500" /></div>
+                    <span className="text-sm">Attach File</span>
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
           <div className="flex-1 relative">
             <Textarea
               value={input}
