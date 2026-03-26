@@ -213,7 +213,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
 
           {/* Header */}
           <div className={cn("p-4 flex items-center justify-between", isPaidUser ? "border-primary/20" : "")}>
-            <Link to="/" className="flex items-center gap-2" onClick={onClose}>
+            <div className="flex items-center gap-2">
               <img src={sorixLogo} alt="AI Sorix" className="w-8 h-8" />
               <div className="leading-tight">
                 <h1 className="font-bold text-foreground text-[13px] flex items-center gap-1.5">
@@ -222,7 +222,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                 </h1>
                 <p className="text-[10px] text-muted-foreground">{t('premiumAIPlatform')}</p>
               </div>
-            </Link>
+            </div>
             <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-md transition-colors text-muted-foreground">
               <PanelLeftClose className="w-5 h-5" />
             </button>
