@@ -55,7 +55,7 @@ const SharedChatInput = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
-
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const streaming = isStreaming || isAnyStreaming || false;
   const sizeLimit = FILE_SIZE_LIMITS[userPlan] || FILE_SIZE_LIMITS.free;
 
