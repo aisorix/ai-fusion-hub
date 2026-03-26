@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 export type AgentStatus = "idle" | "thinking" | "working" | "blocked";
 export type TaskStatus = "pending" | "running" | "blocked" | "completed" | "failed";
-export type ConnectorService = "google_drive" | "gmail" | "linkedin" | "twitter";
+export type ConnectorService = "google_drive" | "gmail" | "linkedin" | "twitter" | "facebook" | "instagram" | "whatsapp" | "whatsapp_business" | "youtube" | "telegram" | "slack" | "discord" | "pinterest" | "tiktok";
 
 export interface TaskStep {
   label: string;
@@ -76,6 +76,16 @@ export const useCoWorkStore = create<CoWorkState>((set) => ({
     { service: "gmail", status: "coming_soon", label: "Gmail", icon: "mail" },
     { service: "linkedin", status: "coming_soon", label: "LinkedIn", icon: "linkedin" },
     { service: "twitter", status: "coming_soon", label: "Twitter / X", icon: "twitter" },
+    { service: "facebook", status: "coming_soon", label: "Facebook", icon: "facebook" },
+    { service: "instagram", status: "coming_soon", label: "Instagram", icon: "instagram" },
+    { service: "whatsapp", status: "coming_soon", label: "WhatsApp", icon: "message-circle" },
+    { service: "whatsapp_business", status: "coming_soon", label: "WhatsApp Business", icon: "message-circle-more" },
+    { service: "youtube", status: "coming_soon", label: "YouTube", icon: "youtube" },
+    { service: "telegram", status: "coming_soon", label: "Telegram", icon: "send" },
+    { service: "slack", status: "coming_soon", label: "Slack", icon: "hash" },
+    { service: "discord", status: "coming_soon", label: "Discord", icon: "hash" },
+    { service: "pinterest", status: "coming_soon", label: "Pinterest", icon: "pin" },
+    { service: "tiktok", status: "coming_soon", label: "TikTok", icon: "music" },
   ],
   selectedModel: "google/gemini-2.5-pro",
   approvalRequest: null,
