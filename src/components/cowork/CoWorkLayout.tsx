@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { PanelRightClose, PanelRight, ArrowLeft, Plug } from "lucide-react";
+import { PanelRightClose, PanelRight, ArrowLeft, Plug, Bot } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CommandCenter from "./CommandCenter";
 import ConnectorPanel from "./ConnectorPanel";
@@ -29,7 +29,7 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
           </Button>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center">
-              <span className="text-[10px] font-bold text-white">CO</span>
+              <Bot className="w-4 h-4 text-white" />
             </div>
             <div>
               <h1 className="text-sm font-bold text-foreground">Sorix Agent</h1>
