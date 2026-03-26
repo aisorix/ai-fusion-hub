@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { PanelRightClose, PanelRight, ArrowLeft } from "lucide-react";
+import { PanelRightClose, PanelRight, ArrowLeft, Plug } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CommandCenter from "./CommandCenter";
 import ConnectorPanel from "./ConnectorPanel";
