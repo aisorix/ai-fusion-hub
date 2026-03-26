@@ -55,7 +55,7 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
         <button
           onClick={() => navigate("/agent")}
           title="Sorix Agent"
-          className="h-11 w-11 flex items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 hover:text-cyan-300 transition-colors"
+          className="h-11 w-11 flex items-center justify-center rounded-xl bg-muted/50 text-foreground hover:bg-muted transition-colors"
         >
           <Bot className="h-6 w-6" />
         </button>
