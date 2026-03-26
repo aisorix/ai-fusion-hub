@@ -146,7 +146,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                 transition={{ delay: 0.15 }}
                 className="text-sm text-muted-foreground mb-4"
               >
-                {language === "bn" ? "আজ আমি কীভাবে সাহায্য করতে পারি?" : "How can I help you today?"}
+                {language === "bn" ? "আজ কোন কাজ দিতে চান?" : "What task can I handle for you?"}
               </motion.p>
 
               {/* Model Badge */}
@@ -163,7 +163,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                 <span className="text-xs">🤖</span>
               </motion.div>
 
-              {/* 2x2 Suggestion Grid */}
+              {/* 2x2 Suggestion Grid - Agent-specific tasks */}
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -171,10 +171,10 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                 className="grid grid-cols-2 gap-3 w-full max-w-sm"
               >
                 {([
-                  { icon: Code2, label: language === "bn" ? "কোড লিখুন" : "Write code", color: "text-sky-500" },
-                  { icon: MessageSquare, label: language === "bn" ? "ব্যাখ্যা করুন" : "Explain", color: "text-sky-500" },
-                  { icon: Zap, label: language === "bn" ? "ব্রেইনস্টর্ম" : "Brainstorm", color: "text-sky-500" },
-                  { icon: Sparkles, label: language === "bn" ? "তৈরি করুন" : "Create", color: "text-sky-500" },
+                  { icon: Zap, label: language === "bn" ? "টাস্ক অটোমেট" : "Automate task", color: "text-sky-500" },
+                  { icon: Sparkles, label: language === "bn" ? "কন্টেন্ট তৈরি" : "Generate content", color: "text-sky-500" },
+                  { icon: Code2, label: language === "bn" ? "রিসার্চ করো" : "Deep research", color: "text-sky-500" },
+                  { icon: MessageSquare, label: language === "bn" ? "রিপোর্ট লিখো" : "Write report", color: "text-sky-500" },
                 ]).map((item, i) => (
                   <motion.button
                     key={i}
