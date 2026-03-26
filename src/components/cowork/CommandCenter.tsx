@@ -60,7 +60,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
   return (
     <div className="flex flex-col h-full bg-background/30">
       {/* Header - compact with model selector */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/30 backdrop-blur-sm">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/30 backdrop-blur-sm relative z-[100]">
         <div className="flex items-center gap-2">
           <div className="relative">
             <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -93,7 +93,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                   initial={{ opacity: 0, y: -5 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -5 }}
-                  className="fixed right-4 top-20 w-56 rounded-xl border border-border/50 bg-popover backdrop-blur-xl shadow-xl z-50"
+                  className="absolute right-0 top-full mt-1 w-56 rounded-xl border border-border/50 bg-popover backdrop-blur-xl shadow-2xl z-[100]"
                 >
                   {MODELS.map((m) => (
                     <button
