@@ -126,7 +126,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                 <Bot className="w-8 h-8 text-cyan-400" />
               </motion.div>
               <h3 className="text-lg font-semibold mb-1">
-                {language === "bn" ? "Sorix Co-Work" : "Sorix Co-Work"}
+                {language === "bn" ? "Sorix Agent" : "Sorix Agent"}
               </h3>
               <p className="text-sm text-muted-foreground max-w-sm">
                 {language === "bn"

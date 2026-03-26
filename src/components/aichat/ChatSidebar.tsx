@@ -465,7 +465,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
           >
             <Bot className="w-4 h-4 text-cyan-500" />
-            <span>Sorix Co-Work</span>
+            <span>Sorix Agent</span>
           </button>
 
           <div>

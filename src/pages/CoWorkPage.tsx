@@ -9,8 +9,8 @@ const CoWorkPage: React.FC = () => {
   return (
     <>
       <SEOHead
-        title="Sorix Co-Work | AI Agent Workspace | AI Sorix"
-        description="Delegate complex tasks to your AI agent. Real-time task progress, multi-model support, and smart clipboard."
+        title="Sorix Agent | AI Agent Workspace | AI Sorix"
+        description="Sorix Agent — Your Tasks, Handled by Intelligence. Delegate complex tasks to your AI agent with real-time progress and multi-model support."
         path="/cowork"
       />
       <CoWorkLayout language={language} />

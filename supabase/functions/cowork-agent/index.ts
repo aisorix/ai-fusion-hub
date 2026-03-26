@@ -5,7 +5,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SYSTEM_PROMPT = `You are Sorix Co-Work Agent — a powerful AI assistant that helps users complete complex tasks step by step.
+const SYSTEM_PROMPT = `You are Sorix Agent — a powerful AI assistant that helps users complete complex tasks step by step.
 
 You can:
 - Research and analyze information
@@ -57,7 +57,7 @@ Deno.serve(async (req: Request) => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${openRouterKey}`,
         "HTTP-Referer": "https://sorixai.lovable.app",
-        "X-Title": "AI Sorix Co-Work",
+        "X-Title": "AI Sorix Agent",
       },
       body: JSON.stringify({
         model: model || "google/gemini-2.5-pro",
@@ -139,7 +139,7 @@ Deno.serve(async (req: Request) => {
       },
     });
   } catch (err) {
-    console.error("Co-Work Agent error:", err);
+    console.error("Sorix Agent error:", err);
     return new Response(
       JSON.stringify({ error: String(err) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
