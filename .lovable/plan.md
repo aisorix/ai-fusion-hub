@@ -1,32 +1,24 @@
 
 
-## Fix Registration: Create Account and Go to Chat
+## Fix: Registration Errors Not Showing
 
 ### Root Cause
 
-Two issues found:
+Register.jsx uses the **legacy `useToast` hook** (`@/hooks/use-toast`) to display error/success messages. However, the App only renders the **Sonner** toaster (`@/components/ui/sonner`), not the legacy `<Toaster />` from `@/components/ui/toaster`. This means all toast calls in Register.jsx are silently swallowed — no error or success messages ever appear.
 
-1. **No try/catch** around the signup call — if the Supabase client throws (instead of returning `{error}`), the error is silently swallowed and nothing happens visually.
+### Fix
 
-2. **Email verification blocks login** — after successful signup, the code shows a "verify email" screen (`setShowOtp(true)`) instead of logging the user in. The user wants: Create Account → go straight to /chat.
+**`src/pages/Register.jsx`** — Switch from legacy `useToast` to `sonner`:
 
-The network logs confirm the specific test email (`rakibul242-35-828@diu.edu.bd`) already exists, returning a 422 `user_already_exists` error that wasn't surfacing as a toast.
+1. Replace `import { useToast } from '@/hooks/use-toast'` with `import { toast } from 'sonner'`
+2. Remove the `const { toast } = useToast()` line
+3. Update all `toast({...})` calls to use sonner's API:
+   - `toast({ title: 'X', description: 'Y', variant: 'destructive' })` → `toast.error('Y')` or `toast.error('X', { description: 'Y' })`
+   - `toast({ title: 'X', description: 'Y' })` → `toast.success('X', { description: 'Y' })`
 
-### Changes
+There are approximately 5-6 toast calls in the file (registration error, success, resend code, etc.) that all need updating.
 
-**1. Enable auto-confirm email signups** (backend config)
-- Use `configure_auth` to enable auto-confirm so users are immediately logged in after signup without needing email verification.
+### Result
 
-**2. `src/pages/Register.jsx`**
-- Wrap the `supabase.auth.signUp()` call in a proper `try/catch` block so thrown errors are caught and shown to the user.
-- On successful signup with a session returned (auto-confirm), navigate directly to `/chat` instead of showing the OTP/verification screen.
-- Keep the verification screen as a fallback in case auto-confirm is off or the session isn't returned immediately.
-- Add the `user_already_exists` error code check alongside the existing message check for more reliable error detection.
-
-### Flow After Fix
-
-1. User fills form → clicks Create Account
-2. Account is created and auto-confirmed
-3. Auth state listener fires → user is set → redirect to `/chat`
-4. If signup fails, a clear toast error message is shown
+After this change, all registration errors (user already exists, weak password, rate limit, etc.) and success messages will be visible to users via the Sonner toast notifications.
 
