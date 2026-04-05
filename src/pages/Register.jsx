@@ -89,46 +89,65 @@ const Register = () => {
 
     setIsSubmitting(true);
     
-    const { data, error } = await supabase.auth.signUp({
-      email: formData.email,
-      password: formData.password,
-      options: {
-        data: {
-          full_name: formData.fullName,
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.fullName,
+          },
         },
-      },
-    });
-    
-    setIsSubmitting(false);
+      });
+      
+      setIsSubmitting(false);
 
-    if (error) {
-      let errorMessage = 'Failed to create account. Please try again.';
-      
-      if (error.message?.includes('already registered') || error.message?.includes('User already registered')) {
-        errorMessage = 'This email is already registered. Please sign in instead.';
-      } else if (error.message?.includes('rate limit') || error.message?.includes('429') || error.status === 429) {
-        errorMessage = 'Too many attempts. Please wait a few minutes before trying again.';
-      } else if (error.message?.toLowerCase().includes('weak') || error.code === 'weak_password') {
-        errorMessage = 'Password is too weak. Use at least 8 characters with uppercase, lowercase, numbers, and special characters.';
-      } else if (error.message?.includes('Password')) {
-        errorMessage = error.message;
-      } else if (error.message?.includes('Invalid email')) {
-        errorMessage = 'Please enter a valid email address.';
-      } else if (error.message) {
-        errorMessage = error.message;
+      if (error) {
+        let errorMessage = 'Failed to create account. Please try again.';
+        
+        if (error.code === 'user_already_exists' || error.message?.includes('already registered') || error.message?.includes('User already registered')) {
+          errorMessage = 'This email is already registered. Please sign in instead.';
+        } else if (error.message?.includes('rate limit') || error.message?.includes('429') || error.status === 429) {
+          errorMessage = 'Too many attempts. Please wait a few minutes before trying again.';
+        } else if (error.message?.toLowerCase().includes('weak') || error.code === 'weak_password') {
+          errorMessage = 'Password is too weak. Use at least 8 characters with uppercase, lowercase, numbers, and special characters.';
+        } else if (error.message?.includes('Password')) {
+          errorMessage = error.message;
+        } else if (error.message?.includes('Invalid email')) {
+          errorMessage = 'Please enter a valid email address.';
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        toast({
+          title: 'Registration Failed',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+      } else if (data?.session) {
+        // Auto-confirmed: user has a session, go straight to chat
+        sessionStorage.setItem('justRegistered', 'true');
+        toast({
+          title: 'Account Created!',
+          description: 'Welcome to AI Sorix!',
+        });
+        navigate('/chat');
+      } else {
+        // Fallback: email verification required
+        setShowOtp(true);
+        sessionStorage.setItem('justRegistered', 'true');
+        toast({
+          title: 'Email Sent!',
+          description: 'Please check your email to verify your account.',
+        });
       }
-      
+    } catch (err) {
+      setIsSubmitting(false);
+      console.error('Registration error:', err);
       toast({
         title: 'Registration Failed',
-        description: errorMessage,
+        description: err?.message || 'An unexpected error occurred. Please try again.',
         variant: 'destructive',
-      });
-    } else {
-      setShowOtp(true);
-      sessionStorage.setItem('justRegistered', 'true');
-      toast({
-        title: 'Email Sent!',
-        description: 'Please check your email to verify your account.',
       });
     }
   };
