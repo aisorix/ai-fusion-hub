@@ -108,6 +108,8 @@ const Register = () => {
         errorMessage = 'This email is already registered. Please sign in instead.';
       } else if (error.message?.includes('rate limit') || error.message?.includes('429') || error.status === 429) {
         errorMessage = 'Too many attempts. Please wait a few minutes before trying again.';
+      } else if (error.message?.toLowerCase().includes('weak') || error.code === 'weak_password') {
+        errorMessage = 'Password is too weak. Use at least 8 characters with uppercase, lowercase, numbers, and special characters.';
       } else if (error.message?.includes('Password')) {
         errorMessage = error.message;
       } else if (error.message?.includes('Invalid email')) {
@@ -342,7 +344,28 @@ const Register = () => {
                       </button>
                     </div>
                     {errors.password && <p className="text-red-500 text-xs">{errors.password}</p>}
-                  </div>
+                    {formData.password.length > 0 && (
+                      <div className="space-y-1 pt-1">
+                        {[
+                          { met: passwordRequirements.minLength, label: 'At least 8 characters' },
+                          { met: passwordRequirements.hasUpper, label: 'One uppercase letter' },
+                          { met: passwordRequirements.hasLower, label: 'One lowercase letter' },
+                          { met: passwordRequirements.hasNumber, label: 'One number' },
+                          { met: passwordRequirements.hasSpecial, label: 'One special character' },
+                        ].map((req) => (
+                          <div key={req.label} className="flex items-center gap-1.5">
+                            {req.met ? (
+                              <Check className="w-3 h-3 text-green-500" />
+                            ) : (
+                              <X className="w-3 h-3 text-muted-foreground/50" />
+                            )}
+                            <span className={`text-xs ${req.met ? 'text-green-500' : 'text-muted-foreground'}`}>
+                              {req.label}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword" className="text-foreground font-medium">Confirm Password</Label>
