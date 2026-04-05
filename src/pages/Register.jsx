@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import SEOHead from '@/components/SEOHead';
-import { Mail, Lock, Eye, EyeOff, ArrowLeft, User, Loader2 } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, User, Loader2, Check, X } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -40,6 +40,17 @@ const Register = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const passwordRequirements = useMemo(() => {
+    const pw = formData.password;
+    return {
+      minLength: pw.length >= 8,
+      hasLower: /[a-z]/.test(pw),
+      hasUpper: /[A-Z]/.test(pw),
+      hasNumber: /[0-9]/.test(pw),
+      hasSpecial: /[^A-Za-z0-9]/.test(pw),
+    };
+  }, [formData.password]);
+
   const validateForm = () => {
     const newErrors = {};
     if (!formData.fullName.trim()) {
@@ -54,8 +65,16 @@ const Register = () => {
     }
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    } else if (!passwordRequirements.minLength) {
+      newErrors.password = 'Password must be at least 8 characters';
+    } else if (!passwordRequirements.hasLower) {
+      newErrors.password = 'Password must include a lowercase letter';
+    } else if (!passwordRequirements.hasUpper) {
+      newErrors.password = 'Password must include an uppercase letter';
+    } else if (!passwordRequirements.hasNumber) {
+      newErrors.password = 'Password must include a number';
+    } else if (!passwordRequirements.hasSpecial) {
+      newErrors.password = 'Password must include a special character';
     }
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
@@ -89,6 +108,8 @@ const Register = () => {
         errorMessage = 'This email is already registered. Please sign in instead.';
       } else if (error.message?.includes('rate limit') || error.message?.includes('429') || error.status === 429) {
         errorMessage = 'Too many attempts. Please wait a few minutes before trying again.';
+      } else if (error.message?.toLowerCase().includes('weak') || error.code === 'weak_password') {
+        errorMessage = 'Password is too weak. Use at least 8 characters with uppercase, lowercase, numbers, and special characters.';
       } else if (error.message?.includes('Password')) {
         errorMessage = error.message;
       } else if (error.message?.includes('Invalid email')) {
@@ -323,6 +344,28 @@ const Register = () => {
                       </button>
                     </div>
                     {errors.password && <p className="text-red-500 text-xs">{errors.password}</p>}
+                    {formData.password.length > 0 && (
+                      <div className="space-y-1 pt-1">
+                        {[
+                          { met: passwordRequirements.minLength, label: 'At least 8 characters' },
+                          { met: passwordRequirements.hasUpper, label: 'One uppercase letter' },
+                          { met: passwordRequirements.hasLower, label: 'One lowercase letter' },
+                          { met: passwordRequirements.hasNumber, label: 'One number' },
+                          { met: passwordRequirements.hasSpecial, label: 'One special character' },
+                        ].map((req) => (
+                          <div key={req.label} className="flex items-center gap-1.5">
+                            {req.met ? (
+                              <Check className="w-3 h-3 text-green-500" />
+                            ) : (
+                              <X className="w-3 h-3 text-muted-foreground/50" />
+                            )}
+                            <span className={`text-xs ${req.met ? 'text-green-500' : 'text-muted-foreground'}`}>
+                              {req.label}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-2">
