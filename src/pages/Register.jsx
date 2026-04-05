@@ -119,36 +119,22 @@ const Register = () => {
           errorMessage = error.message;
         }
         
-        toast({
-          title: 'Registration Failed',
-          description: errorMessage,
-          variant: 'destructive',
-        });
+        toast.error('Registration Failed', { description: errorMessage });
       } else if (data?.session) {
         // Auto-confirmed: user has a session, go straight to chat
         sessionStorage.setItem('justRegistered', 'true');
-        toast({
-          title: 'Account Created!',
-          description: 'Welcome to AI Sorix!',
-        });
+        toast.success('Account Created!', { description: 'Welcome to AI Sorix!' });
         navigate('/chat');
       } else {
         // Fallback: email verification required
         setShowOtp(true);
         sessionStorage.setItem('justRegistered', 'true');
-        toast({
-          title: 'Email Sent!',
-          description: 'Please check your email to verify your account.',
-        });
+        toast.success('Email Sent!', { description: 'Please check your email to verify your account.' });
       }
     } catch (err) {
       setIsSubmitting(false);
       console.error('Registration error:', err);
-      toast({
-        title: 'Registration Failed',
-        description: err?.message || 'An unexpected error occurred. Please try again.',
-        variant: 'destructive',
-      });
+      toast.error('Registration Failed', { description: err?.message || 'An unexpected error occurred. Please try again.' });
     }
   };
 
@@ -163,16 +149,9 @@ const Register = () => {
     setIsSubmitting(false);
 
     if (error) {
-      toast({
-        title: 'Failed to Resend',
-        description: error.message || 'Please wait a moment before trying again.',
-        variant: 'destructive',
-      });
+      toast.error('Failed to Resend', { description: error.message || 'Please wait a moment before trying again.' });
     } else {
-      toast({
-        title: 'Email Resent!',
-        description: 'Please check your email for the verification link.',
-      });
+      toast.success('Email Resent!', { description: 'Please check your email for the verification link.' });
     }
   };
 
@@ -277,11 +256,7 @@ const Register = () => {
                     setIsGoogleLoading(true);
                     const { error } = await signInWithGoogle();
                     if (error) {
-                      toast({
-                        title: 'Google Sign Up Failed',
-                        description: error.message || 'Failed to sign up with Google. Please try again.',
-                        variant: 'destructive',
-                      });
+                      toast.error('Google Sign Up Failed', { description: error.message || 'Failed to sign up with Google. Please try again.' });
                       setIsGoogleLoading(false);
                     }
                   }}
