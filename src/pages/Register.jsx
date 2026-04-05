@@ -366,6 +366,7 @@ const Register = () => {
                         ))}
                       </div>
                     )}
+                  </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword" className="text-foreground font-medium">Confirm Password</Label>
