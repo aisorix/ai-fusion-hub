@@ -1,20 +1,33 @@
 
 
-## Activate Pro Access for piashmahamud619@gmail.com
+## Fix Registration Password Validation
 
-User found in the database:
-- **piashmahamud619@gmail.com** → `7c670dc2-d4d5-45e5-8d69-99753d084ea2`
-- No active subscription currently.
+The backend enforces strong password requirements (uppercase + lowercase + numbers + special characters + not a known breached password), but the frontend only validates minimum 6 characters. Users submit weak passwords, get a 422 error, and see a generic toast that may be hard to understand.
 
-### Action
+### Changes
 
-Insert a pro subscription using a direct database insert:
+**`src/pages/Register.jsx`**
 
-```sql
-INSERT INTO subscriptions (user_id, plan_id, status, tokens_used, amount, billing_cycle, current_period_start, current_period_end)
-VALUES
-  ('7c670dc2-d4d5-45e5-8d69-99753d084ea2', 'pro', 'active', 0, 0, 'monthly', now(), now() + interval '1 year');
-```
+1. **Add strong client-side password validation** in `validateForm()`:
+   - Check for at least 1 lowercase letter
+   - Check for at least 1 uppercase letter
+   - Check for at least 1 number
+   - Check for at least 1 special character
+   - Minimum 8 characters (safer than 6)
+   - Show specific error messages for each missing requirement
 
-This grants **Sorix Pro** (1.5M tokens, Pro-tier AI models) for 1 year as a complimentary subscription.
+2. **Add visible password requirements hint** below the password input:
+   - Small text listing requirements: "Min 8 chars, uppercase, lowercase, number, special character"
+   - Style with `text-xs text-muted-foreground`
+   - Optionally show green checkmarks as requirements are met (real-time feedback)
+
+3. **Improve error handling** for the weak_password response:
+   - Line 92: Also check for `error.code === 'weak_password'` or `error.message?.includes('weak')` 
+   - Show a friendlier message: "Password is too weak. Use at least 8 characters with uppercase, lowercase, numbers, and special characters."
+
+### Technical Details
+
+- Update `validateForm()` around lines 43-64 with regex checks
+- Add a password requirements UI component between lines 325-326 (after password input, before confirm password)
+- Update error handling at lines 85-104 to catch `weak_password` code
 
