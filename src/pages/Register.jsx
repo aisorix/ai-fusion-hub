@@ -15,7 +15,7 @@ import logo from '../assets/logo.png';
 const Register = () => {
   const navigate = useNavigate();
   const { user, signInWithGoogle, loading: authLoading } = useAuth();
-  const { toast } = useToast();
+  
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
