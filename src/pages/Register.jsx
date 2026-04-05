@@ -40,6 +40,17 @@ const Register = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const passwordRequirements = useMemo(() => {
+    const pw = formData.password;
+    return {
+      minLength: pw.length >= 8,
+      hasLower: /[a-z]/.test(pw),
+      hasUpper: /[A-Z]/.test(pw),
+      hasNumber: /[0-9]/.test(pw),
+      hasSpecial: /[^A-Za-z0-9]/.test(pw),
+    };
+  }, [formData.password]);
+
   const validateForm = () => {
     const newErrors = {};
     if (!formData.fullName.trim()) {
@@ -54,8 +65,16 @@ const Register = () => {
     }
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    } else if (!passwordRequirements.minLength) {
+      newErrors.password = 'Password must be at least 8 characters';
+    } else if (!passwordRequirements.hasLower) {
+      newErrors.password = 'Password must include a lowercase letter';
+    } else if (!passwordRequirements.hasUpper) {
+      newErrors.password = 'Password must include an uppercase letter';
+    } else if (!passwordRequirements.hasNumber) {
+      newErrors.password = 'Password must include a number';
+    } else if (!passwordRequirements.hasSpecial) {
+      newErrors.password = 'Password must include a special character';
     }
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
