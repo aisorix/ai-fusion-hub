@@ -1,43 +1,26 @@
 
 
-## Add "More Tools" Full Page
+## Standardize FlowBuilder Icon & Clean Up More Tools Button
 
-### What
-When users click "More Tools" in the sidebar, instead of expanding inline, navigate to a dedicated `/tools` page that displays all tools in a polished grid layout with a "More tools coming soon" section. Each tool card navigates to its respective page, matching existing sidebar behavior.
-
-### New File: `src/pages/ToolsPage.tsx`
-- Full-page layout with header showing back button (to `/chat`) and title "Sorix Tools"
-- Grid of tool cards (responsive: 1 col mobile, 2 col tablet, 3 col desktop)
-- Each card shows: gradient icon, tool name, description, FREE badge where applicable
-- Cards are clickable and navigate to the tool's route (`/health`, `/agro`, `/deck`, `/imagine`, `/legends`, `/flowbuilder`, `/agent`)
-- "Coming Soon" section at the bottom with placeholder cards for future tools (e.g., Sorix Code, Sorix Translate, Sorix Music) shown with reduced opacity and a "Coming Soon" badge
-- Styled consistently with existing app theme (bg-background, text-foreground, card styling)
+### Problem
+1. FlowBuilder uses `Workflow` icon on the landing page but `Sparkles` in the sidebar and Tools page — needs to be `Workflow` everywhere
+2. The "More Tools" sidebar button still shows a `ChevronDown` dropdown arrow even though it now navigates to `/tools` — remove it
+3. The "More Tools" button uses `Sparkles` icon which conflicts — change to a grid/apps-style icon (e.g., `LayoutGrid` or `Grid3X3`)
 
 ### Changes
 
-**`src/App.jsx`**
-- Add lazy import for `ToolsPage`
-- Add protected route: `/tools` -> `<ToolsPage />`
-
 **`src/components/aichat/ChatSidebar.tsx`**
-- Change "More Tools" button (line 480-491): instead of toggling `showMoreTools` state, navigate to `/tools`
-- Keep the inline expanded tool list as-is for backward compatibility, but the main button now navigates
-- In collapsed sidebar (line 310-337): change the Sparkles button to navigate to `/tools` instead of opening a dropdown
+- Change FlowBuilder icon from `Sparkles` to `Workflow` in the `moreTools` array (line 246)
+- Remove `ChevronDown` from the "More Tools" button (lines 466-468)
+- Change "More Tools" icon from `Sparkles` to `Grid3X3` or similar (line 463)
 
 **`src/components/aichat/MobileSidebar.tsx`**
-- Change "More Tools" button (line 272-279): navigate to `/tools` and close sidebar instead of toggling inline list
+- Change FlowBuilder icon from `Sparkles` to `Workflow` in the `moreTools` array (line 185)
+- Remove `ChevronDown` from the "More Tools" button if present
+- Change "More Tools" icon to match desktop sidebar
 
-### Tool List (same data as sidebar)
-1. Sorix Health - `/health` - Stethoscope - emerald/teal gradient - FREE
-2. Sorix Agent - `/agent` - Bot - blue/indigo gradient
-3. Sorix Agro - `/agro` - Leaf - green/lime gradient - FREE
-4. Sorix Legends - `/legends` - Crown - blue/cyan gradient
-5. Sorix Deck - `/deck` - Presentation - cyan/blue gradient
-6. Sorix FlowBuilder - `/flowbuilder` - Sparkles - violet/purple gradient
-7. Sorix Imagine - `/imagine` - Palette - cyan/blue gradient
+**`src/pages/ToolsPage.tsx`**
+- Change FlowBuilder icon from `Sparkles` to `Workflow` (line 10)
 
-### Coming Soon Placeholders
-- Sorix Code (Code icon) - "AI code assistant"
-- Sorix Translate (Languages icon) - "AI translation tool"
-- Sorix Music (Music icon) - "AI music generator"
+**No changes to**: `Features.jsx`, `FlowBuilderPage.tsx` — these already use `Workflow` correctly.
 
