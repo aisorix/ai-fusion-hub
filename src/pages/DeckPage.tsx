@@ -19,6 +19,7 @@ import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 const SLIDE_COUNTS = [3, 5, 8, 10, 12, 15, 20, 25, 30];
 
 const DeckPage: React.FC = () => {
+  const navigate = useNavigate();
   const { user, setUser } = useChatStore();
 
   const [slides, setSlides] = useState<Slide[]>([]);
@@ -132,12 +133,12 @@ const DeckPage: React.FC = () => {
       <header className="shrink-0 bg-card/80 backdrop-blur-xl relative">
         <div className="flex items-center justify-between px-4 md:px-6 h-14">
           <div className="flex items-center gap-3">
-            <Link
-              to="/chat"
+            <button
+              onClick={() => navigate(-1)}
               className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
             >
               <ArrowLeft className="w-5 h-5" />
-            </Link>
+            </button>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
                 <Presentation className="w-4 h-4 text-white" />

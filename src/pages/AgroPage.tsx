@@ -144,12 +144,12 @@ const AgroPage: React.FC = () => {
       <header className="shrink-0 border-b border-border bg-card/80 backdrop-blur-xl">
         <div className="flex items-center justify-between px-4 md:px-6 h-14">
           <div className="flex items-center gap-3">
-            <Link
-              to="/chat"
+            <button
+              onClick={() => navigate(-1)}
               className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
             >
               <ArrowLeft className="w-5 h-5" />
-            </Link>
+            </button>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center">
                 <Leaf className="w-4 h-4 text-white" />

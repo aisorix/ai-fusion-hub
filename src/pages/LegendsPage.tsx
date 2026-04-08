@@ -66,11 +66,11 @@ const LegendsPage: React.FC = () => {
       {/* Header */}
       {!selectedPersona && (
         <div className="shrink-0 border-b border-border px-4 py-3 flex items-center gap-3 bg-card/80 backdrop-blur-sm">
-          <Link to="/chat">
+          <button onClick={() => navigate(-1)}>
             <Button variant="ghost" size="icon">
               <ArrowLeft className="w-5 h-5" />
             </Button>
-          </Link>
+          </button>
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
             <BookOpen className="w-4 h-4 text-white" />
           </div>

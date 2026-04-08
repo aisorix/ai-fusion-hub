@@ -14,6 +14,7 @@ import ImagineHistory from '@/components/imagine/ImagineHistory';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 
 const ImaginePage: React.FC = () => {
+  const navigate = useNavigate();
   const { user, setUser } = useChatStore();
 
   const [selectedStyle, setSelectedStyle] = useState<StyleOption>(trendingStyles[0]);
@@ -80,12 +81,12 @@ const ImaginePage: React.FC = () => {
       <header className="shrink-0 bg-card/80 backdrop-blur-xl relative">
         <div className="flex items-center justify-between px-4 md:px-6 h-14">
           <div className="flex items-center gap-3">
-            <Link
-              to="/chat"
+            <button
+              onClick={() => navigate(-1)}
               className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
             >
               <ArrowLeft className="w-5 h-5" />
-            </Link>
+            </button>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
                 <ImageIcon className="w-4 h-4 text-white" />

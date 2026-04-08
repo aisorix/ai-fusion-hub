@@ -16,6 +16,7 @@ import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 import { sanitizeMermaid } from '@/lib/flowbuilderMermaid';
 
 const FlowBuilderPage: React.FC = () => {
+  const navigate = useNavigate();
   const { user, setUser } = useChatStore();
   const [code, setCode] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
