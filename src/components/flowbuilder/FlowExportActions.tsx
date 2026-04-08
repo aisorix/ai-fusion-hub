@@ -128,14 +128,14 @@ const FlowExportActions: React.FC<FlowExportActionsProps> = ({ code }) => {
 
   return (
     <div className="flex items-center gap-1 md:gap-1.5">
-      <button onClick={exportPNG} className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 rounded-lg border border-border/50 bg-muted/20 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-all" title="Export PNG">
-        <FileImage className="w-3.5 h-3.5" /> PNG
+      <button onClick={exportPNG} className="flex items-center gap-1 md:gap-1.5 px-1.5 py-1 md:px-3 md:py-1.5 rounded-lg border border-border/50 bg-muted/20 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-all" title="Export PNG">
+        <FileImage className="w-3.5 h-3.5" /> <span className="hidden md:inline">PNG</span>
       </button>
-      <button onClick={exportSVG} className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 rounded-lg border border-border/50 bg-muted/20 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-all" title="Export SVG">
-        <FileCode className="w-3.5 h-3.5" /> SVG
+      <button onClick={exportSVG} className="flex items-center gap-1 md:gap-1.5 px-1.5 py-1 md:px-3 md:py-1.5 rounded-lg border border-border/50 bg-muted/20 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-all" title="Export SVG">
+        <FileCode className="w-3.5 h-3.5" /> <span className="hidden md:inline">SVG</span>
       </button>
-      <button onClick={exportPDF} className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 rounded-lg border border-border/50 bg-muted/20 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-all" title="Export PDF">
-        <FileText className="w-3.5 h-3.5" /> PDF
+      <button onClick={exportPDF} className="flex items-center gap-1 md:gap-1.5 px-1.5 py-1 md:px-3 md:py-1.5 rounded-lg border border-border/50 bg-muted/20 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-all" title="Export PDF">
+        <FileText className="w-3.5 h-3.5" /> <span className="hidden md:inline">PDF</span>
       </button>
     </div>
   );
