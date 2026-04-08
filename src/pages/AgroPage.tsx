@@ -53,6 +53,7 @@ const stepConfig = [
 ] as const;
 
 const AgroPage: React.FC = () => {
+  const navigate = useNavigate();
   const { user: authUser } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>('intake');
   const [cropData, setCropData] = useState<CropData | null>(null);
