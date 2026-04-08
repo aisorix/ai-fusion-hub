@@ -237,6 +237,7 @@ export type Database = {
           height: number
           id: string
           image_url: string
+          model: string | null
           prompt: string
           style: string | null
           tokens_used: number
@@ -248,6 +249,7 @@ export type Database = {
           height?: number
           id?: string
           image_url: string
+          model?: string | null
           prompt: string
           style?: string | null
           tokens_used?: number
@@ -259,6 +261,7 @@ export type Database = {
           height?: number
           id?: string
           image_url?: string
+          model?: string | null
           prompt?: string
           style?: string | null
           tokens_used?: number
