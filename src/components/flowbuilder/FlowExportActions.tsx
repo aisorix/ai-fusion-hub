@@ -14,7 +14,8 @@ const FlowExportActions: React.FC<FlowExportActionsProps> = ({ code }) => {
   };
 
   const getSvgDimensions = (svg: SVGElement) => {
-    const bbox = svg.getBBox();
+    const svgEl = svg as unknown as SVGSVGElement;
+    const bbox = svgEl.getBBox();
     const w = parseFloat(svg.getAttribute('width') || '') || bbox.width || 800;
     const h = parseFloat(svg.getAttribute('height') || '') || bbox.height || 600;
     return { width: Math.ceil(w), height: Math.ceil(h) };
