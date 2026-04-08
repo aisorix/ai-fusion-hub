@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEOHead from '@/components/SEOHead';
 import { ArrowLeft, History, X, BookOpen, Crown } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import LegendCard, { type Persona } from '@/components/legends/LegendCard';
@@ -43,6 +43,7 @@ const personas: Record<string, Persona[]> = {
 const allPersonas = Object.values(personas).flat();
 
 const LegendsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [restoredMessages, setRestoredMessages] = useState<any[] | null>(null);
@@ -66,11 +67,11 @@ const LegendsPage: React.FC = () => {
       {/* Header */}
       {!selectedPersona && (
         <div className="shrink-0 border-b border-border px-4 py-3 flex items-center gap-3 bg-card/80 backdrop-blur-sm">
-          <Link to="/chat">
+          <button onClick={() => navigate(-1)}>
             <Button variant="ghost" size="icon">
               <ArrowLeft className="w-5 h-5" />
             </Button>
-          </Link>
+          </button>
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
             <BookOpen className="w-4 h-4 text-white" />
           </div>

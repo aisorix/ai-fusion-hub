@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEOHead from '@/components/SEOHead';
 import { ArrowLeft, Heart, Activity, FileText, History, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import HealthHistory from '@/components/health/HealthHistory';
@@ -66,6 +66,7 @@ const stepConfig = [
 ] as const;
 
 const HealthPage: React.FC = () => {
+  const navigate = useNavigate();
   const { user: authUser } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>('intake');
   const [patientData, setPatientData] = useState<PatientData | null>(null);
@@ -155,12 +156,12 @@ const HealthPage: React.FC = () => {
       <header className="shrink-0 border-b border-border bg-card/80 backdrop-blur-xl">
         <div className="flex items-center justify-between px-4 md:px-6 h-14">
           <div className="flex items-center gap-3">
-            <Link
-              to="/chat"
+            <button
+              onClick={() => navigate(-1)}
               className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
             >
               <ArrowLeft className="w-5 h-5" />
-            </Link>
+            </button>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-pink-600 flex items-center justify-center">
                 <Heart className="w-4 h-4 text-white" />
