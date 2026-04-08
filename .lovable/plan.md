@@ -1,29 +1,23 @@
 
 
-## Fix FlowBuilder Header for Mobile View
+## Fix Agent Chat Input Position on All Devices
 
 ### Problem
-On a 390px mobile screen, the header crams too many elements into a single row: back arrow, icon, title, 3 export buttons (PNG/SVG/PDF), New button, and History button. This causes overflow and elements get cut off or overlap.
+The chat input bar in Sorix Agent goes below the visible area on mobile because `CoWorkLayout` uses `h-screen` which doesn't account for mobile browser chrome (address bar, bottom nav). The main chat page already uses `h-[100dvh]` to handle this correctly.
 
-### Solution
-Make the header responsive by reorganizing elements on mobile:
+Additionally, the empty state in `CommandCenter` uses `min-h-[60vh]` which can push the input out of view on shorter screens.
 
-**`src/pages/FlowBuilderPage.tsx`** (header section, lines 76-112)
+### Changes
 
-1. **Top row (mobile)**: Keep back arrow, icon + title on the left; only History button on the right
-2. **Export buttons row**: Move `FlowExportActions` and "New" button to a second row below the title, only visible when there's code to export
-3. On desktop (`md:` breakpoint), keep everything in one row as-is
+**`src/components/cowork/CoWorkLayout.tsx`** (line 24)
+- Change `h-screen` to `h-[100dvh]` to properly account for mobile browser chrome on all devices
 
-Specifically:
-- Wrap the header content in a flex-col on mobile, flex-row on md+
-- First row: back + title + history (always visible)
-- Second row (only when `code.trim()`): export buttons + New button, centered or left-aligned with small padding
-
-**`src/components/flowbuilder/FlowExportActions.tsx`** (lines 130-140)
-- Make export buttons slightly more compact on mobile: reduce `px-3` to `px-2` and `gap-1.5` to `gap-1` on small screens, or use icon-only on mobile
+**`src/components/cowork/CommandCenter.tsx`** (line 121)
+- Change `min-h-[60vh]` to `min-h-0 flex-1` on the empty state container so it fills available space without pushing the input below the viewport
+- The empty state should use the flex parent's remaining space rather than forcing a viewport-relative minimum height
 
 ### Result
-- Title and icon fully visible on mobile
-- Export actions accessible in a clean second row
-- No overflow or clipping on small screens
+- Input bar stays fixed at the bottom on mobile, tablet, and desktop
+- Empty state content centers within available space without overflowing
+- Matches the same viewport approach used by the main chat page
 
