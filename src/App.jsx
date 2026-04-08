@@ -104,6 +104,11 @@ const App = () => (
                     <FlowBuilderPage />
                   </ProtectedRoute>
                 } />
+                <Route path="/tools" element={
+                  <ProtectedRoute>
+                    <ToolsPage />
+                  </ProtectedRoute>
+                } />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/verify-email" element={<VerifyEmail />} />
