@@ -23,7 +23,7 @@ const ToolsPage = () => {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-3">
-          <button onClick={() => navigate("/chat")} className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-muted transition-colors">
+          <button onClick={() => navigate(-1)} className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-muted transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="text-xl font-bold">Sorix Tools</h1>
