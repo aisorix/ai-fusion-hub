@@ -508,6 +508,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                           if (tool.id === "legends") navigate("/legends");
                           if (tool.id === "imagine") navigate("/imagine");
                           if (tool.id === "deck") navigate("/deck");
+                          if (tool.id === "flowbuilder") navigate("/flowbuilder");
                         }}
                         className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
                       >

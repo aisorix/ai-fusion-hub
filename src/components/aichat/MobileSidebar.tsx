@@ -291,6 +291,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                             if (tool.id === 'legends') { navigate('/legends'); onClose(); }
                             if (tool.id === 'imagine') { navigate('/imagine'); onClose(); }
                             if (tool.id === 'deck') { navigate('/deck'); onClose(); }
+                            if (tool.id === 'flowbuilder') { navigate('/flowbuilder'); onClose(); }
                           }}
                           className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-foreground/80 hover:bg-muted/50 transition-colors"
                         >
