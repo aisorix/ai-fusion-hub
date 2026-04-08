@@ -13,6 +13,7 @@ import FlowTemplates, { type DiagramTemplate } from '@/components/flowbuilder/Fl
 import FlowHistory from '@/components/flowbuilder/FlowHistory';
 import FlowExportActions from '@/components/flowbuilder/FlowExportActions';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
+import { sanitizeMermaid } from '@/lib/flowbuilderMermaid';
 
 const FlowBuilderPage: React.FC = () => {
   const { user, setUser } = useChatStore();
@@ -58,7 +59,8 @@ const FlowBuilderPage: React.FC = () => {
   };
 
   const handleHistorySelect = (item: FlowHistoryItem) => {
-    setCode((item.result_data as any)?.mermaidCode || '');
+    const raw = (item.result_data as any)?.mermaidCode || '';
+    setCode(sanitizeMermaid(raw));
     setShowHistory(false);
   };
 

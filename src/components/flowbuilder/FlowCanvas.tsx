@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import mermaid from 'mermaid';
 import { ZoomIn, ZoomOut, RotateCcw, Code2, Eye } from 'lucide-react';
+import { sanitizeMermaid } from '@/lib/flowbuilderMermaid';
 
 interface FlowCanvasProps {
   code: string;
@@ -27,8 +28,9 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({ code, onCodeChange, isGeneratin
         fontFamily: 'inherit',
       });
 
+      const sanitized = sanitizeMermaid(code);
       const uniqueId = `mermaid-${Date.now()}-${id}`;
-      const { svg } = await mermaid.render(uniqueId, code.trim());
+      const { svg } = await mermaid.render(uniqueId, sanitized);
       if (id !== renderIdRef.current) return;
       if (diagramRef.current) {
         diagramRef.current.innerHTML = svg;
