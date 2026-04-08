@@ -7,6 +7,8 @@ import {
   Sparkles,
   FolderKanban,
   ChevronDown,
+  Workflow,
+  Grid3X3,
   ChevronRight,
   Settings,
   Crown,
@@ -182,7 +184,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
     { id: "deck", name: t('sorixDeck'), desc: t('sorixDeckDesc'), icon: Presentation, gradient: "bg-gradient-to-br from-cyan-500 to-blue-600", free: false },
     { id: "imagine", name: t('sorixImagine'), desc: t('sorixImagineDesc'), icon: Palette, gradient: "bg-gradient-to-br from-cyan-500 to-blue-500", free: false },
     { id: "legends", name: t('sorixLegends'), desc: t('sorixLegendsDesc'), icon: Crown, gradient: "bg-gradient-to-br from-blue-500 to-cyan-500", free: false },
-    { id: "flowbuilder", name: "Sorix FlowBuilder", desc: "AI diagram & flowchart generator", icon: Sparkles, gradient: "bg-gradient-to-br from-violet-500 to-purple-600", free: false },
+    { id: "flowbuilder", name: "Sorix FlowBuilder", desc: "AI diagram & flowchart generator", icon: Workflow, gradient: "bg-gradient-to-br from-violet-500 to-purple-600", free: false },
   ];
 
   const userInitials = authUser?.email
@@ -272,10 +274,9 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             <div>
               <button onClick={() => { navigate("/tools"); onClose(); }} className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-foreground/80 hover:bg-muted/50 transition-colors">
                 <div className="flex items-center gap-3">
-                  <Sparkles className="w-4 h-4 text-primary" />
+                  <Grid3X3 className="w-4 h-4 text-primary" />
                   <span>{t('moreTools')}</span>
                 </div>
-                <ChevronDown className={cn("w-4 h-4 transition-transform text-muted-foreground")} />
               </button>
 
               <AnimatePresence>
