@@ -239,6 +239,14 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
       gradient: "bg-gradient-to-br from-blue-500 to-cyan-500",
       free: false,
     },
+    {
+      id: "flowbuilder",
+      name: "Sorix FlowBuilder",
+      description: "AI diagram & flowchart generator",
+      icon: Sparkles,
+      gradient: "bg-gradient-to-br from-violet-500 to-purple-600",
+      free: false,
+    },
   ];
 
   const userInitials = authUser?.email
