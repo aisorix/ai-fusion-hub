@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEOHead from '@/components/SEOHead';
-import { ArrowLeft, Workflow, History, X } from 'lucide-react';
+import { ArrowLeft, Workflow, History, X, FilePlus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useChatStore } from '@/stores/chatStore';
@@ -90,6 +90,15 @@ const FlowBuilderPage: React.FC = () => {
 
           <div className="flex items-center gap-2">
             <FlowExportActions code={code} />
+            {code.trim() && (
+              <button
+                onClick={() => setCode('')}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border/50 bg-muted/20 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-all"
+                title="New Diagram"
+              >
+                <FilePlus className="w-3.5 h-3.5" /> New
+              </button>
+            )}
             <button
               onClick={() => setShowHistory(true)}
               className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"

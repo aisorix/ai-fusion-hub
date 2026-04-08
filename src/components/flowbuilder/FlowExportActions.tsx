@@ -10,8 +10,15 @@ const FlowExportActions: React.FC<FlowExportActionsProps> = ({ code }) => {
   if (!code.trim()) return null;
 
   const getSvgElement = (): SVGElement | null => {
-    const container = document.querySelector('[data-diagram-container] svg');
-    return container as SVGElement | null;
+    return document.querySelector('#diagram-preview-container svg') as SVGElement | null;
+  };
+
+  const getSvgDimensions = (svg: SVGElement) => {
+    const svgEl = svg as unknown as SVGSVGElement;
+    const bbox = svgEl.getBBox();
+    const w = parseFloat(svg.getAttribute('width') || '') || bbox.width || 800;
+    const h = parseFloat(svg.getAttribute('height') || '') || bbox.height || 600;
+    return { width: Math.ceil(w), height: Math.ceil(h) };
   };
 
   const exportSVG = () => {
@@ -30,7 +37,11 @@ const FlowExportActions: React.FC<FlowExportActionsProps> = ({ code }) => {
   const exportPNG = async () => {
     const svg = getSvgElement();
     if (!svg) return;
-    const svgData = new XMLSerializer().serializeToString(svg);
+    const { width, height } = getSvgDimensions(svg);
+    const cloned = svg.cloneNode(true) as SVGElement;
+    cloned.setAttribute('width', String(width));
+    cloned.setAttribute('height', String(height));
+    const svgData = new XMLSerializer().serializeToString(cloned);
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -40,12 +51,14 @@ const FlowExportActions: React.FC<FlowExportActionsProps> = ({ code }) => {
     const url = URL.createObjectURL(svgBlob);
 
     img.onload = () => {
-      canvas.width = img.width * 2;
-      canvas.height = img.height * 2;
+      const w = img.naturalWidth || width;
+      const h = img.naturalHeight || height;
+      canvas.width = w * 2;
+      canvas.height = h * 2;
       ctx.scale(2, 2);
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, img.width, img.height);
-      ctx.drawImage(img, 0, 0);
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
       const a = document.createElement('a');
       a.href = canvas.toDataURL('image/png');
       a.download = 'diagram.png';
@@ -58,7 +71,11 @@ const FlowExportActions: React.FC<FlowExportActionsProps> = ({ code }) => {
   const exportPDF = async () => {
     const svg = getSvgElement();
     if (!svg) return;
-    const svgData = new XMLSerializer().serializeToString(svg);
+    const { width, height } = getSvgDimensions(svg);
+    const cloned = svg.cloneNode(true) as SVGElement;
+    cloned.setAttribute('width', String(width));
+    cloned.setAttribute('height', String(height));
+    const svgData = new XMLSerializer().serializeToString(cloned);
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -68,20 +85,22 @@ const FlowExportActions: React.FC<FlowExportActionsProps> = ({ code }) => {
     const url = URL.createObjectURL(svgBlob);
 
     img.onload = () => {
-      canvas.width = img.width * 2;
-      canvas.height = img.height * 2;
+      const w = img.naturalWidth || width;
+      const h = img.naturalHeight || height;
+      canvas.width = w * 2;
+      canvas.height = h * 2;
       ctx.scale(2, 2);
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, img.width, img.height);
-      ctx.drawImage(img, 0, 0);
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
 
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
-        orientation: img.width > img.height ? 'landscape' : 'portrait',
+        orientation: w > h ? 'landscape' : 'portrait',
         unit: 'px',
-        format: [img.width, img.height],
+        format: [w, h],
       });
-      pdf.addImage(imgData, 'PNG', 0, 0, img.width, img.height);
+      pdf.addImage(imgData, 'PNG', 0, 0, w, h);
       pdf.save('diagram.pdf');
       URL.revokeObjectURL(url);
     };

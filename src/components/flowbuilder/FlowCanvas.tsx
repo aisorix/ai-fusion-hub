@@ -93,7 +93,7 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({ code, onCodeChange, isGeneratin
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto p-4 min-h-[300px] flex items-center justify-center">
+        <div className="flex-1 overflow-auto p-4 min-h-[300px]">
           {isGenerating ? (
             <div className="flex flex-col items-center gap-3">
               <div className="w-8 h-8 border-3 border-violet-500/30 border-t-violet-500 rounded-full animate-spin" />
@@ -108,9 +108,10 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({ code, onCodeChange, isGeneratin
             <p className="text-xs text-muted-foreground">Your diagram will appear here</p>
           ) : (
             <div
+              id="diagram-preview-container"
               ref={diagramRef}
-              style={{ transform: `scale(${zoom})`, transformOrigin: 'center center' }}
-              className="transition-transform [&_svg]:max-w-full"
+              style={{ transform: `scale(${zoom})`, transformOrigin: 'top left' }}
+              className="transition-transform"
             />
           )}
         </div>

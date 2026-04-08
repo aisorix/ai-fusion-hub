@@ -8,6 +8,7 @@ export interface ColorTheme {
 }
 
 export const colorThemes: ColorTheme[] = [
+  { id: 'bw', name: 'Black & White', colors: ['#000000', '#ffffff', '#666666'] },
   { id: 'default', name: 'Default', colors: ['#4F46E5', '#7C3AED', '#EC4899'] },
   { id: 'dark', name: 'Dark', colors: ['#1E293B', '#334155', '#64748B'] },
   { id: 'forest', name: 'Forest', colors: ['#15803D', '#22C55E', '#86EFAC'] },
