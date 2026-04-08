@@ -112,8 +112,8 @@ const FlowBuilderPage: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex flex-col gap-4 p-4 md:p-6 flex-1 overflow-hidden">
+      <main className="flex-1 flex flex-col">
+        <div className="flex flex-col gap-4 p-4 md:p-6 flex-1">
           {/* Prompt + Style */}
           <div className="flex flex-col gap-3 shrink-0">
             <FlowPromptBar onGenerate={handleGenerate} isGenerating={isGenerating} />
