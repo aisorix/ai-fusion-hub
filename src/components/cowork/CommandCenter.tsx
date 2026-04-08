@@ -118,7 +118,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
         <div className="p-4 space-y-4 max-w-3xl mx-auto w-full">
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+            <div className="flex flex-col items-center justify-center flex-1 min-h-0 text-center px-4">
               {/* Avatar Circle */}
               <motion.div
                 initial={{ scale: 0.6, opacity: 0, y: 20 }}
