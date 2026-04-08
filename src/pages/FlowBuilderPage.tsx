@@ -90,34 +90,20 @@ const FlowBuilderPage: React.FC = () => {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 md:gap-2">
-            <div className="hidden md:flex items-center gap-2">
-              <FlowExportActions code={code} />
-              {code.trim() && (
-                <button
-                  onClick={() => setCode('')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border/50 bg-muted/20 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-all"
-                  title="New Diagram"
-                >
-                  <FilePlus className="w-3.5 h-3.5" /> New
-                </button>
-              )}
-            </div>
-            <div className="flex md:hidden items-center gap-1">
-              <FlowExportActions code={code} />
-              {code.trim() && (
-                <button
-                  onClick={() => setCode('')}
-                  className="flex items-center gap-1 px-2 py-1.5 rounded-lg border border-border/50 bg-muted/20 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-all shrink-0"
-                  title="New Diagram"
-                >
-                  <FilePlus className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
+          <div className="flex items-center gap-1 md:gap-2">
+            <FlowExportActions code={code} />
+            {code.trim() && (
+              <button
+                onClick={() => setCode('')}
+                className="flex items-center gap-1 px-1.5 py-1 md:px-3 md:py-1.5 rounded-lg border border-border/50 bg-muted/20 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-all"
+                title="New Diagram"
+              >
+                <FilePlus className="w-3.5 h-3.5" /> <span className="hidden md:inline">New</span>
+              </button>
+            )}
             <button
               onClick={() => setShowHistory(true)}
-              className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
+              className="p-1.5 md:p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
               title="History"
             >
               <History className="w-4 h-4" />
