@@ -238,11 +238,10 @@ export const useAIChat = () => {
       return acc;
     }, 0);
 
-    // Use GPT-4o-mini for file/image attachments (but NOT for perplexity models)
+    // Use the user's selected model for all messages (including attachments)
     const hasAttachments = imageAttachments.length > 0 || documentAttachments.length > 0;
-    const isPerplexityFinal = activeBackendId.includes('perplexity') || activeBackendId.includes('sonar');
-    const backendModel = (hasAttachments && !isPerplexityFinal) ? 'openai/gpt-4o-mini' : activeBackendId;
-    const finalMultiplier = (hasAttachments && !isPerplexityFinal) ? 1 : activeMultiplier;
+    const backendModel = activeBackendId;
+    const finalMultiplier = activeMultiplier;
     
     console.log(`Sending message with model: ${backendModel}${hasAttachments ? ' (forced for attachments)' : wasSmartRouted ? ' (smart routed)' : ''}, multiplier: ${finalMultiplier}x`);
 
