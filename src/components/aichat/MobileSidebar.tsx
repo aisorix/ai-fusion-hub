@@ -270,12 +270,12 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             </button>
 
             <div>
-              <button onClick={() => setShowMoreTools(!showMoreTools)} className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-foreground/80 hover:bg-muted/50 transition-colors">
+              <button onClick={() => { navigate("/tools"); onClose(); }} className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-foreground/80 hover:bg-muted/50 transition-colors">
                 <div className="flex items-center gap-3">
                   <Sparkles className="w-4 h-4 text-primary" />
                   <span>{t('moreTools')}</span>
                 </div>
-                <ChevronDown className={cn("w-4 h-4 transition-transform text-muted-foreground", showMoreTools && "rotate-180")} />
+                <ChevronDown className={cn("w-4 h-4 transition-transform text-muted-foreground")} />
               </button>
 
               <AnimatePresence>

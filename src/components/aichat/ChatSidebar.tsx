@@ -307,34 +307,12 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
           </div>
 
           {/* More Tools */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
-                <Sparkles className="w-5 h-5" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="start"
-              side="right"
-              className="w-48 bg-popover border border-border shadow-lg z-50"
-            >
-              <DropdownMenuItem onClick={() => navigate("/agro")}>
-                <Leaf className="w-4 h-4 mr-2 text-green-500" /> Sorix Agro
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/health")}>
-                <Stethoscope className="w-4 h-4 mr-2 text-teal-500" /> Sorix Health
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/deck")}>
-                <Presentation className="w-4 h-4 mr-2 text-cyan-500" /> Sorix Deck
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/imagine")}>
-                <Palette className="w-4 h-4 mr-2 text-blue-500" /> Sorix Imagine
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/legends")}>
-                <Crown className="w-4 h-4 mr-2 text-cyan-500" /> Sorix Legends
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <button
+            onClick={() => navigate("/tools")}
+            className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
+          >
+            <Sparkles className="w-5 h-5" />
+          </button>
           {/* Spacer */}
           <div className="flex-1" />
 
@@ -478,7 +456,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
 
           <div>
             <button
-              onClick={() => setShowMoreTools(!showMoreTools)}
+              onClick={() => navigate("/tools")}
               className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
             >
               <div className="flex items-center gap-3">
@@ -486,7 +464,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                 <span>{t('moreTools')}</span>
               </div>
               <ChevronDown
-                className={cn("w-4 h-4 transition-transform text-muted-foreground", showMoreTools && "rotate-180")}
+                className={cn("w-4 h-4 transition-transform text-muted-foreground")}
               />
             </button>
 

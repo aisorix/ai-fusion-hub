@@ -37,6 +37,7 @@ const SharedChatPage = React.lazy(() => import("./pages/SharedChatPage"));
 const DeckPage = React.lazy(() => import("./pages/DeckPage"));
 const CoWorkPage = React.lazy(() => import("./pages/CoWorkPage"));
 const FlowBuilderPage = React.lazy(() => import("./pages/FlowBuilderPage"));
+const ToolsPage = React.lazy(() => import("./pages/ToolsPage"));
 
 const queryClient = new QueryClient();
 
@@ -101,6 +102,11 @@ const App = () => (
                 <Route path="/flowbuilder" element={
                   <ProtectedRoute>
                     <FlowBuilderPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/tools" element={
+                  <ProtectedRoute>
+                    <ToolsPage />
                   </ProtectedRoute>
                 } />
                 <Route path="/login" element={<Login />} />
