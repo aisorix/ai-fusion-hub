@@ -1,27 +1,43 @@
 
 
-## Match Imagine Prompt Bar to Deck Prompt Bar Size
+## Add "More Tools" Full Page
 
-### Problem
-The Imagine prompt bar uses `TextareaAutosize` with `items-end` alignment and larger padding/send button, making it taller than the Deck bar. The user wants the same compact, single-line look as the Deck prompt bar.
+### What
+When users click "More Tools" in the sidebar, instead of expanding inline, navigate to a dedicated `/tools` page that displays all tools in a polished grid layout with a "More tools coming soon" section. Each tool card navigates to its respective page, matching existing sidebar behavior.
+
+### New File: `src/pages/ToolsPage.tsx`
+- Full-page layout with header showing back button (to `/chat`) and title "Sorix Tools"
+- Grid of tool cards (responsive: 1 col mobile, 2 col tablet, 3 col desktop)
+- Each card shows: gradient icon, tool name, description, FREE badge where applicable
+- Cards are clickable and navigate to the tool's route (`/health`, `/agro`, `/deck`, `/imagine`, `/legends`, `/flowbuilder`, `/agent`)
+- "Coming Soon" section at the bottom with placeholder cards for future tools (e.g., Sorix Code, Sorix Translate, Sorix Music) shown with reduced opacity and a "Coming Soon" badge
+- Styled consistently with existing app theme (bg-background, text-foreground, card styling)
 
 ### Changes
 
-**`src/components/imagine/ImaginePromptBar.tsx`**
+**`src/App.jsx`**
+- Add lazy import for `ToolsPage`
+- Add protected route: `/tools` -> `<ToolsPage />`
 
-1. **Line 123**: Replace the gradient glow wrapper with the Deck-style subtle glow:
-   - `p-px rounded-2xl bg-gradient-to-r from-primary/40 via-pink-500/20 to-primary/40 shadow-lg shadow-primary/5` → Deck-style: `relative group` with an absolute `-inset-0.5` gradient blur behind
+**`src/components/aichat/ChatSidebar.tsx`**
+- Change "More Tools" button (line 480-491): instead of toggling `showMoreTools` state, navigate to `/tools`
+- Keep the inline expanded tool list as-is for backward compatibility, but the main button now navigates
+- In collapsed sidebar (line 310-337): change the Sparkles button to navigate to `/tools` instead of opening a dropdown
 
-2. **Line 124**: Change inner container from `items-end` to `items-center` (like Deck):
-   - `relative flex items-end gap-2 rounded-2xl` → `relative flex items-center gap-2 bg-card border border-border rounded-2xl px-2 py-3`
+**`src/components/aichat/MobileSidebar.tsx`**
+- Change "More Tools" button (line 272-279): navigate to `/tools` and close sidebar instead of toggling inline list
 
-3. **Line 125**: Remove the extra inner `div` wrapper — flatten to match Deck's single-row layout
+### Tool List (same data as sidebar)
+1. Sorix Health - `/health` - Stethoscope - emerald/teal gradient - FREE
+2. Sorix Agent - `/agent` - Bot - blue/indigo gradient
+3. Sorix Agro - `/agro` - Leaf - green/lime gradient - FREE
+4. Sorix Legends - `/legends` - Crown - blue/cyan gradient
+5. Sorix Deck - `/deck` - Presentation - cyan/blue gradient
+6. Sorix FlowBuilder - `/flowbuilder` - Sparkles - violet/purple gradient
+7. Sorix Imagine - `/imagine` - Palette - cyan/blue gradient
 
-4. **Lines 180-188**: Replace `TextareaAutosize` with a simple `<input type="text">` (like Deck) for a single-line compact bar
-
-5. **Lines 190-201**: Replace the square icon send button (`w-10 h-10`) with a Deck-style send icon button (`w-8 h-8 rounded-xl`)
-
-6. **Line 179**: Remove `mb-1` from the Wand2 icon, align with `items-center`
-
-This makes the Imagine bar visually identical in height/style to the Deck bar while keeping its unique wand icon and send button.
+### Coming Soon Placeholders
+- Sorix Code (Code icon) - "AI code assistant"
+- Sorix Translate (Languages icon) - "AI translation tool"
+- Sorix Music (Music icon) - "AI music generator"
 
