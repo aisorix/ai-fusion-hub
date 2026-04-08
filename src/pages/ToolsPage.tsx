@@ -1,9 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Stethoscope, Bot, Leaf, Crown, Presentation, Workflow, Palette, Code, Languages, Music } from "lucide-react";
+import { ArrowLeft, Stethoscope, Leaf, Crown, Presentation, Workflow, Palette, Languages, Music } from "lucide-react";
 
 const tools = [
   { id: "health", name: "Sorix Health", desc: "AI health analysis assistant", icon: Stethoscope, route: "/health", gradient: "from-emerald-500 to-teal-500", free: true },
-  { id: "agent", name: "Sorix Agent", desc: "AI-powered co-worker agent", icon: Bot, route: "/agent", gradient: "from-blue-500 to-indigo-500", free: false },
   { id: "agro", name: "Sorix Agro", desc: "AI agriculture advisor", icon: Leaf, route: "/agro", gradient: "from-green-500 to-lime-500", free: true },
   { id: "legends", name: "Sorix Legends", desc: "Chat with historical legends", icon: Crown, route: "/legends", gradient: "from-blue-500 to-cyan-500", free: false },
   { id: "deck", name: "Sorix Deck", desc: "AI presentation generator", icon: Presentation, route: "/deck", gradient: "from-cyan-500 to-blue-500", free: false },
@@ -12,7 +11,6 @@ const tools = [
 ];
 
 const comingSoon = [
-  { name: "Sorix Code", desc: "AI code assistant", icon: Code, gradient: "from-orange-500 to-red-500" },
   { name: "Sorix Translate", desc: "AI translation tool", icon: Languages, gradient: "from-pink-500 to-rose-500" },
   { name: "Sorix Music", desc: "AI music generator", icon: Music, gradient: "from-amber-500 to-yellow-500" },
 ];
