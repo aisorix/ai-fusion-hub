@@ -1,29 +1,29 @@
 
 
-## Use Selected Model for Image/File Attachments Instead of Forcing GPT-4o-mini
+## Fix FlowBuilder Header for Mobile View
 
 ### Problem
-Currently, when a user sends an image or file attachment in both single chat and multi-window chat, the system **overrides** the user's selected model and forces `openai/gpt-4o-mini`. The user wants messages with attachments to be answered by whichever model they selected (or Smart Auto's resolved model).
+On a 390px mobile screen, the header crams too many elements into a single row: back arrow, icon, title, 3 export buttons (PNG/SVG/PDF), New button, and History button. This causes overflow and elements get cut off or overlap.
 
-Additionally, Basic plan users should only use Basic-tier models (this is already enforced by `getModelsForPlan` — no changes needed there).
+### Solution
+Make the header responsive by reorganizing elements on mobile:
 
-### Changes
+**`src/pages/FlowBuilderPage.tsx`** (header section, lines 76-112)
 
-**`src/hooks/useAIChat.ts`** (lines 241-245)
-- Remove the forced override that sets `backendModel = 'openai/gpt-4o-mini'` when attachments are present
-- Remove the forced `finalMultiplier = 1` override for attachments
-- Keep the user's selected model and multiplier for all messages, with or without attachments
-- The backend (edge function) already forwards the model to OpenRouter, which handles multimodal support per model
+1. **Top row (mobile)**: Keep back arrow, icon + title on the left; only History button on the right
+2. **Export buttons row**: Move `FlowExportActions` and "New" button to a second row below the title, only visible when there's code to export
+3. On desktop (`md:` breakpoint), keep everything in one row as-is
 
-**`src/components/aichat/MultiWindowChat.tsx`** (lines 177-180)
-- Same fix: remove the `hasAttachments ? "openai/gpt-4o-mini"` override
-- Use `model?.backendId` directly regardless of attachments
-- Keep the model's actual multiplier instead of forcing `1`
+Specifically:
+- Wrap the header content in a flex-col on mobile, flex-row on md+
+- First row: back + title + history (always visible)
+- Second row (only when `code.trim()`): export buttons + New button, centered or left-aligned with small padding
 
-### What stays the same
-- Smart Auto routing logic (unchanged)
-- Smart routing downgrade for simple queries on premium models (unchanged)
-- Perplexity/Sonar model protection (unchanged)
-- Plan-based model filtering (already works correctly — Basic users only see Basic models)
-- Token usage tracking and daily limits (unchanged)
+**`src/components/flowbuilder/FlowExportActions.tsx`** (lines 130-140)
+- Make export buttons slightly more compact on mobile: reduce `px-3` to `px-2` and `gap-1.5` to `gap-1` on small screens, or use icon-only on mobile
+
+### Result
+- Title and icon fully visible on mobile
+- Export actions accessible in a clean second row
+- No overflow or clipping on small screens
 
