@@ -20,7 +20,7 @@ const FlowBuilderPage: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
-  const [selectedTheme, setSelectedTheme] = useState('default');
+  const [selectedTheme, setSelectedTheme] = useState('bw');
   const [refreshHistory, setRefreshHistory] = useState(0);
 
   const tokensRemaining = user.tokensLimit - user.tokensUsed;
