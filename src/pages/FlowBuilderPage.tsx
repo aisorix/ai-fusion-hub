@@ -75,60 +75,54 @@ const FlowBuilderPage: React.FC = () => {
 
       {/* Header */}
       <header className="shrink-0 bg-card/80 backdrop-blur-xl relative">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between px-4 md:px-6 py-2 md:py-0 md:h-14 gap-2 md:gap-0">
-          {/* Row 1: Back + Title + History */}
-          <div className="flex items-center justify-between w-full md:w-auto">
-            <div className="flex items-center gap-3">
-              <Link to="/chat" className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-                  <Workflow className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-sm font-bold text-foreground">Sorix FlowBuilder</h1>
-                  <p className="text-[10px] text-muted-foreground">AI Diagram & Flowchart</p>
-                </div>
-              </div>
-            </div>
+        <div className="flex items-center justify-between px-4 md:px-6 h-14">
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate(-1)} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
+              <ArrowLeft className="w-5 h-5" />
+            </button>
             <div className="flex items-center gap-2">
-              {/* Desktop: export + new + history inline */}
-              <div className="hidden md:flex items-center gap-2">
-                <FlowExportActions code={code} />
-                {code.trim() && (
-                  <button
-                    onClick={() => setCode('')}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border/50 bg-muted/20 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-all"
-                    title="New Diagram"
-                  >
-                    <FilePlus className="w-3.5 h-3.5" /> New
-                  </button>
-                )}
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                <Workflow className="w-4 h-4 text-white" />
               </div>
-              <button
-                onClick={() => setShowHistory(true)}
-                className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
-                title="History"
-              >
-                <History className="w-4 h-4" />
-              </button>
+              <div>
+                <h1 className="text-sm font-bold text-foreground">Sorix FlowBuilder</h1>
+                <p className="text-[10px] text-muted-foreground hidden md:block">AI Diagram & Flowchart</p>
+              </div>
             </div>
           </div>
-
-          {/* Row 2 (mobile only): Export + New */}
-          {code.trim() && (
-            <div className="flex md:hidden items-center gap-1.5 overflow-x-auto">
+          <div className="flex items-center gap-1.5 md:gap-2">
+            <div className="hidden md:flex items-center gap-2">
               <FlowExportActions code={code} />
-              <button
-                onClick={() => setCode('')}
-                className="flex items-center gap-1 px-2 py-1.5 rounded-lg border border-border/50 bg-muted/20 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-all shrink-0"
-                title="New Diagram"
-              >
-                <FilePlus className="w-3.5 h-3.5" /> New
-              </button>
+              {code.trim() && (
+                <button
+                  onClick={() => setCode('')}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border/50 bg-muted/20 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-all"
+                  title="New Diagram"
+                >
+                  <FilePlus className="w-3.5 h-3.5" /> New
+                </button>
+              )}
             </div>
-          )}
+            <div className="flex md:hidden items-center gap-1">
+              <FlowExportActions code={code} />
+              {code.trim() && (
+                <button
+                  onClick={() => setCode('')}
+                  className="flex items-center gap-1 px-2 py-1.5 rounded-lg border border-border/50 bg-muted/20 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-all shrink-0"
+                  title="New Diagram"
+                >
+                  <FilePlus className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+            <button
+              onClick={() => setShowHistory(true)}
+              className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
+              title="History"
+            >
+              <History className="w-4 h-4" />
+            </button>
+          </div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/40 to-transparent" />
       </header>

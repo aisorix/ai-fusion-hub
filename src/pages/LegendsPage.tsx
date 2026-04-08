@@ -43,6 +43,7 @@ const personas: Record<string, Persona[]> = {
 const allPersonas = Object.values(personas).flat();
 
 const LegendsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [restoredMessages, setRestoredMessages] = useState<any[] | null>(null);

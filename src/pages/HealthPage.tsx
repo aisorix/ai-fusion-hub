@@ -66,6 +66,7 @@ const stepConfig = [
 ] as const;
 
 const HealthPage: React.FC = () => {
+  const navigate = useNavigate();
   const { user: authUser } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>('intake');
   const [patientData, setPatientData] = useState<PatientData | null>(null);
