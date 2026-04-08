@@ -63,7 +63,7 @@ const FlowBuilderPage: React.FC = () => {
   };
 
   return (
-    <div className="h-[100dvh] flex flex-col bg-background overflow-hidden">
+    <div className="min-h-[100dvh] flex flex-col bg-background">
       <SEOHead
         title="Sorix FlowBuilder | AI Diagram & Flowchart Generator | AI Sorix"
         description="Create professional diagrams and flowcharts from text prompts. Generate Mermaid diagrams with AI — export as PNG, SVG, PDF."
