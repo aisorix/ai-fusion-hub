@@ -9,6 +9,16 @@ const corsHeaders = {
 
 const TOKENS_PER_IMAGE = 12000;
 
+const ALLOWED_MODELS = [
+  "black-forest-labs/flux.2-klein-4b",
+  "google/gemini-2.5-flash-image",
+  "google/gemini-3.1-flash-image-preview",
+  "google/gemini-3-pro-image-preview",
+  "openai/gpt-5-image-mini",
+];
+
+const PRO_ONLY_MODELS = ["google/gemini-3-pro-image-preview"];
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -38,7 +48,7 @@ serve(async (req) => {
     }
     const userId = user.id;
 
-    const { prompt, style, width = 1024, height = 1024 } = await req.json();
+    const { prompt, style, model: requestedModel, imageData, width = 1024, height = 1024 } = await req.json();
 
     if (!prompt || typeof prompt !== "string") {
       return new Response(JSON.stringify({ error: "Prompt is required" }), {
@@ -47,8 +57,12 @@ serve(async (req) => {
       });
     }
 
+    const selectedModel = requestedModel && ALLOWED_MODELS.includes(requestedModel)
+      ? requestedModel
+      : "black-forest-labs/flux.2-klein-4b";
+
     // Check token balance
-    const { data: sub, error: subErr } = await supabase
+    const { data: sub } = await supabase
       .from("subscriptions")
       .select("tokens_used, plan_id")
       .eq("user_id", userId)
@@ -75,6 +89,14 @@ serve(async (req) => {
       );
     }
 
+    // Pro-only model check
+    if (PRO_ONLY_MODELS.includes(selectedModel) && !["pro", "premium"].includes(planId)) {
+      return new Response(
+        JSON.stringify({ error: "This model requires a Pro or Premium plan" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Build final prompt
     const finalPrompt = style ? `${prompt}, ${style}` : prompt;
 
@@ -87,6 +109,25 @@ serve(async (req) => {
       });
     }
 
+    // Build messages based on whether we have an image to edit
+    let messages: any[];
+    if (imageData && typeof imageData === "string") {
+      // Multimodal: image editing
+      messages = [{
+        role: "user",
+        content: [
+          { type: "image_url", image_url: { url: imageData } },
+          { type: "text", text: finalPrompt },
+        ],
+      }];
+    } else {
+      messages = [{ role: "user", content: finalPrompt }];
+    }
+
+    // Determine modalities based on model
+    const isFlux = selectedModel.startsWith("black-forest-labs/");
+    const modalities = isFlux ? ["image"] : ["text", "image"];
+
     const orResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -96,9 +137,9 @@ serve(async (req) => {
         "X-Title": "Sorix Imagine",
       },
       body: JSON.stringify({
-        model: "black-forest-labs/flux.2-klein-4b",
-        messages: [{ role: "user", content: finalPrompt }],
-        modalities: ["image"],
+        model: selectedModel,
+        messages,
+        modalities,
       }),
     });
 
@@ -113,31 +154,57 @@ serve(async (req) => {
 
     const orData = await orResponse.json();
     console.log("OpenRouter response structure:", JSON.stringify(orData).substring(0, 500));
-    // Extract image from chat completions response
+
+    // Extract image from response - handle multiple formats
     const message = orData.choices?.[0]?.message;
     let imageUrl = "";
-    // Images come in message.images array
+
+    // Format 1: message.images array (Flux)
     if (message?.images?.length > 0) {
       imageUrl = message.images[0]?.image_url?.url || "";
     }
-    // Fallback: check content array
+
+    // Format 2: content array with image_url parts (Gemini/GPT)
     if (!imageUrl && Array.isArray(message?.content)) {
-      const imgPart = message.content.find((c: any) => c.type === "image_url");
-      imageUrl = imgPart?.image_url?.url || "";
+      for (const part of message.content) {
+        if (part.type === "image_url" && part.image_url?.url) {
+          imageUrl = part.image_url.url;
+          break;
+        }
+        // Some models return inline_data
+        if (part.type === "image" && part.image_url?.url) {
+          imageUrl = part.image_url.url;
+          break;
+        }
+      }
     }
+
+    // Format 3: content is a data URI string
     if (!imageUrl && typeof message?.content === "string" && message.content.startsWith("data:image")) {
       imageUrl = message.content;
     }
 
+    // Format 4: check for base64 in content parts
+    if (!imageUrl && Array.isArray(message?.content)) {
+      for (const part of message.content) {
+        if (typeof part === "string" && part.startsWith("data:image")) {
+          imageUrl = part;
+          break;
+        }
+        if (part.type === "text" && typeof part.text === "string" && part.text.startsWith("data:image")) {
+          imageUrl = part.text;
+          break;
+        }
+      }
+    }
+
     if (!imageUrl) {
-      console.error("Could not extract image. Content type:", typeof content, "Content preview:", JSON.stringify(content)?.substring(0, 300));
-      return new Response(JSON.stringify({ error: "No image returned", debug: typeof content }), {
+      console.error("Could not extract image. Message:", JSON.stringify(message)?.substring(0, 500));
+      return new Response(JSON.stringify({ error: "No image returned from model" }), {
         status: 502,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
-    const finalImageUrl = imageUrl;
 
     // Save to DB
     const { data: insertedRow, error: insertErr } = await supabase
@@ -146,10 +213,11 @@ serve(async (req) => {
         user_id: userId,
         prompt,
         style: style || null,
-        image_url: finalImageUrl,
+        image_url: imageUrl,
         width,
         height,
         tokens_used: TOKENS_PER_IMAGE,
+        model: selectedModel,
       })
       .select("id")
       .single();
@@ -169,7 +237,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        imageUrl: finalImageUrl,
+        imageUrl,
         id: insertedRow?.id,
         tokensUsed: TOKENS_PER_IMAGE,
         totalTokensUsed: currentUsed + TOKENS_PER_IMAGE,

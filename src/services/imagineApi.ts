@@ -20,11 +20,12 @@ export interface ImageGeneration {
   width: number;
   height: number;
   tokens_used: number;
+  model: string | null;
   created_at: string;
 }
 
 export const imagineApi = {
-  generateImage: async (prompt: string, style?: string): Promise<{
+  generateImage: async (prompt: string, style?: string, model?: string, imageData?: string): Promise<{
     imageUrl: string;
     id: string;
     tokensUsed: number;
@@ -36,7 +37,7 @@ export const imagineApi = {
       {
         method: 'POST',
         headers,
-        body: JSON.stringify({ prompt, style }),
+        body: JSON.stringify({ prompt, style, model, imageData }),
       }
     );
 

@@ -4,10 +4,11 @@ import SEOHead from '@/components/SEOHead';
 import { ArrowLeft, ImageIcon, History, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
-import { useChatStore } from '@/stores/chatStore';
+import { useChatStore, type Attachment } from '@/stores/chatStore';
 import { imagineApi, type ImageGeneration } from '@/services/imagineApi';
 import ImaginePromptBar from '@/components/imagine/ImaginePromptBar';
 import ImagineStyleCarousel, { trendingStyles, type StyleOption } from '@/components/imagine/ImagineStyleCarousel';
+import ImagineModelSelector, { imageModels, type ImageModel } from '@/components/imagine/ImagineModelSelector';
 import ImagineCanvas from '@/components/imagine/ImagineCanvas';
 import ImagineHistory from '@/components/imagine/ImagineHistory';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
@@ -16,6 +17,7 @@ const ImaginePage: React.FC = () => {
   const { user, setUser } = useChatStore();
 
   const [selectedStyle, setSelectedStyle] = useState<StyleOption>(trendingStyles[0]);
+  const [selectedModel, setSelectedModel] = useState<ImageModel>(imageModels[0]);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [currentPrompt, setCurrentPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -25,7 +27,7 @@ const ImaginePage: React.FC = () => {
 
   const tokensRemaining = user.tokensLimit - user.tokensUsed;
 
-  const handleGenerate = async (prompt: string) => {
+  const handleGenerate = async (prompt: string, attachments?: Attachment[]) => {
     if (tokensRemaining < 12000) {
       setShowUpgrade(true);
       return;
@@ -35,8 +37,22 @@ const ImaginePage: React.FC = () => {
     setIsGenerating(true);
     setImageUrl(null);
 
+    // Extract image data from first image attachment if present
+    let imageData: string | undefined;
+    if (attachments?.length) {
+      const imgAtt = attachments.find(a => a.type === 'image' && a.url);
+      if (imgAtt) {
+        imageData = imgAtt.url;
+      }
+    }
+
     try {
-      const result = await imagineApi.generateImage(prompt, selectedStyle.modifier || undefined);
+      const result = await imagineApi.generateImage(
+        prompt,
+        selectedStyle.modifier || undefined,
+        selectedModel.modelId,
+        imageData
+      );
       setImageUrl(result.imageUrl);
       setRefreshHistory((p) => p + 1);
       setUser({ ...user, tokensUsed: result.totalTokensUsed });
@@ -103,6 +119,14 @@ const ImaginePage: React.FC = () => {
           <p className="text-[10px] text-muted-foreground/50 text-center -mt-2">
             {tokensRemaining.toLocaleString()} tokens remaining • 12,000 per image
           </p>
+
+          {/* Model Selector */}
+          <ImagineModelSelector
+            selectedModelId={selectedModel.modelId}
+            onSelectModel={setSelectedModel}
+            userPlan={user.plan}
+            onUpgrade={() => setShowUpgrade(true)}
+          />
 
           {/* Style Carousel */}
           <ImagineStyleCarousel selectedStyle={selectedStyle.id} onSelectStyle={setSelectedStyle} />
