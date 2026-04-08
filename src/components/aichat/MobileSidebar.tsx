@@ -274,7 +274,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
             <div>
               <button onClick={() => { navigate("/tools"); onClose(); }} className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-foreground/80 hover:bg-muted/50 transition-colors">
                 <div className="flex items-center gap-3">
-                  <Grid3X3 className="w-4 h-4 text-primary" />
+                  <Grid3X3 className="w-4 h-4" />
                   <span>{t('moreTools')}</span>
                 </div>
               </button>
