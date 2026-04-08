@@ -20,7 +20,7 @@ const FlowBuilderPage: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
-  const [selectedTheme, setSelectedTheme] = useState('default');
+  const [selectedTheme, setSelectedTheme] = useState('bw');
   const [refreshHistory, setRefreshHistory] = useState(0);
 
   const tokensRemaining = user.tokensLimit - user.tokensUsed;
@@ -63,7 +63,7 @@ const FlowBuilderPage: React.FC = () => {
   };
 
   return (
-    <div className="h-[100dvh] flex flex-col bg-background overflow-hidden">
+    <div className="min-h-[100dvh] flex flex-col bg-background">
       <SEOHead
         title="Sorix FlowBuilder | AI Diagram & Flowchart Generator | AI Sorix"
         description="Create professional diagrams and flowcharts from text prompts. Generate Mermaid diagrams with AI — export as PNG, SVG, PDF."
@@ -112,8 +112,8 @@ const FlowBuilderPage: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex flex-col gap-4 p-4 md:p-6 flex-1 overflow-hidden">
+      <main className="flex-1 flex flex-col">
+        <div className="flex flex-col gap-4 p-4 md:p-6 flex-1">
           {/* Prompt + Style */}
           <div className="flex flex-col gap-3 shrink-0">
             <FlowPromptBar onGenerate={handleGenerate} isGenerating={isGenerating} />
