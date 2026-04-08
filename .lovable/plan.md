@@ -1,26 +1,29 @@
 
 
-## Standardize FlowBuilder Icon & Clean Up More Tools Button
+## Use Selected Model for Image/File Attachments Instead of Forcing GPT-4o-mini
 
 ### Problem
-1. FlowBuilder uses `Workflow` icon on the landing page but `Sparkles` in the sidebar and Tools page — needs to be `Workflow` everywhere
-2. The "More Tools" sidebar button still shows a `ChevronDown` dropdown arrow even though it now navigates to `/tools` — remove it
-3. The "More Tools" button uses `Sparkles` icon which conflicts — change to a grid/apps-style icon (e.g., `LayoutGrid` or `Grid3X3`)
+Currently, when a user sends an image or file attachment in both single chat and multi-window chat, the system **overrides** the user's selected model and forces `openai/gpt-4o-mini`. The user wants messages with attachments to be answered by whichever model they selected (or Smart Auto's resolved model).
+
+Additionally, Basic plan users should only use Basic-tier models (this is already enforced by `getModelsForPlan` — no changes needed there).
 
 ### Changes
 
-**`src/components/aichat/ChatSidebar.tsx`**
-- Change FlowBuilder icon from `Sparkles` to `Workflow` in the `moreTools` array (line 246)
-- Remove `ChevronDown` from the "More Tools" button (lines 466-468)
-- Change "More Tools" icon from `Sparkles` to `Grid3X3` or similar (line 463)
+**`src/hooks/useAIChat.ts`** (lines 241-245)
+- Remove the forced override that sets `backendModel = 'openai/gpt-4o-mini'` when attachments are present
+- Remove the forced `finalMultiplier = 1` override for attachments
+- Keep the user's selected model and multiplier for all messages, with or without attachments
+- The backend (edge function) already forwards the model to OpenRouter, which handles multimodal support per model
 
-**`src/components/aichat/MobileSidebar.tsx`**
-- Change FlowBuilder icon from `Sparkles` to `Workflow` in the `moreTools` array (line 185)
-- Remove `ChevronDown` from the "More Tools" button if present
-- Change "More Tools" icon to match desktop sidebar
+**`src/components/aichat/MultiWindowChat.tsx`** (lines 177-180)
+- Same fix: remove the `hasAttachments ? "openai/gpt-4o-mini"` override
+- Use `model?.backendId` directly regardless of attachments
+- Keep the model's actual multiplier instead of forcing `1`
 
-**`src/pages/ToolsPage.tsx`**
-- Change FlowBuilder icon from `Sparkles` to `Workflow` (line 10)
-
-**No changes to**: `Features.jsx`, `FlowBuilderPage.tsx` — these already use `Workflow` correctly.
+### What stays the same
+- Smart Auto routing logic (unchanged)
+- Smart routing downgrade for simple queries on premium models (unchanged)
+- Perplexity/Sonar model protection (unchanged)
+- Plan-based model filtering (already works correctly — Basic users only see Basic models)
+- Token usage tracking and daily limits (unchanged)
 
