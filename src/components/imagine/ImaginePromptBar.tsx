@@ -119,23 +119,23 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled 
       <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden"
         onChange={async (e) => { await processFiles(Array.from(e.target.files || []).filter(f => f.type.startsWith('image/'))); e.target.value = ''; setShowAttachMenu(false); }} />
 
-      {/* Gradient glow wrapper */}
-      <div className="p-px rounded-2xl bg-gradient-to-r from-primary/40 via-pink-500/20 to-primary/40 shadow-lg shadow-primary/5">
-        <div className={cn('relative flex items-end gap-2 rounded-2xl transition-all duration-300', 'bg-card/90 backdrop-blur-sm')}>
-          <div className="flex-1 flex items-end gap-2 px-2 py-3">
-            {/* Plus button */}
-            <div className="relative">
+      {/* Deck-style glow wrapper */}
+      <div className="relative group">
+        <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/30 via-pink-500/20 to-primary/30 rounded-2xl blur opacity-40 group-hover:opacity-60 transition-opacity" />
+        <div className="relative flex items-center gap-2 bg-card border border-border rounded-2xl px-2 py-2">
+          {/* Plus button */}
+          <div className="relative">
               <button
                 onClick={() => setShowAttachMenu(!showAttachMenu)}
                 disabled={isGenerating || disabled}
                 className={cn(
-                  'p-2 rounded-full transition-all duration-200',
+                  'p-1.5 rounded-full transition-all duration-200',
                   'hover:bg-accent text-muted-foreground hover:text-foreground',
                   'disabled:opacity-50',
                   showAttachMenu && 'bg-accent text-foreground'
                 )}
               >
-                <Plus className={cn('w-5 h-5 transition-transform duration-200', showAttachMenu && 'rotate-45')} />
+                <Plus className={cn('w-4 h-4 transition-transform duration-200', showAttachMenu && 'rotate-45')} />
               </button>
               <AnimatePresence>
                 {showAttachMenu && (
@@ -174,24 +174,23 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled 
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
-
-            <Wand2 className="w-4 h-4 text-primary shrink-0 mb-1" />
-            <TextareaAutosize
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Describe the image you want to create..."
-              disabled={isGenerating || disabled}
-              maxRows={4}
-              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 resize-none focus:outline-none disabled:opacity-50"
-            />
           </div>
+
+          <Wand2 className="w-4 h-4 text-primary shrink-0" />
+          <input
+            type="text"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Describe the image you want to create..."
+            disabled={isGenerating || disabled}
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 border-none focus:outline-none focus:ring-0 disabled:opacity-50"
+          />
           <button
             onClick={handleSubmit}
             disabled={!prompt.trim() || isGenerating || disabled}
             className={cn(
-              'shrink-0 w-10 h-10 rounded-xl flex items-center justify-center mr-2 mb-1.5 transition-all',
+              'shrink-0 w-8 h-8 rounded-xl flex items-center justify-center transition-all',
               prompt.trim() && !isGenerating && !disabled
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/20'
                 : 'bg-muted text-muted-foreground'
