@@ -1,5 +1,6 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, KeyboardEvent } from 'react';
 import { Sparkles, Loader2, Plus, Image as ImageIcon, Camera, Paperclip, X } from 'lucide-react';
+import TextareaAutosize from 'react-textarea-autosize';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useChatStore, type Attachment } from '@/stores/chatStore';
@@ -64,15 +65,22 @@ const DeckPromptBar: React.FC<DeckPromptBarProps> = ({ onGenerate, isGenerating 
     setIsParsing(false);
   }, [sizeLimit]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     if (!prompt.trim() || isGenerating) return;
     onGenerate(prompt.trim(), attachments.length > 0 ? attachments : undefined);
     setAttachments([]);
+    setPrompt('');
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full">
+    <div className="w-full">
       {/* Attachment previews */}
       <AnimatePresence>
         {attachments.length > 0 && (
@@ -113,7 +121,7 @@ const DeckPromptBar: React.FC<DeckPromptBarProps> = ({ onGenerate, isGenerating 
 
       <div className="relative group">
         <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 rounded-2xl opacity-30 group-hover:opacity-50 blur-sm transition-opacity" />
-        <div className="relative flex items-center gap-2 bg-card border border-border rounded-2xl px-2 py-3">
+        <div className="relative flex items-end gap-2 bg-card border border-border rounded-2xl px-2 py-2">
           {/* Plus button */}
           <div className="relative">
             <button
@@ -168,32 +176,28 @@ const DeckPromptBar: React.FC<DeckPromptBarProps> = ({ onGenerate, isGenerating 
             </AnimatePresence>
           </div>
 
-          <Sparkles className="w-5 h-5 text-primary shrink-0" />
-          <input
-            type="text"
+          <Sparkles className="w-5 h-5 text-primary shrink-0 mb-0.5" />
+          <TextareaAutosize
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Describe your presentation..."
-            className="flex-1 bg-transparent text-foreground text-sm placeholder:text-muted-foreground/60 outline-none"
+            className="flex-1 bg-transparent text-foreground text-sm placeholder:text-muted-foreground/60 outline-none resize-none py-1"
             disabled={isGenerating}
+            minRows={1}
+            maxRows={5}
           />
           <button
-            type="submit"
+            type="button"
+            onClick={handleSubmit}
             disabled={!prompt.trim() || isGenerating}
-            className="shrink-0 px-4 py-1.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5"
+            className="shrink-0 w-8 h-8 mb-0.5 rounded-xl bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
-            {isGenerating ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                Generating
-              </>
-            ) : (
-              'Generate'
-            )}
+            {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
           </button>
         </div>
       </div>
-    </form>
+    </div>
   );
 };
 
