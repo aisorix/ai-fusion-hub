@@ -33,7 +33,12 @@ Rules:
 - Use clear, readable node labels
 - For edits: modify the existing code as requested while preserving structure
 - If user requests colors/themes, apply them using Mermaid's styling syntax (classDef, style, etc.)
-- Do NOT wrap output in \`\`\`mermaid or any code fences`;
+- Do NOT wrap output in \`\`\`mermaid or any code fences
+- NEVER use "default" as a classDef name — it is a reserved keyword in Mermaid. Use names like "base", "primary", "nodeStyle" instead.
+- For styling nodes, prefer inline style syntax: style id1 fill:#000,stroke:#fff
+- Ensure all node IDs are simple alphanumeric (no spaces or special chars in IDs)
+- When using classDef, always use valid class names (not reserved words like "default", "class", "style")
+- Test that arrow syntax is correct: use --> for solid arrows, -.-> for dotted arrows`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -152,7 +157,13 @@ serve(async (req) => {
           .replace(/\s*```$/i, "")
           .trim();
 
-        if (mermaidCode) break;
+        if (mermaidCode) {
+          // Fix common Mermaid syntax issues
+          mermaidCode = mermaidCode
+            .replace(/classDef\s+default\s+/gi, 'classDef baseStyle ')
+            .replace(/class\s+(\S+)\s+default\s*;/gi, 'class $1 baseStyle;');
+          break;
+        }
       } catch (err) {
         console.error(`Model ${model} error:`, err);
         lastError = String(err);
