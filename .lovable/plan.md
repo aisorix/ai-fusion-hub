@@ -1,25 +1,28 @@
 
 
-## Make FlowBuilder Page Scrollable
+## Fix FlowBuilder PNG & PDF Export — Tainted Canvas
 
-### Problem
-The page uses `overflow-hidden` on both the root container and the main content area, preventing users from scrolling down to see the preview and code editor properly.
+### Root Cause
 
-### Changes
+The error `Tainted canvases may not be exported` occurs because the SVG is loaded into an `<img>` via a Blob URL (`URL.createObjectURL`). Browsers treat blob-loaded SVGs as cross-origin, tainting the canvas and blocking `canvas.toDataURL()`.
 
-**`src/pages/FlowBuilderPage.tsx`**
+### Fix
 
-1. **Line 66**: Change the root container from `overflow-hidden` to `overflow-y-auto`:
-   - `h-[100dvh] flex flex-col bg-background overflow-hidden` → `min-h-[100dvh] flex flex-col bg-background`
+**`src/components/flowbuilder/FlowExportActions.tsx`**
 
-2. **Line 115**: Change main from `overflow-hidden` to allow natural flow:
-   - `flex-1 flex flex-col overflow-hidden` → `flex-1 flex flex-col`
+Replace the Blob URL approach with a **base64 data URI** for loading the SVG into the image element. Data URIs are same-origin and don't taint the canvas.
 
-3. **Line 116**: Remove `overflow-hidden` from the inner content div:
-   - `flex flex-col gap-4 p-4 md:p-6 flex-1 overflow-hidden` → `flex flex-col gap-4 p-4 md:p-6 flex-1`
+Change in both `exportPNG` and `exportPDF`:
+```
+// Before (tainted):
+const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+const url = URL.createObjectURL(svgBlob);
+img.src = url;
 
-4. **Line 23** (separate fix): Change default theme to `'bw'`:
-   - `useState('default')` → `useState('bw')`
+// After (safe):
+const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgData);
+img.src = dataUrl;
+```
 
-This allows the entire page to scroll naturally so the code editor and preview are fully accessible.
+Remove the `URL.revokeObjectURL(url)` calls since data URIs don't need cleanup. Single file change, two functions updated.
 
