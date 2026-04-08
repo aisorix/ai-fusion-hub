@@ -1,0 +1,1 @@
+ALTER TABLE public.image_generations ADD COLUMN model text DEFAULT 'black-forest-labs/flux.2-klein-4b';
