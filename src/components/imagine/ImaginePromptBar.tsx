@@ -122,7 +122,7 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled 
       {/* Deck-style glow wrapper */}
       <div className="relative group">
         <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/30 via-pink-500/20 to-primary/30 rounded-2xl blur opacity-40 group-hover:opacity-60 transition-opacity" />
-        <div className="relative flex items-center gap-2 bg-card border border-border rounded-2xl px-2 py-2">
+        <div className="relative flex items-end gap-2 bg-card border border-border rounded-2xl px-2 py-2">
           {/* Plus button */}
           <div className="relative">
               <button
@@ -176,27 +176,28 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled 
               </AnimatePresence>
           </div>
 
-          <Wand2 className="w-4 h-4 text-primary shrink-0" />
-          <input
-            type="text"
+          <Wand2 className="w-4 h-4 text-primary shrink-0 mb-0.5" />
+          <TextareaAutosize
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Describe the image you want to create..."
             disabled={isGenerating || disabled}
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 border-none focus:outline-none focus:ring-0 disabled:opacity-50"
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 border-none focus:outline-none focus:ring-0 disabled:opacity-50 resize-none py-1"
+            minRows={1}
+            maxRows={5}
           />
           <button
             onClick={handleSubmit}
             disabled={!prompt.trim() || isGenerating || disabled}
             className={cn(
-              'shrink-0 w-8 h-8 rounded-xl flex items-center justify-center transition-all',
+              'shrink-0 w-8 h-8 mb-0.5 rounded-xl flex items-center justify-center transition-all',
               prompt.trim() && !isGenerating && !disabled
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/20'
                 : 'bg-muted text-muted-foreground'
             )}
           >
-            <Send className="w-4 h-4" />
+            {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </button>
         </div>
       </div>
