@@ -1,11 +1,21 @@
 import React from 'react';
-import { Gem, Crown, Stethoscope, Leaf, Search, Sparkles, Brain, Zap, Heart, Shield, Globe, ArrowRight, Plus, Palette, Presentation, Workflow } from 'lucide-react';
+import { Gem, Crown, Stethoscope, Leaf, Search, Sparkles, Brain, Zap, Heart, Shield, Globe, ArrowRight, Plus, Palette, Presentation, Workflow, Bot } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const Features = () => {
   const { language, t } = useLanguage();
 
   const premiumFeatures = [
+    {
+      icon: Bot,
+      title: language === 'en' ? 'Sorix Agent' : 'সোরিক্স এজেন্ট',
+      desc: language === 'en'
+        ? 'Your virtual AI OS — delegate complex multi-step tasks to an intelligent agent that plans, executes, and delivers results autonomously.'
+        : 'আপনার ভার্চুয়াল AI OS — জটিল মাল্টি-স্টেপ কাজ একটি বুদ্ধিমান এজেন্টকে দিন যে পরিকল্পনা করে, সম্পাদন করে এবং স্বয়ংক্রিয়ভাবে ফলাফল দেয়।',
+      gradient: "from-cyan-500 to-teal-500",
+      bgGradient: "from-cyan-500/10 to-teal-500/10",
+      comingSoon: false
+    },
     {
       icon: Leaf,
       title: language === 'en' ? 'Sorix Agro' : 'সোরিক্স অ্যাগ্রো',
