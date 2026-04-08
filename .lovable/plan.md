@@ -1,23 +1,23 @@
 
 
-## Fix Agent Chat Input Position on All Devices
+## Make FlowBuilder Prompt Bar Expandable Like Main Chat Box
 
 ### Problem
-The chat input bar in Sorix Agent goes below the visible area on mobile because `CoWorkLayout` uses `h-screen` which doesn't account for mobile browser chrome (address bar, bottom nav). The main chat page already uses `h-[100dvh]` to handle this correctly.
-
-Additionally, the empty state in `CommandCenter` uses `min-h-[60vh]` which can push the input out of view on shorter screens.
+The FlowBuilder prompt bar uses a single-line `<input type="text">` that cannot expand for multi-line input. The user wants it to behave like the main chat box with an auto-expanding textarea.
 
 ### Changes
 
-**`src/components/cowork/CoWorkLayout.tsx`** (line 24)
-- Change `h-screen` to `h-[100dvh]` to properly account for mobile browser chrome on all devices
+**`src/components/flowbuilder/FlowPromptBar.tsx`**
 
-**`src/components/cowork/CommandCenter.tsx`** (line 121)
-- Change `min-h-[60vh]` to `min-h-0 flex-1` on the empty state container so it fills available space without pushing the input below the viewport
-- The empty state should use the flex parent's remaining space rather than forcing a viewport-relative minimum height
+1. Replace `<input type="text">` with `TextareaAutosize` (already installed as `react-textarea-autosize`)
+2. Set `minRows={1}` and `maxRows={5}` to match main chat behavior
+3. Add `onKeyDown` handler: Enter submits, Shift+Enter adds new line
+4. Keep the same rounded-2xl styling and violet gradient send button
+5. Add `resize-none` and `focus:outline-none` classes to match chat textarea styling
 
 ### Result
-- Input bar stays fixed at the bottom on mobile, tablet, and desktop
-- Empty state content centers within available space without overflowing
-- Matches the same viewport approach used by the main chat page
+- Users can type multi-line prompts (e.g., detailed diagram descriptions)
+- Enter sends, Shift+Enter adds a new line
+- Bar auto-expands up to 5 rows, stays compact for short prompts
+- Visual style remains consistent with the slim prompt bar aesthetic
 
