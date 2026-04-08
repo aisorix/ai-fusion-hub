@@ -79,8 +79,7 @@ const FlowExportActions: React.FC<FlowExportActionsProps> = ({ code }) => {
     if (!ctx) return;
 
     const img = new Image();
-    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(svgBlob);
+    const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgData);
 
     img.onload = () => {
       const w = img.naturalWidth || width;
@@ -100,9 +99,8 @@ const FlowExportActions: React.FC<FlowExportActionsProps> = ({ code }) => {
       });
       pdf.addImage(imgData, 'PNG', 0, 0, w, h);
       pdf.save('diagram.pdf');
-      URL.revokeObjectURL(url);
     };
-    img.src = url;
+    img.src = dataUrl;
   };
 
   return (
