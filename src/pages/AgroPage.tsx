@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEOHead from '@/components/SEOHead';
 import { ArrowLeft, Leaf, Bug, Sprout, History, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AgroIntakeForm } from '@/components/agro';
 import { AgroAnalysisResults } from '@/components/agro';
 import { AgroChatMode } from '@/components/agro';

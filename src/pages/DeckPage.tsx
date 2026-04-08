@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import SEOHead from '@/components/SEOHead';
 import { ArrowLeft, Presentation, History, X } from 'lucide-react';
 import DeckSlideshow from '@/components/deck/DeckSlideshow';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useChatStore } from '@/stores/chatStore';
 import { deckApi, type Slide, type DeckHistoryItem } from '@/services/deckApi';
