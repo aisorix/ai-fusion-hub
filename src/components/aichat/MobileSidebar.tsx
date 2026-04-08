@@ -182,6 +182,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
     { id: "deck", name: t('sorixDeck'), desc: t('sorixDeckDesc'), icon: Presentation, gradient: "bg-gradient-to-br from-cyan-500 to-blue-600", free: false },
     { id: "imagine", name: t('sorixImagine'), desc: t('sorixImagineDesc'), icon: Palette, gradient: "bg-gradient-to-br from-cyan-500 to-blue-500", free: false },
     { id: "legends", name: t('sorixLegends'), desc: t('sorixLegendsDesc'), icon: Crown, gradient: "bg-gradient-to-br from-blue-500 to-cyan-500", free: false },
+    { id: "flowbuilder", name: "Sorix FlowBuilder", desc: "AI diagram & flowchart generator", icon: Sparkles, gradient: "bg-gradient-to-br from-violet-500 to-purple-600", free: false },
   ];
 
   const userInitials = authUser?.email

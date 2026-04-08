@@ -1,5 +1,5 @@
 import React from 'react';
-import { Gem, Crown, Stethoscope, Leaf, Search, Sparkles, Brain, Zap, Heart, Shield, Globe, ArrowRight, Plus, Palette, Presentation } from 'lucide-react';
+import { Gem, Crown, Stethoscope, Leaf, Search, Sparkles, Brain, Zap, Heart, Shield, Globe, ArrowRight, Plus, Palette, Presentation, Workflow } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const Features = () => {
@@ -54,6 +54,16 @@ const Features = () => {
         : 'আপনার এলিট AI টিম তৈরি করুন — চিকিৎসা, আইন, প্রকৌশল ও কৌশলে ডোমেইন-নির্দিষ্ট বিশেষজ্ঞরা একসাথে কাজ করছে।',
       gradient: "from-blue-500 to-cyan-500",
       bgGradient: "from-blue-500/10 to-cyan-500/10",
+      comingSoon: false
+    },
+    {
+      icon: Workflow,
+      title: language === 'en' ? 'Sorix FlowBuilder' : 'সোরিক্স ফ্লোবিল্ডার',
+      desc: language === 'en'
+        ? 'AI-powered diagram and flowchart generator — create professional diagrams from text prompts with export to PNG, SVG, PDF.'
+        : 'AI চালিত ডায়াগ্রাম ও ফ্লোচার্ট জেনারেটর — টেক্সট প্রম্পট থেকে পেশাদার ডায়াগ্রাম তৈরি করুন, PNG, SVG, PDF এ এক্সপোর্ট করুন।',
+      gradient: "from-violet-500 to-purple-600",
+      bgGradient: "from-violet-500/10 to-purple-600/10",
       comingSoon: false
     },
     {
