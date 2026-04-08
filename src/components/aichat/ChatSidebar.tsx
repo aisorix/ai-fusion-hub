@@ -462,7 +462,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
               className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
             >
               <div className="flex items-center gap-3">
-                <Grid3X3 className="w-4 h-4 text-primary" />
+                <Grid3X3 className="w-4 h-4" />
                 <span>{t('moreTools')}</span>
               </div>
             </button>
