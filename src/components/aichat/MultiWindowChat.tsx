@@ -175,9 +175,9 @@ const MultiWindowChat = () => {
       const sendToWindow = async (window: ChatWindow) => {
         const model = models.find((m) => m.id === window.modelId);
         const hasAttachments = imageAttachments.length > 0 || documentAttachments.length > 0;
-        let backendModel = hasAttachments ? "openai/gpt-4o-mini" : model?.backendId || "openai/gpt-4o-mini";
+        let backendModel = model?.backendId || "openai/gpt-4o-mini";
         const modelName = model?.name || "Unknown";
-        let multiplier = hasAttachments ? 1 : (model?.multiplier || 1);
+        let multiplier = model?.multiplier || 1;
 
         // Smart routing: downgrade simple queries on premium models
         // Protect perplexity models from routing and attachment overrides
