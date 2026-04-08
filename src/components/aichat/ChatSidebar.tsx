@@ -6,6 +6,8 @@ import {
   LayoutGrid,
   Sparkles,
   FolderKanban,
+  Workflow,
+  Grid3X3,
   Moon,
   Sun,
   ChevronDown,
@@ -243,7 +245,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
       id: "flowbuilder",
       name: "Sorix FlowBuilder",
       description: "AI diagram & flowchart generator",
-      icon: Sparkles,
+      icon: Workflow,
       gradient: "bg-gradient-to-br from-violet-500 to-purple-600",
       free: false,
     },
@@ -311,7 +313,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             onClick={() => navigate("/tools")}
             className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
           >
-            <Sparkles className="w-5 h-5" />
+            <Grid3X3 className="w-5 h-5" />
           </button>
           {/* Spacer */}
           <div className="flex-1" />
@@ -460,12 +462,9 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
               className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
             >
               <div className="flex items-center gap-3">
-                <Sparkles className="w-4 h-4 text-primary" />
+                <Grid3X3 className="w-4 h-4 text-primary" />
                 <span>{t('moreTools')}</span>
               </div>
-              <ChevronDown
-                className={cn("w-4 h-4 transition-transform text-muted-foreground")}
-              />
             </button>
 
             <AnimatePresence>
