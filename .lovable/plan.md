@@ -1,22 +1,22 @@
 
 
-## Fix FlowBuilder Mobile Header — Export, New & History Buttons
+## Activate Premium for mdrakib.alpha@gmail.com
 
-### Problem
-On mobile, the export buttons (PNG, SVG, PDF) show text labels taking too much space, and the New Diagram + History buttons crowd the header row.
+### User Found
+- **Email**: mdrakib.alpha@gmail.com
+- **User ID**: `d1178ecd-7796-4675-aac3-8e8e627871c5`
+- **Current subscription**: None
 
-### Changes
+### Action
+Insert a new active premium subscription (1 year) into the `subscriptions` table via a database migration:
 
-**`src/components/flowbuilder/FlowExportActions.tsx`** (lines 131-139)
-- Hide text labels on mobile: wrap "PNG", "SVG", "PDF" text in `<span className="hidden md:inline">` so mobile shows icon-only
-- Reduce mobile padding to `px-1.5 py-1`
+- **plan_id**: `premium`
+- **status**: `active`
+- **tokens_used**: `0`
+- **amount**: `0` (complimentary)
+- **billing_cycle**: `yearly`
+- **current_period_start**: now
+- **current_period_end**: 1 year from now
 
-**`src/pages/FlowBuilderPage.tsx`** (lines 93-125)
-- Remove the duplicate mobile/desktop blocks (lines 94-117) — use a single responsive `FlowExportActions` since it will handle its own responsiveness
-- Keep the "New" button icon-only on mobile (already is), with `px-1.5 py-1` sizing
-- Keep History button as-is (already icon-only, compact)
-- Reduce `gap-1` between buttons on mobile for tighter fit
-
-### Result
-Mobile header fits cleanly in one row: `← [icon] Sorix FlowBuilder ... [📷][📄][📝][+][🕐]` — all icon-only, compact. Desktop unchanged with full text labels.
+This follows the same complimentary access pattern used for other team/test accounts.
 
