@@ -116,14 +116,15 @@ const Hero = () => {
         {/* Main Title with Animation */}
         <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center leading-tight tracking-tight max-w-5xl mx-auto px-2 font-display">
           <span className="text-foreground block mb-2">{t("heroTitle1")}</span>
-          <span className="whitespace-nowrap">
-            <span className="animated-gradient-text">
+          <span className="block">
+            <span 
+              className="animated-gradient-text inline-block text-left"
+              style={{ minWidth: language === "en" ? "32ch" : "28ch" }}
+            >
               {language === "en" ? "Ecosystem — One " : "ইকোসিস্টেম — এক "}
-            </span>
-            <span className="animated-gradient-text inline-block text-left" style={{ minWidth: language === "en" ? "12ch" : "10ch" }}>
               {typedText}
+              <span className="hero-cursor">|</span>
             </span>
-            <span className="hero-cursor animated-gradient-text">|</span>
           </span>
         </h1>
 
