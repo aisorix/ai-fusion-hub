@@ -1,28 +1,22 @@
 
-## Fix Hero Title Second Line Centering
 
-### Problem
-The second line ("Ecosystem — One Workspace") appears left-shifted because it uses `text-left` on an `inline-block` container with a fixed `minWidth`. The `text-left` was added to keep the typewriter text anchored, but it breaks the visual centering with the first line.
+## Activate Premium for mdrakib.alpha@gmail.com
 
-### Solution
-Change the approach: instead of `text-left` on the inline-block, use `text-center` to match the parent's centering. To prevent the "Ecosystem — One" text from shifting during typing, we keep the fixed `minWidth` but center the content within it.
+### User Found
+- **Email**: mdrakib.alpha@gmail.com
+- **User ID**: `d1178ecd-7796-4675-aac3-8e8e627871c5`
+- **Current subscription**: None
 
-**`src/components/Hero.jsx`** (line 121)
-- Change `text-left` to `text-center` on the animated-gradient-text span
-- This centers the second line content within its fixed-width container, aligning it visually with the first line above
+### Action
+Insert a new active premium subscription (1 year) into the `subscriptions` table via a database migration:
 
-```jsx
-<span className="block">
-  <span 
-    className="animated-gradient-text inline-block text-center"
-    style={{ minWidth: language === "en" ? "32ch" : "28ch" }}
-  >
-    {language === "en" ? "Ecosystem — One " : "ইকোসিস্টেম — এক "}
-    {typedText}
-    <span className="hero-cursor">|</span>
-  </span>
-</span>
-```
+- **plan_id**: `premium`
+- **status**: `active`
+- **tokens_used**: `0`
+- **amount**: `0` (complimentary)
+- **billing_cycle**: `yearly`
+- **current_period_start**: now
+- **current_period_end**: 1 year from now
 
-### Result
-Both lines center-align perfectly. The fixed-width container still prevents layout shift during typing, but content is centered within it.
+This follows the same complimentary access pattern used for other team/test accounts.
+
