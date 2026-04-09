@@ -129,8 +129,7 @@ const translations = {
     faqDesc: "Find answers to common questions about AI Sorix.",
 
     // Footer
-    footerDesc:
-      "The ultimate AI research ecosystem — 10+ frontier models unified in one intelligent workspace for professionals & teams worldwide.",
+    footerDesc: "Meet your new AI Co-Worker. Powered by advanced Agentic AI to automate your daily tasks.",
     product: "Product",
     legal: "Legal",
     privacyPolicy: "Privacy Policy",
