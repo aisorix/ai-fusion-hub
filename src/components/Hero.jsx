@@ -118,7 +118,7 @@ const Hero = () => {
           <span className="text-foreground block mb-2">{t("heroTitle1")}</span>
           <span className="whitespace-nowrap">
             <span className="animated-gradient-text">
-              {language === "en" ? "Ecosystem — One " : "ইকোসিস্টেম — এক "}
+              {language === "en" ? "One " : "এক "}
             </span>
             <span className="animated-gradient-text">
               {typedText}
