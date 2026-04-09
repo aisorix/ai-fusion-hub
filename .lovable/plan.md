@@ -1,27 +1,20 @@
 
+## Fix Hero Title Second Line Centering
 
-## Fix Hero Typewriter Alignment & Cursor Position
-
-### Problems (from screenshot)
-1. The blinking cursor `|` is far to the right, separated from the typed text — caused by `minWidth: "12ch"` creating a wide fixed container
-2. The second line ("Ecosystem — One Sub...") is left-shifted relative to the first line ("Your Complete AI Research") — caused by `whitespace-nowrap` + `text-left` on the fixed-width span preventing natural centering
+### Problem
+The second line ("Ecosystem — One Workspace") appears left-shifted because it uses `text-left` on an `inline-block` container with a fixed `minWidth`. The `text-left` was added to keep the typewriter text anchored, but it breaks the visual centering with the first line.
 
 ### Solution
-Instead of using a fixed `minWidth` container (which pushes the cursor away), use a different approach: make the entire second line a fixed width based on its longest rendered state, and let the typed text + cursor flow naturally together.
+Change the approach: instead of `text-left` on the inline-block, use `text-center` to match the parent's centering. To prevent the "Ecosystem — One" text from shifting during typing, we keep the fixed `minWidth` but center the content within it.
 
-### Changes
-
-**`src/components/Hero.jsx`** (lines 117-128)
-
-1. Remove `whitespace-nowrap` from the second line wrapper — allow natural text centering
-2. Remove the `inline-block text-left` with `minWidth` from the typed text span — this is what causes the cursor gap
-3. Instead, wrap the entire second line (static + dynamic text) in a container that uses `inline-flex` with a fixed width calculated from the longest combination ("Ecosystem — One Subscription" / "ইকোসিস্টেম — এক সাবস্ক্রিপশন")
-4. Keep cursor immediately after `typedText` with no gap
+**`src/components/Hero.jsx`** (line 121)
+- Change `text-left` to `text-center` on the animated-gradient-text span
+- This centers the second line content within its fixed-width container, aligning it visually with the first line above
 
 ```jsx
 <span className="block">
   <span 
-    className="animated-gradient-text inline-block text-left"
+    className="animated-gradient-text inline-block text-center"
     style={{ minWidth: language === "en" ? "32ch" : "28ch" }}
   >
     {language === "en" ? "Ecosystem — One " : "ইকোসিস্টেম — এক "}
@@ -31,10 +24,5 @@ Instead of using a fixed `minWidth` container (which pushes the cursor away), us
 </span>
 ```
 
-This keeps "Ecosystem — One" + typed text + cursor all in one inline-block container. The container has a fixed width matching the longest word, so the first line stays centered above it. The cursor sits right next to the last typed character.
-
 ### Result
-- Cursor immediately follows typed text (no gap)
-- Both lines center-align properly
-- Text position stays stable during typing animation
-
+Both lines center-align perfectly. The fixed-width container still prevents layout shift during typing, but content is centered within it.
