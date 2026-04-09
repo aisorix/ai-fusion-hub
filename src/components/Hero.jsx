@@ -118,7 +118,7 @@ const Hero = () => {
           <span className="text-foreground block mb-2">{t("heroTitle1")}</span>
           <span className="block">
             <span 
-              className="animated-gradient-text inline-block text-left"
+              className="animated-gradient-text inline-block text-center"
               style={{ minWidth: language === "en" ? "32ch" : "28ch" }}
             >
               {language === "en" ? "Ecosystem — One " : "ইকোসিস্টেম — এক "}
