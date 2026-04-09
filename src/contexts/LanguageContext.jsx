@@ -39,7 +39,7 @@ const translations = {
 
     // Hero
     heroBadge: "New: Now with Grok 4 & Claude Sonnet 4",
-    heroTitle1: "Your Complete AI Research & Automation",
+    heroTitle1: "Your Complete AI Research",
     heroTitle2: "Ecosystem — One Platform",
     heroDesc: "Meet your new AI Co-Worker. Powered by advanced Agentic AI to automate your daily tasks.",
     startFreeTrial: "Start Free Trial",
@@ -129,8 +129,7 @@ const translations = {
     faqDesc: "Find answers to common questions about AI Sorix.",
 
     // Footer
-    footerDesc:
-      "The ultimate AI research ecosystem — 10+ frontier models unified in one intelligent workspace for professionals & teams worldwide.",
+    footerDesc: "Meet your new AI Co-Worker. Powered by advanced Agentic AI to automate your daily tasks.",
     product: "Product",
     legal: "Legal",
     privacyPolicy: "Privacy Policy",
