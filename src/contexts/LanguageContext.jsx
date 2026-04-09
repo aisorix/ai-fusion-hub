@@ -39,7 +39,7 @@ const translations = {
 
     // Hero
     heroBadge: "New: Now with Grok 4 & Claude Sonnet 4",
-    heroTitle1: "The Ultimate AI Research",
+    heroTitle1: "Your Complete AI Research & Automation Ecosystem",
     heroTitle2: "Ecosystem — One Platform",
     heroDesc: "Meet your new AI Co-Worker. Powered by advanced Agentic AI to automate your daily tasks.",
     startFreeTrial: "Start Free Trial",
