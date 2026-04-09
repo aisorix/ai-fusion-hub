@@ -120,7 +120,7 @@ const Hero = () => {
             <span className="animated-gradient-text">
               {language === "en" ? "Ecosystem — One " : "ইকোসিস্টেম — এক "}
             </span>
-            <span className="animated-gradient-text">
+            <span className="animated-gradient-text inline-block text-left" style={{ minWidth: language === "en" ? "12ch" : "10ch" }}>
               {typedText}
             </span>
             <span className="hero-cursor animated-gradient-text">|</span>
