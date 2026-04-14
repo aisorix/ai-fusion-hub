@@ -13,7 +13,6 @@ import logo from '../assets/logo.png';
 const Login = () => {
   const navigate = useNavigate();
   const { user, signIn, loading: authLoading } = useAuth();
-  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
