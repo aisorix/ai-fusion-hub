@@ -1,20 +1,37 @@
 
 
-## Remove "Continue with Google" from Login & Register Pages
+## Fix Wrong Password Message + Runtime Error
 
-### Changes
+### 1. Fix runtime error (`isGoogleLoading` not found)
+The `isGoogleLoading` reference was removed from Login/Register source but may persist in a stale HMR cache. The code is already clean — this will resolve with the next build triggered by the changes below.
 
-**`src/pages/Login.jsx`**
-- Remove `signInWithGoogle` from the `useAuth()` destructure
-- Remove `isGoogleLoading` state
-- Remove the entire Google Sign In button block (lines ~113-143)
-- Remove the "or continue with email" separator (lines ~145-150)
+### 2. Improve wrong password error message in Login.jsx
 
-**`src/pages/Register.jsx`**
-- Remove `signInWithGoogle` from the `useAuth()` destructure
-- Remove `isGoogleLoading` state
-- Remove the entire Google Sign Up button block (lines ~249-275)
-- Remove the "or continue with email" separator below it
+**File: `src/pages/Login.jsx`** (lines 55-66)
 
-Both pages will show only the email/password form. Google sign-in can be re-added later once you configure your own Google OAuth credentials with "AI Sorix" branding.
+Update the error handling to show a clearer "wrong password" message using Sonner (the project's preferred notification system), replacing the legacy `useToast` hook:
+
+- Change `import { useToast } from '@/hooks/use-toast'` → `import { toast } from 'sonner'`
+- Remove `const { toast } = useToast()` 
+- Update error message for `Invalid login credentials` to: **"Wrong password. Please check your password and try again."**
+- Update success toast to use Sonner syntax
+- Use `toast.error(...)` for errors and `toast.success(...)` for success
+
+The error block becomes:
+```js
+if (error) {
+  if (error.message.includes('Invalid login credentials')) {
+    toast.error('Wrong password or email. Please check your credentials and try again.');
+  } else if (error.message.includes('Email not confirmed')) {
+    toast.error('Please verify your email before signing in.');
+  } else {
+    toast.error('Failed to sign in. Please try again.');
+  }
+} else {
+  toast.success('Welcome back! You have successfully signed in.');
+  navigate('/chat');
+}
+```
+
+Also remove the unused `Separator` import since Google button was removed.
 
