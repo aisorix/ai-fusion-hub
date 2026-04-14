@@ -51,22 +51,15 @@ const Login = () => {
     setIsSubmitting(false);
 
     if (error) {
-      let errorMessage = 'Failed to sign in. Please try again.';
       if (error.message.includes('Invalid login credentials')) {
-        errorMessage = 'Invalid email or password. Please check your credentials.';
+        toast.error('Wrong password or email. Please check your credentials and try again.');
       } else if (error.message.includes('Email not confirmed')) {
-        errorMessage = 'Please verify your email before signing in.';
+        toast.error('Please verify your email before signing in.');
+      } else {
+        toast.error('Failed to sign in. Please try again.');
       }
-      toast({
-        title: 'Sign In Failed',
-        description: errorMessage,
-        variant: 'destructive',
-      });
     } else {
-      toast({
-        title: 'Welcome back!',
-        description: 'You have successfully signed in.',
-      });
+      toast.success('Welcome back! You have successfully signed in.');
       navigate('/chat');
     }
   };
