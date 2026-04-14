@@ -1,22 +1,20 @@
 
 
-## Activate Premium for mdrakib.alpha@gmail.com
+## Remove "Continue with Google" from Login & Register Pages
 
-### User Found
-- **Email**: mdrakib.alpha@gmail.com
-- **User ID**: `d1178ecd-7796-4675-aac3-8e8e627871c5`
-- **Current subscription**: None
+### Changes
 
-### Action
-Insert a new active premium subscription (1 year) into the `subscriptions` table via a database migration:
+**`src/pages/Login.jsx`**
+- Remove `signInWithGoogle` from the `useAuth()` destructure
+- Remove `isGoogleLoading` state
+- Remove the entire Google Sign In button block (lines ~113-143)
+- Remove the "or continue with email" separator (lines ~145-150)
 
-- **plan_id**: `premium`
-- **status**: `active`
-- **tokens_used**: `0`
-- **amount**: `0` (complimentary)
-- **billing_cycle**: `yearly`
-- **current_period_start**: now
-- **current_period_end**: 1 year from now
+**`src/pages/Register.jsx`**
+- Remove `signInWithGoogle` from the `useAuth()` destructure
+- Remove `isGoogleLoading` state
+- Remove the entire Google Sign Up button block (lines ~249-275)
+- Remove the "or continue with email" separator below it
 
-This follows the same complimentary access pattern used for other team/test accounts.
+Both pages will show only the email/password form. Google sign-in can be re-added later once you configure your own Google OAuth credentials with "AI Sorix" branding.
 
