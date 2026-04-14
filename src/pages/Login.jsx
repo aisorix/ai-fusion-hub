@@ -6,15 +6,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import logo from '../assets/logo.png';
 
 const Login = () => {
   const navigate = useNavigate();
   const { user, signIn, loading: authLoading } = useAuth();
-  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -53,22 +51,15 @@ const Login = () => {
     setIsSubmitting(false);
 
     if (error) {
-      let errorMessage = 'Failed to sign in. Please try again.';
       if (error.message.includes('Invalid login credentials')) {
-        errorMessage = 'Invalid email or password. Please check your credentials.';
+        toast.error('Wrong password or email. Please check your credentials and try again.');
       } else if (error.message.includes('Email not confirmed')) {
-        errorMessage = 'Please verify your email before signing in.';
+        toast.error('Please verify your email before signing in.');
+      } else {
+        toast.error('Failed to sign in. Please try again.');
       }
-      toast({
-        title: 'Sign In Failed',
-        description: errorMessage,
-        variant: 'destructive',
-      });
     } else {
-      toast({
-        title: 'Welcome back!',
-        description: 'You have successfully signed in.',
-      });
+      toast.success('Welcome back! You have successfully signed in.');
       navigate('/chat');
     }
   };
