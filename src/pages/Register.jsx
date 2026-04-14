@@ -14,12 +14,11 @@ import logo from '../assets/logo.png';
 
 const Register = () => {
   const navigate = useNavigate();
-  const { user, signInWithGoogle, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [showOtp, setShowOtp] = useState(false);
   const [formData, setFormData] = useState({
