@@ -38,6 +38,13 @@ const DeckPage = React.lazy(() => import("./pages/DeckPage"));
 const CoWorkPage = React.lazy(() => import("./pages/CoWorkPage"));
 const FlowBuilderPage = React.lazy(() => import("./pages/FlowBuilderPage"));
 const ToolsPage = React.lazy(() => import("./pages/ToolsPage"));
+const BlogPage = React.lazy(() => import("./pages/BlogPage"));
+const CaseStudiesPage = React.lazy(() => import("./pages/CaseStudiesPage"));
+const DocsPage = React.lazy(() => import("./pages/DocsPage"));
+const PressPage = React.lazy(() => import("./pages/PressPage"));
+const CareersPage = React.lazy(() => import("./pages/CareersPage"));
+const PartnersPage = React.lazy(() => import("./pages/PartnersPage"));
+const SolutionsPage = React.lazy(() => import("./pages/SolutionsPage"));
 
 const queryClient = new QueryClient();
 
@@ -121,6 +128,13 @@ const App = () => (
                 <Route path="/about-sorix-lab" element={<AboutSorixLab />} />
                 <Route path="/reviews" element={<Reviews />} />
                 <Route path="/admin/chat" element={<ChatDashboard />} />
+                <Route path="/blog" element={<BlogPage />} />
+                <Route path="/case-studies" element={<CaseStudiesPage />} />
+                <Route path="/docs" element={<DocsPage />} />
+                <Route path="/press" element={<PressPage />} />
+                <Route path="/careers" element={<CareersPage />} />
+                <Route path="/partners" element={<PartnersPage />} />
+                <Route path="/solutions/:slug" element={<SolutionsPage />} />
                 {/* Payment Callback Routes */}
                 <Route path="/payment/success" element={<PaymentSuccess />} />
                 <Route path="/payment/failed" element={<PaymentFailed />} />
