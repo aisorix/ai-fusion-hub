@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-import { Menu, X, ChevronDown, Globe, User, LogOut, MessageSquare } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Menu, X, ChevronDown, ChevronRight, Globe, User, LogOut, MessageSquare, Presentation, ImageIcon, Heart, Leaf, Crown, Bot, Workflow, Cpu, GraduationCap, Rocket, FlaskConical, BookOpen, Newspaper, Briefcase, Handshake, Mail, FileText, Users, Code } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useEmployeeRole } from "../hooks/useEmployeeRole";
@@ -15,15 +15,80 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+const megaMenus = {
+  products: {
+    label: "Products",
+    columns: [
+      [
+        { icon: MessageSquare, name: "AI Chat", desc: "Multi-model AI conversations", to: "/chat" },
+        { icon: Presentation, name: "Sorix Deck", desc: "AI-powered presentations", to: "/deck" },
+        { icon: ImageIcon, name: "Sorix Imagine", desc: "AI image generation", to: "/imagine" },
+        { icon: Workflow, name: "Flow Builder", desc: "AI diagrams & flowcharts", to: "/flowbuilder" },
+      ],
+      [
+        { icon: Heart, name: "Sorix Health", desc: "AI health analysis", to: "/health" },
+        { icon: Leaf, name: "Sorix Agro", desc: "AI agriculture insights", to: "/agro" },
+        { icon: Crown, name: "Sorix Legends", desc: "Chat with historical figures", to: "/legends" },
+        { icon: Bot, name: "AI Agents", desc: "Autonomous task execution", to: "/agent" },
+      ],
+    ],
+  },
+  solutions: {
+    label: "Solutions",
+    columns: [
+      [
+        { icon: Workflow, name: "Workflow Automation", desc: "Automate repetitive tasks", to: "/solutions/workflow-automation" },
+        { icon: GraduationCap, name: "AI for Educators", desc: "Transform teaching with AI", to: "/solutions/ai-for-educators" },
+      ],
+      [
+        { icon: Rocket, name: "AI for Startups", desc: "Scale faster with AI", to: "/solutions/ai-for-startups" },
+        { icon: FlaskConical, name: "AI for Researchers", desc: "Accelerate research", to: "/solutions/ai-for-researchers" },
+      ],
+    ],
+  },
+  resources: {
+    label: "Resources",
+    columns: [
+      [
+        { icon: BookOpen, name: "Blog & AI Insights", desc: "Latest AI news & tutorials", to: "/blog" },
+        { icon: FileText, name: "Case Studies", desc: "Real-world impact stories", to: "/case-studies" },
+        { icon: Cpu, name: "Documentation", desc: "Guides & feature docs", to: "/docs" },
+      ],
+      [
+        { icon: Code, name: "Developer API", desc: "Coming Soon", to: "/developer-api" },
+        { icon: Users, name: "Community", desc: "Reviews & discussions", to: "/reviews" },
+      ],
+    ],
+  },
+  company: {
+    label: "Company",
+    columns: [
+      [
+        { icon: Globe, name: "About Us", desc: "Our mission & team", to: "/about-sorix-lab" },
+        { icon: Newspaper, name: "Press & Media", desc: "News & press releases", to: "/press" },
+        { icon: Briefcase, name: "Careers", desc: "Join our team", to: "/careers" },
+      ],
+      [
+        { icon: Mail, name: "Contact Us", desc: "Get in touch", href: "/#contact" },
+        { icon: Handshake, name: "Partners", desc: "Partner ecosystem", to: "/partners" },
+      ],
+    ],
+  },
+};
+
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [mobileExpanded, setMobileExpanded] = useState(null);
   const { language, setLanguage, t } = useLanguage();
   const { user, signOut, loading: authLoading } = useAuth();
   const { isEmployee } = useEmployeeRole();
   const { avatarUrl, fullName } = useUserProfile();
   const langRef = useRef(null);
+  const dropdownTimeout = useRef(null);
+  const location = useLocation();
 
   const handleSignOut = async () => {
     await signOut();
@@ -34,12 +99,7 @@ const Navbar = () => {
     if (!user) return "U";
     const name = user.user_metadata?.full_name || user.email || "";
     if (user.user_metadata?.full_name) {
-      return name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2);
+      return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
     }
     return name.charAt(0).toUpperCase();
   };
@@ -49,6 +109,11 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    setActiveDropdown(null);
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -61,19 +126,68 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
+    document.body.style.overflow = mobileMenuOpen ? "hidden" : "unset";
+    return () => { document.body.style.overflow = "unset"; };
   }, [mobileMenuOpen]);
+
+  const handleDropdownEnter = (key) => {
+    clearTimeout(dropdownTimeout.current);
+    setActiveDropdown(key);
+  };
+
+  const handleDropdownLeave = () => {
+    dropdownTimeout.current = setTimeout(() => setActiveDropdown(null), 150);
+  };
+
+  const handleContactClick = (e) => {
+    e.preventDefault();
+    setMobileMenuOpen(false);
+    setActiveDropdown(null);
+    setTimeout(() => {
+      const el = document.getElementById("contact");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  };
+
+  const renderMegaItem = (item) => {
+    const Icon = item.icon;
+    if (item.href) {
+      return (
+        <a
+          key={item.name}
+          href={item.href}
+          onClick={item.href === "/#contact" ? handleContactClick : undefined}
+          className="flex items-start gap-3 p-3 rounded-xl hover:bg-muted/60 transition-colors group"
+        >
+          <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+            <Icon className="w-4.5 h-4.5 text-primary" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-foreground">{item.name}</p>
+            <p className="text-xs text-muted-foreground">{item.desc}</p>
+          </div>
+        </a>
+      );
+    }
+    return (
+      <Link
+        key={item.name}
+        to={item.to}
+        className="flex items-start gap-3 p-3 rounded-xl hover:bg-muted/60 transition-colors group"
+      >
+        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+          <Icon className="w-4.5 h-4.5 text-primary" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-foreground">{item.name}</p>
+          <p className="text-xs text-muted-foreground">{item.desc}</p>
+        </div>
+      </Link>
+    );
+  };
 
   return (
     <>
-      {/* Main Navbar with Glassmorphism */}
       <nav
         className={`sticky top-0 z-[100] transition-all duration-500 backdrop-blur-md ${
           scrolled
@@ -89,27 +203,49 @@ const Navbar = () => {
               <span className="text-lg sm:text-2xl font-bold text-foreground tracking-tight">AI Sorix</span>
             </Link>
 
-            {/* Desktop Menu */}
-            <div className="hidden lg:flex items-center gap-10">
-              {[
-                { id: "features", label: t("features"), href: "/#features" },
-                { id: "pricing", label: t("pricing"), href: "/#pricing" },
-                { id: "faq", label: t("faqs"), href: "/#faq" },
-                { id: "about", label: t("aboutUs"), href: "/#about" },
-              ].map((item) => (
-                <a
-                  key={item.id}
-                  href={item.href}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const el = document.getElementById(item.id);
-                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }}
-                  className="text-muted-foreground hover:text-foreground font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary hover:after:w-full after:transition-all"
+            {/* Desktop Mega-Menu Nav */}
+            <div className="hidden lg:flex items-center gap-1">
+              {Object.entries(megaMenus).map(([key, menu]) => (
+                <div
+                  key={key}
+                  className="relative"
+                  onMouseEnter={() => handleDropdownEnter(key)}
+                  onMouseLeave={handleDropdownLeave}
                 >
-                  {item.label}
-                </a>
+                  <button className="flex items-center gap-1 px-3.5 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/40">
+                    {menu.label}
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === key ? "rotate-180" : ""}`} />
+                  </button>
+
+                  {activeDropdown === key && (
+                    <div
+                      className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-background/95 backdrop-blur-xl border border-border/50 shadow-2xl rounded-2xl p-5 animate-in fade-in slide-in-from-top-2 duration-200 z-[110]"
+                      style={{ minWidth: key === "products" ? 480 : 400 }}
+                    >
+                      <div className={`grid ${menu.columns.length > 1 ? "grid-cols-2" : "grid-cols-1"} gap-1`}>
+                        {menu.columns.map((col, ci) => (
+                          <div key={ci} className="space-y-1">
+                            {col.map(renderMegaItem)}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               ))}
+
+              {/* Pricing - direct scroll link */}
+              <a
+                href="/#pricing"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const el = document.getElementById("pricing");
+                  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className="px-3.5 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/40"
+              >
+                {t("pricing")}
+              </a>
             </div>
 
             {/* Right Side: Theme + Language + Auth */}
@@ -126,7 +262,7 @@ const Navbar = () => {
 
               <ThemeToggle />
 
-              {/* Language Dropdown with Glass effect */}
+              {/* Language Dropdown */}
               <div className="relative" ref={langRef}>
                 <button
                   onClick={() => setLangDropdownOpen(!langDropdownOpen)}
@@ -140,19 +276,13 @@ const Navbar = () => {
                 {langDropdownOpen && (
                   <div className="absolute top-full right-0 mt-2 bg-card/80 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl overflow-hidden min-w-[140px] z-[110] animate-in fade-in zoom-in-95 duration-200">
                     <button
-                      onClick={() => {
-                        setLanguage("en");
-                        setLangDropdownOpen(false);
-                      }}
+                      onClick={() => { setLanguage("en"); setLangDropdownOpen(false); }}
                       className={`w-full px-4 py-3 text-left text-sm font-medium hover:bg-primary/10 transition-colors flex items-center gap-2 ${language === "en" ? "text-primary bg-primary/5" : "text-foreground"}`}
                     >
                       🇬🇧 English
                     </button>
                     <button
-                      onClick={() => {
-                        setLanguage("bn");
-                        setLangDropdownOpen(false);
-                      }}
+                      onClick={() => { setLanguage("bn"); setLangDropdownOpen(false); }}
                       className={`w-full px-4 py-3 text-left text-sm font-medium hover:bg-primary/10 transition-colors flex items-center gap-2 ${language === "bn" ? "text-primary bg-primary/5" : "text-foreground"}`}
                     >
                       🇧🇩 বাংলা
@@ -191,8 +321,6 @@ const Navbar = () => {
                         {t("goToChat")}
                       </Link>
                     </DropdownMenuItem>
-
-
                     {isEmployee && (
                       <DropdownMenuItem asChild>
                         <Link to="/admin/chat" className="flex items-center gap-2 cursor-pointer focus:bg-primary/10">
@@ -245,18 +373,14 @@ const Navbar = () => {
                 className="p-2.5 rounded-xl bg-muted/40 hover:bg-muted/60 backdrop-blur-md border border-border/50 transition-all duration-200"
                 aria-label="Toggle menu"
               >
-                {mobileMenuOpen ? (
-                  <X className="w-5 h-5 text-foreground" />
-                ) : (
-                  <Menu className="w-5 h-5 text-foreground" />
-                )}
+                {mobileMenuOpen ? <X className="w-5 h-5 text-foreground" /> : <Menu className="w-5 h-5 text-foreground" />}
               </button>
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Mobile Menu Panel with Glassmorphism */}
+      {/* Mobile Menu Panel */}
       {mobileMenuOpen && (
         <>
           <div
@@ -279,37 +403,76 @@ const Navbar = () => {
                 </button>
               </div>
 
-              <div className="px-6 py-8">
-                {/* Navigation Links */}
-                <div className="grid gap-2">
-                  {[
-                    { id: "features", label: t("features"), href: "/#features" },
-                    { id: "pricing", label: t("pricing"), href: "/#pricing" },
-                    { id: "faq", label: t("faqs"), href: "/#faq" },
-                    { id: "about", label: t("aboutUs"), href: "/#about" },
-                  ].map((item) => (
-                    <a
-                      key={item.id}
-                      href={item.href}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setMobileMenuOpen(false);
-                        setTimeout(() => {
-                          const el = document.getElementById(item.id);
-                          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                        }, 300);
-                      }}
-                      className="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-primary/10 text-foreground font-medium transition-all border border-transparent hover:border-primary/10 text-left"
+              <div className="px-5 py-6">
+                {/* Accordion Sections */}
+                {Object.entries(megaMenus).map(([key, menu]) => (
+                  <div key={key} className="border-b border-border/20 last:border-b-0">
+                    <button
+                      onClick={() => setMobileExpanded(mobileExpanded === key ? null : key)}
+                      className="flex items-center justify-between w-full py-4 text-left"
                     >
-                      <div className="w-2 h-2 rounded-full bg-primary" />
-                      {item.label}
-                    </a>
-                  ))}
-                </div>
+                      <span className="text-sm font-semibold text-foreground">{menu.label}</span>
+                      <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${mobileExpanded === key ? "rotate-180" : ""}`} />
+                    </button>
+                    {mobileExpanded === key && (
+                      <div className="pb-4 space-y-1 animate-in fade-in slide-in-from-top-1 duration-150">
+                        {menu.columns.flat().map((item) => {
+                          const Icon = item.icon;
+                          if (item.href) {
+                            return (
+                              <a
+                                key={item.name}
+                                href={item.href}
+                                onClick={item.href === "/#contact" ? handleContactClick : undefined}
+                                className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted/50 transition-colors"
+                              >
+                                <Icon className="w-4 h-4 text-primary" />
+                                <div>
+                                  <p className="text-sm font-medium text-foreground">{item.name}</p>
+                                  <p className="text-[11px] text-muted-foreground">{item.desc}</p>
+                                </div>
+                              </a>
+                            );
+                          }
+                          return (
+                            <Link
+                              key={item.name}
+                              to={item.to}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted/50 transition-colors"
+                            >
+                              <Icon className="w-4 h-4 text-primary" />
+                              <div>
+                                <p className="text-sm font-medium text-foreground">{item.name}</p>
+                                <p className="text-[11px] text-muted-foreground">{item.desc}</p>
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ))}
 
-                <div className="h-px bg-border/40 my-6" />
+                {/* Pricing link */}
+                <a
+                  href="/#pricing"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setMobileMenuOpen(false);
+                    setTimeout(() => {
+                      const el = document.getElementById("pricing");
+                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }, 300);
+                  }}
+                  className="flex items-center py-4 text-sm font-semibold text-foreground"
+                >
+                  {t("pricing")}
+                </a>
 
-                {/* Language Switcher Card */}
+                <div className="h-px bg-border/40 my-4" />
+
+                {/* Language Switcher */}
                 <div className="bg-muted/30 backdrop-blur-md rounded-2xl p-5 border border-border/50">
                   <div className="flex items-center gap-3 mb-4">
                     <Globe className="w-4 h-4 text-primary" />
@@ -332,7 +495,7 @@ const Navbar = () => {
                 </div>
 
                 {/* Auth Section */}
-                <div className="mt-8 space-y-4">
+                <div className="mt-6 space-y-4">
                   {user ? (
                     <>
                       <div className="flex items-center gap-4 p-4 bg-primary/5 rounded-2xl border border-primary/10 backdrop-blur-sm">

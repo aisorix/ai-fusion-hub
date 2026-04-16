@@ -18,7 +18,7 @@ const Footer = () => {
   return (
     <footer className="bg-card border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-10 sm:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-8 sm:gap-10">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-6 sm:gap-8 lg:gap-10">
           {/* Brand */}
           <div className="col-span-2">
             <div className="flex items-center gap-1.5 mb-4 sm:mb-6">
@@ -46,7 +46,7 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-bold text-foreground mb-4 sm:mb-6 text-sm sm:text-base">{t("product")}</h4>
+            <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">{t("product")}</h4>
             <ul className="space-y-3 sm:space-y-4">
               <li>
                 <a href="/#features" onClick={(e) => { e.preventDefault(); document.getElementById('features')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} className="text-sm text-muted-foreground hover:text-primary transition-colors">
@@ -73,7 +73,7 @@ const Footer = () => {
 
           {/* Tools */}
           <div>
-            <h4 className="font-bold text-foreground mb-4 sm:mb-6 text-sm sm:text-base">{t("product") === "Product" ? "Tools" : "টুলস"}</h4>
+            <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">{t("product") === "Product" ? "Tools" : "টুলস"}</h4>
             <ul className="space-y-3 sm:space-y-4">
               <li>
                 <Link to="/chat" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
@@ -110,7 +110,7 @@ const Footer = () => {
 
           {/* Solutions */}
           <div>
-            <h4 className="font-bold text-foreground mb-4 sm:mb-6 text-sm sm:text-base">Solutions</h4>
+            <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">Solutions</h4>
             <ul className="space-y-3 sm:space-y-4">
               <li>
                 <Link to="/solutions/workflow-automation" className="text-sm text-muted-foreground hover:text-primary transition-colors">
@@ -142,7 +142,7 @@ const Footer = () => {
 
           {/* Resources */}
           <div>
-            <h4 className="font-bold text-foreground mb-4 sm:mb-6 text-sm sm:text-base">Resources</h4>
+            <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">Resources</h4>
             <ul className="space-y-3 sm:space-y-4">
               <li>
                 <Link to="/blog" className="text-sm text-muted-foreground hover:text-primary transition-colors">
@@ -160,10 +160,9 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <span className="text-sm text-muted-foreground flex items-center gap-1.5">
+                <Link to="/developer-api" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Developer API
-                  <span className="text-[10px] bg-primary/10 text-primary rounded px-1.5 py-0.5 font-medium">Coming Soon</span>
-                </span>
+                </Link>
               </li>
               <li>
                 <Link to="/reviews" className="text-sm text-muted-foreground hover:text-primary transition-colors">
@@ -175,7 +174,7 @@ const Footer = () => {
 
           {/* Company */}
           <div>
-            <h4 className="font-bold text-foreground mb-4 sm:mb-6 text-sm sm:text-base">Company</h4>
+            <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">Company</h4>
             <ul className="space-y-3 sm:space-y-4">
               <li>
                 <Link to="/about-sorix-lab" className="text-sm text-muted-foreground hover:text-primary transition-colors">
@@ -211,37 +210,25 @@ const Footer = () => {
 
           {/* Legal */}
           <div>
-            <h4 className="font-bold text-foreground mb-4 sm:mb-6 text-sm sm:text-base">{t("legal")}</h4>
+            <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">{t("legal")}</h4>
             <ul className="space-y-3 sm:space-y-4">
               <li>
-                <Link
-                  to="/privacy-policy"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
+                <Link to="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   {t("privacyPolicy")}
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/terms-of-service"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
+                <Link to="/terms-of-service" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   {t("termsOfService")}
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/cookie-policy"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
+                <Link to="/cookie-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   {t("cookiePolicy")}
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/refund-policy"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
+                <Link to="/refund-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   {t("refundPolicy")}
                 </Link>
               </li>
@@ -250,8 +237,8 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-10 sm:mt-16 pt-6 sm:pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
-          <p className="text-muted-foreground text-xs sm:text-sm text-center sm:text-left">
+        <div className="mt-10 sm:mt-16 pt-6 sm:pt-8 border-t border-border flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between sm:text-left">
+          <p className="text-muted-foreground text-xs sm:text-sm">
             © 2026 AI Sorix. {t("allRightsReserved")}
           </p>
           <div className="flex items-center gap-1.5 text-muted-foreground text-xs sm:text-sm">
