@@ -45,6 +45,7 @@ const PressPage = React.lazy(() => import("./pages/PressPage"));
 const CareersPage = React.lazy(() => import("./pages/CareersPage"));
 const PartnersPage = React.lazy(() => import("./pages/PartnersPage"));
 const SolutionsPage = React.lazy(() => import("./pages/SolutionsPage"));
+const DeveloperApiPage = React.lazy(() => import("./pages/DeveloperApiPage"));
 
 const queryClient = new QueryClient();
 
