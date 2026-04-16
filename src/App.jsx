@@ -45,6 +45,7 @@ const PressPage = React.lazy(() => import("./pages/PressPage"));
 const CareersPage = React.lazy(() => import("./pages/CareersPage"));
 const PartnersPage = React.lazy(() => import("./pages/PartnersPage"));
 const SolutionsPage = React.lazy(() => import("./pages/SolutionsPage"));
+const DeveloperApiPage = React.lazy(() => import("./pages/DeveloperApiPage"));
 
 const queryClient = new QueryClient();
 
@@ -135,6 +136,7 @@ const App = () => (
                 <Route path="/careers" element={<CareersPage />} />
                 <Route path="/partners" element={<PartnersPage />} />
                 <Route path="/solutions/:slug" element={<SolutionsPage />} />
+                <Route path="/developer-api" element={<DeveloperApiPage />} />
                 {/* Payment Callback Routes */}
                 <Route path="/payment/success" element={<PaymentSuccess />} />
                 <Route path="/payment/failed" element={<PaymentFailed />} />
