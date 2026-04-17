@@ -1,92 +1,93 @@
 
 
-## Professional UI/UX Overhaul: Footer, Navbar, and Content Pages
+## Comprehensive Pro Polish: Navbar + AI Support Chat + Hash Routing + Billing Fix + Performance
 
-### 1. Footer Bottom Bar Fix (Mobile)
+### 1. Navbar updates (`src/components/Navbar.jsx`)
+- **Products column** — reorder so **AI Agents is FIRST**; add a **Features** entry that scrolls to `/#features`
+- **Resources column** — add **FAQs** entry (scrolls to `/#faq`)
+- **Solutions column** — add new entries: **AI for Creators**, **AI for Professionals** (and reuse RolesSection roles where applicable)
+- Mobile accordion mirrors all the same items
 
-The bottom bar currently stacks 3 items vertically on mobile which looks cluttered (as shown in image 1). Fix:
-- Center-align all 3 items on mobile with better spacing
-- Stack copyright on top, GEO tagline in middle, email at bottom with consistent `text-center`
-- Add slight padding and increase gap between items
-- Use a subtle divider or cleaner vertical arrangement
+### 2. Footer updates (`src/components/Footer.jsx`)
+- Add **Sorix Agents** link (→ `/agent`) inside the **Tools** column
+- Add **AI for Creators** & **AI for Professionals** under **Solutions**
 
-### 2. Footer Professional Polish
+### 3. Fix hash navigation from any page (CRITICAL bug)
+Currently, clicking `#pricing` / `#features` / `#faq` / `#contact` from `/blog`, `/docs`, etc. silently fails because `getElementById` runs on a page that doesn't contain those sections.
 
-- Tighten spacing: reduce `gap-8` to `gap-6` on mobile for denser, cleaner columns
-- Add subtle `uppercase tracking-wider text-[11px]` for column headers (like ChatGPT/Vercel footers)
-- Make "Developer API" link to `/developer-api` page instead of being a `<span>` — move "Coming Soon" badge inside the page itself
+**Fix:** Update Navbar + Footer hash links to use `react-router` navigation:
+- If on `/`, smooth-scroll directly
+- If on any other page, `navigate('/', { state: { scrollTo: 'pricing' } })`, then `Index.jsx` reads `location.state.scrollTo` on mount and scrolls smoothly
 
-### 3. Mega-Menu Navbar (Desktop)
+This makes Pricing/Features/FAQs/Contact links work from EVERY page, every time.
 
-Inspired by the university-style dropdown menus in the uploaded reference images (Daffodil University). Add hover mega-dropdown menus for desktop navbar items:
+### 4. New pages for Solutions (`src/pages/SolutionsPage.jsx`)
+Add slug support for:
+- `/solutions/ai-for-creators`
+- `/solutions/ai-for-professionals`
 
-**Desktop nav items become:** `Products` | `Solutions` | `Resources` | `Company` | `Pricing`
+Each rendered with full SEO metadata, hero, benefits, and CTAs — matching existing solution page pattern.
 
-Each item opens a clean multi-column dropdown panel on hover:
+### 5. Developer API page polish (`src/pages/DeveloperApiPage.jsx`)
+"Coming Soon" label is already on the page. Confirm prominence at the hero (badge + heading), and remove any duplicate "Coming Soon" text from Navbar/Footer descriptors so the source of truth is the page itself.
 
-- **Products** dropdown: 2 columns — AI Chat, Sorix Deck, Sorix Imagine, Sorix Health, Sorix Agro, Sorix Legends, AI Agents, FlowBuilder (with small descriptions)
-- **Solutions** dropdown: Workflow Automation, AI for Educators, AI for Startups, AI for Researchers
-- **Resources** dropdown: Blog, Case Studies, Documentation, Developer API, Community
-- **Company** dropdown: About Us, Press & Media, Careers, Contact Us, Partners
+### 6. AI Support Chat — replace human-employee model with DeepSeek AI (CRITICAL FEATURE)
 
-`Pricing` remains a scroll-to link (no dropdown).
+**Problem:** Current `ChatWidget` waits for a human employee. User wants instant AI replies.
 
-The dropdowns use glassmorphism styling (`bg-background/90 backdrop-blur-xl border-border/50 shadow-2xl rounded-2xl`), appear on hover with a smooth `animate-in fade-in` transition, and close on mouse leave.
+**Solution:** Create a new edge function `support-chat` (deployed via Lovable AI Gateway, no API key required) using model **`deepseek/deepseek-chat-v3.1`** (closest available DeepSeek v3.x via OpenRouter through gateway). Falls back to `openai/gpt-5-mini` if DeepSeek unavailable.
 
-**Mobile menu**: Add accordion-style expandable sections for the same categories.
+**System prompt (senior 30-yr Sorix Support persona):**
+> You are AI Sorix Support — a senior customer support specialist with 30+ years of experience helping users worldwide. Greet warmly, sign as "Sorix Support Team". Help every user (registered or guest) with: product features (AI Chat, Deck, Imagine, Health, Agro, Legends, Agents, FlowBuilder), how-tos, account/login issues, plans/tiers, troubleshooting. **For ANY payment-related question** (refunds, billing, failed transactions, plan upgrades, invoices, currency), reply: *"For payment & billing matters, please email our team at support@aisorix.com — they'll resolve it personally and quickly."* Be concise, warm, professional. Use markdown.
 
-### 4. Developer API Page
+**Frontend changes (`src/components/chat/ChatWidget.tsx` + `useChat.ts`):**
+- After user sends a message, call the `support-chat` edge function with full conversation history
+- Stream/insert AI reply into the conversation as `sender_type: 'employee'` (so existing UI works unchanged)
+- Allow widget to open without auth (guest users) — store guest convo in `chat_conversations` with `guest_email` (optional, prompt at first message) or skip persistence and keep purely in local state for guests
+- Header subtitle changes to "● Online — AI Support" 
+- Keep human handoff path intact (admins can still take over via `/admin/chat`)
 
-Create `src/pages/DeveloperApiPage.jsx`:
-- SEO title: "Developer API | AI Sorix - Coming Soon"
-- Hero with "Developer API" heading and "Coming Soon" badge prominently displayed
-- Sections: What to expect (REST API, SDKs, Webhooks), Use cases, Email signup for waitlist (mailto:support@aisorix.com)
-- Add route in App.jsx
+### 7. Fix billing cycle for manually-activated Premium/Pro accounts
+Inspection of `subscriptions` table: every row (including `monthly`) has `current_period_end = current_period_start + 1 YEAR`. The webhook code is correct — these are **manually-inserted rows** that incorrectly used the `+1 year` interval.
 
-### 5. Enrich All Content Pages
+**Fix via migration:**
+```sql
+UPDATE public.subscriptions
+SET current_period_end = current_period_start + INTERVAL '1 month'
+WHERE billing_cycle = 'monthly'
+  AND current_period_end > current_period_start + INTERVAL '2 months';
+```
+Also alter the table default to align with cycle (no-op for new rows since webhook computes it):
+```sql
+ALTER TABLE public.subscriptions
+ALTER COLUMN current_period_end SET DEFAULT now() + INTERVAL '1 month';
+```
 
-All pages currently have minimal placeholder content. Expand each with more detail, richer SEO copy, and unified `support@aisorix.com` as the single contact email:
+### 8. Performance — make all pages open faster
+Current bottlenecks:
+- All 28 lazy chunks share one `LoadingScreen`; first paint of new pages is delayed by translation/auth context init
+- New content pages (Blog, Docs, Press, etc.) don't need `AuthProvider` heavy work but still wait
 
-**BlogPage.jsx**: Add 2-3 more blog post entries with deeper excerpts. Add a "Subscribe to Newsletter" CTA section at bottom (mailto link).
+**Fixes:**
+- Add **route prefetch on hover** in Navbar/Footer: `onMouseEnter` triggers the lazy `import()` for the destination page so by the time the user clicks, the chunk is cached
+- Add `<link rel="prefetch">` hints in `index.html` for the most common pages (`/blog`, `/docs`, `/chat`)
+- Wrap `LoadingScreen` to show a tiny top-of-page progress bar instead of full-screen spinner — perceived speed boost
+- Ensure `ScrollToTop` uses `behavior: 'instant'` (already does) — keep
+- Code-split heavy `Index.jsx` JSON-LD into a deferred component (already small, low priority)
 
-**CaseStudiesPage.jsx**: Add detailed stats, longer descriptions, a "Get Similar Results" CTA linking to contact.
+### Files to edit / create
 
-**PressPage.jsx**: Add media kit download section, press contact email (`support@aisorix.com`), brand assets section, more press releases.
-
-**CareersPage.jsx**: Expand job descriptions, add "Why Work at AI Sorix" benefits section (remote-first, cutting-edge AI, growth), "Our Culture" section. Change `careers@aisorix.com` to `support@aisorix.com`.
-
-**PartnersPage.jsx**: Add partnership benefits, application process, success metrics, "Become a Partner" CTA with `support@aisorix.com`.
-
-**DocsPage.jsx**: Add a "Need Help?" section at the bottom with support email. Add quick-start steps section.
-
-**SolutionsPage.jsx**: Add more benefits, testimonial-style quotes, stronger CTAs with "Get Started Free" buttons.
-
-### 6. Route & Sitemap Updates
-
-- Add `/developer-api` route (lazy-loaded) in App.jsx
-- Add to sitemap.xml
-
-### Technical Details
-
-**Navbar mega-menu implementation:**
-- Use `onMouseEnter`/`onMouseLeave` on each nav item wrapper
-- State: `activeDropdown` string or null
-- Dropdown panels rendered conditionally below nav, positioned absolutely
-- Each panel is a grid of link items with icons and short descriptions
-- Close on scroll or route change
-
-**Files to create:** `src/pages/DeveloperApiPage.jsx`
-
-**Files to edit:**
-- `src/components/Navbar.jsx` — Full rewrite of desktop nav to mega-menu + mobile accordion sections
-- `src/components/Footer.jsx` — Bottom bar fix, header styling, Developer API link update
-- `src/pages/BlogPage.jsx` — More posts, newsletter CTA
-- `src/pages/CaseStudiesPage.jsx` — Richer content, CTAs
-- `src/pages/PressPage.jsx` — Media kit, more releases
-- `src/pages/CareersPage.jsx` — Benefits section, email fix
-- `src/pages/PartnersPage.jsx` — Process section, email fix
-- `src/pages/DocsPage.jsx` — Help section
-- `src/pages/SolutionsPage.jsx` — More content, CTAs
-- `src/App.jsx` — Developer API route
-- `public/sitemap.xml` — Developer API URL
+| File | Change |
+|------|--------|
+| `src/components/Navbar.jsx` | Reorder Products, add Features/FAQs/Creators/Professionals; switch hash links to navigate-with-state; add hover prefetch |
+| `src/components/Footer.jsx` | Add Sorix Agents in Tools; add new Solutions; navigate-with-state for hash links |
+| `src/pages/Index.jsx` | Read `location.state.scrollTo` on mount → smooth scroll to that section |
+| `src/pages/SolutionsPage.jsx` | Add `ai-for-creators` and `ai-for-professionals` slug content |
+| `src/pages/DeveloperApiPage.jsx` | Verify Coming Soon hero, no changes needed if prominent |
+| `src/components/chat/ChatWidget.tsx` | Allow guest, AI subtitle, call new edge fn, friendly empty state |
+| `src/hooks/useChat.ts` | After user message → invoke `support-chat` fn → insert AI reply as employee |
+| `supabase/functions/support-chat/index.ts` | **NEW** — DeepSeek-powered Sorix Support AI via Lovable AI Gateway |
+| `supabase/config.toml` | Register `support-chat` (verify_jwt = false to allow guests) |
+| `public/sitemap.xml` | Add 2 new solution slugs |
+| Migration | Fix monthly billing rows + default |
 
