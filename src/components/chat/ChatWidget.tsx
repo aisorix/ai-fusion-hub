@@ -49,19 +49,11 @@ export const ChatWidget = forwardRef<ChatWidgetRef>((_, ref) => {
   }, [isOpen, unreadCount, markAsRead]);
 
   const handleToggle = () => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
     setIsOpen(!isOpen);
     setIsMinimized(false);
   };
 
   const openChat = () => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
     setIsOpen(true);
     setIsMinimized(false);
   };
@@ -92,10 +84,9 @@ export const ChatWidget = forwardRef<ChatWidgetRef>((_, ref) => {
             </div>
             <div>
               <h3 className="font-semibold text-sm">AI Sorix Support</h3>
-              <p className="text-xs opacity-90">
-                {conversation?.status === 'active' 
-                  ? '● Online' 
-                  : 'We\'ll respond shortly'}
+              <p className="text-xs opacity-90 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Online — AI Support
               </p>
             </div>
           </div>
@@ -135,10 +126,10 @@ export const ChatWidget = forwardRef<ChatWidgetRef>((_, ref) => {
                 <MessageCircle className="h-8 w-8 text-primary" />
               </div>
               <h4 className="font-medium text-foreground mb-2">
-                Welcome to AI Sorix Support
+                Hi! I'm your AI Sorix assistant 👋
               </h4>
               <p className="text-sm text-muted-foreground">
-                Send us a message and we'll get back to you as soon as possible.
+                Ask anything — features, pricing, how-tos. I'm here 24/7. For payments, email <span className="text-primary">support@aisorix.com</span>.
               </p>
             </div>
           ) : (
