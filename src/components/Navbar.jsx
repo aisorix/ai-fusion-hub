@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, ChevronDown, ChevronRight, Globe, User, LogOut, MessageSquare, Presentation, ImageIcon, Heart, Leaf, Crown, Bot, Workflow, Cpu, GraduationCap, Rocket, FlaskConical, BookOpen, Newspaper, Briefcase, Handshake, Mail, FileText, Users, Code } from "lucide-react";
+import { Menu, X, ChevronDown, ChevronRight, Globe, User, LogOut, MessageSquare, Presentation, ImageIcon, Heart, Leaf, Crown, Bot, Workflow, Cpu, GraduationCap, Rocket, FlaskConical, BookOpen, Newspaper, Briefcase, Handshake, Mail, FileText, Users, Code, Sparkles, HelpCircle, Palette, UserCheck } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useEmployeeRole } from "../hooks/useEmployeeRole";
@@ -20,6 +20,7 @@ const megaMenus = {
     label: "Products",
     columns: [
       [
+        { icon: Bot, name: "AI Agents", desc: "Autonomous task execution", to: "/agent" },
         { icon: MessageSquare, name: "AI Chat", desc: "Multi-model AI conversations", to: "/chat" },
         { icon: Presentation, name: "Sorix Deck", desc: "AI-powered presentations", to: "/deck" },
         { icon: ImageIcon, name: "Sorix Imagine", desc: "AI image generation", to: "/imagine" },
@@ -29,7 +30,7 @@ const megaMenus = {
         { icon: Heart, name: "Sorix Health", desc: "AI health analysis", to: "/health" },
         { icon: Leaf, name: "Sorix Agro", desc: "AI agriculture insights", to: "/agro" },
         { icon: Crown, name: "Sorix Legends", desc: "Chat with historical figures", to: "/legends" },
-        { icon: Bot, name: "AI Agents", desc: "Autonomous task execution", to: "/agent" },
+        { icon: Sparkles, name: "Features", desc: "Explore all capabilities", scrollTo: "features" },
       ],
     ],
   },
@@ -39,10 +40,12 @@ const megaMenus = {
       [
         { icon: Workflow, name: "Workflow Automation", desc: "Automate repetitive tasks", to: "/solutions/workflow-automation" },
         { icon: GraduationCap, name: "AI for Educators", desc: "Transform teaching with AI", to: "/solutions/ai-for-educators" },
+        { icon: Palette, name: "AI for Creators", desc: "Design, write & create faster", to: "/solutions/ai-for-creators" },
       ],
       [
         { icon: Rocket, name: "AI for Startups", desc: "Scale faster with AI", to: "/solutions/ai-for-startups" },
         { icon: FlaskConical, name: "AI for Researchers", desc: "Accelerate research", to: "/solutions/ai-for-researchers" },
+        { icon: UserCheck, name: "AI for Professionals", desc: "Boost daily productivity", to: "/solutions/ai-for-professionals" },
       ],
     ],
   },
@@ -55,8 +58,9 @@ const megaMenus = {
         { icon: Cpu, name: "Documentation", desc: "Guides & feature docs", to: "/docs" },
       ],
       [
-        { icon: Code, name: "Developer API", desc: "Coming Soon", to: "/developer-api" },
+        { icon: Code, name: "Developer API", desc: "Programmatic access", to: "/developer-api" },
         { icon: Users, name: "Community", desc: "Reviews & discussions", to: "/reviews" },
+        { icon: HelpCircle, name: "FAQs", desc: "Frequently asked questions", scrollTo: "faq" },
       ],
     ],
   },
@@ -69,7 +73,7 @@ const megaMenus = {
         { icon: Briefcase, name: "Careers", desc: "Join our team", to: "/careers" },
       ],
       [
-        { icon: Mail, name: "Contact Us", desc: "Get in touch", href: "/#contact" },
+        { icon: Mail, name: "Contact Us", desc: "Get in touch", scrollTo: "contact" },
         { icon: Handshake, name: "Partners", desc: "Partner ecosystem", to: "/partners" },
       ],
     ],
