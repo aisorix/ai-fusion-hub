@@ -1,11 +1,23 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { Mail, Twitter, Linkedin, Youtube, Facebook, Instagram, MessageSquare, Presentation, ImageIcon, Heart, Leaf, Crown, Globe } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Mail, Twitter, Linkedin, Youtube, Facebook, Instagram, MessageSquare, Presentation, ImageIcon, Heart, Leaf, Crown, Bot, Globe } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import logo from "../assets/logo.png";
 
 const Footer = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const scrollToSection = (e, sectionId) => {
+    e.preventDefault();
+    if (location.pathname === "/") {
+      const el = document.getElementById(sectionId);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      navigate("/", { state: { scrollTo: sectionId } });
+    }
+  };
 
   const socialLinks = [
     { icon: Facebook, href: "https://facebook.com/profile.php?id=61586687081259", label: "Facebook" },

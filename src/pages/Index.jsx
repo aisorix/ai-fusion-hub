@@ -1,5 +1,5 @@
 import { useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 import Navbar from "@/components/Navbar";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
@@ -19,6 +19,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, isLoading } = useAuth();
 
   // Redirect to /chat after email verification or OAuth
@@ -29,6 +30,21 @@ const Index = () => {
       navigate('/chat');
     }
   }, [user, isLoading, navigate]);
+
+  // Cross-page scroll: navigate('/', { state: { scrollTo: 'pricing' } }) → scroll here
+  useEffect(() => {
+    const target = location.state?.scrollTo;
+    if (!target) return;
+    // Wait for sections to mount, then scroll
+    const timer = setTimeout(() => {
+      const el = document.getElementById(target);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Clear state so refresh doesn't re-scroll
+      window.history.replaceState({}, document.title);
+    }, 120);
+    return () => clearTimeout(timer);
+  }, [location.state]);
+
   const chatRef = useRef(null);
 
   const handleOpenChat = () => {
