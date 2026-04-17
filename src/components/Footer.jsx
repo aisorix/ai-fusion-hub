@@ -216,7 +216,7 @@ const Footer = () => {
               <li>
                 <a
                   href="/#contact"
-                  onClick={(e) => { e.preventDefault(); document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+                  onClick={(e) => scrollToSection(e, 'contact')}
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   Contact Us
