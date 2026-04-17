@@ -61,17 +61,17 @@ const Footer = () => {
             <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">{t("product")}</h4>
             <ul className="space-y-3 sm:space-y-4">
               <li>
-                <a href="/#features" onClick={(e) => { e.preventDefault(); document.getElementById('features')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <a href="/#features" onClick={(e) => scrollToSection(e, 'features')} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   {t("features")}
                 </a>
               </li>
               <li>
-                <a href="/#pricing" onClick={(e) => { e.preventDefault(); document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <a href="/#pricing" onClick={(e) => scrollToSection(e, 'pricing')} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   {t("pricing")}
                 </a>
               </li>
               <li>
-                <a href="/#faq" onClick={(e) => { e.preventDefault(); document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <a href="/#faq" onClick={(e) => scrollToSection(e, 'faq')} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   {t("faqs")}
                 </a>
               </li>
@@ -90,6 +90,11 @@ const Footer = () => {
               <li>
                 <Link to="/chat" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
                   <MessageSquare className="w-3.5 h-3.5" /> AI Chat
+                </Link>
+              </li>
+              <li>
+                <Link to="/agent" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
+                  <Bot className="w-3.5 h-3.5" /> Sorix Agents
                 </Link>
               </li>
               <li>
@@ -135,8 +140,8 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/agent" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  AI Agents
+                <Link to="/solutions/ai-for-creators" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  AI for Creators
                 </Link>
               </li>
               <li>
@@ -147,6 +152,11 @@ const Footer = () => {
               <li>
                 <Link to="/solutions/ai-for-researchers" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   AI for Researchers
+                </Link>
+              </li>
+              <li>
+                <Link to="/solutions/ai-for-professionals" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  AI for Professionals
                 </Link>
               </li>
             </ul>
