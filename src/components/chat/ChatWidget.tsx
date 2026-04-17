@@ -7,7 +7,7 @@ import { ChatInput } from './ChatInput';
 import { useChat } from '@/hooks/useChat';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-import { useNavigate } from 'react-router-dom';
+
 
 export interface ChatWidgetRef {
   openChat: () => void;
@@ -18,8 +18,7 @@ export const ChatWidget = forwardRef<ChatWidgetRef>((_, ref) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
-  const navigate = useNavigate();
-  
+
   const {
     conversation,
     messages,
@@ -85,7 +84,7 @@ export const ChatWidget = forwardRef<ChatWidgetRef>((_, ref) => {
             <div>
               <h3 className="font-semibold text-sm">AI Sorix Support</h3>
               <p className="text-xs opacity-90 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
                 Online — AI Support
               </p>
             </div>

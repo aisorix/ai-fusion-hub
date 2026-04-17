@@ -103,6 +103,18 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://www.aisorix.com/solutions/ai-for-creators</loc>
+    <lastmod>2026-04-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.aisorix.com/solutions/ai-for-professionals</loc>
+    <lastmod>2026-04-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.aisorix.com/login</loc>
     <lastmod>2026-04-15</lastmod>
     <changefreq>monthly</changefreq>
