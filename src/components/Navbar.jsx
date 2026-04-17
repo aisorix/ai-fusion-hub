@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, ChevronDown, ChevronRight, Globe, User, LogOut, MessageSquare, Presentation, ImageIcon, Heart, Leaf, Crown, Bot, Workflow, Cpu, GraduationCap, Rocket, FlaskConical, BookOpen, Newspaper, Briefcase, Handshake, Mail, FileText, Users, Code } from "lucide-react";
+import { Menu, X, ChevronDown, ChevronRight, Globe, User, LogOut, MessageSquare, Presentation, ImageIcon, Heart, Leaf, Crown, Bot, Workflow, Cpu, GraduationCap, Rocket, FlaskConical, BookOpen, Newspaper, Briefcase, Handshake, Mail, FileText, Users, Code, Sparkles, HelpCircle, Palette, UserCheck } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useEmployeeRole } from "../hooks/useEmployeeRole";
@@ -20,6 +20,7 @@ const megaMenus = {
     label: "Products",
     columns: [
       [
+        { icon: Bot, name: "AI Agents", desc: "Autonomous task execution", to: "/agent" },
         { icon: MessageSquare, name: "AI Chat", desc: "Multi-model AI conversations", to: "/chat" },
         { icon: Presentation, name: "Sorix Deck", desc: "AI-powered presentations", to: "/deck" },
         { icon: ImageIcon, name: "Sorix Imagine", desc: "AI image generation", to: "/imagine" },
@@ -29,7 +30,7 @@ const megaMenus = {
         { icon: Heart, name: "Sorix Health", desc: "AI health analysis", to: "/health" },
         { icon: Leaf, name: "Sorix Agro", desc: "AI agriculture insights", to: "/agro" },
         { icon: Crown, name: "Sorix Legends", desc: "Chat with historical figures", to: "/legends" },
-        { icon: Bot, name: "AI Agents", desc: "Autonomous task execution", to: "/agent" },
+        { icon: Sparkles, name: "Features", desc: "Explore all capabilities", scrollTo: "features" },
       ],
     ],
   },
@@ -39,10 +40,12 @@ const megaMenus = {
       [
         { icon: Workflow, name: "Workflow Automation", desc: "Automate repetitive tasks", to: "/solutions/workflow-automation" },
         { icon: GraduationCap, name: "AI for Educators", desc: "Transform teaching with AI", to: "/solutions/ai-for-educators" },
+        { icon: Palette, name: "AI for Creators", desc: "Design, write & create faster", to: "/solutions/ai-for-creators" },
       ],
       [
         { icon: Rocket, name: "AI for Startups", desc: "Scale faster with AI", to: "/solutions/ai-for-startups" },
         { icon: FlaskConical, name: "AI for Researchers", desc: "Accelerate research", to: "/solutions/ai-for-researchers" },
+        { icon: UserCheck, name: "AI for Professionals", desc: "Boost daily productivity", to: "/solutions/ai-for-professionals" },
       ],
     ],
   },
@@ -55,8 +58,9 @@ const megaMenus = {
         { icon: Cpu, name: "Documentation", desc: "Guides & feature docs", to: "/docs" },
       ],
       [
-        { icon: Code, name: "Developer API", desc: "Coming Soon", to: "/developer-api" },
+        { icon: Code, name: "Developer API", desc: "Programmatic access", to: "/developer-api" },
         { icon: Users, name: "Community", desc: "Reviews & discussions", to: "/reviews" },
+        { icon: HelpCircle, name: "FAQs", desc: "Frequently asked questions", scrollTo: "faq" },
       ],
     ],
   },
@@ -69,7 +73,7 @@ const megaMenus = {
         { icon: Briefcase, name: "Careers", desc: "Join our team", to: "/careers" },
       ],
       [
-        { icon: Mail, name: "Contact Us", desc: "Get in touch", href: "/#contact" },
+        { icon: Mail, name: "Contact Us", desc: "Get in touch", scrollTo: "contact" },
         { icon: Handshake, name: "Partners", desc: "Partner ecosystem", to: "/partners" },
       ],
     ],
@@ -89,6 +93,7 @@ const Navbar = () => {
   const langRef = useRef(null);
   const dropdownTimeout = useRef(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const handleSignOut = async () => {
     await signOut();
@@ -139,24 +144,31 @@ const Navbar = () => {
     dropdownTimeout.current = setTimeout(() => setActiveDropdown(null), 150);
   };
 
-  const handleContactClick = (e) => {
-    e.preventDefault();
+  // Universal section scroll: works from any page
+  const scrollToSection = (sectionId) => {
     setMobileMenuOpen(false);
     setActiveDropdown(null);
-    setTimeout(() => {
-      const el = document.getElementById("contact");
+    if (location.pathname === "/") {
+      const el = document.getElementById(sectionId);
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+    } else {
+      navigate("/", { state: { scrollTo: sectionId } });
+    }
+  };
+
+  const handleSectionClick = (e, sectionId) => {
+    e.preventDefault();
+    scrollToSection(sectionId);
   };
 
   const renderMegaItem = (item) => {
     const Icon = item.icon;
-    if (item.href) {
+    if (item.scrollTo) {
       return (
         <a
           key={item.name}
-          href={item.href}
-          onClick={item.href === "/#contact" ? handleContactClick : undefined}
+          href={`/#${item.scrollTo}`}
+          onClick={(e) => handleSectionClick(e, item.scrollTo)}
           className="flex items-start gap-3 p-3 rounded-xl hover:bg-muted/60 transition-colors group"
         >
           <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
@@ -234,14 +246,10 @@ const Navbar = () => {
                 </div>
               ))}
 
-              {/* Pricing - direct scroll link */}
+              {/* Pricing - universal scroll */}
               <a
                 href="/#pricing"
-                onClick={(e) => {
-                  e.preventDefault();
-                  const el = document.getElementById("pricing");
-                  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                }}
+                onClick={(e) => handleSectionClick(e, "pricing")}
                 className="px-3.5 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/40"
               >
                 {t("pricing")}
@@ -418,12 +426,12 @@ const Navbar = () => {
                       <div className="pb-4 space-y-1 animate-in fade-in slide-in-from-top-1 duration-150">
                         {menu.columns.flat().map((item) => {
                           const Icon = item.icon;
-                          if (item.href) {
+                          if (item.scrollTo) {
                             return (
                               <a
                                 key={item.name}
-                                href={item.href}
-                                onClick={item.href === "/#contact" ? handleContactClick : undefined}
+                                href={`/#${item.scrollTo}`}
+                                onClick={(e) => handleSectionClick(e, item.scrollTo)}
                                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted/50 transition-colors"
                               >
                                 <Icon className="w-4 h-4 text-primary" />
@@ -454,17 +462,10 @@ const Navbar = () => {
                   </div>
                 ))}
 
-                {/* Pricing link */}
+                {/* Pricing link - universal */}
                 <a
                   href="/#pricing"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setMobileMenuOpen(false);
-                    setTimeout(() => {
-                      const el = document.getElementById("pricing");
-                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                    }, 300);
-                  }}
+                  onClick={(e) => handleSectionClick(e, "pricing")}
                   className="flex items-center py-4 text-sm font-semibold text-foreground"
                 >
                   {t("pricing")}

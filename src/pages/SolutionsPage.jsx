@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Workflow, GraduationCap, Rocket, FlaskConical, ArrowRight, CheckCircle, Quote, Users, Zap, Globe, Mail } from "lucide-react";
+import { Workflow, GraduationCap, Rocket, FlaskConical, ArrowRight, CheckCircle, Quote, Users, Zap, Globe, Mail, Palette, UserCheck } from "lucide-react";
 
 const solutionsData = {
   "workflow-automation": {
@@ -132,6 +132,70 @@ const solutionsData = {
     testimonial: {
       quote: "What used to take me weeks of reading papers now takes hours. AI Sorix's multi-model approach gives me perspectives I wouldn't have found on my own.",
       author: "PhD Researcher, University of Dhaka",
+    },
+  },
+  "ai-for-creators": {
+    icon: Palette,
+    title: "AI for Creators",
+    subtitle: "Design, write, and ship creative work faster with multi-model AI built for content creators.",
+    seoTitle: "AI for Creators | AI Sorix - AI Tools for Designers, Writers & Creators",
+    seoDesc: "AI Sorix empowers creators worldwide with AI image generation, presentation design, content writing, and multi-model chat — all in one creative workspace.",
+    benefits: [
+      "Generate visuals & illustrations with Sorix Imagine",
+      "Write blog posts, scripts, and captions with multi-model AI",
+      "Design presentations & decks in minutes with Sorix Deck",
+      "Brainstorm ideas with GPT-5, Claude, and Gemini side-by-side",
+      "Export to PDF, DOCX, PNG, and Markdown",
+      "Affordable plans built for solo creators and small studios",
+    ],
+    useCases: [
+      "Content creators producing videos, blogs, and newsletters",
+      "Graphic designers iterating on visual concepts",
+      "Social media managers scaling content across platforms",
+      "YouTubers writing scripts and generating thumbnails",
+      "Photographers creating mood boards and edits",
+      "Indie game developers writing lore and concept art",
+    ],
+    stats: [
+      { value: "10x", label: "Faster output" },
+      { value: "15+", label: "AI models" },
+      { value: "$0", label: "To get started" },
+    ],
+    testimonial: {
+      quote: "AI Sorix replaced four creator subscriptions for me — Imagine for visuals, Deck for client pitches, and multi-model chat for scripts. Game changer.",
+      author: "Independent Content Creator",
+    },
+  },
+  "ai-for-professionals": {
+    icon: UserCheck,
+    title: "AI for Professionals",
+    subtitle: "Boost daily productivity with an AI co-worker that handles emails, reports, research, and decisions.",
+    seoTitle: "AI for Professionals | AI Sorix - AI Productivity for Knowledge Workers",
+    seoDesc: "AI Sorix is the AI productivity platform for professionals — lawyers, consultants, analysts, and managers. Multi-model chat, document analysis, and AI agents in one workspace.",
+    benefits: [
+      "Draft emails, reports, and proposals in seconds",
+      "Summarize long documents, contracts, and meetings",
+      "Multi-model AI for cross-checking critical decisions",
+      "AI Agents that handle multi-step tasks autonomously",
+      "Secure workspace with private chat history",
+      "Works in English and Bengali",
+    ],
+    useCases: [
+      "Consultants generating client deliverables faster",
+      "Lawyers summarizing contracts and case law",
+      "Analysts synthesizing market research",
+      "Managers writing performance reviews and OKRs",
+      "Accountants explaining financial concepts to clients",
+      "Sales reps drafting proposals and follow-up emails",
+    ],
+    stats: [
+      { value: "8h+", label: "Saved per week" },
+      { value: "15+", label: "AI models" },
+      { value: "100%", label: "Private & secure" },
+    ],
+    testimonial: {
+      quote: "I run my entire consulting practice on AI Sorix. From client research to proposals to follow-ups — it's like hiring a senior analyst for $20/month.",
+      author: "Independent Strategy Consultant",
     },
   },
 };
