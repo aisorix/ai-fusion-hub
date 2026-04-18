@@ -185,7 +185,7 @@ const Login = () => {
 
       {/* Footer */}
       <div className="p-4 text-center">
-        <p className="text-xs text-muted-foreground">© 2025 AI Sorix by Sorixlab. All rights reserved.</p>
+        <p className="text-xs text-muted-foreground">© 2026 AI Sorix by Sorixlab. All rights reserved.</p>
       </div>
     </div>
   );
