@@ -82,12 +82,23 @@ const DocsPage = () => {
           </div>
         </section>
 
+        {/* API Teaser */}
+        <section className="mb-16 bg-card border border-border rounded-2xl p-6 sm:p-10">
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-3">Developer API — Coming Soon</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+            The AI Sorix Developer API will let you embed multi-model AI (GPT-5, Claude, Gemini 3, DeepSeek, and more) directly into your apps — with unified authentication, usage tracking, and the same zero-trust privacy guarantees you get in the workspace. Join the waitlist to be among the first to receive an API key.
+          </p>
+          <Link to="/developer-api" className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
+            Learn more <ArrowRight className="w-4 h-4" />
+          </Link>
+        </section>
+
         {/* Need Help */}
         <div className="bg-card border border-border rounded-2xl p-8 sm:p-12 text-center">
           <HelpCircle className="w-8 h-8 text-primary mx-auto mb-3" />
           <h2 className="text-xl font-semibold text-foreground mb-2">Need Help?</h2>
           <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
-            Can't find what you're looking for? Our support team is here to help you get the most out of AI Sorix.
+            Can't find what you're looking for? Our 24/7 AI support assistant is one click away in the chat widget — or email our team for personalised help.
           </p>
           <a href="mailto:support@aisorix.com?subject=Documentation%20Help" className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
             <Mail className="w-4 h-4" /> support@aisorix.com

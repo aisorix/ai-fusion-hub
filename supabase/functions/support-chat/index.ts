@@ -59,30 +59,37 @@ Deno.serve(async (req) => {
       content: String(m.content || '').slice(0, 4000),
     }));
 
-    const callModel = async (model: string) => {
+    const callModel = async (model: string, useCompletionTokens: boolean) => {
+      const body: Record<string, unknown> = {
+        model,
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          ...trimmed,
+        ],
+      };
+      // GPT-5 family requires max_completion_tokens and does NOT accept temperature.
+      if (useCompletionTokens) {
+        body.max_completion_tokens = 800;
+      } else {
+        body.max_tokens = 600;
+        body.temperature = 0.6;
+      }
       return await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${LOVABLE_API_KEY}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          model,
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            ...trimmed,
-          ],
-          temperature: 0.6,
-          max_tokens: 600,
-        }),
+        body: JSON.stringify(body),
       });
     };
 
-    // Primary: DeepSeek v3.2; fallback to gpt-5-mini
-    let res = await callModel('deepseek/deepseek-v3.2');
+    // Primary: GPT-5 mini (reliable on Lovable Gateway); fallback to DeepSeek v3.2
+    let res = await callModel('openai/gpt-5-mini', true);
     if (!res.ok) {
-      console.warn('DeepSeek failed, falling back to gpt-5-mini', res.status);
-      res = await callModel('openai/gpt-5-mini');
+      const errText = await res.text().catch(() => '');
+      console.warn('gpt-5-mini failed, falling back to deepseek-v3.2', res.status, errText);
+      res = await callModel('deepseek/deepseek-v3.2', false);
     }
 
     if (!res.ok) {

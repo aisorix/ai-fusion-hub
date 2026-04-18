@@ -263,11 +263,12 @@ const Footer = () => {
           <p className="text-muted-foreground text-xs sm:text-sm">
             © 2026 AI Sorix. {t("allRightsReserved")}
           </p>
-          <div className="flex items-center gap-1.5 text-muted-foreground text-xs sm:text-sm">
+          {/* Hidden on mobile — shown from sm: upwards */}
+          <div className="hidden sm:flex items-center gap-1.5 text-muted-foreground text-xs sm:text-sm">
             <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
-            <span>Built in Bangladesh. Powering AI across Asia.</span>
+            <span>Global AI Workspace. Built for the world.</span>
           </div>
-          <div className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm">
+          <div className="hidden sm:flex items-center gap-2 text-muted-foreground text-xs sm:text-sm">
             <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <a href="mailto:support@aisorix.com" className="hover:text-primary transition-colors">
               support@aisorix.com

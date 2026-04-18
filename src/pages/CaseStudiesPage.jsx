@@ -134,11 +134,29 @@ const CaseStudiesPage = () => {
           ))}
         </div>
 
+        {/* Outcomes Overview */}
+        <section className="mt-16 sm:mt-20">
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center mb-8">Measurable Outcomes Across Industries</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { value: "50,000+", label: "Active users worldwide" },
+              { value: "3x", label: "Avg. content output" },
+              { value: "25+ hrs", label: "Saved per week" },
+              { value: "60%", label: "Faster research cycles" },
+            ].map((s, i) => (
+              <div key={i} className="bg-card border border-border rounded-2xl p-5 text-center">
+                <p className="text-xl sm:text-2xl font-bold text-foreground">{s.value}</p>
+                <p className="text-xs text-muted-foreground mt-1">{s.label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* CTA */}
-        <section className="mt-16 sm:mt-20 bg-card border border-border rounded-2xl p-8 sm:p-12 text-center">
+        <section className="mt-12 sm:mt-16 bg-card border border-border rounded-2xl p-8 sm:p-12 text-center">
           <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-3">Get Similar Results</h2>
           <p className="text-sm text-muted-foreground mb-6 max-w-lg mx-auto">
-            Ready to transform your organization with AI? Get in touch and let us show you how AI Sorix can help.
+            Ready to transform your organization with AI? Get in touch and let our team show you how AI Sorix can deliver measurable impact for your team — anywhere in the world.
           </p>
           <a
             href="mailto:support@aisorix.com?subject=Case%20Study%20Inquiry"

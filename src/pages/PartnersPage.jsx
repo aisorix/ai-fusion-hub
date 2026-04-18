@@ -115,12 +115,41 @@ const PartnersPage = () => {
           </div>
         </section>
 
+        {/* Partner Tiers */}
+        <section className="mb-16 sm:mb-20">
+          <h2 className="text-2xl font-bold text-foreground text-center mb-10">Partner Tiers</h2>
+          <div className="overflow-x-auto rounded-2xl border border-border">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/40">
+                <tr>
+                  <th className="text-left p-4 font-semibold text-foreground">Tier</th>
+                  <th className="text-left p-4 font-semibold text-foreground">For</th>
+                  <th className="text-left p-4 font-semibold text-foreground">Key Benefit</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {[
+                  { tier: "Silver", who: "Small teams & resellers", benefit: "10% revenue share, partner badge" },
+                  { tier: "Gold", who: "Established agencies", benefit: "20% revenue share, co-marketing, API early access" },
+                  { tier: "Platinum", who: "Enterprise & regional distributors", benefit: "Custom revenue share, dedicated success manager, exclusive territory" },
+                ].map((row) => (
+                  <tr key={row.tier} className="bg-card">
+                    <td className="p-4 font-semibold text-foreground">{row.tier}</td>
+                    <td className="p-4 text-muted-foreground">{row.who}</td>
+                    <td className="p-4 text-muted-foreground">{row.benefit}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
         {/* CTA */}
         <div className="bg-card border border-border rounded-2xl p-8 sm:p-12 text-center">
           <Handshake className="w-8 h-8 text-primary mx-auto mb-3" />
           <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Become a Partner</h2>
           <p className="text-sm text-muted-foreground mb-6 max-w-lg mx-auto">
-            Interested in partnering with AI Sorix? Reach out and let's explore how we can grow together in the AI ecosystem.
+            Interested in partnering with AI Sorix? Reach out and let's explore how we can grow together — across education, enterprise, startups, and global distribution.
           </p>
           <a
             href="mailto:support@aisorix.com?subject=Partnership%20Inquiry"

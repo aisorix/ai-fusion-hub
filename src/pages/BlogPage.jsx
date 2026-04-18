@@ -133,12 +133,44 @@ const BlogPage = () => {
           ))}
         </div>
 
+        {/* SEO Deep Dive Section */}
+        <section className="mt-16 sm:mt-20 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <article className="bg-card border border-border rounded-2xl p-6 sm:p-8 lg:col-span-2">
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-4">Why AI Sorix is the Leading Multi-Model AI Platform Worldwide</h2>
+            <div className="space-y-4 text-sm text-muted-foreground leading-relaxed">
+              <p>
+                AI Sorix is a unified, zero-trust AI workspace that gives professionals, students, researchers, and creators worldwide secure access to the most advanced AI models in a single platform. Unlike single-model chatbots, AI Sorix integrates <strong className="text-foreground">GPT-5, GPT-5.2, Claude Sonnet 4.5, Gemini 3 Pro, DeepSeek V3.2, Grok 4, Llama 4, Perplexity Sonar, Qwen 3, and Mistral</strong> — empowering you to choose the perfect model for every task without juggling subscriptions.
+              </p>
+              <p>
+                Our suite includes <strong className="text-foreground">AI Chat</strong> with multi-model intelligence, <strong className="text-foreground">Sorix Deck</strong> for AI presentations, <strong className="text-foreground">Sorix Imagine</strong> for image generation, <strong className="text-foreground">Sorix Health</strong> for medical research, <strong className="text-foreground">Sorix Agro</strong> for agricultural intelligence, <strong className="text-foreground">Sorix Legends</strong> for character chats, <strong className="text-foreground">Sorix Agents</strong> for autonomous task execution, and <strong className="text-foreground">FlowBuilder</strong> for AI diagrams. Every tool runs on a privacy-first, zero-trust architecture so your data never trains public models.
+              </p>
+              <p>
+                Whether you're an educator personalizing lessons, a creator producing content at scale, a startup automating research, or an enterprise deploying AI agents — AI Sorix delivers measurable productivity gains. Users worldwide report saving 25+ hours per week on routine knowledge work and increasing content output 3x without expanding headcount.
+              </p>
+            </div>
+          </article>
+          <aside className="bg-card border border-border rounded-2xl p-6 sm:p-8">
+            <h3 className="text-lg font-semibold text-foreground mb-3">Topics We Cover</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>• Multi-model AI workflows</li>
+              <li>• Zero-trust AI infrastructure</li>
+              <li>• Generative image & video AI</li>
+              <li>• AI for education & research</li>
+              <li>• Agricultural & health AI</li>
+              <li>• Autonomous AI agents</li>
+              <li>• AI productivity & automation</li>
+              <li>• Asia & global AI adoption</li>
+              <li>• Bengali & multilingual NLP</li>
+            </ul>
+          </aside>
+        </section>
+
         {/* Newsletter CTA */}
-        <section className="mt-16 sm:mt-20 bg-card border border-border rounded-2xl p-8 sm:p-12 text-center">
+        <section className="mt-12 sm:mt-16 bg-card border border-border rounded-2xl p-8 sm:p-12 text-center">
           <Rss className="w-8 h-8 text-primary mx-auto mb-4" />
           <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-3">Subscribe to AI Insights</h2>
           <p className="text-sm text-muted-foreground mb-6 max-w-lg mx-auto">
-            Get the latest AI news, product updates, and industry insights delivered to your inbox. Join thousands of AI professionals across Asia.
+            Get the latest AI news, product updates, model releases, and industry insights delivered to your inbox. Join thousands of AI professionals worldwide.
           </p>
           <a
             href="mailto:support@aisorix.com?subject=Newsletter%20Subscription"

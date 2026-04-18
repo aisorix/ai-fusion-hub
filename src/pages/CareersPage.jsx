@@ -26,21 +26,29 @@ const CareersPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Careers at AI Sorix | Join the Top AI Team in Bangladesh"
-        description="Join AI Sorix and help build the future of AI in Bangladesh and Asia. Explore open positions in engineering, design, AI research, content, and community management."
+        title="Careers at AI Sorix | Join Our Global AI Team"
+        description="Join AI Sorix and help build the world's most trusted multi-model AI workspace. Open roles in engineering, design, AI research, content, and community — fully remote."
         path="/careers"
       />
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-16 sm:py-24">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-20">
         <div className="text-center mb-12 sm:mb-16">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
             Careers at AI Sorix
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Help us build the #1 AI platform in Asia. We're based in Dhaka, Bangladesh and hiring globally.
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
+            Help us build the world's most trusted multi-model AI workspace. Remote-first, global team, hiring across continents.
           </p>
         </div>
+
+        {/* Mission */}
+        <section className="mb-12 sm:mb-16 bg-card border border-border rounded-2xl p-6 sm:p-10">
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-4">Our Mission</h2>
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+            At AI Sorix, we're building a unified, zero-trust AI workspace that gives professionals, creators, researchers, and enterprises worldwide secure access to the best frontier models — GPT-5, Claude Sonnet 4.5, Gemini 3 Pro, DeepSeek V3.2, and more — through one privacy-first platform. We believe access to advanced AI should not be locked behind walled gardens or compromised by data privacy concerns. If you want to ship globally-relevant AI products that millions rely on, we want to hear from you.
+          </p>
+        </section>
 
         {/* Why Work Here */}
         <section className="mb-16 sm:mb-20">

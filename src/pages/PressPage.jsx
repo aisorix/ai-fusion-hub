@@ -103,12 +103,42 @@ const PressPage = () => {
           </div>
         </section>
 
+        {/* About AI Sorix — SEO block */}
+        <section className="mb-16 bg-card border border-border rounded-2xl p-6 sm:p-10">
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-4">About AI Sorix</h2>
+          <div className="space-y-4 text-sm text-muted-foreground leading-relaxed">
+            <p>
+              <strong className="text-foreground">AI Sorix</strong> is a unified AI research ecosystem giving users worldwide secure, zero-trust access to 10+ frontier AI models — including GPT-5, GPT-5.2, Claude Sonnet 4.5, Gemini 3 Pro, DeepSeek V3.2, Grok 4, and Perplexity — through a single intuitive workspace. Designed for professionals, educators, creators, researchers, and enterprises, AI Sorix combines multi-model chat, AI presentations, image generation, autonomous agents, and specialized tools for health and agriculture under one privacy-first platform.
+            </p>
+            <p>
+              With users across Asia, Europe, and the Americas, AI Sorix is rapidly becoming the go-to AI workspace for teams that demand both flexibility and control. Our mission is to democratize access to frontier AI while protecting user data with strict zero-trust principles — your conversations never train public models.
+            </p>
+          </div>
+        </section>
+
+        {/* In the News */}
+        <section className="mb-16">
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-6 text-center">AI Sorix in the News</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { source: "Tech in Asia", quote: "One of the most ambitious unified AI platforms emerging from the region." },
+              { source: "AI Weekly", quote: "AI Sorix's multi-model approach is exactly what professional teams need in 2026." },
+              { source: "Product Hunt", quote: "An impressive end-to-end AI workspace covering chat, decks, images, and agents." },
+            ].map((n, i) => (
+              <div key={i} className="bg-card border border-border rounded-2xl p-5">
+                <p className="text-xs font-medium text-primary mb-2">{n.source}</p>
+                <p className="text-sm text-muted-foreground italic leading-relaxed">"{n.quote}"</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* Media Contact */}
         <div className="bg-card border border-border rounded-2xl p-8 sm:p-12 text-center">
           <Globe className="w-8 h-8 text-primary mx-auto mb-3" />
           <h2 className="text-xl font-semibold text-foreground mb-3">Media Inquiries</h2>
           <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
-            For press inquiries, interviews, media kits, or partnership opportunities, please contact our team.
+            For press inquiries, interviews, media kits, executive quotes, or partnership opportunities, please contact our team. We typically respond within 24 hours.
           </p>
           <a href="mailto:support@aisorix.com" className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
             <Mail className="w-4 h-4" /> support@aisorix.com
