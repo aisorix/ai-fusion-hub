@@ -26,8 +26,8 @@ const CareersPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Careers at AI Sorix | Join the Top AI Team in Bangladesh"
-        description="Join AI Sorix and help build the future of AI in Bangladesh and Asia. Explore open positions in engineering, design, AI research, content, and community management."
+        title="Careers at AI Sorix | Join Our Global AI Team"
+        description="Join AI Sorix and help build the world's most trusted multi-model AI workspace. Open roles in engineering, design, AI research, content, and community — fully remote."
         path="/careers"
       />
       <Navbar />
