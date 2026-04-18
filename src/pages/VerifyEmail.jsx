@@ -1,24 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Mail, Loader2, CheckCircle2, RefreshCw } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import logo from '../assets/logo.png';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { ArrowLeft, Mail, Loader2, CheckCircle2, RefreshCw } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import logo from "../assets/logo.png";
 
 const VerifyEmail = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
   const { user } = useAuth();
-  const [otp, setOtp] = useState('');
+  const [otp, setOtp] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
-  
+
   // Get email from location state or redirect to register
   const email = location.state?.email;
   const password = location.state?.password;
@@ -26,13 +26,13 @@ const VerifyEmail = () => {
 
   useEffect(() => {
     if (!email) {
-      navigate('/register');
+      navigate("/register");
     }
   }, [email, navigate]);
 
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate("/");
     }
   }, [user, navigate]);
 
@@ -47,21 +47,21 @@ const VerifyEmail = () => {
   const handleVerify = async () => {
     if (otp.length !== 6) {
       toast({
-        title: 'Invalid Code',
-        description: 'Please enter the 6-digit verification code.',
-        variant: 'destructive',
+        title: "Invalid Code",
+        description: "Please enter the 6-digit verification code.",
+        variant: "destructive",
       });
       return;
     }
 
     setIsVerifying(true);
-    
+
     try {
       // Verify OTP with Supabase
       const { data, error } = await supabase.auth.verifyOtp({
         email,
         token: otp,
-        type: 'signup',
+        type: "signup",
       });
 
       if (error) {
@@ -69,24 +69,24 @@ const VerifyEmail = () => {
       }
 
       toast({
-        title: 'Email Verified!',
-        description: 'Your account has been created successfully. Welcome to AI Sorix!',
+        title: "Email Verified!",
+        description: "Your account has been created successfully. Welcome to AI Sorix!",
       });
-      
+
       // Redirect to chat after successful verification
-      navigate('/chat');
+      navigate("/chat");
     } catch (error) {
-      console.error('Verification error:', error);
-      let errorMessage = 'Invalid or expired verification code. Please try again.';
-      if (error.message?.includes('expired')) {
-        errorMessage = 'Verification code has expired. Please request a new one.';
+      console.error("Verification error:", error);
+      let errorMessage = "Invalid or expired verification code. Please try again.";
+      if (error.message?.includes("expired")) {
+        errorMessage = "Verification code has expired. Please request a new one.";
       }
       toast({
-        title: 'Verification Failed',
+        title: "Verification Failed",
         description: errorMessage,
-        variant: 'destructive',
+        variant: "destructive",
       });
-      setOtp('');
+      setOtp("");
     } finally {
       setIsVerifying(false);
     }
@@ -94,30 +94,30 @@ const VerifyEmail = () => {
 
   const handleResend = async () => {
     if (resendCooldown > 0) return;
-    
+
     setIsResending(true);
-    
+
     try {
       const { error } = await supabase.auth.resend({
-        type: 'signup',
+        type: "signup",
         email,
       });
 
       if (error) throw error;
 
       toast({
-        title: 'Code Sent!',
-        description: 'A new verification code has been sent to your email.',
+        title: "Code Sent!",
+        description: "A new verification code has been sent to your email.",
       });
-      
+
       setResendCooldown(60); // 60 second cooldown
-      setOtp('');
+      setOtp("");
     } catch (error) {
-      console.error('Resend error:', error);
+      console.error("Resend error:", error);
       toast({
-        title: 'Failed to Resend',
-        description: error.message || 'Could not resend verification code. Please try again.',
-        variant: 'destructive',
+        title: "Failed to Resend",
+        description: error.message || "Could not resend verification code. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setIsResending(false);
@@ -132,7 +132,10 @@ const VerifyEmail = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-background flex flex-col">
       {/* Header */}
       <div className="p-4 md:p-6">
-        <Link to="/register" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+        <Link
+          to="/register"
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+        >
           <ArrowLeft className="w-4 h-4" />
           <span className="text-sm font-medium">Back to Register</span>
         </Link>
@@ -163,12 +166,7 @@ const VerifyEmail = () => {
           <CardContent className="space-y-6">
             {/* OTP Input */}
             <div className="flex flex-col items-center gap-4">
-              <InputOTP
-                maxLength={6}
-                value={otp}
-                onChange={setOtp}
-                disabled={isVerifying}
-              >
+              <InputOTP maxLength={6} value={otp} onChange={setOtp} disabled={isVerifying}>
                 <InputOTPGroup className="gap-2">
                   <InputOTPSlot index={0} className="h-14 w-12 text-xl border-border" />
                   <InputOTPSlot index={1} className="h-14 w-12 text-xl border-border" />
@@ -178,7 +176,7 @@ const VerifyEmail = () => {
                   <InputOTPSlot index={5} className="h-14 w-12 text-xl border-border" />
                 </InputOTPGroup>
               </InputOTP>
-              
+
               <p className="text-sm text-muted-foreground text-center">
                 Enter the code from your email. Check spam if not found.
               </p>
@@ -205,9 +203,7 @@ const VerifyEmail = () => {
 
             {/* Resend Code */}
             <div className="text-center space-y-3">
-              <p className="text-sm text-muted-foreground">
-                Didn't receive the code?
-              </p>
+              <p className="text-sm text-muted-foreground">Didn't receive the code?</p>
               <Button
                 variant="ghost"
                 onClick={handleResend}
@@ -235,7 +231,7 @@ const VerifyEmail = () => {
 
             {/* Help text */}
             <p className="text-center text-xs text-muted-foreground">
-              Having trouble?{' '}
+              Having trouble?{" "}
               <Link to="/#contact" className="text-primary hover:underline">
                 Contact Support
               </Link>
@@ -246,9 +242,7 @@ const VerifyEmail = () => {
 
       {/* Footer */}
       <div className="p-4 text-center">
-        <p className="text-xs text-muted-foreground">
-          © 2025 AI Sorix by Sorixlab. All rights reserved.
-        </p>
+        <p className="text-xs text-muted-foreground">© 2026 AI Sorix by Sorixlab. All rights reserved.</p>
       </div>
     </div>
   );
