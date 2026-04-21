@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CreditCard,
@@ -65,25 +65,12 @@ interface Subscription {
   cancelledAt?: Date;
 }
 
-// Mock subscription for demo
-const mockSubscription: Subscription = {
-  id: 'sub_demo_123',
-  planId: 'pro',
-  status: 'active',
-  billingCycle: 'monthly',
-  amount: 999,
-  currency: '৳',
-  currentPeriodStart: new Date(),
-  currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-};
-
 const SubscriptionTab: React.FC = () => {
   const { user, language } = useChatStore();
   const bn = language === 'bn';
   const CANCELLATION_REASONS = getCancellationReasons(bn);
-  const [subscription, setSubscription] = useState<Subscription | null>(
-    user.plan !== 'free' ? mockSubscription : null
-  );
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [loadingSub, setLoadingSub] = useState(true);
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState<{
@@ -99,6 +86,51 @@ const SubscriptionTab: React.FC = () => {
   const [acceptedOffer, setAcceptedOffer] = useState(false);
 
   const planDetails = PLAN_DETAILS[user.plan] || PLAN_DETAILS.free;
+
+  // Fetch real subscription on mount
+  useEffect(() => {
+    let active = true;
+    const fetchSub = async () => {
+      try {
+        const { data: authData } = await supabase.auth.getUser();
+        const uid = authData?.user?.id;
+        if (!uid) {
+          if (active) setLoadingSub(false);
+          return;
+        }
+        const { data, error } = await supabase
+          .from('subscriptions')
+          .select('id, plan_id, status, billing_cycle, amount, currency, current_period_start, current_period_end')
+          .eq('user_id', uid)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (error) {
+          console.error('Failed to fetch subscription:', error);
+        }
+
+        if (active && data && data.plan_id !== 'free') {
+          setSubscription({
+            id: data.id,
+            planId: data.plan_id,
+            status: (data.status as SubscriptionStatus) || 'active',
+            billingCycle: (data.billing_cycle as 'monthly' | 'yearly') || 'monthly',
+            amount: Number(data.amount) || 0,
+            currency: data.currency === 'BDT' ? '৳' : (data.currency || '৳'),
+            currentPeriodStart: new Date(data.current_period_start),
+            currentPeriodEnd: new Date(data.current_period_end),
+          });
+        }
+      } catch (err) {
+        console.error('Subscription fetch error:', err);
+      } finally {
+        if (active) setLoadingSub(false);
+      }
+    };
+    fetchSub();
+    return () => { active = false; };
+  }, [user.plan]);
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -378,7 +410,6 @@ const SubscriptionTab: React.FC = () => {
                 </p>
               </div>
 
-              {/* Special Offer Card */}
               <div className="p-5 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 border-2 border-primary/30">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-sm font-medium text-primary">{bn ? 'সীমিত সময়ের অফার' : 'Limited Time Offer'}</span>
@@ -519,7 +550,6 @@ const SubscriptionTab: React.FC = () => {
                 </p>
               </div>
 
-              {/* What you'll lose */}
               <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/20 space-y-3">
                 <h4 className="text-sm font-semibold text-red-500">{bn ? 'আপনি যা হারাবেন:' : 'You will lose access to:'}</h4>
                 <ul className="space-y-2">
@@ -532,7 +562,6 @@ const SubscriptionTab: React.FC = () => {
                 </ul>
               </div>
 
-              {/* Access until */}
               <div className="p-4 rounded-xl bg-muted border border-border">
                 <div className="flex items-center gap-3">
                   <Calendar className="w-5 h-5 text-muted-foreground" />
@@ -585,7 +614,6 @@ const SubscriptionTab: React.FC = () => {
             onClick={(e) => e.stopPropagation()}
             className="bg-background rounded-2xl border border-border p-6 max-w-md w-full max-h-[90vh] overflow-y-auto"
           >
-            {/* Progress indicator */}
             <div className="flex items-center gap-2 mb-6">
               {['reason', 'offer', 'feedback', 'confirm'].map((step, index) => (
                 <div
@@ -697,6 +725,21 @@ const SubscriptionTab: React.FC = () => {
     );
   };
 
+  if (loadingSub) {
+    return (
+      <div className="space-y-6">
+        <div className="rounded-2xl border border-border bg-card p-5 animate-pulse">
+          <div className="h-6 w-32 bg-muted rounded mb-3" />
+          <div className="h-4 w-48 bg-muted rounded mb-6" />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="h-20 bg-muted rounded-xl" />
+            <div className="h-20 bg-muted rounded-xl" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Current Plan Card */}
@@ -790,95 +833,73 @@ const SubscriptionTab: React.FC = () => {
             {subscription.status === 'paused' && subscription.pausedAt && (
               <div className="p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
                 <p className="text-sm text-yellow-600 dark:text-yellow-400">
-                  {bn ? `⏸️ ${formatDate(subscription.pausedAt)} তারিখে বিরতি দেওয়া হয়েছে। যেকোনো সময় পুনরায় শুরু করুন।` : `⏸️ Paused on ${formatDate(subscription.pausedAt)}. Resume anytime to continue your subscription.`}
+                  {bn ? 'বিরতি দেওয়া হয়েছে: ' : 'Paused on: '}
+                  <span className="font-medium">{formatDate(subscription.pausedAt)}</span>
                 </p>
               </div>
             )}
 
             {/* Cancel Info */}
-            {subscription.status === 'cancelled' && (
+            {subscription.status === 'cancelled' && subscription.cancelledAt && (
               <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20">
                 <p className="text-sm text-red-600 dark:text-red-400">
-                  {bn ? `❌ আপনার সাবস্ক্রিপশন ${formatDate(subscription.currentPeriodEnd)} তারিখে শেষ হবে। প্রিমিয়াম ফিচার রাখতে নবায়ন করুন।` : `❌ Your subscription will end on ${formatDate(subscription.currentPeriodEnd)}. Renew to keep your premium features.`}
+                  {bn ? 'বাতিল হয়েছে: ' : 'Cancelled on: '}
+                  <span className="font-medium">{formatDate(subscription.cancelledAt)}</span>
                 </p>
               </div>
             )}
           </div>
         )}
 
-        {!subscription && (
+        {!subscription && user.plan === 'free' && (
           <div className="p-5">
-            <p className="text-sm text-muted-foreground mb-4">
-              {bn ? 'আপনি ফ্রি প্ল্যানে আছেন। প্রিমিয়াম ফিচার আনলক করতে আপগ্রেড করুন!' : "You're on the free plan. Upgrade to unlock premium features!"}
-            </p>
-            <button
-              onClick={() => setShowUpgradeModal(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm font-medium"
-            >
-              <Sparkles className="w-4 h-4" />
-              {bn ? 'প্ল্যান আপগ্রেড করুন' : 'Upgrade Plan'}
-            </button>
+            <div className="text-center py-6">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                <Sparkles className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="font-semibold text-foreground mb-1">
+                {bn ? 'একটি প্ল্যানে আপগ্রেড করুন' : 'Upgrade to a paid plan'}
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                {bn ? 'সব AI মডেল এবং প্রিমিয়াম ফিচার আনলক করুন' : 'Unlock all AI models and premium features'}
+              </p>
+              <button
+                onClick={() => setShowUpgradeModal(true)}
+                className="px-6 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors text-sm"
+              >
+                {bn ? 'প্ল্যান দেখুন' : 'View Plans'}
+              </button>
+            </div>
           </div>
         )}
       </div>
 
-      {/* Quick Actions */}
-      <div className="space-y-2">
-        <h4 className="text-sm font-medium text-foreground px-1">{bn ? 'দ্রুত কাজ' : 'Quick Actions'}</h4>
-        
-        <button
-          onClick={() => setShowUpgradeModal(true)}
-          className="w-full flex items-center justify-between p-4 rounded-xl border border-border bg-card hover:bg-muted/50 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-              <CreditCard className="w-4 h-4 text-primary" />
-            </div>
-            <div className="text-left">
-              <p className="text-sm font-medium text-foreground">{bn ? 'প্ল্যান পরিবর্তন' : 'Change Plan'}</p>
-              <p className="text-xs text-muted-foreground">{bn ? 'আপনার সাবস্ক্রিপশন আপগ্রেড বা ডাউনগ্রেড করুন' : 'Upgrade or downgrade your subscription'}</p>
-            </div>
+      {/* Help Card */}
+      <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <HelpCircle className="w-5 h-5 text-primary" />
           </div>
-          <ChevronRight className="w-5 h-5 text-muted-foreground" />
-        </button>
-
-        <button
-          className="w-full flex items-center justify-between p-4 rounded-xl border border-border bg-card hover:bg-muted/50 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
-              <Receipt className="w-4 h-4 text-blue-500" />
-            </div>
-            <div className="text-left">
-              <p className="text-sm font-medium text-foreground">{bn ? 'পেমেন্ট ইতিহাস' : 'Payment History'}</p>
-              <p className="text-xs text-muted-foreground">{bn ? 'পূর্ববর্তী লেনদেন ও ইনভয়েস দেখুন' : 'View past transactions and invoices'}</p>
-            </div>
+          <div>
+            <h4 className="font-semibold text-foreground mb-1">
+              {bn ? 'সাহায্য প্রয়োজন?' : 'Need help?'}
+            </h4>
+            <p className="text-sm text-muted-foreground">
+              {bn
+                ? 'বিলিং বা সাবস্ক্রিপশন সংক্রান্ত যেকোনো প্রশ্নের জন্য '
+                : 'For any billing or subscription questions, email '}
+              <a href="mailto:support@aisorix.com" className="text-primary hover:underline font-medium">
+                support@aisorix.com
+              </a>
+            </p>
           </div>
-          <ChevronRight className="w-5 h-5 text-muted-foreground" />
-        </button>
+        </div>
       </div>
 
-      {/* Support Contact */}
-      <div className="p-4 rounded-xl bg-muted/50 border border-border">
-        <p className="text-xs sm:text-sm text-muted-foreground">
-          Need help with your subscription? Contact us at{' '}
-          <a 
-            href="mailto:support@aisorix.com" 
-            className="text-primary hover:underline font-medium"
-          >
-            support@aisorix.com
-          </a>
-        </p>
-      </div>
-
-      {/* Upgrade Modal */}
-      <UpgradePlanModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
-
-      {/* Confirm Modal */}
-      <ConfirmModal />
-
-      {/* Cancellation Flow Modal */}
+      {/* Modals */}
       <CancellationFlowModal />
+      <ConfirmModal />
+      <UpgradePlanModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
     </div>
   );
 };

@@ -173,16 +173,16 @@ const PlansTokensTab = () => {
                 </span>
               </div>
 
-              <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg bg-muted/50 opacity-60">
+              <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg bg-muted/50">
                 <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-md sm:rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
                   <Gamepad2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground text-xs sm:text-sm">Sorix Legends</p>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground truncate">Premium AI characters</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground truncate">Chat with iconic characters</p>
                 </div>
-                <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20 whitespace-nowrap">
-                  Premium
+                <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-green-500/10 text-green-500 border border-green-500/20 whitespace-nowrap">
+                  Free
                 </span>
               </div>
             </div>
