@@ -1,69 +1,96 @@
-Let me check the chat widget current state and register page quickly.
 
-Plan recap based on prior approved scope + this confirmation:
 
-## Final Polish: Chat Fix + Mobile Footer + Register Validation + SEO Expansion
+## Pro Polish Round 5: Navbar + Support Chat Tone + About Pages + Legends Tag + Subscription UI Fix
 
-### 1. Fix AI Support Chat (Critical)
+### 1. Navbar — rename Products → Features, add "AI for Freelancers", expand Agentic AI items
+**File:** `src/components/Navbar.jsx`
 
+- Rename top-level menu label **"Products" → "Features"** (key stays `products` internally; only the displayed `label` changes to `Features`).
+- **Solutions** menu — add new item **"AI for Freelancers"** → `/solutions/ai-for-freelancers` (icon: `Briefcase`).
+- **Features** (was Products) menu — add **2 more Agentic-AI / Agents-related entries** (navbar only, NOT footer):
+  - **Sorix Agent OS** — "Multi-agent autonomous workspace" → `/agent`
+  - **Agent Templates** — "Ready-to-use AI agent recipes" → `/agent` (anchor or reuse)
+- Mobile accordion mirrors all changes automatically (already iterates `megaMenus`).
+
+**File:** `src/pages/SolutionsPage.jsx` — add a new `ai-for-freelancers` slug with full SEO content (hero, benefits, stats, CTA, testimonial, schema). Match the existing pattern used for Creators / Professionals.
+
+**File:** `public/sitemap.xml` — add `/solutions/ai-for-freelancers`.
+
+### 2. Support Chat — make replies look professional & visually rich
 **File:** `supabase/functions/support-chat/index.ts`
 
-- Switch primary model to `openai/gpt-5-mini` (per user request, reliable)
-- Replace `max_tokens` with `max_completion_tokens` (GPT-5 family requirement)
-- Remove `temperature` param (not supported on GPT-5)
-- Keep DeepSeek as secondary fallback with correct params
-- Add better error logging
+Rewrite the SYSTEM_PROMPT to enforce a clean, premium support format:
 
-### 2. Mobile Footer Cleanup
+- Opening line: short warm greeting with a relevant emoji (👋, ✨, 💳, 🛠️, 🔐 etc. — chosen by topic).
+- Use markdown structure: small heading or **bold** label, followed by a tight bullet list (`•` or `- `) with a leading emoji per bullet (✅, 📌, 🔹, ⚡, 📧).
+- Keep it scannable — max ~6 bullets, no walls of text, no nested blockquotes.
+- End with a subtle action line (e.g., "Need anything else? I'm here. — *Sorix Support Team* ✨").
+- For payment/billing — single clean card-style block:
+  > 💳 **Billing Help**
+  > For payment & billing matters, please email us at **support@aisorix.com** with:
+  > • Your account email
+  > • Invoice / transaction ID
+  > • A short description of the issue
+  > Our team resolves these personally within hours. — *Sorix Support Team*
+- Forbid raw `>` blockquotes mid-sentence (which produced the messy reply in the screenshot).
 
-**File:** `src/components/Footer.jsx`
+Keep model setup as-is (gpt-5-mini primary, deepseek fallback).
 
-- Bottom bar: hide GEO tagline + email on mobile (`hidden sm:flex`)
-- Mobile shows ONLY: `© 2026 AI Sorix by Sorixlab. All rights reserved.` (centered)
-- Desktop unchanged (all 3 items visible)
+### 3. About pages — split "About Us" and "About SorixLab"
+- Keep existing `/about-sorix-lab` (the parent R&D lab) as it is.
+- Create a NEW page **`src/pages/AboutUsPage.jsx`** at route **`/about-us`** focused on AI Sorix the product/company:
+  - Hero: "About AI Sorix — The Global AI Workspace"
+  - Sections: Our Mission, Our Story, What We Build (10+ tools), Global Reach (Bangladesh → Asia → World), Trust & Security, Meet the Team (small note pointing to Sorix Lab page), CTA
+  - Full SEO: `<SEOHead>`, JSON-LD `Organization` schema
+  - Mobile-first responsive (`py-12 sm:py-20`, `text-3xl sm:text-5xl`)
+- **`src/App.jsx`** — register lazy route `/about-us` → `AboutUsPage`.
+- **`src/components/Navbar.jsx` (Company column):**
+  - **About Us** → `/about-us` (new page)
+  - **About SorixLab** → `/about-sorix-lab` (existing) — added as a separate entry under Company with icon `FlaskConical` and desc "Our parent R&D lab"
+- **`src/components/Footer.jsx` (Company column):** same split — About Us + About SorixLab as two separate links.
+- **`public/sitemap.xml`** — add `/about-us`.
 
-### 3. Register Email Validation
+### 4. Sorix Legends — remove "Premium" tag in Plans & Tokens
+**File:** `src/components/aichat/settings/PlansTokensTab.tsx`
 
-**File:** `src/pages/Register.jsx`
+In the "Free Tools for Everyone" card, the Sorix Legends row currently shows an amber "Premium" badge and `opacity-60`. Remove the `Premium` badge and the dimming so it renders cleanly alongside Health / Agro / Deck (no badge, full opacity).
 
-- Add zod-style email regex check before signup call
-- Detect `User already registered` / `already exists` errors from Supabase response → show "An account with this email already exists. Please sign in instead."
-- Show "Please enter a valid email address" for invalid format
-- Use sonner toast for all messages
+### 5. Subscription tab — show REAL billing dates (critical bug)
+**File:** `src/components/aichat/settings/SubscriptionTab.tsx`
 
-### 4. SEO/GEO Content Expansion
+Current code uses `mockSubscription` with `currentPeriodEnd = now + 30 days`, which is why every manually activated user sees "Next Billing: today + 30 days" / "30 days remaining" no matter when they were activated.
 
-Add deeper Bangladesh + Asia AI keyword-rich content blocks to:
+Fix:
+- On mount, fetch the active subscription row for the logged-in user from the `subscriptions` table:
+  ```ts
+  supabase.from('subscriptions')
+    .select('id, plan_id, status, billing_cycle, amount, currency, current_period_start, current_period_end, paused_at, cancelled_at')
+    .eq('user_id', user.id)
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+    .limit(1).maybeSingle()
+  ```
+- Map result → `Subscription` state (parse dates with `new Date(...)`).
+- `getDaysRemaining()` already computes from `currentPeriodEnd` — once real data flows in it will show correct values (e.g., a sub created 2026-04-08 with 1 month cycle now correctly shows ~17 days remaining, next billing 2026-05-08).
+- Show a small skeleton while loading; if no row found → keep "free" empty state.
+- Remove `mockSubscription`.
 
-- **`src/pages/BlogPage.jsx`** — add 3 more posts (AI in Bangladesh fintech, Bengali NLP advances, Asia AI adoption stats), expand existing excerpts, add author bylines
-- **`src/pages/CaseStudiesPage.jsx`** — add 2 more case studies (Dhaka startup, Asian university), add measurable outcome stats sections
-- **`src/pages/PressPage.jsx`** — add 2 more press releases, add "AI Sorix in the News" section with Asia tech outlets, expand media kit description
-- **`src/pages/DocsPage.jsx`** — add Quick Start, API overview teaser, Tool-by-tool guides section
-- **`src/pages/CareersPage.jsx`** — add "Our Mission" + "Why Bangladesh/Asia" section
-- **`src/pages/PartnersPage.jsx`** — add partner tier table, regional partner spotlight
+No DB migration needed — the underlying rows are already correct (verified via query). This is purely a frontend wiring fix.
 
-All new content uses semantic H2/H3 headings, keyword-dense paragraphs targeting "AI Bangladesh", "AI Asia", "Bengali AI", "Sorix AI", etc.
+### 6. Mobile / Polish audit
+- Verify new `/about-us` and `/solutions/ai-for-freelancers` look perfect at 390 px (consistent `px-4 sm:px-6`, responsive type scale).
+- Verify navbar mega-menu still fits at lg: breakpoint with the renamed "Features" label and 2 extra agent items (`minWidth: 480` already accommodates).
 
-### 5. Mobile View Audit (all new pages)
+### Files touched
+| File | Change |
+|------|--------|
+| `src/components/Navbar.jsx` | Rename Products→Features label; add 2 agent items + AI for Freelancers; split About Us / About SorixLab |
+| `src/components/Footer.jsx` | Split About Us / About SorixLab in Company column |
+| `src/pages/AboutUsPage.jsx` | **NEW** — company-focused About page with full SEO |
+| `src/App.jsx` | Lazy route `/about-us` |
+| `src/pages/SolutionsPage.jsx` | Add `ai-for-freelancers` slug content |
+| `public/sitemap.xml` | Add `/about-us` & `/solutions/ai-for-freelancers` |
+| `supabase/functions/support-chat/index.ts` | Premium emoji/markdown formatted reply prompt |
+| `src/components/aichat/settings/PlansTokensTab.tsx` | Remove Premium badge & opacity from Sorix Legends row |
+| `src/components/aichat/settings/SubscriptionTab.tsx` | Fetch real subscription from DB; remove mock |
 
-Quick pass on Blog, Press, CaseStudies, Docs, Careers, Partners, Solutions, DeveloperApi:
-
-- Tighten hero padding on mobile (`py-12 sm:py-20`)
-- Ensure cards stack cleanly (`grid-cols-1 md:grid-cols-2`)
-- Headlines responsive sizing (`text-3xl sm:text-5xl`)
-- Add `px-4 sm:px-6` consistently
-
-### Files to edit
-
-| File                                       | Change                                                    |
-| ------------------------------------------ | --------------------------------------------------------- |
-| `supabase/functions/support-chat/index.ts` | gpt-5-mini primary, max_completion_tokens, no temperature |
-| `src/components/Footer.jsx`                | Hide tagline+email on mobile                              |
-| `src/pages/Register.jsx`                   | Email format + duplicate detection                        |
-| `src/pages/BlogPage.jsx`                   | +3 posts, deeper SEO content                              |
-| `src/pages/CaseStudiesPage.jsx`            | +2 studies, stats                                         |
-| `src/pages/PressPage.jsx`                  | +2 releases, news section                                 |
-| `src/pages/DocsPage.jsx`                   | Quick start + tool guides                                 |
-| `src/pages/CareersPage.jsx`                | Mission + region section                                  |
-| `src/pages/PartnersPage.jsx`               | Tier table + spotlight                                    |
-| All new pages                              | Mobile responsive padding/typography audit                |
