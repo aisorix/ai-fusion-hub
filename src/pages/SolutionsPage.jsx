@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Workflow, GraduationCap, Rocket, FlaskConical, ArrowRight, CheckCircle, Quote, Users, Zap, Globe, Mail, Palette, UserCheck } from "lucide-react";
+import { Workflow, GraduationCap, Rocket, FlaskConical, ArrowRight, CheckCircle, Quote, Users, Zap, Globe, Mail, Palette, UserCheck, Briefcase } from "lucide-react";
 
 const solutionsData = {
   "workflow-automation": {
@@ -164,6 +164,38 @@ const solutionsData = {
     testimonial: {
       quote: "AI Sorix replaced four creator subscriptions for me — Imagine for visuals, Deck for client pitches, and multi-model chat for scripts. Game changer.",
       author: "Independent Content Creator",
+    },
+  },
+  "ai-for-freelancers": {
+    icon: Briefcase,
+    title: "AI for Freelancers",
+    subtitle: "Win more clients, ship faster, and scale your solo business with one unified AI workspace.",
+    seoTitle: "AI for Freelancers | AI Sorix - All-in-One AI Workspace for Freelancers",
+    seoDesc: "AI Sorix is the all-in-one AI workspace for freelancers. Generate proposals, design pitches, write content, and create visuals — replacing 5+ subscriptions at one affordable price.",
+    benefits: [
+      "Replace 5+ AI subscriptions with one unified workspace",
+      "Draft proposals, contracts & client emails in seconds",
+      "Design pitch decks with Sorix Deck — no slides skill needed",
+      "Generate client visuals & thumbnails with Sorix Imagine",
+      "Multi-model AI to compare GPT-5, Claude, and Gemini side-by-side",
+      "Affordable pricing built for solo earners worldwide",
+    ],
+    useCases: [
+      "Freelance writers drafting articles, scripts & captions",
+      "Designers iterating on logos, illustrations & moodboards",
+      "Developers explaining code, debugging & writing docs",
+      "Consultants creating client proposals & deliverables",
+      "Virtual assistants automating email replies & summaries",
+      "Photographers/editors writing client briefs & treatments",
+    ],
+    stats: [
+      { value: "5+", label: "Tools replaced" },
+      { value: "12h", label: "Saved per week" },
+      { value: "$0", label: "To start" },
+    ],
+    testimonial: {
+      quote: "AI Sorix replaced ChatGPT, Midjourney, Canva AI and 2 other subscriptions for my freelance business. I'm shipping client work twice as fast.",
+      author: "Independent Designer & Freelancer",
     },
   },
   "ai-for-professionals": {

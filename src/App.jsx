@@ -20,6 +20,7 @@ const TermsOfService = React.lazy(() => import("./pages/TermsOfService"));
 const CookiePolicy = React.lazy(() => import("./pages/CookiePolicy"));
 const RefundPolicy = React.lazy(() => import("./pages/RefundPolicy"));
 const AboutSorixLab = React.lazy(() => import("./pages/AboutSorixLab"));
+const AboutUsPage = React.lazy(() => import("./pages/AboutUsPage"));
 const Reviews = React.lazy(() => import("./pages/Reviews"));
 const ForgotPassword = React.lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = React.lazy(() => import("./pages/ResetPassword"));
@@ -126,6 +127,7 @@ const App = () => (
                 <Route path="/terms-of-service" element={<TermsOfService />} />
                 <Route path="/cookie-policy" element={<CookiePolicy />} />
                 <Route path="/refund-policy" element={<RefundPolicy />} />
+                <Route path="/about-us" element={<AboutUsPage />} />
                 <Route path="/about-sorix-lab" element={<AboutSorixLab />} />
                 <Route path="/reviews" element={<Reviews />} />
                 <Route path="/admin/chat" element={<ChatDashboard />} />

@@ -199,8 +199,13 @@ const Footer = () => {
             <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">Company</h4>
             <ul className="space-y-3 sm:space-y-4">
               <li>
-                <Link to="/about-sorix-lab" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/about-us" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   About Us
+                </Link>
+              </li>
+              <li>
+                <Link to="/about-sorix-lab" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  About SorixLab
                 </Link>
               </li>
               <li>

@@ -17,20 +17,22 @@ import {
 
 const megaMenus = {
   products: {
-    label: "Products",
+    label: "Features",
     columns: [
       [
         { icon: Bot, name: "AI Agents", desc: "Autonomous task execution", to: "/agent" },
+        { icon: Cpu, name: "Sorix Agent OS", desc: "Multi-agent autonomous workspace", to: "/agent" },
+        { icon: Sparkles, name: "Agent Templates", desc: "Ready-to-use AI agent recipes", to: "/agent" },
         { icon: MessageSquare, name: "AI Chat", desc: "Multi-model AI conversations", to: "/chat" },
         { icon: Presentation, name: "Sorix Deck", desc: "AI-powered presentations", to: "/deck" },
         { icon: ImageIcon, name: "Sorix Imagine", desc: "AI image generation", to: "/imagine" },
-        { icon: Workflow, name: "Flow Builder", desc: "AI diagrams & flowcharts", to: "/flowbuilder" },
       ],
       [
+        { icon: Workflow, name: "Flow Builder", desc: "AI diagrams & flowcharts", to: "/flowbuilder" },
         { icon: Heart, name: "Sorix Health", desc: "AI health analysis", to: "/health" },
         { icon: Leaf, name: "Sorix Agro", desc: "AI agriculture insights", to: "/agro" },
         { icon: Crown, name: "Sorix Legends", desc: "Chat with historical figures", to: "/legends" },
-        { icon: Sparkles, name: "Features", desc: "Explore all capabilities", scrollTo: "features" },
+        { icon: Sparkles, name: "All Features", desc: "Explore all capabilities", scrollTo: "features" },
       ],
     ],
   },
@@ -41,6 +43,7 @@ const megaMenus = {
         { icon: Workflow, name: "Workflow Automation", desc: "Automate repetitive tasks", to: "/solutions/workflow-automation" },
         { icon: GraduationCap, name: "AI for Educators", desc: "Transform teaching with AI", to: "/solutions/ai-for-educators" },
         { icon: Palette, name: "AI for Creators", desc: "Design, write & create faster", to: "/solutions/ai-for-creators" },
+        { icon: Briefcase, name: "AI for Freelancers", desc: "Win more clients & ship faster", to: "/solutions/ai-for-freelancers" },
       ],
       [
         { icon: Rocket, name: "AI for Startups", desc: "Scale faster with AI", to: "/solutions/ai-for-startups" },
@@ -68,7 +71,8 @@ const megaMenus = {
     label: "Company",
     columns: [
       [
-        { icon: Globe, name: "About Us", desc: "Our mission & team", to: "/about-sorix-lab" },
+        { icon: Globe, name: "About Us", desc: "Our mission & global team", to: "/about-us" },
+        { icon: FlaskConical, name: "About SorixLab", desc: "Our parent R&D lab", to: "/about-sorix-lab" },
         { icon: Newspaper, name: "Press & Media", desc: "News & press releases", to: "/press" },
         { icon: Briefcase, name: "Careers", desc: "Join our team", to: "/careers" },
       ],
