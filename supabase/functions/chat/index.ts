@@ -6,9 +6,29 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-// GPT-4o-mini for all multimodal analysis (images, files, documents)
-const ATTACHMENT_MODEL = 'openai/gpt-4o-mini';
-const DEFAULT_MODEL = 'openai/gpt-4o'; // Fallback for regular chat
+// Two-stage attachment pipeline:
+//   Stage 1 — Gemini 2.5 Pro analyzes uploaded images/files (best multimodal + long context)
+//   Stage 2 — User's selected model writes the final response using Gemini's analysis as context
+const ANALYZER_MODEL = 'google/gemini-2.5-pro';
+const DEFAULT_MODEL = 'openai/gpt-4o'; // Fallback for regular chat when no model is provided
+
+const ANALYZER_SYSTEM_PROMPT = `You are a multimodal analysis engine. Your sole job is to extract every relevant detail from the attached images and/or files so that another AI model can answer the user's question without seeing the originals.
+
+Produce a structured technical brief in clean markdown. Cover (where applicable):
+- 📄 For each file/image: filename, type, and a 1-line summary
+- 🔤 Full OCR / extracted text (verbatim where useful, summarized where long)
+- 🧱 Document structure: headings, sections, tables, lists
+- 📊 Key data points, numbers, dates, names, entities
+- 💻 Code: language, purpose, notable functions, potential issues
+- 🖼️ Images: detailed visual description, objects, people, UI elements, charts, diagrams
+- 🔗 Cross-file relationships, comparisons, anomalies
+- ⚠️ Anything unclear, low-quality, or unreadable
+
+CRITICAL RULES:
+- Do NOT answer the user's question. Only analyze.
+- Do NOT add opinions or recommendations.
+- Be exhaustive but well-organized — the responder model will rely entirely on your output.
+- If a file is empty, corrupted, or unreadable, say so explicitly.`;
 
 // Professional system prompt factory - uses actual model name
 const getSystemPrompt = (modelName: string = 'AI Assistant') => `You are ${modelName}, a world-class AI assistant with advanced capabilities in analyzing any type of file or content.
