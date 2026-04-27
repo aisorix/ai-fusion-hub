@@ -238,12 +238,14 @@ export const useAIChat = () => {
       return acc;
     }, 0);
 
-    // Use the user's selected model for all messages (including attachments)
+    // Server-side two-stage pipeline: when attachments are present, the chat edge
+    // function runs Gemini 2.5 Pro to analyze them, then forwards the analysis to
+    // the user's selected responder model. The client always sends the user's choice.
     const hasAttachments = imageAttachments.length > 0 || documentAttachments.length > 0;
     const backendModel = activeBackendId;
     const finalMultiplier = activeMultiplier;
-    
-    console.log(`Sending message with model: ${backendModel}${hasAttachments ? ' (forced for attachments)' : wasSmartRouted ? ' (smart routed)' : ''}, multiplier: ${finalMultiplier}x`);
+
+    console.log(`Sending message with model: ${backendModel}${hasAttachments ? ' (2-stage: gemini-2.5-pro analyzer → responder)' : wasSmartRouted ? ' (smart routed)' : ''}, multiplier: ${finalMultiplier}x`);
 
     abortControllerRef.current = new AbortController();
 
