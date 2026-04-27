@@ -264,7 +264,7 @@ const MultiWindowChat = () => {
         }
 
         const inputTokens = apiMessages.reduce((acc, msg) => acc + estimateTokens(msg.content), 0);
-        console.log(`[${modelName}] Sending message, estimated input tokens: ${inputTokens}${hasAttachments ? ' (server runs 2-stage: gemini-2.5-pro analyzer → ' + modelName + ')' : ''}`);
+        console.log(`[${modelName}] Sending message, estimated input tokens: ${inputTokens}${hasAttachments ? ' (server runs 2-stage: gpt-5.4-nano analyzer → ' + modelName + ')' : ''}`);
 
         // Cache check for premium models
         const shouldCache = multiplier > 1 && !hasAttachments;
