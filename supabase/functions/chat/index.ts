@@ -149,38 +149,101 @@ serve(async (req) => {
     const systemPrompt = getSystemPrompt(modelName || 'AI Assistant');
 
     // Prepare messages with system prompt
-    const processedMessages = [
+    let processedMessages = [
       { role: 'system', content: systemPrompt },
       ...messages.filter((m: any) => m.role !== 'system')
     ];
-    
-    // Check if we have image content - ALWAYS use GPT-4o for vision
-    const hasImages = processedMessages.some((m: any) => 
-      Array.isArray(m.content) && m.content.some((c: any) => c.type === 'image_url')
-    );
-    
-    // Check if we have file/document content
-    const hasFiles = processedMessages.some((m: any) => 
-      typeof m.content === 'string' && (
-        m.content.includes('📄 FILE:') || 
-        m.content.includes('--- FILE CONTENT ---') ||
-        m.content.includes('[Attached')
-      )
-    );
-    
-    // Always use GPT-4o-mini for attachments
+
+    // Detect attachments in the LAST user message (current turn only — not history)
+    const lastUserIdx = (() => {
+      for (let i = processedMessages.length - 1; i >= 0; i--) {
+        if (processedMessages[i].role === 'user') return i;
+      }
+      return -1;
+    })();
+
+    const lastUserMsg = lastUserIdx >= 0 ? processedMessages[lastUserIdx] : null;
+
+    const hasImages = !!lastUserMsg && Array.isArray(lastUserMsg.content)
+      && lastUserMsg.content.some((c: any) => c.type === 'image_url');
+
+    const hasFiles = !!lastUserMsg && typeof lastUserMsg.content === 'string'
+      && (lastUserMsg.content.includes('📄 FILE:')
+          || lastUserMsg.content.includes('--- FILE CONTENT ---')
+          || lastUserMsg.content.includes('📁 ATTACHED FILES'));
+
     let selectedModel = model || DEFAULT_MODEL;
-    
-    if (hasImages || hasFiles) {
-      selectedModel = ATTACHMENT_MODEL;
-      if (hasImages) {
-        console.log(`🖼️ Image detected - using ${selectedModel}`);
+    const responderName = modelName || 'AI Assistant';
+
+    // ===== STAGE 1: Gemini 2.5 Pro analyzer =====
+    // Skip if user already selected Gemini 2.5 Pro (no point analyzing with the same model)
+    const skipAnalyzer = selectedModel === ANALYZER_MODEL;
+
+    if ((hasImages || hasFiles) && !skipAnalyzer && lastUserMsg) {
+      console.log(`🔬 Stage 1: Running ${ANALYZER_MODEL} analyzer (images: ${hasImages}, files: ${hasFiles})`);
+      const analyzerStart = Date.now();
+
+      let analysisText = '';
+      try {
+        const analyzerResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://aisorix.com",
+            "X-Title": "AI Sorix - Attachment Analyzer"
+          },
+          body: JSON.stringify({
+            model: ANALYZER_MODEL,
+            messages: [
+              { role: 'system', content: ANALYZER_SYSTEM_PROMPT },
+              { role: 'user', content: lastUserMsg.content }
+            ],
+            stream: false,
+            max_tokens: 4096,
+          }),
+        });
+
+        if (analyzerResponse.ok) {
+          const analyzerData = await analyzerResponse.json();
+          analysisText = analyzerData?.choices?.[0]?.message?.content || '';
+          console.log(`✅ Stage 1 complete in ${Date.now() - analyzerStart}ms — analysis length: ${analysisText.length} chars`);
+        } else {
+          const errBody = await analyzerResponse.text();
+          console.error(`⚠️ Stage 1 analyzer failed (${analyzerResponse.status}): ${errBody.slice(0, 300)}`);
+        }
+      } catch (analyzerErr) {
+        console.error(`⚠️ Stage 1 analyzer threw:`, analyzerErr);
       }
-      if (hasFiles) {
-        console.log(`📄 File detected - using ${selectedModel}`);
+
+      // Build the responder's user message: original text prompt + Gemini analysis (text-only)
+      // This lets ANY responder model (including text-only Sonar/nano) answer about attachments.
+      let originalText = '';
+      if (typeof lastUserMsg.content === 'string') {
+        originalText = lastUserMsg.content;
+      } else if (Array.isArray(lastUserMsg.content)) {
+        const textPart = lastUserMsg.content.find((c: any) => c.type === 'text');
+        originalText = textPart?.text || '';
+        const imageCount = lastUserMsg.content.filter((c: any) => c.type === 'image_url').length;
+        if (imageCount > 0 && !originalText.trim()) {
+          originalText = `Please analyze ${imageCount === 1 ? 'this image' : `these ${imageCount} images`}.`;
+        }
       }
+
+      const analysisBlock = analysisText
+        ? `\n\n---\n## 📎 Attachment Analysis (from Gemini 2.5 Pro)\n\n${analysisText}\n---\n\nUsing the analysis above, please respond to the user's original request in your own voice and style.`
+        : `\n\n[⚠️ Attachment analysis was unavailable — please respond based on the user's text and any filenames mentioned.]`;
+
+      processedMessages = [
+        ...processedMessages.slice(0, lastUserIdx),
+        { role: 'user', content: originalText + analysisBlock }
+      ];
+
+      console.log(`🎤 Stage 2: Responder model = ${selectedModel} (${responderName})`);
+    } else if ((hasImages || hasFiles) && skipAnalyzer) {
+      console.log(`🎯 Single-stage: user selected ${ANALYZER_MODEL} directly — skipping separate analyzer`);
     }
-    
+
     console.log(`Calling OpenRouter with model: ${selectedModel}, messages count: ${processedMessages.length}, stream: ${stream}`);
 
     // Check if this is a Perplexity/search model that returns citations
