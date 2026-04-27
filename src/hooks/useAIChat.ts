@@ -245,7 +245,7 @@ export const useAIChat = () => {
     const backendModel = activeBackendId;
     const finalMultiplier = activeMultiplier;
 
-    console.log(`Sending message with model: ${backendModel}${hasAttachments ? ' (2-stage: gemini-2.5-pro analyzer → responder)' : wasSmartRouted ? ' (smart routed)' : ''}, multiplier: ${finalMultiplier}x`);
+    console.log(`Sending message with model: ${backendModel}${hasAttachments ? ' (2-stage: gpt-5.4-nano analyzer → responder)' : wasSmartRouted ? ' (smart routed)' : ''}, multiplier: ${finalMultiplier}x`);
 
     abortControllerRef.current = new AbortController();
 
