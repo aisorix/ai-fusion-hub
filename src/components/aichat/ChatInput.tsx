@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Mic, Send, X, Image as ImageIcon, Paperclip, Square, Sparkles, Camera, Loader2, Upload, Heart } from 'lucide-react';
+import { Plus, Mic, Send, X, Image as ImageIcon, Paperclip, Square, Sparkles, Camera, Loader2, Upload, Heart, Settings2 } from 'lucide-react';
 import TextareaAutosize from 'react-textarea-autosize';
 import { useChatStore } from '@/stores/chatStore';
 import { cn } from '@/lib/utils';
@@ -9,6 +9,7 @@ import { parseFile, getAcceptedFileTypes, getFileType } from '@/lib/fileParser';
 import FileChip from './FileChip';
 import { HealthFeaturesModal } from '@/components/health';
 import { toast } from 'sonner';
+import ToolsMenu from './ToolsMenu';
 
 interface ChatInputProps {
   onSend: (content: string) => void;
