@@ -21,6 +21,7 @@ interface ChatInputProps {
 const ChatInput = ({ onSend, disabled, onOpenVoiceMode, onStop }: ChatInputProps) => {
   const [input, setInput] = useState('');
   const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const [showToolsMenu, setShowToolsMenu] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
   const [parseProgress, setParseProgress] = useState({ current: 0, total: 0, fileName: '' });
