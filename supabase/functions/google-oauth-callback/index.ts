@@ -1,0 +1,96 @@
+// Google redirects here with ?code & ?state. Exchanges code for tokens, stores them, posts message back to opener.
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+async function verifyState(state: string, secret: string): Promise<{ uid: string; ts: number } | null> {
+  try {
+    const [payloadB64, sig] = state.split(".");
+    if (!payloadB64 || !sig) return null;
+    const enc = new TextEncoder();
+    const key = await crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+    const sigBuf = await crypto.subtle.sign("HMAC", key, enc.encode(payloadB64));
+    const expected = Array.from(new Uint8Array(sigBuf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    if (expected !== sig) return null;
+    const parsed = JSON.parse(atob(payloadB64));
+    if (Date.now() - parsed.ts > 10 * 60 * 1000) return null;
+    return parsed;
+  } catch { return null; }
+}
+
+function htmlResult(ok: boolean, data: Record<string, unknown>) {
+  const payload = JSON.stringify({ type: "google_oauth_result", ok, ...data });
+  const body = `<!doctype html><html><body><script>
+    try { window.opener && window.opener.postMessage(${payload}, "*"); } catch(e){}
+    document.body.innerText = ${ok ? "'Connected. You can close this window.'" : "'Failed: ' + ${JSON.stringify(String(data.error||''))}"};
+    setTimeout(function(){ window.close(); }, 800);
+  </script></body></html>`;
+  return new Response(body, { status: 200, headers: { "Content-Type": "text/html" } });
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  try {
+    const url = new URL(req.url);
+    const code = url.searchParams.get("code");
+    const state = url.searchParams.get("state");
+    const error = url.searchParams.get("error");
+    if (error) return htmlResult(false, { error });
+    if (!code || !state) return htmlResult(false, { error: "missing code/state" });
+
+    const secret = Deno.env.get("INTERNAL_WEBHOOK_SECRET") || "fallback-secret";
+    const stateData = await verifyState(state, secret);
+    if (!stateData) return htmlResult(false, { error: "invalid state" });
+
+    const clientId = Deno.env.get("GOOGLE_CLIENT_ID")!;
+    const clientSecret = Deno.env.get("GOOGLE_CLIENT_SECRET")!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const redirectUri = `${supabaseUrl}/functions/v1/google-oauth-callback`;
+
+    // Exchange code for tokens
+    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        code, client_id: clientId, client_secret: clientSecret,
+        redirect_uri: redirectUri, grant_type: "authorization_code",
+      }),
+    });
+    const tokenData = await tokenRes.json();
+    if (!tokenRes.ok) return htmlResult(false, { error: tokenData.error_description || tokenData.error || "token exchange failed" });
+
+    // Fetch user email
+    const meRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    });
+    const me = await meRes.json();
+    const email = me.email || null;
+
+    // Upsert
+    const admin = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const expiresAt = new Date(Date.now() + (tokenData.expires_in ?? 3600) * 1000).toISOString();
+    const scopes = (tokenData.scope || "").split(" ").filter(Boolean);
+
+    const { error: upErr } = await admin.from("user_connections").upsert({
+      user_id: stateData.uid,
+      service: "google",
+      access_token: tokenData.access_token,
+      refresh_token: tokenData.refresh_token ?? null,
+      expires_at: expiresAt,
+      scopes,
+      external_account_id: email,
+      status: "connected",
+      metadata: { name: me.name, picture: me.picture },
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "user_id,service" });
+
+    if (upErr) return htmlResult(false, { error: upErr.message });
+    return htmlResult(true, { email });
+  } catch (e) {
+    return htmlResult(false, { error: (e as Error).message });
+  }
+});

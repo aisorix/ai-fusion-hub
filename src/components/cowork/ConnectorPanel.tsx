@@ -1,73 +1,59 @@
-import React from "react";
-import { HardDrive, Mail, Linkedin, Twitter, Plug, Unplug, Facebook, Instagram, MessageCircle, MessageCircleMore, Youtube, Send, Hash, Pin, Music } from "lucide-react";
-import { useCoWorkStore, type ConnectorService } from "@/stores/coworkStore";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { CheckCircle2, Plug, Settings2 } from "lucide-react";
+import { CONNECTION_SERVICES, type ServiceConfig } from "@/components/connections/connectionConfig";
+import ConnectDialog from "@/components/connections/ConnectDialog";
+import { useConnections } from "@/hooks/useConnections";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 interface ConnectorPanelProps {
   language: string;
 }
 
-const iconMap: Record<string, React.FC<{ className?: string }>> = {
-  "hard-drive": HardDrive,
-  mail: Mail,
-  linkedin: Linkedin,
-  twitter: Twitter,
-  facebook: Facebook,
-  instagram: Instagram,
-  "message-circle": MessageCircle,
-  "message-circle-more": MessageCircleMore,
-  youtube: Youtube,
-  send: Send,
-  hash: Hash,
-  pin: Pin,
-  music: Music,
-};
-
 const ConnectorPanel: React.FC<ConnectorPanelProps> = ({ language }) => {
-  const { connectors, updateConnector } = useCoWorkStore();
+  const navigate = useNavigate();
+  const { getByService, refresh } = useConnections();
+  const [selected, setSelected] = useState<ServiceConfig | null>(null);
+  const [open, setOpen] = useState(false);
 
-  const handleToggle = (service: ConnectorService, currentStatus: string) => {
-    if (currentStatus === "coming_soon") {
-      toast.info(language === "bn" ? "শীঘ্রই আসছে!" : "Coming soon!");
-      return;
-    }
-    const newStatus = currentStatus === "connected" ? "disconnected" : "connected";
-    updateConnector(service, newStatus);
-    toast.success(
-      newStatus === "connected"
-        ? language === "bn" ? "সংযুক্ত হয়েছে" : "Connected"
-        : language === "bn" ? "সংযোগ বিচ্ছিন্ন হয়েছে" : "Disconnected"
-    );
+  const handleClick = (svc: ServiceConfig) => {
+    setSelected(svc);
+    setOpen(true);
   };
 
   return (
     <div className="space-y-2">
-      <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1">
-        {language === "bn" ? "কানেক্টর" : "Connectors"}
-      </h4>
+      <div className="flex items-center justify-between px-1">
+        <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+          {language === "bn" ? "কানেক্টর" : "Connectors"}
+        </h4>
+        <button
+          onClick={() => navigate("/agent/connections")}
+          className="text-[10px] text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-1"
+        >
+          <Settings2 className="w-3 h-3" /> Manage
+        </button>
+      </div>
       <div className="space-y-1.5 max-h-[60vh] overflow-y-auto pr-1">
-        {connectors.map((connector) => {
-          const Icon = iconMap[connector.icon] || Plug;
+        {CONNECTION_SERVICES.map((svc) => {
+          const Icon = svc.icon;
+          const conn = getByService(svc.id);
+          const connected = !!conn;
           return (
             <button
-              key={connector.service}
-              onClick={() => handleToggle(connector.service, connector.status)}
+              key={svc.id}
+              onClick={() => handleClick(svc)}
               className={cn(
                 "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border text-left transition-all text-xs",
-                connector.status === "connected"
+                connected
                   ? "border-cyan-500/30 bg-cyan-500/5 text-foreground"
                   : "border-border/30 bg-card/30 text-muted-foreground hover:bg-muted/30"
               )}
             >
-              <Icon className={cn("w-4 h-4 shrink-0", connector.status === "connected" && "text-cyan-400")} />
-              <span className="flex-1 font-medium">{connector.label}</span>
-              {connector.status === "coming_soon" ? (
-                <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
-                  {language === "bn" ? "শীঘ্রই" : "Soon"}
-                </span>
-              ) : connector.status === "connected" ? (
-                <Unplug className="w-3.5 h-3.5 text-cyan-400" />
+              <Icon className={cn("w-4 h-4 shrink-0", connected && "text-cyan-400")} />
+              <span className="flex-1 font-medium truncate">{svc.label}</span>
+              {connected ? (
+                <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
               ) : (
                 <Plug className="w-3.5 h-3.5" />
               )}
@@ -75,6 +61,13 @@ const ConnectorPanel: React.FC<ConnectorPanelProps> = ({ language }) => {
           );
         })}
       </div>
+
+      <ConnectDialog
+        service={selected}
+        open={open}
+        onOpenChange={setOpen}
+        onSuccess={refresh}
+      />
     </div>
   );
 };
