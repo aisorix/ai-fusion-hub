@@ -1,0 +1,1 @@
+ALTER TABLE public.user_connections ADD CONSTRAINT user_connections_user_service_unique UNIQUE (user_id, service);
