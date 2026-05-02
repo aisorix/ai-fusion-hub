@@ -14,6 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_runs: {
+        Row: {
+          created_at: string
+          id: string
+          prompt: string
+          result: string | null
+          status: string
+          steps: Json
+          task_id: string | null
+          tokens_used: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          prompt: string
+          result?: string | null
+          status?: string
+          steps?: Json
+          task_id?: string | null
+          tokens_used?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          prompt?: string
+          result?: string | null
+          status?: string
+          steps?: Json
+          task_id?: string | null
+          tokens_used?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      agent_schedules: {
+        Row: {
+          created_at: string
+          cron: string
+          enabled: boolean
+          id: string
+          last_run_at: string | null
+          prompt: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          cron: string
+          enabled?: boolean
+          id?: string
+          last_run_at?: string | null
+          prompt: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          cron?: string
+          enabled?: boolean
+          id?: string
+          last_run_at?: string | null
+          prompt?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       analysis_history: {
         Row: {
           created_at: string
@@ -778,6 +850,51 @@ export type Database = {
           id?: string
           messages?: Json
           title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_connections: {
+        Row: {
+          access_token: string | null
+          created_at: string
+          expires_at: string | null
+          external_account_id: string | null
+          id: string
+          metadata: Json
+          refresh_token: string | null
+          scopes: string[] | null
+          service: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          created_at?: string
+          expires_at?: string | null
+          external_account_id?: string | null
+          id?: string
+          metadata?: Json
+          refresh_token?: string | null
+          scopes?: string[] | null
+          service: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          created_at?: string
+          expires_at?: string | null
+          external_account_id?: string | null
+          id?: string
+          metadata?: Json
+          refresh_token?: string | null
+          scopes?: string[] | null
+          service?: string
+          status?: string
           updated_at?: string
           user_id?: string
         }
