@@ -1,5 +1,6 @@
 // AI Chat Page - Main chat interface
 // Protected route that requires authentication
+// (rebuild marker — forces Vite to refresh dynamic import chunk)
 
 import React, { useEffect, useState } from 'react';
 import SEOHead from '@/components/SEOHead';
