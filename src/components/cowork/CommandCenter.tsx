@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Bot, Cpu, ChevronDown, Code2, MessageSquare, Zap, Sparkles } from "lucide-react";
+import { Send, Bot, Cpu, ChevronDown, Mail, Calendar, Facebook, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCoWorkStore, type AgentStatus } from "@/stores/coworkStore";
 import { useCoWorkAgent } from "@/hooks/useCoWorkAgent";
@@ -174,16 +174,16 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                 className="grid grid-cols-2 gap-3 w-full max-w-sm"
               >
                 {([
-                  { icon: Zap, label: language === "bn" ? "টাস্ক অটোমেট" : "Automate task", color: "text-sky-500" },
-                  { icon: Sparkles, label: language === "bn" ? "কন্টেন্ট তৈরি" : "Generate content", color: "text-sky-500" },
-                  { icon: Code2, label: language === "bn" ? "রিসার্চ করো" : "Deep research", color: "text-sky-500" },
-                  { icon: MessageSquare, label: language === "bn" ? "রিপোর্ট লিখো" : "Write report", color: "text-sky-500" },
+                  { icon: MessageCircle, label: language === "bn" ? "Telegram মেসেজ পাঠাও" : "Send a Telegram message", color: "text-sky-500", prompt: language === "bn" ? "Telegram এ একটি মেসেজ পাঠাও " : "Send a Telegram message to " },
+                  { icon: Mail, label: language === "bn" ? "ইমেইল পাঠাও" : "Send an email", color: "text-sky-500", prompt: language === "bn" ? "একটি ইমেইল পাঠাও " : "Send an email to " },
+                  { icon: Calendar, label: language === "bn" ? "মিটিং সেট করো" : "Schedule a meeting", color: "text-sky-500", prompt: language === "bn" ? "আগামীকাল ৩টায় একটি মিটিং সেট করো " : "Schedule a meeting tomorrow at 3pm with " },
+                  { icon: Facebook, label: language === "bn" ? "Facebook এ পোস্ট করো" : "Post on Facebook Page", color: "text-sky-500", prompt: language === "bn" ? "Facebook Page এ পোস্ট করো: " : "Post on my Facebook Page: " },
                 ]).map((item, i) => (
                   <motion.button
                     key={i}
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
-                    onClick={() => setInput(item.label)}
+                    onClick={() => { setInput(item.prompt); inputRef.current?.focus(); }}
                     className="flex flex-col items-center gap-2.5 py-5 px-3 rounded-2xl border border-border/50 bg-card/60 hover:bg-accent/50 hover:border-border/70 transition-all duration-200 shadow-sm"
                   >
                     <item.icon className={cn("w-6 h-6", item.color)} />
