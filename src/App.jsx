@@ -37,6 +37,7 @@ const ImaginePage = React.lazy(() => import("./pages/ImaginePage"));
 const SharedChatPage = React.lazy(() => import("./pages/SharedChatPage"));
 const DeckPage = React.lazy(() => import("./pages/DeckPage"));
 const CoWorkPage = React.lazy(() => import("./pages/CoWorkPage"));
+const ConnectionsPage = React.lazy(() => import("./pages/ConnectionsPage"));
 const FlowBuilderPage = React.lazy(() => import("./pages/FlowBuilderPage"));
 const ToolsPage = React.lazy(() => import("./pages/ToolsPage"));
 const BlogPage = React.lazy(() => import("./pages/BlogPage"));
