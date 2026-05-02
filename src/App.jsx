@@ -109,6 +109,11 @@ const App = () => (
                     <CoWorkPage />
                   </ProtectedRoute>
                 } />
+                <Route path="/agent/connections" element={
+                  <ProtectedRoute>
+                    <ConnectionsPage />
+                  </ProtectedRoute>
+                } />
                 <Route path="/flowbuilder" element={
                   <ProtectedRoute>
                     <FlowBuilderPage />
