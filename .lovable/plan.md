@@ -1,137 +1,105 @@
-# Sorix Agent — Connections & OAuth Settings Page
+## Problem
 
-Goal: give every signed-in user a professional **Connections** page where they can link their own Google, Facebook, LinkedIn, WhatsApp Business, and Telegram accounts to Sorix Agent. Tokens are stored encrypted-at-rest in the existing `user_connections` table (RLS already restricts to `auth.uid() = user_id`), and the Agent's tool functions read them at runtime to act on the user's behalf.
+Right now Sorix Agent only **streams plain text** from the LLM. The `cowork-agent` edge function has no tool/function-calling logic, so when you say "send a Telegram message", the model can only reply with copy-paste instructions. The connection tokens you stored are never read or used during a chat turn.
 
-## What the user gets
+## Goal
 
-A new route **`/agent/connections`** (also opened from the Sorix Agent right panel "Connectors" list — clicking a "Soon" chip will now open the connect dialog instead).
+When the user types a request like "send a Telegram message to khalid roommate saying ok agent working", the agent should:
+1. Detect the intent.
+2. Call the matching server-side tool (`telegram_send_message`).
+3. Use the user's stored connection token to actually perform the action.
+4. Report back "Message sent ✅" with a short confirmation in chat and a Task Monitor entry.
 
-For each service:
-- Connection status pill (Connected / Not connected / Expired)
-- Connected account label (email / page name / phone / @handle)
-- "Connect" button → opens a service-specific dialog
-- "Disconnect" button → removes the row from `user_connections`
-- "Test connection" button → calls a small edge function that pings the provider with the stored token and reports success/failure
-- Last-synced timestamp + scopes granted
+## What gets built
 
-```text
-/agent/connections
-┌──────────────────────────────────────────────────┐
-│  Connections                                     │
-│  Link your accounts so Sorix Agent can act for   │
-│  you across email, social, and messaging.        │
-├──────────────────────────────────────────────────┤
-│  [G] Google (Gmail/Drive/Calendar/YT) ● Connected│
-│      user@gmail.com · 6 scopes  [Test][Disconnect]│
-│  [f] Facebook Page                ○ Not connected│
-│      [Connect]                                   │
-│  [in] LinkedIn                    ● Connected    │
-│  [W] WhatsApp Business            ○ Not connected│
-│  [T] Telegram Bot                 ○ Not connected│
-└──────────────────────────────────────────────────┘
-```
+### 1. Tool registry on the edge function (`supabase/functions/cowork-agent/index.ts`)
 
-## Connection methods per service
-
-Each provider has a different real-world flow. We support the right one for each and keep the UI consistent.
-
-| Service | Method | Inputs collected from user | Stored in `user_connections` |
-|---|---|---|---|
-| Google (Gmail, Drive, Calendar, Docs, Sheets, YouTube) | OAuth 2.0 Authorization Code (popup → callback edge function exchanges code for tokens using server-side `GOOGLE_CLIENT_ID/SECRET`) | Just clicks "Connect with Google" | `access_token`, `refresh_token`, `expires_at`, `scopes`, `external_account_id`=email |
-| Facebook Page | Manual paste (Page Access Token, Page ID) — Meta's long-lived page tokens are the cleanest path; full FB Login OAuth can be added later | Page Access Token, Page ID | `access_token`, `metadata.page_id`, `metadata.page_name` |
-| LinkedIn | Manual paste (Access Token + Author URN) — LinkedIn OAuth requires app review, so v1 collects token; OAuth upgrade later | Access Token, Author URN (`urn:li:person:...`) | `access_token`, `metadata.author_urn` |
-| WhatsApp Business | Manual paste (Permanent Token, Phone Number ID, WABA ID) | Permanent Token, Phone Number ID, WABA ID | `access_token`, `metadata.phone_number_id`, `metadata.waba_id` |
-| Telegram Bot | Manual paste (Bot Token from @BotFather) — we then call `getMe` to fetch and store bot username | Bot Token | `access_token`=bot token, `metadata.bot_username` |
-
-All "manual paste" inputs are sent over HTTPS to a single edge function `connection-save` that:
-1. Verifies the calling user via `Authorization: Bearer <session.access_token>`.
-2. Calls a lightweight verification endpoint on the provider (e.g. `me` / `getMe` / Page info) to confirm the token is real.
-3. Upserts a row into `public.user_connections` (one row per `user_id` + `service`).
-4. Returns `{ ok, account_label, scopes? }`.
-
-## Google OAuth flow (no user-pasted secrets)
+Rewrite the function to use OpenRouter **function-calling** (tools array) instead of plain streaming. Loop until the model emits a final answer:
 
 ```text
-User → "Connect Google"
-   → opens popup: https://accounts.google.com/o/oauth2/v2/auth?...&redirect_uri=<edge>/google-oauth-callback
-   → Google → redirect_uri with ?code=...
-   → edge function `google-oauth-callback`:
-        - exchanges code for tokens (uses server secret GOOGLE_CLIENT_SECRET)
-        - upserts into user_connections
-        - postMessage to opener, then window.close()
-   → settings page refetches connection list
+user prompt
+  -> model decides tool(s)
+  -> edge fn runs tool with stored token
+  -> tool result fed back to model
+  -> model produces final reply (streamed)
 ```
 
-Scopes requested (single consent screen):
+Tools exposed to the model (all execute server-side using `user_connections` row for `auth.uid()`):
+
+- `telegram_send_message(text, chat_id?, chat_username?)`
+- `telegram_list_recent_chats()` — used to resolve names like "khalid roommate" to a chat_id
+- `gmail_send_email(to, subject, body)`
+- `gmail_list_recent(max?)`
+- `drive_list_files(query?)`, `drive_create_doc(title, content)`
+- `calendar_create_event(title, start, end, attendees?)`, `calendar_list_upcoming()`
+- `facebook_page_post(message, link?)`
+- `linkedin_create_post(text)`
+- `whatsapp_send_message(to, text)` (template + freeform)
+- `web_search(query)` — generic helper so non-connector questions still work
+
+Each tool handler:
+1. Reads token from `public.user_connections` (service-role client, scoped by `user_id`).
+2. If not connected → returns `{ error: "not_connected", service }` so the model tells the user to open `/agent/connections`.
+3. For Google: uses access_token; if expired, calls refresh helper before the API call.
+4. For Telegram resolve-by-name: pulls last ~100 updates via `getUpdates`, fuzzy-matches the title against `chat.title` / `chat.first_name + last_name` / `username`. If multiple matches → returns ambiguity list so model asks user to pick.
+
+### 2. Streaming protocol upgrade
+
+Edge function emits SSE events the existing client already understands:
+- `{type:"tool_use", tool_name, description, steps}` — when a tool starts (drives Task Monitor card)
+- `{type:"content", text}` — final answer tokens
+- `{type:"error", message}` — failures
+
+`useCoWorkAgent.ts` already handles all three; only minor tweak: mark the task as `failed` when the final tool result is an error.
+
+### 3. Google token refresh
+
+Add `supabase/functions/_shared/googleTokens.ts` with `getValidGoogleToken(userId)`:
+- Reads row, returns access_token if `expires_at > now()+60s`.
+- Else POSTs to `https://oauth2.googleapis.com/token` with refresh_token + GOOGLE_CLIENT_ID/SECRET, updates row, returns new token.
+
+Used by all Google tool handlers (Gmail, Drive, Calendar, Docs, Sheets, YouTube).
+
+### 4. System prompt rewrite
+
+New prompt makes execution behaviour explicit:
+
+> You are Sorix Agent. You DO things, you don't describe them. When the user asks you to send/post/create/schedule something, IMMEDIATELY call the appropriate tool. Never tell the user to copy-paste, open an app, or do it themselves — that's your job. If a required service isn't connected, briefly tell them to open Connections, don't lecture about security. After a tool succeeds, reply in 1–2 short sentences confirming what you did. Match the user's language (English/Bangla).
+
+### 5. UI confirmation flow (light)
+
+For destructive/public actions (Facebook post, LinkedIn post, WhatsApp send, Email send), the tool emits a `tool_use` step with `requires_approval: true` so the existing `ApprovalModal` (already in the project) shows the drafted content with **Send** / **Cancel** before the actual API call. Telegram bot messages and internal lookups don't need approval — they execute immediately so the experience feels snappy.
+
+### 6. Empty-state quick prompts
+
+Update `CommandCenter` empty state cards to reflect real capabilities:
+- "Send a Telegram message to …"
+- "Email my team a summary of …"
+- "Post on my Facebook Page about …"
+- "Schedule a meeting tomorrow 3pm with …"
+
+## Files to change / add
+
+```text
+supabase/functions/cowork-agent/index.ts          (rewrite: tool-calling loop)
+supabase/functions/_shared/googleTokens.ts        (new: refresh helper)
+supabase/functions/_shared/agentTools.ts          (new: tool definitions + executors)
+src/hooks/useCoWorkAgent.ts                       (small: handle requires_approval + failed state)
+src/components/cowork/CommandCenter.tsx           (empty-state prompts)
 ```
-openid email profile
-https://www.googleapis.com/auth/gmail.modify
-https://www.googleapis.com/auth/drive
-https://www.googleapis.com/auth/calendar
-https://www.googleapis.com/auth/documents
-https://www.googleapis.com/auth/spreadsheets
-https://www.googleapis.com/auth/youtube
-```
 
-A second edge function `google-token-refresh` is called on-demand by tool functions when `expires_at < now()` and uses the stored `refresh_token`.
+No DB schema changes needed — `user_connections` already has everything.
 
-## Files to add / change
+## Out of scope (stays "coming soon")
 
-**New**
-- `src/pages/ConnectionsPage.tsx` — route `/agent/connections`, lists all services, dialogs.
-- `src/components/connections/ConnectionCard.tsx` — single service row.
-- `src/components/connections/ConnectDialog.tsx` — generic dialog; renders OAuth button OR token form based on service config.
-- `src/components/connections/connectionConfig.ts` — per-service metadata (label, icon, fields, scopes, help text, link to where to find the token).
-- `src/hooks/useConnections.ts` — fetch/insert/delete on `user_connections`, real-time subscription.
-- `supabase/functions/google-oauth-start/index.ts` — builds the Google auth URL with state.
-- `supabase/functions/google-oauth-callback/index.ts` — exchanges code, stores tokens, posts message back.
-- `supabase/functions/google-token-refresh/index.ts` — internal helper for tool functions.
-- `supabase/functions/connection-save/index.ts` — verifies + upserts manual-paste tokens.
-- `supabase/functions/connection-test/index.ts` — pings the provider with the stored token and returns ok/fail.
+- Browser automation (needs headless browser infra) — will surface as "I can't drive a real browser yet, but I can post directly via API."
+- Instagram, TikTok, YouTube uploads (need extra OAuth scopes + Meta app review).
 
-**Edited**
-- `src/App.jsx` (or router file) — register `/agent/connections` (protected route).
-- `src/components/cowork/CoWorkLayout.tsx` / `ConnectorPanel.tsx` — replace "Soon" chips with real status pulled from `user_connections`; clicking a connector opens `ConnectDialog` instead of toasting "Coming soon"; add a "Manage all" link to `/agent/connections`.
-- `src/components/aichat/SettingsModal.tsx` — add a new tab **Connections** that links to `/agent/connections` (so it's also discoverable from the global settings).
-- `src/stores/coworkStore.ts` — drop the local `connectors` array; derive from DB hook.
-- `supabase/config.toml` — add the 5 new functions with `verify_jwt = true` for `connection-save` / `connection-test` and `verify_jwt = false` for `google-oauth-callback` (Google calls it without a JWT).
+## Result for the user
 
-## Secrets to add (one-time, via secret prompt — never in code)
+Typing **"sent message on telegram khalid roommate to ok agent working"** will:
+1. Show a Task Monitor card "Sending Telegram message" with steps Resolve recipient → Send.
+2. Actually deliver the message via your connected bot.
+3. Reply "Sent to Khalid Roommate ✅" — no copy-paste instructions.
 
-Already present: `GITHUB_CLIENT_ID/SECRET`, `OPENROUTER_API_KEY`.
-Will request:
-- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_OAUTH_REDIRECT_URL` (= `https://flqwpuixevufwxfktdxg.supabase.co/functions/v1/google-oauth-callback`)
-
-For Facebook / LinkedIn / WhatsApp / Telegram **no app-level secret is needed in v1** — each user supplies their own token. (You previously pasted tokens in chat: those must be rotated and then entered through the new UI by the account owner; we will not hardcode them.)
-
-## Security
-
-- Tokens never touch the browser after submission — sent only over HTTPS to the edge function and stored server-side.
-- `user_connections` already has correct RLS (`auth.uid() = user_id` for select/insert/update/delete); we will rely on it.
-- All edge functions that read/write tokens require the user's JWT and use it to derive `user_id` (no trust of client-supplied IDs).
-- The OAuth callback function validates a signed `state` parameter that includes the user id + a 10-minute TTL HMAC (signed with `INTERNAL_WEBHOOK_SECRET`, already present).
-- "Test connection" returns only `{ ok, account_label }` — never the token.
-- Disconnect deletes the row immediately; tool functions that try to use a missing connection return a structured error so the Agent can ask the user to reconnect.
-
-## How the Agent uses the connections (existing `cowork-agent` integration)
-
-The orchestrator's tool definitions (`gmail_send`, `drive_upload`, `fb_post`, `linkedin_post`, `wa_send`, `telegram_send`, ...) will, on each invocation:
-1. Read the user's row from `user_connections` for that service.
-2. If absent → return `{ error: "not_connected", service }` so the Agent replies "Please connect <service> in /agent/connections first."
-3. If Google and `expires_at < now()` → call `google-token-refresh` and update the row.
-4. Make the actual provider API call with the freshest token.
-
-This keeps tokens out of the LLM context entirely.
-
-## Out of scope for this step (tracked for later)
-
-- Full Facebook Login / LinkedIn OAuth flows (require Meta/LinkedIn app review).
-- Per-connection scope downgrade UI.
-- Multi-account per service (v1 = one account per user per service; the table's lack of a uniqueness constraint will be tightened with `unique (user_id, service)` in a small follow-up migration).
-
-## Approval needed
-
-After you approve, I will:
-1. Run a tiny migration to add `unique (user_id, service)` on `user_connections`.
-2. Prompt you for the 3 Google secrets.
-3. Build the page, dialogs, hook, and 5 edge functions exactly as listed above.
+Approve to implement.
