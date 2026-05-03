@@ -25,14 +25,25 @@ Deno.serve(async (req) => {
     const { provider, returnUrl } = await req.json();
     if (!provider || typeof provider !== "string") return json({ ok: false, code: "bad_request", message: "provider required" }, 400);
 
-    // Where Nango sends the browser back. Defaults to the integrations page on aisorix.com.
-    const redirectUri = (typeof returnUrl === "string" && returnUrl) || "https://aisorix.com/agent/integrations";
+    // Where Nango sends the browser back. Prefer caller-provided URL so preview/published/custom domains all work.
+    const rawReturn = (typeof returnUrl === "string" && /^https?:\/\//i.test(returnUrl))
+      ? returnUrl
+      : "https://aisorix.com/agent";
+
+    let finalRedirect: string;
+    try {
+      const u = new URL(rawReturn);
+      u.searchParams.set("connected", provider);
+      finalRedirect = u.toString();
+    } catch {
+      finalRedirect = `https://aisorix.com/agent?connected=${encodeURIComponent(provider)}`;
+    }
 
     const { url } = await createConnectSession({
       userId: user.id,
       email: user.email ?? undefined,
       provider,
-      redirectUri: `${redirectUri}?connected=${encodeURIComponent(provider)}`,
+      redirectUri: finalRedirect,
     });
 
     // Pre-record a "pending" row keyed on (user, provider) so the UI can reflect intent.
