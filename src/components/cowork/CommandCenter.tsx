@@ -60,6 +60,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
   const [input, setInput] = useState("");
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const [showToolsMenu, setShowToolsMenu] = useState(false);
   const [showIntegrations, setShowIntegrations] = useState(false);
   const [attachments, setAttachments] = useState<{ name: string; size: number }[]>([]);
   const [busyId, setBusyId] = useState<string | null>(null);
