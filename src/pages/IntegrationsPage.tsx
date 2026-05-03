@@ -16,7 +16,7 @@ const CATEGORIES = ["all", "productivity", "social", "communication", "developer
 const IntegrationsPage: React.FC = () => {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
-  const { getByProvider, startConnect, disconnect, refresh, loading } = useIntegrations();
+  const { getByProvider, startConnect, disconnect, refresh, loading, syncFromNango } = useIntegrations();
   const { items: customItems, remove: removeCustom } = useCustomIntegrations();
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState<typeof CATEGORIES[number]>("all");
@@ -29,13 +29,13 @@ const IntegrationsPage: React.FC = () => {
     if (connected) {
       toast.success(`${connected} connected successfully`);
       params.delete("connected"); setParams(params, { replace: true });
-      refresh();
+      syncFromNango();
     }
     if (error) {
       toast.error(`Connection failed: ${error}`);
       params.delete("error"); setParams(params, { replace: true });
     }
-  }, [params, setParams, refresh]);
+  }, [params, setParams, syncFromNango]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();

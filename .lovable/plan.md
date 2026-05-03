@@ -1,38 +1,99 @@
-# Fix: LLM model selector not working in Sorix Agent
+# Fix integration redirect and post-connect sync for Sorix Agent
 
-## Problem
+## What’s broken
+After a user connects an integration, the OAuth flow completes successfully, but the app does not return them cleanly to the working agent experience.
 
-On `/agent`, picking a model from the dropdown (Gemini, Claude, GPT-5, Llama) has no effect. Every request still goes to a hardcoded model, which is currently failing and producing the "AI returned an unexpected response" error shown in the screenshot.
+I found two concrete problems in the current implementation:
 
-## Root cause
+1. `useIntegrations.startConnect()` does not send a return URL, so the backend falls back to a hardcoded redirect:
+   - `https://aisorix.com/agent/integrations`
+   - This breaks preview flows and always sends the user away from the current page instead of back to `/agent`.
 
-- `src/hooks/useCoWorkAgent.ts` correctly POSTs `{ messages, model: selectedModel }` to the `agent-router` edge function.
-- `supabase/functions/agent-router/index.ts` only destructures `messages` from the request body — `model` is dropped on the floor.
-- It then calls `openrouterChatWithFallback(...)` from `supabase/functions/_shared/openrouter.ts`, which hardcodes `PRIMARY_MODEL = "anthropic/claude-4.5-sonnet"` and falls back to `google/gemini-2.5-pro`. The user's selection never reaches OpenRouter.
-- `anthropic/claude-4.5-sonnet` is also a deprecated/retired slug on OpenRouter, which is why even a simple "hello" returns the unexpected-response error.
+2. Even after OAuth succeeds, the app never calls the sync function that marks the integration as `connected` in the database:
+   - `supabase/functions/nango-list-connections/index.ts` exists for this
+   - but nothing in the frontend calls it
+   - so the row stays `pending`, and the agent still treats the integration as unavailable
 
-## Fix
+That explains the behavior you described: the connection dialog succeeds, but when you return to the agent it still doesn’t work.
 
-### 1. `supabase/functions/_shared/openrouter.ts`
+## Plan
 
-- Update `openrouterChatWithFallback` to accept an optional `preferredModel` argument.
-- Use `preferredModel ?? PRIMARY_MODEL` for the first attempt.
-- Update `PRIMARY_MODEL` to a current valid slug (`anthropic/claude-sonnet-4`) so the default also works.
+### 1. Preserve the real return destination
+Update the integration connect flow so it sends the current page as the return URL instead of relying on the hardcoded domain.
 
-### 2. `supabase/functions/agent-router/index.ts`
+Planned changes:
+- In `src/hooks/useIntegrations.ts`, send `returnUrl` with the connect request
+- Use the current origin/path so preview stays on preview and published stays on published
+- When the user starts from `/agent`, return to `/agent`
+- When the user starts from `/agent/integrations`, return there
 
-- Read `model` from the request body alongside `messages`.
-- Pass it through: `openrouterChatWithFallback({ messages: convo, tools: TOOLS, tool_choice: "auto", max_tokens: 2048 }, model)`.
-- Keep the existing 429 / 5xx fallback to `google/gemini-2.5-pro`.
+Result:
+- No more forced redirect to `aisorix.com`
+- The user comes back to the same experience they started from
 
-### 3. `src/components/cowork/CommandCenter.tsx`
+### 2. Sync the completed OAuth connection immediately after redirect
+Wire the frontend to call the existing connection-sync edge function when the app comes back with `?connected=...`.
 
-- The model list currently includes `anthropic/claude-sonnet-4`, `openai/gpt-5-mini`, `google/gemini-2.5-pro`, `meta-llama/llama-3.3-70b-instruct` — keep these but verify slugs match OpenRouter's current catalog. No code change needed beyond confirming the IDs.
+Planned changes:
+- Add a frontend call to `nango-list-connections`
+- Trigger it after the OAuth return lands back in the app
+- After sync succeeds, refresh `user_integrations`
+- Remove the query param so the page doesn’t re-run the sync on refresh
+
+Result:
+- The connection changes from `pending` to `connected`
+- The agent can actually use the newly linked provider
+
+### 3. Make the return flow work on both Agent and Integrations pages
+Right now only `IntegrationsPage.tsx` checks for `connected` query params, and `/agent` does not.
+
+Planned changes:
+- Move the OAuth-return handling into the shared integrations hook or another shared layer used by both pages
+- Ensure the sync/toast/query cleanup works whether the user started from:
+  - `/agent`
+  - `/agent/integrations`
+
+Result:
+- Connect from the inline Agent integrations panel and return directly to Agent
+- Connect from the full integrations page and return there too
+
+### 4. Harden the backend redirect builder
+Improve the backend connect-start function so it builds the callback URL safely.
+
+Planned changes:
+- In `supabase/functions/nango-connect-start/index.ts`, stop defaulting to a single production URL for normal flows
+- Build the final redirect URL with the URL API so `connected=provider` is appended safely
+- Keep a reasonable fallback only if no valid return URL is provided
+
+Result:
+- More reliable redirects across preview, published, and custom-domain environments
+
+## Technical details
+
+Files likely to change:
+- `src/hooks/useIntegrations.ts`
+- `src/pages/IntegrationsPage.tsx`
+- `src/components/cowork/CommandCenter.tsx` or shared return handling
+- `supabase/functions/nango-connect-start/index.ts`
+
+Likely implementation shape:
+```text
+User clicks Connect
+-> frontend sends provider + returnUrl=current page
+-> backend creates OAuth session with that returnUrl
+-> provider flow completes
+-> app returns to same page with ?connected=provider
+-> frontend calls nango-list-connections
+-> DB row becomes connected
+-> UI refreshes
+-> agent can use the integration immediately
+```
 
 ## Verification
 
-1. Open `/agent`, select each model in turn, send "hello".
-2. Confirm a normal reply (no warning banner) for each selection.
-3. Check edge function logs to confirm the requested model slug is the one sent to OpenRouter.
-
-No DB changes. No UI changes beyond what's already in place.
+I’ll verify these cases after implementation:
+1. Connect Gmail from `/agent` in preview and confirm it returns to `/agent`
+2. Connect Gmail from `/agent/integrations` and confirm it returns there
+3. Confirm the DB-backed integration status changes from `pending` to `connected`
+4. Confirm the Agent no longer says the provider is unconnected right after a successful OAuth flow
+5. Confirm preview and published domains both keep users on the correct environment
