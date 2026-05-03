@@ -44,9 +44,27 @@ const TOOLS = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "custom_http_call",
+      description: "Call one of the user's CUSTOM REST integrations by id. The auth header is added automatically by the server. Use when the user references one of their custom integrations by name.",
+      parameters: {
+        type: "object",
+        properties: {
+          integration_id: { type: "string", description: "id of the user's custom integration" },
+          method: { type: "string", enum: ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+          path: { type: "string", description: "Path appended to base_url, starting with /" },
+          query: { type: "object", description: "Query string params", additionalProperties: { type: "string" } },
+          body: { type: "object", description: "JSON body", additionalProperties: true },
+        },
+        required: ["integration_id", "method", "path"],
+      },
+    },
+  },
 ];
 
-async function runTool(name: string, args: any, userId: string) {
+async function runTool(name: string, args: any, userId: string, supabase: any) {
   if (name === "nango_proxy") {
     return await nangoProxy({
       provider: args.provider,
@@ -77,6 +95,31 @@ export default async function ({ page }) {
     const j = await r.json().catch(() => ({}));
     return { ok: r.ok, status: r.status, data: j?.data ?? j };
   }
+  if (name === "custom_http_call") {
+    const { data: integ, error } = await supabase
+      .from("user_custom_integrations")
+      .select("*").eq("id", args.integration_id).eq("user_id", userId).maybeSingle();
+    if (error || !integ) return { ok: false, status: 404, data: { error: "custom_integration_not_found" } };
+    const url = new URL((integ.base_url as string).replace(/\/$/, "") + args.path);
+    if (args.query) for (const [k, v] of Object.entries(args.query)) url.searchParams.set(k, String(v));
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      [integ.auth_header || "Authorization"]: `${integ.auth_scheme ? integ.auth_scheme + " " : ""}${integ.api_key}`.trim(),
+    };
+    try {
+      const r = await fetch(url.toString(), {
+        method: args.method,
+        headers,
+        body: ["GET", "DELETE"].includes(args.method) ? undefined : JSON.stringify(args.body ?? {}),
+        signal: AbortSignal.timeout(30_000),
+      });
+      const text = await r.text();
+      let data: any; try { data = JSON.parse(text); } catch { data = text; }
+      return { ok: r.ok, status: r.status, data };
+    } catch (e) {
+      return { ok: false, status: 500, data: { error: String((e as Error).message ?? e) } };
+    }
+  }
   return { ok: false, status: 400, data: { error: `unknown_tool:${name}` } };
 }
 
@@ -96,15 +139,26 @@ Deno.serve(async (req) => {
     // Pull connected providers to inform the router
     const { data: integ } = await supabase
       .from("user_integrations").select("provider,status").eq("user_id", user.id);
-    const connected = (integ ?? []).filter(i => i.status === "connected").map(i => i.provider);
+    const connected = (integ ?? []).filter((i: any) => i.status === "connected").map((i: any) => i.provider);
+
+    // Pull user's custom integrations
+    const { data: customs } = await supabase
+      .from("user_custom_integrations").select("id,name,base_url,description").eq("user_id", user.id);
+    const customList = (customs ?? []) as any[];
 
     const SYSTEM = `You are Sorix Agent, an autonomous executor that DOES tasks.
 
 Available connected providers for this user: ${connected.length ? connected.join(", ") : "none yet"}.
 
+Custom integrations (call with custom_http_call using their id):
+${customList.length
+  ? customList.map(c => `- ${c.name} (id=${c.id}, base=${c.base_url})${c.description ? ` — ${c.description}` : ""}`).join("\n")
+  : "- none yet"}
+
 ROUTING RULES (decide silently before each turn):
-- API path: if the task touches a connected provider, call \`nango_proxy\` with the right HTTP method and endpoint of that provider's REST API (you know GitHub, Gmail, Notion, Slack, LinkedIn, Google Drive/Calendar/Docs/Sheets, Twitter/X, Facebook, Instagram, YouTube, Telegram, WhatsApp public REST shapes).
-- Browser path: if the task needs info from a public website with no connected API, call \`web_scrape\` with the URL.
+- Custom path: if the request matches one of the user's custom integrations above, call \`custom_http_call\` with the matching integration_id, method and path.
+- API path: if the task touches a connected provider, call \`nango_proxy\` with the right HTTP method and endpoint.
+- Browser path: if the task needs info from a public website with no connected/custom API, call \`web_scrape\`.
 - If the user asks for something on a service that is NOT connected, briefly tell them to open Integrations (/agent/integrations) and connect it. Don't lecture.
 
 Always do the work — never tell the user to copy/paste or "go open the app". After tools succeed, reply in 1–2 short sentences confirming what you did. Match the user's language.`;
@@ -142,14 +196,16 @@ Always do the work — never tell the user to copy/paste or "go open the app". A
 
                 send({
                   type: "route_decision",
-                  path: name === "nango_proxy" ? "api" : "browser",
+                  path: name === "nango_proxy" ? "api" : name === "web_scrape" ? "browser" : "custom",
                   reason: name === "nango_proxy"
                     ? `Calling ${args.provider} ${args.method} ${args.endpoint}`
-                    : `Browsing ${args.url}`,
+                    : name === "web_scrape"
+                      ? `Browsing ${args.url}`
+                      : `Calling custom integration ${args.method} ${args.path}`,
                 });
-                send({ type: "tool_use", tool_name: name, description: name === "nango_proxy" ? `${args.provider} ${args.endpoint}` : `Open ${args.url}`, steps: ["Execute"] });
+                send({ type: "tool_use", tool_name: name, description: name === "nango_proxy" ? `${args.provider} ${args.endpoint}` : name === "web_scrape" ? `Open ${args.url}` : `Custom ${args.method} ${args.path}`, steps: ["Execute"] });
 
-                const result = await runTool(name, args, user.id);
+                const result = await runTool(name, args, user.id, supabase);
                 send({
                   type: "tool_result",
                   name,

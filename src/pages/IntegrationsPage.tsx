@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ShieldCheck, Search, Sparkles } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Search, Sparkles, Plus, Globe2, Trash2 } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { INTEGRATIONS } from "@/components/integrations/integrationsCatalog";
 import IntegrationCard from "@/components/integrations/IntegrationCard";
 import { useIntegrations } from "@/hooks/useIntegrations";
+import { useCustomIntegrations } from "@/hooks/useCustomIntegrations";
+import CustomIntegrationDialog from "@/components/integrations/CustomIntegrationDialog";
 import { toast } from "sonner";
 
 const CATEGORIES = ["all", "productivity", "social", "communication", "developer", "creative"] as const;
@@ -15,8 +17,10 @@ const IntegrationsPage: React.FC = () => {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const { getByProvider, startConnect, disconnect, refresh, loading } = useIntegrations();
+  const { items: customItems, remove: removeCustom } = useCustomIntegrations();
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState<typeof CATEGORIES[number]>("all");
+  const [addOpen, setAddOpen] = useState(false);
 
   // Handle Nango redirect-back
   useEffect(() => {
@@ -104,6 +108,48 @@ const IntegrationsPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Custom integrations section */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h2 className="text-sm font-semibold text-foreground">Your custom integrations</h2>
+                <p className="text-xs text-muted-foreground">Bring any REST API. The agent calls it on your behalf.</p>
+              </div>
+              <Button size="sm" variant="outline" onClick={() => setAddOpen(true)}>
+                <Plus className="w-4 h-4 mr-1" /> Add custom
+              </Button>
+            </div>
+            {customItems.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-border/60 p-4 text-center text-xs text-muted-foreground">
+                No custom integrations yet.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {customItems.map((c) => (
+                  <div key={c.id} className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-3 flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-cyan-500/10 flex items-center justify-center shrink-0">
+                      <Globe2 className="w-4 h-4 text-cyan-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-foreground truncate">{c.name}</div>
+                      <div className="text-[11px] text-muted-foreground truncate">{c.base_url}</div>
+                    </div>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={async () => {
+                        try { await removeCustom(c.id); toast.success("Removed"); }
+                        catch (e: any) { toast.error(e.message ?? "Failed"); }
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {filtered.map(p => (
@@ -123,6 +169,7 @@ const IntegrationsPage: React.FC = () => {
           )}
         </div>
       </div>
+      <CustomIntegrationDialog open={addOpen} onOpenChange={setAddOpen} />
     </>
   );
 };
