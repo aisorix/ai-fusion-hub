@@ -169,6 +169,7 @@ const IntegrationsPage: React.FC = () => {
           )}
         </div>
       </div>
+      <CustomIntegrationDialog open={addOpen} onOpenChange={setAddOpen} />
     </>
   );
 };
