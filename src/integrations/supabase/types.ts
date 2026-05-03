@@ -900,6 +900,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_custom_integrations: {
+        Row: {
+          api_key: string
+          auth_header: string
+          auth_scheme: string
+          base_url: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          api_key: string
+          auth_header?: string
+          auth_scheme?: string
+          base_url: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          api_key?: string
+          auth_header?: string
+          auth_scheme?: string
+          base_url?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_integrations: {
         Row: {
           created_at: string
