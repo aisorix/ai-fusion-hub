@@ -66,7 +66,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
 
   const { messages, agentStatus, selectedModel, setSelectedModel } = useCoWorkStore();
   const { sendMessage } = useCoWorkAgent();
-  const { connections, getByProvider, startConnect, disconnect } = useIntegrations();
+  const { items: connections, getByProvider, startConnect, disconnect } = useIntegrations();
   const { items: customItems } = useCustomIntegrations();
 
   const scrollRef = useRef<HTMLDivElement>(null);
