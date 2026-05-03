@@ -64,7 +64,7 @@ const TOOLS = [
   },
 ];
 
-async function runTool(name: string, args: any, userId: string) {
+async function runTool(name: string, args: any, userId: string, supabase: any) {
   if (name === "nango_proxy") {
     return await nangoProxy({
       provider: args.provider,
