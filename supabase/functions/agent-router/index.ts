@@ -196,14 +196,16 @@ Always do the work — never tell the user to copy/paste or "go open the app". A
 
                 send({
                   type: "route_decision",
-                  path: name === "nango_proxy" ? "api" : "browser",
+                  path: name === "nango_proxy" ? "api" : name === "web_scrape" ? "browser" : "custom",
                   reason: name === "nango_proxy"
                     ? `Calling ${args.provider} ${args.method} ${args.endpoint}`
-                    : `Browsing ${args.url}`,
+                    : name === "web_scrape"
+                      ? `Browsing ${args.url}`
+                      : `Calling custom integration ${args.method} ${args.path}`,
                 });
-                send({ type: "tool_use", tool_name: name, description: name === "nango_proxy" ? `${args.provider} ${args.endpoint}` : `Open ${args.url}`, steps: ["Execute"] });
+                send({ type: "tool_use", tool_name: name, description: name === "nango_proxy" ? `${args.provider} ${args.endpoint}` : name === "web_scrape" ? `Open ${args.url}` : `Custom ${args.method} ${args.path}`, steps: ["Execute"] });
 
-                const result = await runTool(name, args, user.id);
+                const result = await runTool(name, args, user.id, supabase);
                 send({
                   type: "tool_result",
                   name,
