@@ -1,50 +1,44 @@
 ## Goal
 
-The Agent sidebar still shows the **old** connector list (Google, Facebook Page, LinkedIn, WhatsApp, Telegram from `CONNECTION_SERVICES`). That system is superseded by the new Nango-based Integrations Hub. Replace the panel so it shows the **new integration catalog** plus the user's own **custom integrations**, all manageable inline.
+Make the Sorix Agent prompt bar match the main chat input UX (image 1), with two agent-specific additions:
+1. Model selector lives **inside** the input bar (left of Tools).
+2. New **Integrations** button next to Tools that opens the connected/available apps menu.
+3. Mic stays on the **left side only** for the agent (next to + / Tools / Model / Integrations), unlike main chat where it's on the right.
+4. Attachment popup matches image 3 (Upload Image / Take Photo / Attach File with Max file size pill).
+5. On mobile, the Integrations popup appears as a clean centered/anchored modal — not awkwardly clipped.
 
-## Changes
+## Files to change
 
-### 1. Rewrite `src/components/cowork/ConnectorPanel.tsx`
-- Drop `CONNECTION_SERVICES` / `ConnectDialog` / `useConnections` (old flow).
-- Drive the list from `INTEGRATIONS` (Nango catalog) + `useIntegrations()` for connection status.
-- For each item: icon, label, green check if connected, plug icon otherwise. Click connected → disconnect confirm; click disconnected → `startConnect(id)` (opens Nango Connect UI, same as `/agent/integrations`).
-- Add a search input (filters catalog) and a "Manage all" link to `/agent/integrations`.
-- Append a **"Custom Integrations"** section below the catalog listing rows from a new `user_custom_integrations` table, with a `+ Add custom` button opening a small dialog.
+**`src/components/cowork/CommandCenter.tsx`** — replace the existing minimal input section (lines ~210–254) and the header model picker (lines ~63–115):
 
-### 2. Custom integrations storage
-New migration:
-```sql
-create table public.user_custom_integrations (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users(id) on delete cascade,
-  name text not null,
-  base_url text not null,
-  auth_header text default 'Authorization',
-  auth_scheme text default 'Bearer',
-  api_key text not null,             -- stored encrypted-at-rest by PG; only readable via RLS by owner
-  description text,
-  created_at timestamptz default now()
-);
-alter table public.user_custom_integrations enable row level security;
--- owner-only select/insert/update/delete policies
-```
+- Remove the model picker from the header. The header stays clean with just the avatar, title, and status.
+- Build a new prompt-bar component inline, modeled directly on `src/components/aichat/ChatInput.tsx` (the stacked Gemini-style layout, `rounded-3xl`, `bg-muted/40`, `TextareaAutosize` with `minRows=1 maxRows=6`, Enter-to-send).
+- **Bottom controls layout (left → right):**
+  - `+` attach button → opens attachment popover (Upload Image / Take Photo / Attach File + Max file size pill matching image 3 styling, copied from `ChatInput.tsx` lines 595–658). Attachments stored locally in component state; passed alongside the prompt to `sendMessage`.
+  - `Tools` pill button (visual parity only — opens a small "Coming soon" / agent tools placeholder, or reuses `ToolsMenu` if appropriate; if tool list is agent-specific we'll start with just the button styled identically).
+  - **Model selector pill** (`Cpu` icon + short name + chevron) — same `MODELS` list already in this file, opens an upward popover above the input.
+  - **Integrations pill** (`Plug` icon + label "Apps" + count badge of connected providers) — opens an upward popover listing the Nango catalog from `INTEGRATIONS` (`@/components/integrations/integrationsCatalog`) with connect/disconnect via `useIntegrations`, plus the custom integrations from `useCustomIntegrations`, plus a "Manage all" link to `/agent/integrations`. Essentially a compact version of `ConnectorPanel` rendered inside a popover.
+  - **Mic** button (left cluster, agent-only) — opens voice mode (or shows toast "Coming soon" if no handler wired yet). Has the small green dot indicator like main chat.
+- **Right cluster:** Send/Stop button only.
+- Disclaimer line below stays (`Sorix Agent can make mistakes…`).
+- All popovers (attach, model, integrations) use `AnimatePresence` + click-outside backdrop (`fixed inset-0 z-40`) and open **upward** (`bottom-full mb-2`). Use `z-[100]` on the popover panel.
 
-### 3. New components / hook
-- `src/components/integrations/CustomIntegrationDialog.tsx` — form (name, base URL, auth header, scheme, key, description).
-- `src/hooks/useCustomIntegrations.ts` — list / create / delete via Supabase client.
+**`src/components/cowork/CoWorkLayout.tsx`** — improve the mobile Integrations popup (lines 78–117):
 
-### 4. Surface custom integrations on `/agent/integrations`
-Add a "Your custom integrations" section above the catalog grid, reusing the same dialog and hook so the Hub and the sidebar stay in sync.
+- Replace the current `inset-x-4 top-16` floating card (which feels off-screen) with a bottom-sheet style modal: `fixed inset-x-0 bottom-0 max-h-[85vh] rounded-t-3xl` with a drag handle bar at top, animated up from the bottom (`initial={{ y: '100%' }} animate={{ y: 0 }}`).
+- Keep the existing header (Connectors title + close X) and `ConnectorPanel` body. Increase inner scroll to `max-h-[calc(85vh-56px)]`.
+- Backdrop unchanged.
+- Since the new Integrations pill on the input bar already covers the use case in-place, we can also **remove the top-bar `Plug` button on mobile** to avoid duplication (keep desktop monitor toggle).
 
-### 5. Wire custom integrations into the agent
-Extend `supabase/functions/agent-router/index.ts`:
-- Add a `custom_http_call` tool that accepts `{ integration_id, method, path, query, body }`.
-- Server-side: load the row by `user_id + id`, build `${base_url}${path}`, attach `${auth_header}: ${auth_scheme} ${api_key}`, return JSON.
-- Inject the user's custom integration names + descriptions into the system prompt so the LLM knows what's available.
+## Out of scope
 
-### 6. Cleanup
-Leave the old `/agent/connections` route + `ConnectDialog` / `connectionConfig.ts` files in place for now (still imported elsewhere) but remove their entry point from the agent sidebar. We can delete them in a follow-up once nothing references them.
+- No backend changes. Reuses `useIntegrations`, `useCustomIntegrations`, `useCoWorkAgent`, existing `MODELS`.
+- Attachments for the agent are wired into the UI but `useCoWorkAgent.sendMessage` already only accepts text — we'll prepend a short note like `[Attached: file.pdf]` to the prompt for now (full multimodal agent attachments can be a follow-up).
 
-## Result
+## Visual reference
 
-The sidebar in Command Center will show the same provider catalog as the Integrations Hub (Gmail, GitHub, Notion, Slack, LinkedIn, WhatsApp, Telegram, …) with live connect/disconnect, plus the user's own custom REST integrations — and the agent can actually call any of them.
+- Image 1: stacked rounded-3xl input, `+` and `Tools` pill on the bottom-left, mic+send on bottom-right → we mirror this layout but move mic to the left cluster and add Model + Integrations pills.
+- Image 2: current header model dropdown → moves into the input bar.
+- Image 3: attachment popup style → reuse exact markup from `ChatInput.tsx`.
+
+Approve and I'll implement.
