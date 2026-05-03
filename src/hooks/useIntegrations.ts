@@ -107,5 +107,5 @@ export function useIntegrations() {
     await refresh();
   }, [refresh]);
 
-  return { items, loading, refresh, getByProvider, startConnect, disconnect };
+  return { items, loading, refresh, getByProvider, startConnect, disconnect, syncFromNango };
 }
