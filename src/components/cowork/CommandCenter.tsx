@@ -458,7 +458,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                       setShowToolsMenu((v) => !v);
                     }}
                     className={cn(
-                      "flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full transition-all duration-200",
+                      "flex items-center gap-1.5 p-2 sm:pl-2 sm:pr-3 sm:py-1.5 rounded-full transition-all duration-200",
                       "border border-border/60 text-muted-foreground hover:text-foreground hover:bg-background",
                       "text-sm font-medium whitespace-nowrap",
                       showToolsMenu && "bg-background text-foreground border-border"
@@ -466,7 +466,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                     aria-label="Tools"
                   >
                     <Settings2 className="w-4 h-4 shrink-0" />
-                    <span>{language === "bn" ? "টুলস" : "Tools"}</span>
+                    <span className="hidden sm:inline">{language === "bn" ? "টুলস" : "Tools"}</span>
                   </button>
                   <ToolsMenu open={showToolsMenu} onClose={() => setShowToolsMenu(false)} />
                 </div>
@@ -479,7 +479,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                       setShowIntegrations((v) => !v);
                     }}
                     className={cn(
-                      "flex items-center gap-1.5 pl-2 pr-2.5 py-1.5 rounded-full transition-all duration-200",
+                      "flex items-center gap-1.5 p-2 sm:pl-2 sm:pr-2.5 sm:py-1.5 rounded-full transition-all duration-200",
                       "border border-border/60 text-muted-foreground hover:text-foreground hover:bg-background",
                       "text-sm font-medium whitespace-nowrap",
                       showIntegrations && "bg-background text-foreground border-border"
@@ -487,7 +487,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                     aria-label="Integrations"
                   >
                     <Plug className="w-4 h-4 text-cyan-500" />
-                    <span>{language === "bn" ? "অ্যাপস" : "Apps"}</span>
+                    <span className="hidden sm:inline">{language === "bn" ? "অ্যাপস" : "Apps"}</span>
                     {connectedCount > 0 && (
                       <span className="ml-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-cyan-500/15 text-cyan-500">
                         {connectedCount}
@@ -626,7 +626,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
               </div>
 
               {/* Right cluster: model, mic, send */}
-              <div className="flex items-center gap-1 shrink-0">
+              <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
                 {/* Model selector pill */}
                 <div className="relative shrink-0">
                   <button
@@ -635,14 +635,14 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                       setShowModelPicker((v) => !v);
                     }}
                     className={cn(
-                      "flex items-center gap-1.5 pl-2 pr-2.5 py-1.5 rounded-full transition-all duration-200",
+                      "flex items-center gap-1 sm:gap-1.5 p-2 sm:pl-2 sm:pr-2.5 sm:py-1.5 rounded-full transition-all duration-200",
                       "border border-border/60 text-muted-foreground hover:text-foreground hover:bg-background",
                       "text-sm font-medium whitespace-nowrap",
                       showModelPicker && "bg-background text-foreground border-border"
                     )}
                   >
                     <Cpu className="w-4 h-4 text-primary" />
-                    <span>{currentModel.short}</span>
+                    <span className="hidden sm:inline">{currentModel.short}</span>
                     <ChevronDown className="w-3 h-3 text-muted-foreground" />
                   </button>
 
@@ -680,13 +680,13 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                   </AnimatePresence>
                 </div>
 
-                {/* Mic */}
+                {/* Mic - desktop only */}
                 <button
                   onClick={() =>
                     toast.message(language === "bn" ? "ভয়েস মোড শীঘ্রই" : "Voice mode coming soon")
                   }
                   className={cn(
-                    "p-2 rounded-full transition-all duration-200 shrink-0 relative",
+                    "hidden sm:inline-flex p-2 rounded-full transition-all duration-200 shrink-0 relative",
                     "hover:bg-background text-muted-foreground hover:text-primary"
                   )}
                   title={language === "bn" ? "ভয়েস মোড" : "Voice mode"}
@@ -715,7 +715,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
             </div>
           </div>
 
-          <p className="text-[10px] sm:text-xs text-muted-foreground/60 text-center mt-2">
+          <p className="text-[10px] sm:text-xs text-muted-foreground/60 text-center mt-1.5 sm:mt-2 px-2">
             {language === "bn"
               ? "Sorix Agent ভুল করতে পারে। গুরুত্বপূর্ণ তথ্য যাচাই করুন।"
               : "Sorix Agent can make mistakes. Verify important information."}
