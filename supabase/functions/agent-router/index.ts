@@ -174,7 +174,7 @@ Always do the work — never tell the user to copy/paste or "go open the app". A
           for (let turn = 0; turn < 6; turn++) {
             const r = await openrouterChatWithFallback({
               messages: convo, tools: TOOLS, tool_choice: "auto", max_tokens: 2048,
-            });
+            }, model);
             if (!r.ok) {
               const txt = await r.text();
               const code = r.status === 429 ? "rate_limit" : "llm_parse";
