@@ -38,16 +38,7 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
             </div>
           </div>
         </div>
-        {isMobile ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => setShowMobileConnectors(true)}
-          >
-            <Plug className="w-4 h-4" />
-          </Button>
-        ) : (
+        {!isMobile && (
           <Button
             variant="ghost"
             size="icon"
