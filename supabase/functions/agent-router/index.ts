@@ -95,6 +95,31 @@ export default async function ({ page }) {
     const j = await r.json().catch(() => ({}));
     return { ok: r.ok, status: r.status, data: j?.data ?? j };
   }
+  if (name === "custom_http_call") {
+    const { data: integ, error } = await supabase
+      .from("user_custom_integrations")
+      .select("*").eq("id", args.integration_id).eq("user_id", userId).maybeSingle();
+    if (error || !integ) return { ok: false, status: 404, data: { error: "custom_integration_not_found" } };
+    const url = new URL((integ.base_url as string).replace(/\/$/, "") + args.path);
+    if (args.query) for (const [k, v] of Object.entries(args.query)) url.searchParams.set(k, String(v));
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      [integ.auth_header || "Authorization"]: `${integ.auth_scheme ? integ.auth_scheme + " " : ""}${integ.api_key}`.trim(),
+    };
+    try {
+      const r = await fetch(url.toString(), {
+        method: args.method,
+        headers,
+        body: ["GET", "DELETE"].includes(args.method) ? undefined : JSON.stringify(args.body ?? {}),
+        signal: AbortSignal.timeout(30_000),
+      });
+      const text = await r.text();
+      let data: any; try { data = JSON.parse(text); } catch { data = text; }
+      return { ok: r.ok, status: r.status, data };
+    } catch (e) {
+      return { ok: false, status: 500, data: { error: String((e as Error).message ?? e) } };
+    }
+  }
   return { ok: false, status: 400, data: { error: `unknown_tool:${name}` } };
 }
 
