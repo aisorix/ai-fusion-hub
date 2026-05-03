@@ -139,15 +139,26 @@ Deno.serve(async (req) => {
     // Pull connected providers to inform the router
     const { data: integ } = await supabase
       .from("user_integrations").select("provider,status").eq("user_id", user.id);
-    const connected = (integ ?? []).filter(i => i.status === "connected").map(i => i.provider);
+    const connected = (integ ?? []).filter((i: any) => i.status === "connected").map((i: any) => i.provider);
+
+    // Pull user's custom integrations
+    const { data: customs } = await supabase
+      .from("user_custom_integrations").select("id,name,base_url,description").eq("user_id", user.id);
+    const customList = (customs ?? []) as any[];
 
     const SYSTEM = `You are Sorix Agent, an autonomous executor that DOES tasks.
 
 Available connected providers for this user: ${connected.length ? connected.join(", ") : "none yet"}.
 
+Custom integrations (call with custom_http_call using their id):
+${customList.length
+  ? customList.map(c => `- ${c.name} (id=${c.id}, base=${c.base_url})${c.description ? ` — ${c.description}` : ""}`).join("\n")
+  : "- none yet"}
+
 ROUTING RULES (decide silently before each turn):
-- API path: if the task touches a connected provider, call \`nango_proxy\` with the right HTTP method and endpoint of that provider's REST API (you know GitHub, Gmail, Notion, Slack, LinkedIn, Google Drive/Calendar/Docs/Sheets, Twitter/X, Facebook, Instagram, YouTube, Telegram, WhatsApp public REST shapes).
-- Browser path: if the task needs info from a public website with no connected API, call \`web_scrape\` with the URL.
+- Custom path: if the request matches one of the user's custom integrations above, call \`custom_http_call\` with the matching integration_id, method and path.
+- API path: if the task touches a connected provider, call \`nango_proxy\` with the right HTTP method and endpoint.
+- Browser path: if the task needs info from a public website with no connected/custom API, call \`web_scrape\`.
 - If the user asks for something on a service that is NOT connected, briefly tell them to open Integrations (/agent/integrations) and connect it. Don't lecture.
 
 Always do the work — never tell the user to copy/paste or "go open the app". After tools succeed, reply in 1–2 short sentences confirming what you did. Match the user's language.`;
