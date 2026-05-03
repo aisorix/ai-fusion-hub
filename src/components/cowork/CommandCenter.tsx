@@ -365,7 +365,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
             {/* Bottom controls */}
             <div className="flex items-center justify-between gap-1 mt-1">
               {/* Left cluster */}
-              <div className="flex items-center gap-1 min-w-0 overflow-x-auto scrollbar-none">
+              <div className="flex items-center gap-1 min-w-0 flex-wrap">
                 {/* Plus / attach */}
                 <div className="relative">
                   <button
