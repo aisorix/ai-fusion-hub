@@ -134,7 +134,7 @@ Deno.serve(async (req) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
-    const { messages = [] } = await req.json();
+    const { messages = [], model } = await req.json();
 
     // Pull connected providers to inform the router
     const { data: integ } = await supabase
