@@ -34,6 +34,7 @@ import { useIntegrations } from "@/hooks/useIntegrations";
 import { useCustomIntegrations } from "@/hooks/useCustomIntegrations";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import ToolsMenu from "@/components/aichat/ToolsMenu";
 
 interface CommandCenterProps {
   language: string;
