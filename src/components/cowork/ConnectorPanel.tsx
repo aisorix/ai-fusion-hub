@@ -27,12 +27,20 @@ const ConnectorPanel: React.FC<ConnectorPanelProps> = ({ language }) => {
         <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
           {language === "bn" ? "কানেক্টর" : "Connectors"}
         </h4>
-        <button
-          onClick={() => navigate("/agent/connections")}
-          className="text-[10px] text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-1"
-        >
-          <Settings2 className="w-3 h-3" /> Manage
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate("/agent/integrations")}
+            className="text-[10px] text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-1"
+          >
+            <Plug className="w-3 h-3" /> Integrations
+          </button>
+          <button
+            onClick={() => navigate("/agent/connections")}
+            className="text-[10px] text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+          >
+            <Settings2 className="w-3 h-3" /> Manage
+          </button>
+        </div>
       </div>
       <div className="space-y-1.5 max-h-[60vh] overflow-y-auto pr-1">
         {CONNECTION_SERVICES.map((svc) => {
