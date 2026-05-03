@@ -17,8 +17,10 @@ const IntegrationsPage: React.FC = () => {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const { getByProvider, startConnect, disconnect, refresh, loading } = useIntegrations();
+  const { items: customItems, remove: removeCustom } = useCustomIntegrations();
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState<typeof CATEGORIES[number]>("all");
+  const [addOpen, setAddOpen] = useState(false);
 
   // Handle Nango redirect-back
   useEffect(() => {
