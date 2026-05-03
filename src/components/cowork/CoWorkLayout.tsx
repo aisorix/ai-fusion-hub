@@ -105,7 +105,6 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
               <div className="flex-1 overflow-y-auto p-3">
                 <ConnectorPanel language={language} />
               </div>
-              </div>
             </motion.div>
           </>
         )}
