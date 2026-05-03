@@ -8,6 +8,7 @@ import {
   Crown,
   Presentation,
   Workflow,
+  Bot,
   ArrowRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
