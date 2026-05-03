@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ShieldCheck, Search, Sparkles } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Search, Sparkles, Plus, Globe2, Trash2 } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { INTEGRATIONS } from "@/components/integrations/integrationsCatalog";
 import IntegrationCard from "@/components/integrations/IntegrationCard";
 import { useIntegrations } from "@/hooks/useIntegrations";
+import { useCustomIntegrations } from "@/hooks/useCustomIntegrations";
+import CustomIntegrationDialog from "@/components/integrations/CustomIntegrationDialog";
 import { toast } from "sonner";
 
 const CATEGORIES = ["all", "productivity", "social", "communication", "developer", "creative"] as const;
