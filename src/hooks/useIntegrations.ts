@@ -50,6 +50,9 @@ export function useIntegrations() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.access_token) throw new Error("Not authenticated");
 
+    // Return back to whatever page the user is on (preview or production), preserving the path.
+    const returnUrl = `${window.location.origin}${window.location.pathname}`;
+
     const res = await fetch(
       `https://flqwpuixevufwxfktdxg.supabase.co/functions/v1/nango-connect-start`,
       {
@@ -58,13 +61,34 @@ export function useIntegrations() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ provider }),
+        body: JSON.stringify({ provider, returnUrl }),
       }
     );
     const j = await res.json();
     if (!res.ok || !j.url) throw new Error(j.message ?? "Failed to start connection");
     window.location.href = j.url;
   }, []);
+
+  // Sync newly completed OAuth connections from Nango -> user_integrations
+  const syncFromNango = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) return;
+    try {
+      await fetch(
+        `https://flqwpuixevufwxfktdxg.supabase.co/functions/v1/nango-list-connections`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        }
+      );
+    } catch (e) {
+      console.error("nango sync failed", e);
+    }
+    await refresh();
+  }, [refresh]);
 
   const disconnect = useCallback(async (provider: string) => {
     const { data: { session } } = await supabase.auth.getSession();
