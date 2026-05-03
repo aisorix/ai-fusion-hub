@@ -219,7 +219,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="grid grid-cols-2 gap-3 w-full max-w-sm"
+                className="grid grid-cols-2 gap-2.5 sm:gap-3 w-full max-w-[20rem] sm:max-w-sm"
               >
                 {[
                   {
@@ -258,10 +258,10 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                       setInput(item.prompt);
                       inputRef.current?.focus();
                     }}
-                    className="flex flex-col items-center gap-2.5 py-5 px-3 rounded-2xl border border-border/50 bg-card/60 hover:bg-accent/50 hover:border-border/70 transition-all duration-200 shadow-sm"
+                    className="flex flex-col items-center gap-2 py-3.5 px-2 sm:py-5 sm:px-3 rounded-2xl border border-border/50 bg-card/60 hover:bg-accent/50 hover:border-border/70 transition-all duration-200 shadow-sm text-center"
                   >
-                    <item.icon className="w-6 h-6 text-sky-500" />
-                    <span className="text-sm font-medium text-foreground">{item.label}</span>
+                    <item.icon className="w-5 h-5 sm:w-6 sm:h-6 text-sky-500" />
+                    <span className="text-[12px] sm:text-sm font-medium text-foreground leading-tight">{item.label}</span>
                   </motion.button>
                 ))}
               </motion.div>
@@ -282,8 +282,8 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
       </div>
 
       {/* Input - main-chat style */}
-      <div className="p-3 sm:p-4 border-t border-border/30 backdrop-blur-md bg-background/60">
-        <div className="w-full max-w-3xl mx-auto px-1 sm:px-2 relative">
+      <div className="p-2 sm:p-4 border-t border-border/30 backdrop-blur-md bg-background/60">
+        <div className="w-full max-w-3xl mx-auto sm:px-2 relative">
           {/* hidden file inputs */}
           <input
             ref={fileInputRef}
@@ -365,7 +365,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
             {/* Bottom controls */}
             <div className="flex items-center justify-between gap-1 mt-1">
               {/* Left cluster */}
-              <div className="flex items-center gap-1 min-w-0 flex-wrap">
+              <div className="flex items-center gap-0.5 sm:gap-1 min-w-0">
                 {/* Plus / attach */}
                 <div className="relative">
                   <button
