@@ -44,6 +44,24 @@ const TOOLS = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "custom_http_call",
+      description: "Call one of the user's CUSTOM REST integrations by id. The auth header is added automatically by the server. Use when the user references one of their custom integrations by name.",
+      parameters: {
+        type: "object",
+        properties: {
+          integration_id: { type: "string", description: "id of the user's custom integration" },
+          method: { type: "string", enum: ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+          path: { type: "string", description: "Path appended to base_url, starting with /" },
+          query: { type: "object", description: "Query string params", additionalProperties: { type: "string" } },
+          body: { type: "object", description: "JSON body", additionalProperties: true },
+        },
+        required: ["integration_id", "method", "path"],
+      },
+    },
+  },
 ];
 
 async function runTool(name: string, args: any, userId: string) {
