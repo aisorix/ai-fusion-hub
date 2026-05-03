@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PanelRightClose, PanelRight, ArrowLeft, Plug, Bot, X, ListChecks } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import CommandCenter from "./CommandCenter";
 import ConnectorPanel from "./ConnectorPanel";
 import TaskMonitor from "./TaskMonitor";
@@ -8,7 +8,9 @@ import ApprovalModal from "./ApprovalModal";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useIntegrations } from "@/hooks/useIntegrations";
 import { AnimatePresence, motion } from "framer-motion";
+import { toast } from "sonner";
 
 interface CoWorkLayoutProps {
   language: string;
@@ -20,6 +22,26 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
   const [showMobileTasks, setShowMobileTasks] = useState(false);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
+  const { syncFromNango } = useIntegrations();
+
+  // Handle Nango redirect-back when the user lands directly on /agent after OAuth.
+  useEffect(() => {
+    const connected = params.get("connected");
+    const error = params.get("error");
+    if (connected) {
+      toast.success(`${connected} connected successfully`);
+      params.delete("connected");
+      setParams(params, { replace: true });
+      syncFromNango();
+    }
+    if (error) {
+      toast.error(`Connection failed: ${error}`);
+      params.delete("error");
+      setParams(params, { replace: true });
+    }
+  }, [params, setParams, syncFromNango]);
+
 
   return (
     <div className="h-[100dvh] flex flex-col bg-background overflow-hidden">
