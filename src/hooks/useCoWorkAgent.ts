@@ -54,7 +54,7 @@ export function useCoWorkAgent() {
         const token = sessionData?.session?.access_token;
 
         const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-        const url = `https://${projectId}.supabase.co/functions/v1/cowork-agent`;
+        const url = `https://${projectId}.supabase.co/functions/v1/agent-router`;
 
         // Build conversation history
         const history = [...messages, userMsg].map((m) => ({
