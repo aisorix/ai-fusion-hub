@@ -128,8 +128,25 @@ export function useCoWorkAgent() {
                       });
                     }
                     updateTask(task.id, { status: "completed" });
+                  } else if (parsed.type === "route_decision") {
+                    // Surface routing decision as a lightweight task header
+                    const task: CoWorkTask = {
+                      id: crypto.randomUUID(),
+                      title: parsed.path === "browser" ? "Web automation" : "API request",
+                      description: parsed.reason || "",
+                      status: "running",
+                      steps: [{ label: "Routing", status: "done" as const }],
+                      created_at: new Date().toISOString(),
+                    };
+                    addTask(task);
+                  } else if (parsed.type === "tool_result") {
+                    if (!parsed.ok) {
+                      toast.error(`${parsed.name} failed: ${parsed.summary}`);
+                    }
                   } else if (parsed.type === "error") {
-                    fullContent += `\n\n⚠️ ${parsed.message}`;
+                    const friendly = ERROR_TOASTS[parsed.code] ?? parsed.message ?? ERROR_TOASTS.unknown;
+                    toast.error(friendly);
+                    fullContent += `\n\n⚠️ ${friendly}`;
                     updateLastAssistantMessage(fullContent);
                   }
                 } catch {
