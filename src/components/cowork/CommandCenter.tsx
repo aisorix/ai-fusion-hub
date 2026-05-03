@@ -450,19 +450,26 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                   </AnimatePresence>
                 </div>
 
-                {/* Tools pill (placeholder, agent-specific) */}
-                <button
-                  onClick={() => toast.message(language === "bn" ? "শীঘ্রই আসছে" : "Agent tools coming soon")}
-                  className={cn(
-                    "flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full transition-all duration-200 shrink-0",
-                    "border border-border/60 text-muted-foreground hover:text-foreground hover:bg-background",
-                    "text-sm font-medium whitespace-nowrap"
-                  )}
-                  aria-label="Tools"
-                >
-                  <Settings2 className="w-4 h-4 shrink-0" />
-                  <span>{language === "bn" ? "টুলস" : "Tools"}</span>
-                </button>
+                {/* Tools pill - real Sorix Tools menu */}
+                <div className="relative shrink-0">
+                  <button
+                    onClick={() => {
+                      closeAllPopovers();
+                      setShowToolsMenu((v) => !v);
+                    }}
+                    className={cn(
+                      "flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full transition-all duration-200",
+                      "border border-border/60 text-muted-foreground hover:text-foreground hover:bg-background",
+                      "text-sm font-medium whitespace-nowrap",
+                      showToolsMenu && "bg-background text-foreground border-border"
+                    )}
+                    aria-label="Tools"
+                  >
+                    <Settings2 className="w-4 h-4 shrink-0" />
+                    <span>{language === "bn" ? "টুলস" : "Tools"}</span>
+                  </button>
+                  <ToolsMenu open={showToolsMenu} onClose={() => setShowToolsMenu(false)} />
+                </div>
 
                 {/* Model selector pill */}
                 <div className="relative shrink-0">
