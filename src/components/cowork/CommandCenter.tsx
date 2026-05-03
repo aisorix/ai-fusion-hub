@@ -34,6 +34,7 @@ import { useIntegrations } from "@/hooks/useIntegrations";
 import { useCustomIntegrations } from "@/hooks/useCustomIntegrations";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import ToolsMenu from "@/components/aichat/ToolsMenu";
 
 interface CommandCenterProps {
   language: string;
@@ -59,6 +60,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
   const [input, setInput] = useState("");
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const [showToolsMenu, setShowToolsMenu] = useState(false);
   const [showIntegrations, setShowIntegrations] = useState(false);
   const [attachments, setAttachments] = useState<{ name: string; size: number }[]>([]);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -134,6 +136,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
     setShowAttachMenu(false);
     setShowModelPicker(false);
     setShowIntegrations(false);
+    setShowToolsMenu(false);
   };
 
   return (
@@ -362,7 +365,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
             {/* Bottom controls */}
             <div className="flex items-center justify-between gap-1 mt-1">
               {/* Left cluster */}
-              <div className="flex items-center gap-1 min-w-0 overflow-x-auto scrollbar-none">
+              <div className="flex items-center gap-1 min-w-0 flex-wrap">
                 {/* Plus / attach */}
                 <div className="relative">
                   <button
@@ -447,71 +450,25 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                   </AnimatePresence>
                 </div>
 
-                {/* Tools pill (placeholder, agent-specific) */}
-                <button
-                  onClick={() => toast.message(language === "bn" ? "শীঘ্রই আসছে" : "Agent tools coming soon")}
-                  className={cn(
-                    "flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full transition-all duration-200 shrink-0",
-                    "border border-border/60 text-muted-foreground hover:text-foreground hover:bg-background",
-                    "text-sm font-medium whitespace-nowrap"
-                  )}
-                  aria-label="Tools"
-                >
-                  <Settings2 className="w-4 h-4 shrink-0" />
-                  <span>{language === "bn" ? "টুলস" : "Tools"}</span>
-                </button>
-
-                {/* Model selector pill */}
+                {/* Tools pill - real Sorix Tools menu */}
                 <div className="relative shrink-0">
                   <button
                     onClick={() => {
                       closeAllPopovers();
-                      setShowModelPicker((v) => !v);
+                      setShowToolsMenu((v) => !v);
                     }}
                     className={cn(
-                      "flex items-center gap-1.5 pl-2 pr-2.5 py-1.5 rounded-full transition-all duration-200",
+                      "flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full transition-all duration-200",
                       "border border-border/60 text-muted-foreground hover:text-foreground hover:bg-background",
                       "text-sm font-medium whitespace-nowrap",
-                      showModelPicker && "bg-background text-foreground border-border"
+                      showToolsMenu && "bg-background text-foreground border-border"
                     )}
+                    aria-label="Tools"
                   >
-                    <Cpu className="w-4 h-4 text-primary" />
-                    <span>{currentModel.short}</span>
-                    <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                    <Settings2 className="w-4 h-4 shrink-0" />
+                    <span>{language === "bn" ? "টুলস" : "Tools"}</span>
                   </button>
-
-                  <AnimatePresence>
-                    {showModelPicker && (
-                      <>
-                        <div
-                          className="fixed inset-0 z-40"
-                          onClick={() => setShowModelPicker(false)}
-                        />
-                        <motion.div
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 5 }}
-                          className="absolute bottom-full left-0 mb-2 w-56 rounded-xl border border-border bg-popover backdrop-blur-xl shadow-2xl z-[100] overflow-hidden"
-                        >
-                          {MODELS.map((m) => (
-                            <button
-                              key={m.id}
-                              onClick={() => {
-                                setSelectedModel(m.id);
-                                setShowModelPicker(false);
-                              }}
-                              className={cn(
-                                "w-full text-left px-3 py-2.5 text-xs hover:bg-accent transition-colors",
-                                selectedModel === m.id && "bg-primary/10 text-primary"
-                              )}
-                            >
-                              <span className="font-medium">{m.label}</span>
-                            </button>
-                          ))}
-                        </motion.div>
-                      </>
-                    )}
-                  </AnimatePresence>
+                  <ToolsMenu open={showToolsMenu} onClose={() => setShowToolsMenu(false)} />
                 </div>
 
                 {/* Integrations pill */}
@@ -562,7 +519,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                           }
                           transition={{ type: "spring", damping: 28, stiffness: 320 }}
                           className={cn(
-                            "z-[100] bg-popover backdrop-blur-xl shadow-2xl overflow-hidden border border-border",
+                            "z-[110] bg-popover backdrop-blur-xl shadow-2xl overflow-hidden border border-border",
                             isMobile
                               ? "fixed inset-x-0 bottom-0 rounded-t-3xl max-h-[80vh] flex flex-col"
                               : "absolute bottom-full left-0 mb-2 w-80 rounded-2xl max-h-[60vh] flex flex-col"
@@ -666,8 +623,64 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                     )}
                   </AnimatePresence>
                 </div>
+              </div>
 
-                {/* Mic - left side, agent-specific */}
+              {/* Right cluster: model, mic, send */}
+              <div className="flex items-center gap-1 shrink-0">
+                {/* Model selector pill */}
+                <div className="relative shrink-0">
+                  <button
+                    onClick={() => {
+                      closeAllPopovers();
+                      setShowModelPicker((v) => !v);
+                    }}
+                    className={cn(
+                      "flex items-center gap-1.5 pl-2 pr-2.5 py-1.5 rounded-full transition-all duration-200",
+                      "border border-border/60 text-muted-foreground hover:text-foreground hover:bg-background",
+                      "text-sm font-medium whitespace-nowrap",
+                      showModelPicker && "bg-background text-foreground border-border"
+                    )}
+                  >
+                    <Cpu className="w-4 h-4 text-primary" />
+                    <span>{currentModel.short}</span>
+                    <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                  </button>
+
+                  <AnimatePresence>
+                    {showModelPicker && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-40"
+                          onClick={() => setShowModelPicker(false)}
+                        />
+                        <motion.div
+                          initial={{ opacity: 0, y: 5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 5 }}
+                          className="absolute bottom-full right-0 mb-2 w-56 rounded-xl border border-border bg-popover backdrop-blur-xl shadow-2xl z-[110] overflow-hidden"
+                        >
+                          {MODELS.map((m) => (
+                            <button
+                              key={m.id}
+                              onClick={() => {
+                                setSelectedModel(m.id);
+                                setShowModelPicker(false);
+                              }}
+                              className={cn(
+                                "w-full text-left px-3 py-2.5 text-xs hover:bg-accent transition-colors",
+                                selectedModel === m.id && "bg-primary/10 text-primary"
+                              )}
+                            >
+                              <span className="font-medium">{m.label}</span>
+                            </button>
+                          ))}
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Mic */}
                 <button
                   onClick={() =>
                     toast.message(language === "bn" ? "ভয়েস মোড শীঘ্রই" : "Voice mode coming soon")
@@ -682,10 +695,8 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                   <Mic className="w-5 h-5" />
                   <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-green-500 rounded-full" />
                 </button>
-              </div>
 
-              {/* Right cluster: send */}
-              <div className="flex items-center gap-0.5 shrink-0">
+                {/* Send */}
                 <button
                   onClick={handleSend}
                   disabled={!input.trim() || agentStatus !== "idle"}
