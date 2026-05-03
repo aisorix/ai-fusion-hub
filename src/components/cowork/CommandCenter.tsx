@@ -136,6 +136,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
     setShowAttachMenu(false);
     setShowModelPicker(false);
     setShowIntegrations(false);
+    setShowToolsMenu(false);
   };
 
   return (
