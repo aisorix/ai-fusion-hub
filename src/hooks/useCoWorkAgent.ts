@@ -2,6 +2,16 @@ import { useCallback } from "react";
 import { useCoWorkStore, type CoWorkMessage, type CoWorkTask } from "@/stores/coworkStore";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+
+const ERROR_TOASTS: Record<string, string> = {
+  rate_limit: "The AI is rate-limited right now. Try again in a moment.",
+  browserless_timeout: "The web browser took too long. Try a simpler URL or retry.",
+  llm_parse: "The AI returned an unexpected response. Retrying may help.",
+  not_connected: "That app isn't connected yet. Open Integrations to link it.",
+  unauthorized: "Please sign in again.",
+  unknown: "Something went wrong. Please try again.",
+};
 
 export function useCoWorkAgent() {
   const { user } = useAuth();
@@ -44,7 +54,7 @@ export function useCoWorkAgent() {
         const token = sessionData?.session?.access_token;
 
         const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-        const url = `https://${projectId}.supabase.co/functions/v1/cowork-agent`;
+        const url = `https://${projectId}.supabase.co/functions/v1/agent-router`;
 
         // Build conversation history
         const history = [...messages, userMsg].map((m) => ({
@@ -118,8 +128,25 @@ export function useCoWorkAgent() {
                       });
                     }
                     updateTask(task.id, { status: "completed" });
+                  } else if (parsed.type === "route_decision") {
+                    // Surface routing decision as a lightweight task header
+                    const task: CoWorkTask = {
+                      id: crypto.randomUUID(),
+                      title: parsed.path === "browser" ? "Web automation" : "API request",
+                      description: parsed.reason || "",
+                      status: "running",
+                      steps: [{ label: "Routing", status: "done" as const }],
+                      created_at: new Date().toISOString(),
+                    };
+                    addTask(task);
+                  } else if (parsed.type === "tool_result") {
+                    if (!parsed.ok) {
+                      toast.error(`${parsed.name} failed: ${parsed.summary}`);
+                    }
                   } else if (parsed.type === "error") {
-                    fullContent += `\n\n⚠️ ${parsed.message}`;
+                    const friendly = ERROR_TOASTS[parsed.code] ?? parsed.message ?? ERROR_TOASTS.unknown;
+                    toast.error(friendly);
+                    fullContent += `\n\n⚠️ ${friendly}`;
                     updateLastAssistantMessage(fullContent);
                   }
                 } catch {
