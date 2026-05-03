@@ -65,7 +65,7 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
         )}
       </div>
 
-      {/* Mobile Connectors Modal */}
+      {/* Mobile Connectors Bottom Sheet */}
       <AnimatePresence>
         {isMobile && showMobileConnectors && (
           <>
@@ -77,13 +77,16 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
               onClick={() => setShowMobileConnectors(false)}
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="fixed inset-x-4 top-16 bottom-auto max-h-[70vh] z-50 rounded-2xl border border-border/50 bg-background/95 backdrop-blur-xl shadow-2xl overflow-hidden"
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 320 }}
+              className="fixed inset-x-0 bottom-0 max-h-[85vh] z-50 rounded-t-3xl border-t border-border/50 bg-background/95 backdrop-blur-xl shadow-2xl overflow-hidden flex flex-col"
             >
-              <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
+              <div className="flex justify-center pt-2 pb-1 shrink-0">
+                <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+              </div>
+              <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/30 shrink-0">
                 <div className="flex items-center gap-2">
                   <Plug className="w-4 h-4 text-cyan-400" />
                   <h3 className="text-sm font-semibold">
@@ -99,8 +102,9 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
                   <X className="w-4 h-4" />
                 </Button>
               </div>
-              <div className="overflow-y-auto max-h-[calc(70vh-48px)] p-1">
+              <div className="flex-1 overflow-y-auto p-3">
                 <ConnectorPanel language={language} />
+              </div>
               </div>
             </motion.div>
           </>
