@@ -1,33 +1,47 @@
-## Fixes
+## Goal
+Make `/agent` look and behave perfectly on small screens (360–414px). Today the input bar wraps onto multiple lines, controls feel cramped, the Task Monitor is unreachable, and the empty-state cards plus header text overflow.
 
-### 1. Agent input `+` popup not working
-In `src/components/cowork/CommandCenter.tsx`, the attach button uses `closeAllPopovers()` then toggles. When `+` is clicked, `closeAllPopovers` first sets `showAttachMenu=false`, then `setShowAttachMenu(v => !v)` flips the **previous** state via the functional setter — this part is fine. The real issue: the popover mounts with a `<div className="fixed inset-0 z-40" onClick={close} />` backdrop AND uses the same React batch tick — clicking `+` opens the popover and the backdrop appears at the same z-stack underneath the dropdown. But the parent button click also bubbles to the document; since attach button is INSIDE the input container, this should be fine. The likely actual cause: the popover is hidden because the parent input bar uses `overflow-x-auto` on the left cluster (`overflow-x-auto scrollbar-none`), which clips the absolutely-positioned popover.
+## Changes
 
-**Fix**: Remove `overflow-x-auto scrollbar-none` from the left cluster wrapper. Use `flex-wrap` (or just `flex-nowrap`) and let the bar scroll-as-needed via the model/integration pills being optional. Also ensure each popover container has `relative` and the popover has `z-[110]` to stay above the backdrop.
+### 1. `src/components/cowork/CoWorkLayout.tsx` — mobile header + monitor access
+- Truncate the subtitle on mobile (`hidden xs:block` / `truncate max-w-[55vw]`) so "Your Tasks, Handled by Intelligence." doesn't push the layout.
+- Add a mobile-only **Tasks** button in the top bar (right side) that opens `TaskMonitor` as a bottom sheet (same pattern as the Connectors sheet that already exists).
+- Reuse the existing bottom-sheet wrapper styling for both Tasks and Connectors (drag handle, max-h 85vh, rounded-t-3xl, backdrop blur).
+- Keep the desktop right-panel toggle untouched.
 
-### 2. Tools button should open the same Sorix Tools popup as main chat
-Replace the placeholder Tools button (which currently just shows a toast) with the existing `<ToolsMenu>` component used in `ChatInput.tsx`. Wrap it in a `relative` div, add `showToolsMenu` state, and pass `open` / `onClose`. Mutual-exclusion with other popovers via `closeAllPopovers`.
+### 2. `src/components/cowork/CommandCenter.tsx` — compact input bar
+The bottom control row currently uses `flex-wrap` and renders 6 visible controls with text labels, which wraps on 390px. Rework it:
 
-### 3. Move Model selector and Mic to the right cluster
-Re-arrange the bottom controls in the agent input bar:
-- **Left cluster**: `+` (attach), `Tools` pill, `Apps` (integrations) pill.
-- **Right cluster**: Model selector pill, Mic button, Send button.
+- Remove `flex-wrap`; use a single row with `min-w-0` and `gap-0.5 sm:gap-1`.
+- **Pills become icon-only on mobile**: hide the "Tools", "Apps", and model `short` text labels behind `hidden sm:inline`. Keep the count badge on Apps and the chevron on the model pill.
+- Reduce pill padding on mobile (`p-2 sm:pl-2 sm:pr-2.5`) so they read as round icon buttons under `sm`.
+- Mic: hide on mobile (`hidden sm:inline-flex`) since it is non-functional ("coming soon"). This frees space for the model + send.
+- Send button: keep `p-2` on mobile so it stays prominent.
+- Header inside `CommandCenter` ("Command Center / Ready"): shrink to `text-xs` on mobile and add `truncate`.
 
-Model popover changes `left-0` → `right-0` so it opens upward-aligned to the right.
+Result on 390px: `[+] [Tools-icon] [Apps-icon•N]   [Model-icon ▾] [Send]` — fits in one row with breathing room.
 
-### 4. Add "Sorix Agent" entry to main chat Tools menu
-In `src/components/aichat/ToolsMenu.tsx`, add a new tool entry at the top of the `tools` array:
-```ts
-{ id: 'agent', name: 'Sorix Agent', nameBn: 'সরিক্স এজেন্ট',
-  desc: 'Autonomous task executor', descBn: 'স্বয়ংক্রিয় কাজ সম্পাদনকারী',
-  icon: Bot, route: '/agent',
-  gradient: 'from-cyan-500 to-teal-500', free: false }
-```
-Add `Bot` to the lucide-react imports.
+### 3. Empty state grid (inside CommandCenter)
+- Change suggestion cards to `py-3.5 px-2 gap-2` and `text-[13px]` on mobile; keep `py-5` on `sm+`.
+- Icon size `w-5 h-5` on mobile, `w-6 h-6` on `sm+`.
+- Container `max-w-[20rem]` so the 2×2 grid never touches the edges on 360px.
+- Hello/heading: `text-lg sm:text-xl`; reduce top padding (`pt-4 sm:pt-8`) so the cards aren't pushed below the fold.
 
-## Files
+### 4. Popovers and sheets
+- Attach `+` popover: keep desktop popover; on mobile render as a bottom sheet (same pattern already used for Integrations) so it doesn't get clipped near the screen edge.
+- Model picker on mobile: render as a compact bottom sheet with the 4 model rows (no truncation). On desktop keep the existing `absolute bottom-full right-0 w-56` popover.
+- Integrations sheet: already a bottom sheet on mobile; just make sure the close-on-overlay backdrop is `z-[105]` and the sheet itself `z-[110]` so it sits above the input bar's focus ring.
 
-- `src/components/aichat/ToolsMenu.tsx` — add Sorix Agent entry + Bot icon import.
-- `src/components/cowork/CommandCenter.tsx` — drop `overflow-x-auto` clipping; replace Tools placeholder with real `<ToolsMenu>`; move Model + Mic to right side; align Model popover to `right-0`.
+### 5. Disclaimer + spacing
+- Reduce input container padding on mobile (`p-2 sm:p-4`) and disclaimer to `text-[10px]` with `mt-1.5`.
+- Remove the outer `px-1 sm:px-2` so the chat bar uses full mobile width.
 
-No backend or other component changes.
+### 6. No regressions
+- Desktop layout (`md+`) is unchanged: labels visible, mic visible, right Task Monitor panel intact.
+- Keep all existing handlers (`closeAllPopovers`, `handleSend`, `handleFiles`) untouched.
+
+## Files touched
+- `src/components/cowork/CoWorkLayout.tsx`
+- `src/components/cowork/CommandCenter.tsx`
+
+No backend, schema, or routing changes.
