@@ -7,6 +7,7 @@ import { parseFile, getAcceptedFileTypes, getFileType } from '@/lib/fileParser';
 import FileChip from '@/components/aichat/FileChip';
 import TextareaAutosize from 'react-textarea-autosize';
 import { toast } from 'sonner';
+import ToolsMenu from '@/components/aichat/ToolsMenu';
 
 interface Props {
   onGenerate: (prompt: string, attachments?: Attachment[]) => void;
@@ -30,6 +31,7 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled 
   const [prompt, setPrompt] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const [showToolsMenu, setShowToolsMenu] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
   const { user } = useChatStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
