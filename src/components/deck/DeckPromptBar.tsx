@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, KeyboardEvent } from 'react';
-import { Sparkles, Loader2, Plus, Image as ImageIcon, Camera, Paperclip, X } from 'lucide-react';
+import { Send, Loader2, Plus, Image as ImageIcon, Camera, Paperclip } from 'lucide-react';
 import TextareaAutosize from 'react-textarea-autosize';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -79,6 +79,8 @@ const DeckPromptBar: React.FC<DeckPromptBarProps> = ({ onGenerate, isGenerating 
     }
   };
 
+  const hasContent = prompt.trim().length > 0;
+
   return (
     <div className="w-full">
       {/* Attachment previews */}
@@ -119,10 +121,28 @@ const DeckPromptBar: React.FC<DeckPromptBarProps> = ({ onGenerate, isGenerating 
       <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden"
         onChange={async (e) => { await processFiles(Array.from(e.target.files || []).filter(f => f.type.startsWith('image/'))); e.target.value = ''; setShowAttachMenu(false); }} />
 
-      <div className="relative group">
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 rounded-2xl opacity-30 group-hover:opacity-50 blur-sm transition-opacity" />
-        <div className="relative flex items-end gap-2 bg-card border border-border rounded-2xl px-2 py-2">
-          {/* Plus button */}
+      <div className={cn(
+        'relative flex flex-col rounded-3xl border transition-all duration-200',
+        'bg-muted/40 border-border/50',
+        'focus-within:border-primary/40 focus-within:bg-muted/60',
+        'shadow-sm px-2 sm:px-3 pt-1 pb-1.5'
+      )}>
+        <TextareaAutosize
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Describe your presentation..."
+          disabled={isGenerating}
+          minRows={1}
+          maxRows={6}
+          className={cn(
+            'w-full px-2 sm:px-3 pt-2.5 pb-1 bg-transparent resize-none focus:outline-none',
+            'text-[15px] sm:text-base text-foreground placeholder:text-muted-foreground/70',
+            'disabled:opacity-50 disabled:cursor-not-allowed'
+          )}
+        />
+
+        <div className="flex items-center justify-between gap-1 mt-1">
           <div className="relative">
             <button
               type="button"
@@ -130,20 +150,21 @@ const DeckPromptBar: React.FC<DeckPromptBarProps> = ({ onGenerate, isGenerating 
               disabled={isGenerating}
               className={cn(
                 'p-2 rounded-full transition-all duration-200',
-                'hover:bg-accent text-muted-foreground hover:text-foreground',
-                'disabled:opacity-50',
-                showAttachMenu && 'bg-accent text-foreground'
+                'hover:bg-background text-muted-foreground hover:text-foreground',
+                'disabled:opacity-50 disabled:cursor-not-allowed',
+                showAttachMenu && 'bg-background text-foreground'
               )}
+              aria-label="Attach"
             >
               <Plus className={cn('w-5 h-5 transition-transform duration-200', showAttachMenu && 'rotate-45')} />
             </button>
             <AnimatePresence>
               {showAttachMenu && (
                 <motion.div
-                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  className="absolute top-full left-0 mt-2 rounded-xl shadow-xl overflow-hidden bg-popover border border-border backdrop-blur-xl min-w-[200px] z-50"
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute bottom-full left-0 mb-2 rounded-xl shadow-xl overflow-hidden bg-popover border border-border backdrop-blur-xl min-w-[220px] z-50"
                 >
                   <div className="px-4 py-2 border-b border-border bg-muted/50">
                     <div className="flex items-center justify-between gap-2">
@@ -176,24 +197,19 @@ const DeckPromptBar: React.FC<DeckPromptBarProps> = ({ onGenerate, isGenerating 
             </AnimatePresence>
           </div>
 
-          <Sparkles className="w-5 h-5 text-primary shrink-0 mb-0.5" />
-          <TextareaAutosize
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Describe your presentation..."
-            className="flex-1 bg-transparent text-foreground text-sm placeholder:text-muted-foreground/60 outline-none resize-none py-1"
-            disabled={isGenerating}
-            minRows={1}
-            maxRows={5}
-          />
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={!prompt.trim() || isGenerating}
-            className="shrink-0 w-8 h-8 mb-0.5 rounded-xl bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            disabled={!hasContent || isGenerating}
+            className={cn(
+              'p-2 sm:p-2.5 rounded-full transition-all duration-200',
+              hasContent
+                ? 'bg-foreground text-background hover:opacity-90'
+                : 'bg-muted text-muted-foreground opacity-50',
+              'disabled:opacity-30 disabled:cursor-not-allowed'
+            )}
           >
-            {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+            {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
           </button>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { Send, Wand2, Plus, Image as ImageIcon, Camera, Paperclip, Loader2 } from 'lucide-react';
+import { Send, Plus, Image as ImageIcon, Camera, Paperclip, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useChatStore, type Attachment } from '@/stores/chatStore';
@@ -79,6 +79,8 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled 
     }
   };
 
+  const hasContent = prompt.trim().length > 0;
+
   return (
     <div className="w-full">
       {/* Attachment previews */}
@@ -119,85 +121,98 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled 
       <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden"
         onChange={async (e) => { await processFiles(Array.from(e.target.files || []).filter(f => f.type.startsWith('image/'))); e.target.value = ''; setShowAttachMenu(false); }} />
 
-      {/* Deck-style glow wrapper */}
-      <div className="relative group">
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/30 via-pink-500/20 to-primary/30 rounded-2xl blur opacity-40 group-hover:opacity-60 transition-opacity" />
-        <div className="relative flex items-end gap-2 bg-card border border-border rounded-2xl px-2 py-2">
-          {/* Plus button */}
+      {/* Unified shell */}
+      <div className={cn(
+        'relative flex flex-col rounded-3xl border transition-all duration-200',
+        'bg-muted/40 border-border/50',
+        'focus-within:border-primary/40 focus-within:bg-muted/60',
+        'shadow-sm px-2 sm:px-3 pt-1 pb-1.5'
+      )}>
+        <TextareaAutosize
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Describe the image you want to create..."
+          disabled={isGenerating || disabled}
+          minRows={1}
+          maxRows={6}
+          className={cn(
+            'w-full px-2 sm:px-3 pt-2.5 pb-1 bg-transparent resize-none focus:outline-none',
+            'text-[15px] sm:text-base text-foreground placeholder:text-muted-foreground/70',
+            'disabled:opacity-50 disabled:cursor-not-allowed'
+          )}
+        />
+
+        <div className="flex items-center justify-between gap-1 mt-1">
+          {/* Plus / attach */}
           <div className="relative">
-              <button
-                onClick={() => setShowAttachMenu(!showAttachMenu)}
-                disabled={isGenerating || disabled}
-                className={cn(
-                  'p-1.5 rounded-full transition-all duration-200',
-                  'hover:bg-accent text-muted-foreground hover:text-foreground',
-                  'disabled:opacity-50',
-                  showAttachMenu && 'bg-accent text-foreground'
-                )}
-              >
-                <Plus className={cn('w-4 h-4 transition-transform duration-200', showAttachMenu && 'rotate-45')} />
-              </button>
-              <AnimatePresence>
-                {showAttachMenu && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                    className="absolute top-full left-0 mt-2 rounded-xl shadow-xl overflow-hidden bg-popover border border-border backdrop-blur-xl min-w-[200px] z-[100]"
-                  >
-                    <div className="px-4 py-2 border-b border-border bg-muted/50">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-xs text-muted-foreground">Max file size</span>
-                        <span className={cn(
-                          'text-xs font-medium px-1.5 py-0.5 rounded',
-                          user.plan === 'premium' && 'bg-amber-500/10 text-amber-500',
-                          user.plan === 'pro' && 'bg-purple-500/10 text-purple-500',
-                          user.plan === 'basic' && 'bg-blue-500/10 text-blue-500',
-                          user.plan === 'free' && 'bg-muted text-muted-foreground'
-                        )}>
-                          {formatSize(sizeLimit)}
-                        </span>
-                      </div>
+            <button
+              type="button"
+              onClick={() => setShowAttachMenu(!showAttachMenu)}
+              disabled={isGenerating || disabled}
+              className={cn(
+                'p-2 rounded-full transition-all duration-200',
+                'hover:bg-background text-muted-foreground hover:text-foreground',
+                'disabled:opacity-50 disabled:cursor-not-allowed',
+                showAttachMenu && 'bg-background text-foreground'
+              )}
+              aria-label="Attach"
+            >
+              <Plus className={cn('w-5 h-5 transition-transform duration-200', showAttachMenu && 'rotate-45')} />
+            </button>
+            <AnimatePresence>
+              {showAttachMenu && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute bottom-full left-0 mb-2 rounded-xl shadow-xl overflow-hidden bg-popover border border-border backdrop-blur-xl min-w-[220px] z-[100]"
+                >
+                  <div className="px-4 py-2 border-b border-border bg-muted/50">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs text-muted-foreground">Max file size</span>
+                      <span className={cn(
+                        'text-xs font-medium px-1.5 py-0.5 rounded',
+                        user.plan === 'premium' && 'bg-amber-500/10 text-amber-500',
+                        user.plan === 'pro' && 'bg-purple-500/10 text-purple-500',
+                        user.plan === 'basic' && 'bg-blue-500/10 text-blue-500',
+                        user.plan === 'free' && 'bg-muted text-muted-foreground'
+                      )}>
+                        {formatSize(sizeLimit)}
+                      </span>
                     </div>
-                    <button onClick={() => imageInputRef.current?.click()} className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors">
-                      <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center"><ImageIcon className="w-4 h-4 text-blue-500" /></div>
-                      <span className="text-sm">Upload Image</span>
-                    </button>
-                    <button onClick={() => cameraInputRef.current?.click()} className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors">
-                      <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center"><Camera className="w-4 h-4 text-purple-500" /></div>
-                      <span className="text-sm">Take Photo</span>
-                    </button>
-                    <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors">
-                      <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center"><Paperclip className="w-4 h-4 text-green-500" /></div>
-                      <span className="text-sm">Attach File</span>
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  </div>
+                  <button onClick={() => imageInputRef.current?.click()} className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center"><ImageIcon className="w-4 h-4 text-blue-500" /></div>
+                    <span className="text-sm">Upload Image</span>
+                  </button>
+                  <button onClick={() => cameraInputRef.current?.click()} className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center"><Camera className="w-4 h-4 text-purple-500" /></div>
+                    <span className="text-sm">Take Photo</span>
+                  </button>
+                  <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center"><Paperclip className="w-4 h-4 text-green-500" /></div>
+                    <span className="text-sm">Attach File</span>
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          <Wand2 className="w-4 h-4 text-primary shrink-0 mb-0.5" />
-          <TextareaAutosize
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Describe the image you want to create..."
-            disabled={isGenerating || disabled}
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 border-none focus:outline-none focus:ring-0 disabled:opacity-50 resize-none py-1"
-            minRows={1}
-            maxRows={5}
-          />
+          {/* Send */}
           <button
+            type="button"
             onClick={handleSubmit}
-            disabled={!prompt.trim() || isGenerating || disabled}
+            disabled={!hasContent || isGenerating || disabled}
             className={cn(
-              'shrink-0 w-8 h-8 mb-0.5 rounded-xl flex items-center justify-center transition-all',
-              prompt.trim() && !isGenerating && !disabled
-                ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/20'
-                : 'bg-muted text-muted-foreground'
+              'p-2 sm:p-2.5 rounded-full transition-all duration-200',
+              hasContent
+                ? 'bg-foreground text-background hover:opacity-90'
+                : 'bg-muted text-muted-foreground opacity-50',
+              'disabled:opacity-30 disabled:cursor-not-allowed'
             )}
           >
-            {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
           </button>
         </div>
       </div>
