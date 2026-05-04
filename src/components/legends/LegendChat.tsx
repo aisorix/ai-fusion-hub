@@ -15,6 +15,7 @@ import remarkGfm from 'remark-gfm';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
+import ToolsMenu from '@/components/aichat/ToolsMenu';
 
 interface LegendChatProps {
   persona: Persona;
@@ -45,6 +46,7 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
   const [pendingImage, setPendingImage] = useState<string | null>(null);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const [showToolsMenu, setShowToolsMenu] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -319,7 +321,7 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
               <div className="relative">
                 <button
                   type="button"
-                  onClick={() => setShowAttachMenu(!showAttachMenu)}
+                  onClick={() => { setShowAttachMenu(!showAttachMenu); setShowToolsMenu(false); }}
                   disabled={isStreaming}
                   className={cn(
                     'p-2 rounded-full transition-all duration-200',
@@ -334,10 +336,10 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
                 <AnimatePresence>
                   {showAttachMenu && (
                     <motion.div
-                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                      className="absolute top-full left-0 mt-2 rounded-xl shadow-xl overflow-hidden bg-popover border border-border backdrop-blur-xl min-w-[220px] z-[100]"
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute bottom-full left-0 mb-2 rounded-xl shadow-xl overflow-hidden bg-popover border border-border backdrop-blur-xl min-w-[220px] z-[100]"
                     >
                       <div className="px-4 py-2 border-b border-border bg-muted/50">
                         <div className="flex items-center justify-between gap-2">
@@ -370,9 +372,22 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
                 </AnimatePresence>
               </div>
 
-              <div className="flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full border border-border/60 text-muted-foreground text-sm font-medium select-none whitespace-nowrap">
-                <Settings2 className="w-4 h-4" />
-                <span>Tools</span>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => { setShowToolsMenu(!showToolsMenu); setShowAttachMenu(false); }}
+                  disabled={isStreaming}
+                  className={cn(
+                    'flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full border text-sm font-medium select-none whitespace-nowrap transition-colors',
+                    showToolsMenu
+                      ? 'bg-background text-foreground border-border'
+                      : 'border-border/60 text-muted-foreground hover:text-foreground hover:bg-background'
+                  )}
+                >
+                  <Settings2 className="w-4 h-4" />
+                  <span>Tools</span>
+                </button>
+                <ToolsMenu open={showToolsMenu} onClose={() => setShowToolsMenu(false)} />
               </div>
               </div>
 
