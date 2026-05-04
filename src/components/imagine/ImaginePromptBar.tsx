@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { Send, Plus, Image as ImageIcon, Camera, Paperclip, Loader2 } from 'lucide-react';
+import { Send, Plus, Image as ImageIcon, Camera, Paperclip, Loader2, Settings2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useChatStore, type Attachment } from '@/stores/chatStore';
@@ -144,59 +144,66 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled 
         />
 
         <div className="flex items-center justify-between gap-1 mt-1">
-          {/* Plus / attach */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setShowAttachMenu(!showAttachMenu)}
-              disabled={isGenerating || disabled}
-              className={cn(
-                'p-2 rounded-full transition-all duration-200',
-                'hover:bg-background text-muted-foreground hover:text-foreground',
-                'disabled:opacity-50 disabled:cursor-not-allowed',
-                showAttachMenu && 'bg-background text-foreground'
-              )}
-              aria-label="Attach"
-            >
-              <Plus className={cn('w-5 h-5 transition-transform duration-200', showAttachMenu && 'rotate-45')} />
-            </button>
-            <AnimatePresence>
-              {showAttachMenu && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute bottom-full left-0 mb-2 rounded-xl shadow-xl overflow-hidden bg-popover border border-border backdrop-blur-xl min-w-[220px] z-[100]"
-                >
-                  <div className="px-4 py-2 border-b border-border bg-muted/50">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs text-muted-foreground">Max file size</span>
-                      <span className={cn(
-                        'text-xs font-medium px-1.5 py-0.5 rounded',
-                        user.plan === 'premium' && 'bg-amber-500/10 text-amber-500',
-                        user.plan === 'pro' && 'bg-purple-500/10 text-purple-500',
-                        user.plan === 'basic' && 'bg-blue-500/10 text-blue-500',
-                        user.plan === 'free' && 'bg-muted text-muted-foreground'
-                      )}>
-                        {formatSize(sizeLimit)}
-                      </span>
+          {/* Left cluster: + and Tools pill */}
+          <div className="flex items-center gap-1 min-w-0">
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowAttachMenu(!showAttachMenu)}
+                disabled={isGenerating || disabled}
+                className={cn(
+                  'p-2 rounded-full transition-all duration-200',
+                  'hover:bg-background text-muted-foreground hover:text-foreground',
+                  'disabled:opacity-50 disabled:cursor-not-allowed',
+                  showAttachMenu && 'bg-background text-foreground'
+                )}
+                aria-label="Attach"
+              >
+                <Plus className={cn('w-5 h-5 transition-transform duration-200', showAttachMenu && 'rotate-45')} />
+              </button>
+              <AnimatePresence>
+                {showAttachMenu && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    className="absolute top-full left-0 mt-2 rounded-xl shadow-xl overflow-hidden bg-popover border border-border backdrop-blur-xl min-w-[220px] z-[100]"
+                  >
+                    <div className="px-4 py-2 border-b border-border bg-muted/50">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs text-muted-foreground">Max file size</span>
+                        <span className={cn(
+                          'text-xs font-medium px-1.5 py-0.5 rounded',
+                          user.plan === 'premium' && 'bg-amber-500/10 text-amber-500',
+                          user.plan === 'pro' && 'bg-purple-500/10 text-purple-500',
+                          user.plan === 'basic' && 'bg-blue-500/10 text-blue-500',
+                          user.plan === 'free' && 'bg-muted text-muted-foreground'
+                        )}>
+                          {formatSize(sizeLimit)}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <button onClick={() => imageInputRef.current?.click()} className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors">
-                    <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center"><ImageIcon className="w-4 h-4 text-blue-500" /></div>
-                    <span className="text-sm">Upload Image</span>
-                  </button>
-                  <button onClick={() => cameraInputRef.current?.click()} className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors">
-                    <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center"><Camera className="w-4 h-4 text-purple-500" /></div>
-                    <span className="text-sm">Take Photo</span>
-                  </button>
-                  <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors">
-                    <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center"><Paperclip className="w-4 h-4 text-green-500" /></div>
-                    <span className="text-sm">Attach File</span>
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                    <button onClick={() => imageInputRef.current?.click()} className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors">
+                      <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center"><ImageIcon className="w-4 h-4 text-blue-500" /></div>
+                      <span className="text-sm">Upload Image</span>
+                    </button>
+                    <button onClick={() => cameraInputRef.current?.click()} className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors">
+                      <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center"><Camera className="w-4 h-4 text-purple-500" /></div>
+                      <span className="text-sm">Take Photo</span>
+                    </button>
+                    <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-3 px-4 py-3 w-full hover:bg-accent transition-colors">
+                      <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center"><Paperclip className="w-4 h-4 text-green-500" /></div>
+                      <span className="text-sm">Attach File</span>
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <div className="flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full border border-border/60 text-muted-foreground text-sm font-medium select-none whitespace-nowrap">
+              <Settings2 className="w-4 h-4" />
+              <span>Tools</span>
+            </div>
           </div>
 
           {/* Send */}

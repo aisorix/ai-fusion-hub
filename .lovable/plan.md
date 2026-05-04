@@ -1,51 +1,39 @@
-# Unify Tool Prompt Bars to Match Main ChatInput
+# Match Deck/Imagine/Legends prompt bars exactly to main ChatInput screenshot
 
-The main chat (`src/components/aichat/ChatInput.tsx`) uses a **Gemini-style stacked layout**:
-- `rounded-3xl` container, `bg-muted/40` with `border-border/50`
-- `focus-within:border-primary/40 focus-within:bg-muted/60`
-- TextareaAutosize on top row (full width, no inline icons)
-- Bottom row: left = `+` (attach) button; right = Send button (`bg-foreground text-background`, rounded-full)
+The screenshot shows the main `/chat` input bar:
+- Rounded soft container, "Ask anything..." placeholder
+- Bottom-left: `+` button followed by an outlined pill **Tools** button
+- Bottom-right: mic icon (with green dot) and a paper-plane Send icon
+- Attach popup opens **downward** (not upward)
 
-Currently the four tool prompt bars use a **different "card with gradient glow" layout**: gradient glow ring, `bg-card border-border rounded-2xl`, inline icon (Wand2/Sparkles) next to textarea, colored gradient send button. They look inconsistent with the main chat.
+The three tool prompt bars (Deck, Imagine, Legends) currently use the unified shell but differ on details: no Tools button, popup opens upward, no mic icon. Per request, make them visually identical to the main ChatInput, and have the `+` attach menu pop **downward**.
 
-## Goal
-Refactor these four prompt bars to use the same visual shell as `ChatInput` while keeping each tool's existing functionality (attachments, generate logic, model passthrough).
+## Files to edit
 
-## Files to update
+1. `src/components/imagine/ImaginePromptBar.tsx`
+2. `src/components/deck/DeckPromptBar.tsx`
+3. `src/components/legends/LegendChat.tsx`
 
-1. **`src/components/imagine/ImaginePromptBar.tsx`**
-2. **`src/components/deck/DeckPromptBar.tsx`**
-3. **`src/components/flowbuilder/FlowPromptBar.tsx`**
-4. **`src/components/legends/LegendChat.tsx`** (replace inline Textarea+Plus block, lines ~265–358)
+(FlowBuilder remains as previously updated — no attach menu needed there.)
 
-## Shared styling spec (applied to all four)
+## Changes per file (same pattern for all three)
 
-Container shell:
+**Attach menu popup direction** — flip from upward to downward:
+- Wrapper: `absolute top-full left-0 mt-2 ...` (was `bottom-full ... mb-2`)
+- Motion: `initial/exit { y: -10 }` (was `y: 10`)
+
+**Bottom-left cluster** — add a static "Tools" pill next to the `+` button (matches screenshot). It is a non-functional visual marker for tool context (no menu), since these pages already represent a single tool. Use `Settings2` icon from lucide-react:
+```tsx
+<div className="flex items-center gap-1 pl-2 pr-3 py-1.5 rounded-full border border-border/60 text-muted-foreground text-sm font-medium select-none">
+  <Settings2 className="w-4 h-4" />
+  <span>Tools</span>
+</div>
 ```
-rounded-3xl border bg-muted/40 border-border/50
-focus-within:border-primary/40 focus-within:bg-muted/60
-shadow-sm px-2 sm:px-3 pt-1 pb-1.5 flex flex-col
-```
+Wrap `+` and Tools together in a `flex items-center gap-1` container so the right side keeps the Send button.
 
-Layout:
-- Row 1: `<TextareaAutosize minRows={1} maxRows={6}>` full width, transparent bg, `text-[15px] sm:text-base placeholder:text-muted-foreground/70`, no inline tool icon.
-- Row 2 (`flex items-center justify-between mt-1`):
-  - Left: `+` attach button (`p-2 rounded-full hover:bg-background`) opening the existing attach menu **above** the bar (`bottom-full mb-2`) — keep existing menu items.
-  - Right: Send button — `p-2 sm:p-2.5 rounded-full bg-foreground text-background hover:opacity-90`, falls back to `bg-muted text-muted-foreground opacity-50` when empty. Loader/Send icon swap as today.
+**Bottom-right cluster** — keep only the Send button (paper-plane). No mic in tool bars (mic is voice mode for chat only). Send styling already matches main ChatInput (`bg-foreground text-background`, opacity fallback when empty).
 
-Remove:
-- Gradient glow wrapper divs (`absolute -inset-0.5 bg-gradient-to-r ...`)
-- Inline accent icons (Wand2 in Imagine, Sparkles in Deck) — keep them only as the page header's brand icon, not inside the input.
-- Custom colored send buttons (gradient violet/purple, amber/orange, pink). Use the unified neutral foreground send.
-
-Keep:
-- Each component's existing state, `onGenerate`/`sendMessage` handlers, attachment processing, hidden file inputs, FileChip previews, parsing indicator, toasts, and Enter-to-submit behaviour.
-- Per-tool placeholder strings (e.g., "Describe the image…", "Describe your presentation…", "Describe your diagram…", `Ask ${persona.name}...`).
-
-## Notes
-- `FlowPromptBar` currently has no attach menu — that's fine, it'll just have the `+` button omitted (Send-only right cluster) OR we can skip the bottom row entirely. Decision: omit bottom row for FlowBuilder and place a small Send button absolutely positioned to keep look consistent — actually simpler: keep bottom row with no `+` button, just the Send on the right (matches main chat when no tools available).
-- `ChatInput` also has a "Tools" button — do **not** add this to the four tool bars (they're already inside a tool).
-- `LegendChat`: only the input block (lines ~265–358) is rewritten; chat history and persona logic unchanged.
+**LegendChat** — same edits inside the input block (lines ~316–390 region).
 
 ## Outcome
-All four tool prompt bars will have an identical visual shell to the main chat input — same rounded-3xl muted container, stacked textarea + bottom controls, same neutral Send button — while preserving per-tool behaviour and placeholders.
+Deck, Imagine, and Legends prompt bars will visually match the screenshot: same shell, same `+` + Tools pill on the left, same Send icon on the right, and the attach popup will expand **downward** when the `+` button is clicked.
