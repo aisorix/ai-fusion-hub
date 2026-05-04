@@ -370,6 +370,12 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
                 </AnimatePresence>
               </div>
 
+              <div className="flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full border border-border/60 text-muted-foreground text-sm font-medium select-none whitespace-nowrap">
+                <Settings2 className="w-4 h-4" />
+                <span>Tools</span>
+              </div>
+              </div>
+
               {/* Send */}
               <button
                 type="button"
