@@ -314,7 +314,8 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
             />
 
             <div className="flex items-center justify-between gap-1 mt-1">
-              {/* Attach */}
+              {/* Left cluster: + and Tools pill */}
+              <div className="flex items-center gap-1 min-w-0">
               <div className="relative">
                 <button
                   type="button"
