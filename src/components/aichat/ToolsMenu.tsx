@@ -17,9 +17,10 @@ import { useChatStore } from '@/stores/chatStore';
 interface ToolsMenuProps {
   open: boolean;
   onClose: () => void;
+  direction?: 'up' | 'down';
 }
 
-const ToolsMenu = ({ open, onClose }: ToolsMenuProps) => {
+const ToolsMenu = ({ open, onClose, direction = 'up' }: ToolsMenuProps) => {
   const navigate = useNavigate();
   const { language } = useChatStore();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -70,12 +71,15 @@ const ToolsMenu = ({ open, onClose }: ToolsMenuProps) => {
       {open && (
         <motion.div
           ref={containerRef}
-          initial={{ opacity: 0, y: 10, scale: 0.96 }}
+          initial={{ opacity: 0, y: direction === 'down' ? -10 : 10, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 10, scale: 0.96 }}
+          exit={{ opacity: 0, y: direction === 'down' ? -10 : 10, scale: 0.96 }}
           transition={{ duration: 0.15 }}
           className={cn(
-            'absolute bottom-full left-0 mb-2 z-50 origin-bottom-left',
+            'absolute left-0 z-50',
+            direction === 'down'
+              ? 'top-full mt-2 origin-top-left'
+              : 'bottom-full mb-2 origin-bottom-left',
             'w-[300px] sm:w-[320px] max-w-[calc(100vw-2rem)]',
             'rounded-2xl overflow-hidden',
             'bg-popover border border-border shadow-2xl backdrop-blur-xl'
