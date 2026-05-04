@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, KeyboardEvent } from 'react';
-import { Send, Loader2, Plus, Image as ImageIcon, Camera, Paperclip } from 'lucide-react';
+import { Send, Loader2, Plus, Image as ImageIcon, Camera, Paperclip, Settings2 } from 'lucide-react';
 import TextareaAutosize from 'react-textarea-autosize';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
