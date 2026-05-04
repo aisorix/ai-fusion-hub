@@ -27,7 +27,15 @@ const FlowBuilderPage: React.FC = () => {
 
   const tokensRemaining = user.tokensLimit - user.tokensUsed;
 
-  const handleGenerate = async (prompt: string) => {
+  const handleGenerate = async (prompt: string, attachments?: any[]) => {
+    let finalPrompt = prompt;
+    if (attachments && attachments.length > 0) {
+      const fileText = attachments
+        .filter(a => a.parsedContent)
+        .map(a => `\n\n[File: ${a.name}]\n${a.parsedContent}`)
+        .join('');
+      if (fileText) finalPrompt = prompt + fileText;
+    }
     const cost = code.trim() ? 3000 : 5000;
     if (tokensRemaining < cost) {
       setShowUpgrade(true);
@@ -37,7 +45,7 @@ const FlowBuilderPage: React.FC = () => {
     setIsGenerating(true);
     try {
       const themeName = colorThemes.find(t => t.id === selectedTheme)?.name;
-      const result = await flowbuilderApi.generate(prompt, {
+      const result = await flowbuilderApi.generate(finalPrompt, {
         existingCode: code.trim() || undefined,
         colorTheme: selectedTheme !== 'default' ? themeName : undefined,
       });
