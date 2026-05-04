@@ -114,7 +114,7 @@ const ImaginePage: React.FC = () => {
       <main className="flex-1 overflow-y-auto">
         <div className="max-w-2xl mx-auto px-4 py-8 md:py-12 flex flex-col items-center gap-5">
           {/* Prompt Bar (hero) */}
-          <div className="relative z-[60]">
+          <div className="relative z-[60] w-full">
             <ImaginePromptBar onGenerate={handleGenerate} isGenerating={isGenerating} />
           </div>
 

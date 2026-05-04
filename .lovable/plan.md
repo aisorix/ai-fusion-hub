@@ -1,39 +1,18 @@
-# Match Deck/Imagine/Legends prompt bars exactly to main ChatInput screenshot
+# Imagine prompt bar — full-width parity with main ChatInput
 
-The screenshot shows the main `/chat` input bar:
-- Rounded soft container, "Ask anything..." placeholder
-- Bottom-left: `+` button followed by an outlined pill **Tools** button
-- Bottom-right: mic icon (with green dot) and a paper-plane Send icon
-- Attach popup opens **downward** (not upward)
+The Imagine page input is currently rendered inside `<div className="relative z-[60]">` which **shrinks to content**, so it appears as a small narrow box (image 2). The main ChatInput (image 1) spans the full width of its container with `+`, Tools pill, mic, and Send.
 
-The three tool prompt bars (Deck, Imagine, Legends) currently use the unified shell but differ on details: no Tools button, popup opens upward, no mic icon. Per request, make them visually identical to the main ChatInput, and have the `+` attach menu pop **downward**.
+## Changes
 
-## Files to edit
+**File: `src/pages/ImaginePage.tsx`**
+- Replace the wrapper `<div className="relative z-[60]">` with `<div className="relative z-[60] w-full">` so the prompt bar fills the `max-w-2xl` column.
 
-1. `src/components/imagine/ImaginePromptBar.tsx`
-2. `src/components/deck/DeckPromptBar.tsx`
-3. `src/components/legends/LegendChat.tsx`
-
-(FlowBuilder remains as previously updated — no attach menu needed there.)
-
-## Changes per file (same pattern for all three)
-
-**Attach menu popup direction** — flip from upward to downward:
-- Wrapper: `absolute top-full left-0 mt-2 ...` (was `bottom-full ... mb-2`)
-- Motion: `initial/exit { y: -10 }` (was `y: 10`)
-
-**Bottom-left cluster** — add a static "Tools" pill next to the `+` button (matches screenshot). It is a non-functional visual marker for tool context (no menu), since these pages already represent a single tool. Use `Settings2` icon from lucide-react:
-```tsx
-<div className="flex items-center gap-1 pl-2 pr-3 py-1.5 rounded-full border border-border/60 text-muted-foreground text-sm font-medium select-none">
-  <Settings2 className="w-4 h-4" />
-  <span>Tools</span>
-</div>
-```
-Wrap `+` and Tools together in a `flex items-center gap-1` container so the right side keeps the Send button.
-
-**Bottom-right cluster** — keep only the Send button (paper-plane). No mic in tool bars (mic is voice mode for chat only). Send styling already matches main ChatInput (`bg-foreground text-background`, opacity fallback when empty).
-
-**LegendChat** — same edits inside the input block (lines ~316–390 region).
+**File: `src/components/imagine/ImaginePromptBar.tsx`**
+- Add a Mic button to the bottom-right cluster, mirroring the ChatInput layout:
+  - Wrap the existing Send button in `<div className="flex items-center gap-0.5 shrink-0">`
+  - Insert a Mic button (visual only — uses Web Speech API for dictation if available, falls back to no-op) styled identically to ChatInput's mic: `p-2 sm:p-2.5 rounded-full hover:bg-background text-muted-foreground hover:text-primary relative`, with a green status dot `absolute top-1 right-1 w-1.5 h-1.5 bg-green-500 rounded-full`.
+  - Mic appears only when prompt is empty (matches main chat behavior).
+- Already has: `+` button, Tools pill, downward popup, Send button — keep as-is.
 
 ## Outcome
-Deck, Imagine, and Legends prompt bars will visually match the screenshot: same shell, same `+` + Tools pill on the left, same Send icon on the right, and the attach popup will expand **downward** when the `+` button is clicked.
+The Imagine prompt bar will look exactly like image 1: wide container, `+` and Tools on the bottom-left, Mic (green dot) and Send on the bottom-right, attach popup expanding downward.

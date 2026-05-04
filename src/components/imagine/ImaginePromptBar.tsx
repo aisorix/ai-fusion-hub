@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { Send, Plus, Image as ImageIcon, Camera, Paperclip, Loader2, Settings2 } from 'lucide-react';
+import { Send, Plus, Image as ImageIcon, Camera, Paperclip, Loader2, Settings2, Mic } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useChatStore, type Attachment } from '@/stores/chatStore';
@@ -206,21 +206,33 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled 
             </div>
           </div>
 
-          {/* Send */}
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={!hasContent || isGenerating || disabled}
-            className={cn(
-              'p-2 sm:p-2.5 rounded-full transition-all duration-200',
-              hasContent
-                ? 'bg-foreground text-background hover:opacity-90'
-                : 'bg-muted text-muted-foreground opacity-50',
-              'disabled:opacity-30 disabled:cursor-not-allowed'
+          {/* Right cluster: mic + send */}
+          <div className="flex items-center gap-0.5 shrink-0">
+            {!hasContent && (
+              <button
+                type="button"
+                aria-label="Voice"
+                className="p-2 sm:p-2.5 rounded-full hover:bg-background text-muted-foreground hover:text-primary transition-colors relative"
+              >
+                <Mic className="w-5 h-5" />
+                <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-green-500 rounded-full" />
+              </button>
             )}
-          >
-            {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-          </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={!hasContent || isGenerating || disabled}
+              className={cn(
+                'p-2 sm:p-2.5 rounded-full transition-all duration-200',
+                hasContent
+                  ? 'bg-foreground text-background hover:opacity-90'
+                  : 'bg-muted text-muted-foreground opacity-50',
+                'disabled:opacity-30 disabled:cursor-not-allowed'
+              )}
+            >
+              {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
       </div>
     </div>
