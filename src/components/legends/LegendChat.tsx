@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Loader2, ArrowLeft, X, Plus, Image as ImageIcon, Camera, Paperclip } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import TextareaAutosize from 'react-textarea-autosize';
 import { cn } from '@/lib/utils';
 import { legendsApi } from '@/services/legendsApi';
 import { useChatStore, type Attachment } from '@/stores/chatStore';
