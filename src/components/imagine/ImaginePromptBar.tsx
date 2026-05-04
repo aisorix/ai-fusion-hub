@@ -151,7 +151,7 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled 
             <div className="relative">
               <button
                 type="button"
-                onClick={() => setShowAttachMenu(!showAttachMenu)}
+                onClick={() => { setShowAttachMenu(!showAttachMenu); setShowToolsMenu(false); }}
                 disabled={isGenerating || disabled}
                 className={cn(
                   'p-2 rounded-full transition-all duration-200',
@@ -202,9 +202,22 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled 
               </AnimatePresence>
             </div>
 
-            <div className="flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full border border-border/60 text-muted-foreground text-sm font-medium select-none whitespace-nowrap">
-              <Settings2 className="w-4 h-4" />
-              <span>Tools</span>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => { setShowToolsMenu(!showToolsMenu); setShowAttachMenu(false); }}
+                disabled={isGenerating || disabled}
+                className={cn(
+                  'flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full border text-sm font-medium select-none whitespace-nowrap transition-colors',
+                  showToolsMenu
+                    ? 'bg-background text-foreground border-border'
+                    : 'border-border/60 text-muted-foreground hover:text-foreground hover:bg-background'
+                )}
+              >
+                <Settings2 className="w-4 h-4" />
+                <span>Tools</span>
+              </button>
+              <ToolsMenu open={showToolsMenu} onClose={() => setShowToolsMenu(false)} direction="down" />
             </div>
           </div>
 
