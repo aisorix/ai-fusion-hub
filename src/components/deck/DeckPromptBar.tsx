@@ -242,6 +242,9 @@ const DeckPromptBar: React.FC<DeckPromptBarProps> = ({ onGenerate, isGenerating 
                 'disabled:opacity-30 disabled:cursor-not-allowed'
               )}
             >
+              {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
       </div>
     </div>
