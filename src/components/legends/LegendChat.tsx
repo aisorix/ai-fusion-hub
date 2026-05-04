@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader2, ArrowLeft, X, Plus, Image as ImageIcon, Camera, Paperclip } from 'lucide-react';
+import { Send, Loader2, ArrowLeft, X, Plus, Image as ImageIcon, Camera, Paperclip, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import TextareaAutosize from 'react-textarea-autosize';
 import { cn } from '@/lib/utils';
