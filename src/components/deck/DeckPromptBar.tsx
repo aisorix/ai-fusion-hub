@@ -149,7 +149,7 @@ const DeckPromptBar: React.FC<DeckPromptBarProps> = ({ onGenerate, isGenerating 
             <div className="relative">
               <button
                 type="button"
-                onClick={() => setShowAttachMenu(!showAttachMenu)}
+                onClick={() => { setShowAttachMenu(!showAttachMenu); setShowToolsMenu(false); }}
                 disabled={isGenerating}
                 className={cn(
                   'p-2 rounded-full transition-all duration-200',
@@ -200,26 +200,48 @@ const DeckPromptBar: React.FC<DeckPromptBarProps> = ({ onGenerate, isGenerating 
               </AnimatePresence>
             </div>
 
-            <div className="flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full border border-border/60 text-muted-foreground text-sm font-medium select-none whitespace-nowrap">
-              <Settings2 className="w-4 h-4" />
-              <span>Tools</span>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => { setShowToolsMenu(!showToolsMenu); setShowAttachMenu(false); }}
+                disabled={isGenerating}
+                className={cn(
+                  'flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full border text-sm font-medium select-none whitespace-nowrap transition-colors',
+                  showToolsMenu
+                    ? 'bg-background text-foreground border-border'
+                    : 'border-border/60 text-muted-foreground hover:text-foreground hover:bg-background'
+                )}
+              >
+                <Settings2 className="w-4 h-4" />
+                <span>Tools</span>
+              </button>
+              <ToolsMenu open={showToolsMenu} onClose={() => setShowToolsMenu(false)} direction="down" />
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={!hasContent || isGenerating}
-            className={cn(
-              'p-2 sm:p-2.5 rounded-full transition-all duration-200',
-              hasContent
-                ? 'bg-foreground text-background hover:opacity-90'
-                : 'bg-muted text-muted-foreground opacity-50',
-              'disabled:opacity-30 disabled:cursor-not-allowed'
+          <div className="flex items-center gap-0.5 shrink-0">
+            {!hasContent && (
+              <button
+                type="button"
+                aria-label="Voice"
+                className="p-2 sm:p-2.5 rounded-full hover:bg-background text-muted-foreground hover:text-primary transition-colors relative"
+              >
+                <Mic className="w-5 h-5" />
+                <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-green-500 rounded-full" />
+              </button>
             )}
-          >
-            {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-          </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={!hasContent || isGenerating}
+              className={cn(
+                'p-2 sm:p-2.5 rounded-full transition-all duration-200',
+                hasContent
+                  ? 'bg-foreground text-background hover:opacity-90'
+                  : 'bg-muted text-muted-foreground opacity-50',
+                'disabled:opacity-30 disabled:cursor-not-allowed'
+              )}
+            >
         </div>
       </div>
     </div>
