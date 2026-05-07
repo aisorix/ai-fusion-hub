@@ -42,6 +42,8 @@ const HealthChatMode: React.FC<HealthChatModeProps> = ({ patientData, analysisRe
   const [isStreaming, setIsStreaming] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  useAutoFocusInput(textareaRef, [isStreaming], isStreaming);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
