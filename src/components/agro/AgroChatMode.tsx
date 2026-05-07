@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useAutoFocusInput } from '@/hooks/useAutoFocusInput';
 import { motion } from 'framer-motion';
 import { Send, Loader2, RotateCcw, Leaf } from 'lucide-react';
 import { Button } from '@/components/ui/button';
