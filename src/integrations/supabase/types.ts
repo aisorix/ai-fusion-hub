@@ -1033,6 +1033,18 @@ export type Database = {
       }
     }
     Functions: {
+      get_shared_chat_by_token: {
+        Args: { _token: string }
+        Returns: {
+          chat_data: Json
+          created_at: string
+          id: string
+          owner_id: string
+          share_token: string
+          title: string
+          updated_at: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
