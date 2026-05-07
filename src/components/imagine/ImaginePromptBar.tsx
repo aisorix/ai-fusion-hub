@@ -139,6 +139,7 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled 
         'shadow-sm px-2 sm:px-3 pt-1 pb-1.5'
       )}>
         <TextareaAutosize
+          ref={textareaRef}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={handleKeyDown}
