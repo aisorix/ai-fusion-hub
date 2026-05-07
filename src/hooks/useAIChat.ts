@@ -249,10 +249,6 @@ export const useAIChat = () => {
     const finalMultiplier = hasAttachments ? baseMultiplier * ATTACHMENT_ANALYSIS_MULTIPLIER : baseMultiplier;
 
     console.log(`Sending message with model: ${backendModel}${hasAttachments ? ' (2-stage: gpt-5-mini analyzer → responder when needed, 1x cost)' : wasSmartRouted ? ' (smart routed)' : ''}, multiplier: ${finalMultiplier}x`);
-    const ATTACHMENT_ANALYSIS_MULTIPLIER = 1;
-    const finalMultiplier = hasAttachments ? baseMultiplier * ATTACHMENT_ANALYSIS_MULTIPLIER : baseMultiplier;
-
-    console.log(`Sending message with model: ${backendModel}${hasAttachments ? ' (2-stage: gemini-2.5-pro analyzer → responder, 1x cost)' : wasSmartRouted ? ' (smart routed)' : ''}, multiplier: ${finalMultiplier}x`);
 
     abortControllerRef.current = new AbortController();
 
