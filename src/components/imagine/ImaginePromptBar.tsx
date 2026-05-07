@@ -8,6 +8,7 @@ import FileChip from '@/components/aichat/FileChip';
 import TextareaAutosize from 'react-textarea-autosize';
 import { toast } from 'sonner';
 import ToolsMenu from '@/components/aichat/ToolsMenu';
+import { useAutoFocusInput } from '@/hooks/useAutoFocusInput';
 
 interface Props {
   onGenerate: (prompt: string, attachments?: Attachment[]) => void;
