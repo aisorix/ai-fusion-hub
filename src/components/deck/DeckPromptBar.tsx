@@ -8,6 +8,7 @@ import { useChatStore, type Attachment } from '@/stores/chatStore';
 import { parseFile, getAcceptedFileTypes, getFileType } from '@/lib/fileParser';
 import FileChip from '@/components/aichat/FileChip';
 import { toast } from 'sonner';
+import { useAutoFocusInput } from '@/hooks/useAutoFocusInput';
 
 interface DeckPromptBarProps {
   onGenerate: (prompt: string, attachments?: Attachment[]) => void;
