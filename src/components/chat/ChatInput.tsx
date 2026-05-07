@@ -16,6 +16,8 @@ export const ChatInput = ({
   placeholder = "Type a message..."
 }: ChatInputProps) => {
   const [message, setMessage] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  useAutoFocusInput(textareaRef, [], !!disabled);
 
   const handleSend = () => {
     if (message.trim() && !disabled) {
