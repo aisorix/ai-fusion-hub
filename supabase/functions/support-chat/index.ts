@@ -1,5 +1,6 @@
 // Sorix Support AI — premium-styled customer support
 // Public function (verify_jwt = false) so guests can also chat
+import { openrouterChatWithFallback } from "../_shared/openrouter.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -76,9 +77,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      console.error('LOVABLE_API_KEY missing');
+    if (!Deno.env.get('OPENROUTER_API_KEY')) {
+      console.error('OPENROUTER_API_KEY missing');
       return new Response(
         JSON.stringify({ error: 'Service unavailable' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -91,40 +91,23 @@ Deno.serve(async (req) => {
       content: String(m.content || '').slice(0, 4000),
     }));
 
-    const callModel = async (model: string, useCompletionTokens: boolean) => {
-      const body: Record<string, unknown> = {
-        model,
+    // Use OpenRouter with shared helper (auto-fallback on 429/5xx).
+    // Primary: gemini-2.5-flash (fast & cheap), Fallback: gemini-2.5-pro.
+    const res = await openrouterChatWithFallback(
+      {
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
           ...trimmed,
         ],
-      };
-      if (useCompletionTokens) {
-        body.max_completion_tokens = 800;
-      } else {
-        body.max_tokens = 600;
-        body.temperature = 0.6;
-      }
-      return await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
-    };
-
-    let res = await callModel('openai/gpt-5-mini', true);
-    if (!res.ok) {
-      const errText = await res.text().catch(() => '');
-      console.warn('gpt-5-mini failed, falling back to deepseek-v3.2', res.status, errText);
-      res = await callModel('deepseek/deepseek-v3.2', false);
-    }
+        max_tokens: 800,
+        temperature: 0.6,
+      },
+      'google/gemini-2.5-flash',
+    );
 
     if (!res.ok) {
       const errText = await res.text();
-      console.error('AI Gateway error', res.status, errText);
+      console.error('OpenRouter error', res.status, errText);
       if (res.status === 429) {
         return new Response(
           JSON.stringify({ reply: "👋 We're getting a lot of requests right now.\n\n- ⚡ Please try again in a moment\n- 📧 Or email us at **support@aisorix.com**\n\n*— Sorix Support Team* ✨" }),
