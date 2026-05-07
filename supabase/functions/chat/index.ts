@@ -7,9 +7,9 @@ const corsHeaders = {
 };
 
 // Two-stage attachment pipeline:
-//   Stage 1 — GPT-5.4 Nano analyzes uploaded images/files (fast, low-latency multimodal extraction, 400K context)
+//   Stage 1 — Google Gemini 2.5 Pro analyzes uploaded images/files/audio/PDFs (top-tier multimodal reasoning, huge context)
 //   Stage 2 — User's selected model writes the final response using the analysis as context
-const ANALYZER_MODEL = 'openai/gpt-5.4-nano';
+const ANALYZER_MODEL = 'google/gemini-2.5-pro';
 const DEFAULT_MODEL = 'openai/gpt-4o'; // Fallback for regular chat when no model is provided
 
 const ANALYZER_SYSTEM_PROMPT = `You are a multimodal analysis engine. Your sole job is to extract every relevant detail from the attached images and/or files so that another AI model can answer the user's question without seeing the originals.
@@ -231,7 +231,7 @@ serve(async (req) => {
       }
 
       const analysisBlock = analysisText
-        ? `\n\n---\n## 📎 Attachment Analysis (from GPT-5.4 Nano)\n\n${analysisText}\n---\n\nUsing the analysis above, please respond to the user's original request in your own voice and style.`
+        ? `\n\n---\n## 📎 Attachment Analysis (from Gemini 2.5 Pro)\n\n${analysisText}\n---\n\nUsing the analysis above, please respond to the user's original request in your own voice and style.`
         : `\n\n[⚠️ Attachment analysis was unavailable — please respond based on the user's text and any filenames mentioned.]`;
 
       processedMessages = [

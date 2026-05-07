@@ -243,9 +243,12 @@ export const useAIChat = () => {
     // the user's selected responder model. The client always sends the user's choice.
     const hasAttachments = imageAttachments.length > 0 || documentAttachments.length > 0;
     const backendModel = activeBackendId;
-    const finalMultiplier = activeMultiplier;
+    const baseMultiplier = activeMultiplier;
+    // Attachments trigger a Gemini 2.5 Pro analysis pass; charge 3x base on top.
+    const ATTACHMENT_ANALYSIS_MULTIPLIER = 3;
+    const finalMultiplier = hasAttachments ? baseMultiplier * ATTACHMENT_ANALYSIS_MULTIPLIER : baseMultiplier;
 
-    console.log(`Sending message with model: ${backendModel}${hasAttachments ? ' (2-stage: gpt-5.4-nano analyzer → responder)' : wasSmartRouted ? ' (smart routed)' : ''}, multiplier: ${finalMultiplier}x`);
+    console.log(`Sending message with model: ${backendModel}${hasAttachments ? ' (2-stage: gemini-2.5-pro analyzer → responder, 3x cost)' : wasSmartRouted ? ' (smart routed)' : ''}, multiplier: ${finalMultiplier}x`);
 
     abortControllerRef.current = new AbortController();
 
