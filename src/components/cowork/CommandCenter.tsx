@@ -475,13 +475,72 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                   </button>
                 </div>
 
-                {/* Mic - desktop only */}
+                {/* Model picker pill */}
+                <div className="relative shrink-0">
+                  <button
+                    onClick={() => {
+                      closeAllPopovers();
+                      setShowModelPicker((v) => !v);
+                    }}
+                    className={cn(
+                      "flex items-center gap-1.5 p-2 sm:pl-2 sm:pr-2.5 sm:py-1.5 rounded-full transition-all duration-200",
+                      "border border-border/60 text-muted-foreground hover:text-foreground hover:bg-background",
+                      "text-sm font-medium whitespace-nowrap",
+                      showModelPicker && "bg-background text-foreground border-border"
+                    )}
+                    aria-label="Model"
+                  >
+                    <Cpu className="w-4 h-4 shrink-0" />
+                    <span className="hidden sm:inline">{currentModel.short}</span>
+                    <ChevronDown className="w-3.5 h-3.5 hidden sm:inline" />
+                  </button>
+
+                  <AnimatePresence>
+                    {showModelPicker && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-40"
+                          onClick={() => setShowModelPicker(false)}
+                        />
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                          className="absolute bottom-full left-0 mb-2 rounded-xl shadow-xl overflow-hidden z-[100] bg-popover border border-border backdrop-blur-xl min-w-[220px]"
+                        >
+                          {MODELS.map((m) => (
+                            <button
+                              key={m.id}
+                              onClick={() => {
+                                setSelectedModel(m.id);
+                                setShowModelPicker(false);
+                              }}
+                              className={cn(
+                                "flex items-center justify-between gap-3 px-4 py-2.5 w-full transition-colors hover:bg-accent text-left",
+                                selectedModel === m.id && "bg-accent/60"
+                              )}
+                            >
+                              <span className="text-sm">{m.label}</span>
+                              {selectedModel === m.id && (
+                                <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                              )}
+                            </button>
+                          ))}
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+
+              {/* Right cluster: Mic + Send */}
+              <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
                 <button
                   onClick={() =>
                     toast.message(language === "bn" ? "ভয়েস মোড শীঘ্রই" : "Voice mode coming soon")
                   }
                   className={cn(
-                    "hidden sm:inline-flex p-2 rounded-full transition-all duration-200 shrink-0 relative",
+                    "p-2 rounded-full transition-all duration-200 shrink-0 relative",
                     "hover:bg-background text-muted-foreground hover:text-primary"
                   )}
                   title={language === "bn" ? "ভয়েস মোড" : "Voice mode"}
@@ -491,15 +550,14 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                   <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-green-500 rounded-full" />
                 </button>
 
-                {/* Send */}
                 <button
                   onClick={handleSend}
                   disabled={!input.trim() || agentStatus !== "idle"}
                   className={cn(
-                    "p-2 sm:p-2.5 rounded-full transition-all duration-200",
+                    "p-2 rounded-full transition-all duration-200",
                     input.trim()
-                      ? "bg-foreground text-background hover:opacity-90"
-                      : "bg-muted text-muted-foreground opacity-50",
+                      ? "text-foreground hover:bg-background"
+                      : "text-muted-foreground opacity-50",
                     "disabled:opacity-30 disabled:cursor-not-allowed"
                   )}
                   aria-label="Send"
