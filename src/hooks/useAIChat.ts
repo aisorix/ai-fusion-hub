@@ -238,13 +238,17 @@ export const useAIChat = () => {
       return acc;
     }, 0);
 
-    // Server-side two-stage pipeline: when attachments are present, the chat edge
-    // function runs Gemini 2.5 Pro to analyze them, then forwards the analysis to
-    // the user's selected responder model. The client always sends the user's choice.
+    // Server-side two-stage pipeline: when attachments are present and the user's model
+    // isn't already strong enough, the chat edge function runs gpt-5-mini to analyze them
+    // and forwards the analysis to the user's selected responder model.
     const hasAttachments = imageAttachments.length > 0 || documentAttachments.length > 0;
     const backendModel = activeBackendId;
     const baseMultiplier = activeMultiplier;
-    // Attachments trigger a Gemini 2.5 Pro analysis pass; charge 1x base (no extra surcharge).
+    // Attachments may trigger a gpt-5-mini analysis pass; charge 1x base (no extra surcharge).
+    const ATTACHMENT_ANALYSIS_MULTIPLIER = 1;
+    const finalMultiplier = hasAttachments ? baseMultiplier * ATTACHMENT_ANALYSIS_MULTIPLIER : baseMultiplier;
+
+    console.log(`Sending message with model: ${backendModel}${hasAttachments ? ' (2-stage: gpt-5-mini analyzer → responder when needed, 1x cost)' : wasSmartRouted ? ' (smart routed)' : ''}, multiplier: ${finalMultiplier}x`);
     const ATTACHMENT_ANALYSIS_MULTIPLIER = 1;
     const finalMultiplier = hasAttachments ? baseMultiplier * ATTACHMENT_ANALYSIS_MULTIPLIER : baseMultiplier;
 
