@@ -43,7 +43,7 @@ const AgroChatMode: React.FC<AgroChatModeProps> = ({ cropData, analysisResult, o
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  useAutoFocusInput(textareaRef, [isStreaming], isStreaming);
+  useAutoFocusInput(textareaRef, [isStreaming], isStreaming, true);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEOHead from '@/components/SEOHead';
 import { ArrowLeft, ImageIcon, History, X } from 'lucide-react';
@@ -68,10 +68,24 @@ const ImaginePage: React.FC = () => {
     }
   };
 
+  const canvasRef = useRef<HTMLDivElement>(null);
+
   const handleHistorySelect = (gen: ImageGeneration) => {
     setImageUrl(gen.image_url);
     setCurrentPrompt(gen.prompt);
+    // Restore original style/model when possible so the canvas reflects original state
+    if (gen.style) {
+      const match = trendingStyles.find(s => s.modifier === gen.style || s.id === gen.style);
+      if (match) setSelectedStyle(match);
+    }
+    if (gen.model) {
+      const m = imageModels.find(im => im.modelId === gen.model);
+      if (m) setSelectedModel(m);
+    }
     setShowHistory(false);
+    requestAnimationFrame(() => {
+      canvasRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
   };
 
   return (
@@ -135,7 +149,9 @@ const ImaginePage: React.FC = () => {
           <ImagineStyleCarousel selectedStyle={selectedStyle.id} onSelectStyle={setSelectedStyle} />
 
           {/* Canvas / Image Display */}
-          <ImagineCanvas imageUrl={imageUrl} isGenerating={isGenerating} prompt={currentPrompt} />
+          <div ref={canvasRef} className="w-full">
+            <ImagineCanvas imageUrl={imageUrl} isGenerating={isGenerating} prompt={currentPrompt} />
+          </div>
         </div>
       </main>
 
@@ -147,7 +163,7 @@ const ImaginePage: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/30 z-40"
+              className="fixed inset-0 bg-black/40 z-[200]"
               onClick={() => setShowHistory(false)}
             />
             <motion.div
@@ -155,7 +171,7 @@ const ImaginePage: React.FC = () => {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25 }}
-              className="fixed right-0 top-0 bottom-0 w-80 md:w-96 bg-card border-l border-border z-50 flex flex-col"
+              className="fixed right-0 top-0 bottom-0 w-80 md:w-96 bg-card border-l border-border z-[210] flex flex-col"
             >
               <div className="p-4 border-b border-border flex items-center justify-between">
                 <h2 className="font-bold text-foreground">Generation History</h2>

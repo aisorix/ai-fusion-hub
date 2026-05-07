@@ -82,6 +82,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
     inputRef,
     [attachments.length, showAttachMenu, showToolsMenu, showModelPicker, showIntegrations],
     agentStatus !== "idle",
+    true,
   );
 
   useEffect(() => {
@@ -174,7 +175,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto">
+      <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto">
         <div className="p-4 space-y-4 max-w-3xl mx-auto w-full">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center flex-1 min-h-0 text-center px-4 pt-8">
@@ -289,7 +290,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
       </div>
 
       {/* Input - main-chat style */}
-      <div className="p-2 sm:p-4 border-t border-border/30 backdrop-blur-md bg-background/60">
+      <div className="shrink-0 p-2 sm:p-4 border-t border-border/30 backdrop-blur-md bg-background/60">
         <div className="w-full max-w-3xl mx-auto sm:px-2 relative">
           {/* hidden file inputs */}
           <input

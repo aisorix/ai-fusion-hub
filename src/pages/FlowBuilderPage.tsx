@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEOHead from '@/components/SEOHead';
 import { ArrowLeft, Workflow, History, X, FilePlus } from 'lucide-react';
@@ -67,10 +67,15 @@ const FlowBuilderPage: React.FC = () => {
     setCode(template.code);
   };
 
+  const canvasRef = useRef<HTMLDivElement>(null);
+
   const handleHistorySelect = (item: FlowHistoryItem) => {
     const raw = (item.result_data as any)?.mermaidCode || '';
     setCode(sanitizeMermaid(raw));
     setShowHistory(false);
+    requestAnimationFrame(() => {
+      canvasRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
   };
 
   return (
@@ -141,7 +146,7 @@ const FlowBuilderPage: React.FC = () => {
           )}
 
           {/* Canvas */}
-          <div className="flex-1 min-h-0" data-diagram-container>
+          <div ref={canvasRef} className="flex-1 min-h-0" data-diagram-container>
             <FlowCanvas code={code} onCodeChange={setCode} isGenerating={isGenerating} />
           </div>
         </div>
@@ -151,8 +156,8 @@ const FlowBuilderPage: React.FC = () => {
       <AnimatePresence>
         {showHistory && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/30 z-40" onClick={() => setShowHistory(false)} />
-            <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25 }} className="fixed right-0 top-0 bottom-0 w-80 md:w-96 bg-card border-l border-border z-50 flex flex-col">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/30 z-[200]" onClick={() => setShowHistory(false)} />
+            <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25 }} className="fixed right-0 top-0 bottom-0 w-80 md:w-96 bg-card border-l border-border z-[210] flex flex-col">
               <div className="p-4 border-b border-border flex items-center justify-between">
                 <h2 className="font-bold text-foreground">Diagram History</h2>
                 <button onClick={() => setShowHistory(false)} className="p-1.5 hover:bg-muted rounded-md"><X className="w-4 h-4" /></button>

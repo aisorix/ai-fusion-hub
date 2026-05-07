@@ -60,7 +60,7 @@ const SharedChatInput = ({
   const streaming = isStreaming || isAnyStreaming || false;
   const sizeLimit = FILE_SIZE_LIMITS[userPlan] || FILE_SIZE_LIMITS.free;
 
-  useAutoFocusInput(textareaRef, [attachments.length, isParsing, showAttachMenu], streaming);
+  useAutoFocusInput(textareaRef, [attachments.length, isParsing, showAttachMenu], streaming, true);
 
 
   const processFiles = useCallback(async (files: File[]) => {

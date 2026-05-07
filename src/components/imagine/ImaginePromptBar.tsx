@@ -46,6 +46,7 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled 
     textareaRef,
     [attachments.length, isParsing, showAttachMenu, showToolsMenu],
     !!disabled || isGenerating,
+    true,
   );
 
   const processFiles = useCallback(async (files: File[]) => {

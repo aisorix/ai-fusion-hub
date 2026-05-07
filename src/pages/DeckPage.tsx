@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEOHead from '@/components/SEOHead';
 import { ArrowLeft, Presentation, History, X } from 'lucide-react';
@@ -101,6 +101,8 @@ const DeckPage: React.FC = () => {
     }
   };
 
+  const slidesRef = useRef<HTMLDivElement>(null);
+
   const handleHistoryLoad = async (item: DeckHistoryItem) => {
     setHistoryLoadingId(item.id);
     try {
@@ -114,7 +116,13 @@ const DeckPage: React.FC = () => {
       if (full.input_data?.theme) {
         setSelectedTheme(full.input_data.theme as DeckTheme);
       }
+      const inp: any = full.input_data;
+      if (inp?.textContent) setTextContent(inp.textContent as TextContent);
+      if (inp?.artStyle) setArtStyle(inp.artStyle as ArtStyle);
       setShowHistory(false);
+      requestAnimationFrame(() => {
+        slidesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
     } catch {
       toast.error('Failed to load presentation');
     } finally {
@@ -235,13 +243,15 @@ const DeckPage: React.FC = () => {
           {slides.length > 0 && <DeckActions slides={slides} title={title} theme={selectedTheme} onSlideshow={() => setShowSlideshow(true)} />}
 
           {/* Slides */}
-          <DeckSlideViewer
-            slides={slides}
-            theme={selectedTheme}
-            isGenerating={isGenerating}
-            skeletonCount={effectiveSlideCount}
-            onUpdateSlide={handleUpdateSlide}
-          />
+          <div ref={slidesRef} className="w-full">
+            <DeckSlideViewer
+              slides={slides}
+              theme={selectedTheme}
+              isGenerating={isGenerating}
+              skeletonCount={effectiveSlideCount}
+              onUpdateSlide={handleUpdateSlide}
+            />
+          </div>
         </div>
       </main>
 
@@ -253,7 +263,7 @@ const DeckPage: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/30 z-40"
+              className="fixed inset-0 bg-black/30 z-[200]"
               onClick={() => setShowHistory(false)}
             />
             <motion.div
@@ -261,7 +271,7 @@ const DeckPage: React.FC = () => {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25 }}
-              className="fixed right-0 top-0 bottom-0 w-80 md:w-96 bg-card border-l border-border z-50 flex flex-col"
+              className="fixed right-0 top-0 bottom-0 w-80 md:w-96 bg-card border-l border-border z-[210] flex flex-col"
             >
               <div className="p-4 border-b border-border flex items-center justify-between">
                 <h2 className="font-bold text-foreground">Presentation History</h2>
