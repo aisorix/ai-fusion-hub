@@ -308,6 +308,7 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
             'shadow-sm px-2 sm:px-3 pt-1 pb-1.5'
           )}>
             <TextareaAutosize
+              ref={textareaRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
