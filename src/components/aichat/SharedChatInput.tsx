@@ -2,6 +2,7 @@
 // Full file upload support matching main ChatInput
 
 import React, { useState, useRef, useCallback } from "react";
+import { useAutoFocusInput } from "@/hooks/useAutoFocusInput";
 import { Send, Square, Loader2, Mic, Image as ImageIcon, Paperclip, Upload, X, Plus, Camera } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import TextareaAutosize from "react-textarea-autosize";
