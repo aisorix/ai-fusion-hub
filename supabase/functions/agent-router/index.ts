@@ -1,8 +1,7 @@
-// Unified Sorix Agent backend: merges legacy OAuth tools (Gmail/Telegram/Calendar/Drive/FB/LinkedIn/WhatsApp)
-// with Nango proxy + Browserless web automation + custom HTTP. Streams real telemetry tied to cowork_tasks.
+// Unified Sorix Agent backend: legacy OAuth tools (Gmail/Telegram/Calendar/Drive/FB/LinkedIn/WhatsApp)
+// + Browserless web automation + custom HTTP. Streams real telemetry tied to cowork_tasks.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { openrouterChatWithFallback } from "../_shared/openrouter.ts";
-import { nangoProxy } from "../_shared/nango.ts";
 import { TOOL_SCHEMAS as LEGACY_TOOL_SCHEMAS, TOOL_UI as LEGACY_TOOL_UI, executeTool as executeLegacyTool } from "../_shared/agentTools.ts";
 
 const corsHeaders = {
@@ -13,24 +12,6 @@ const corsHeaders = {
 
 // --- Universal tools (always available) ---
 const UNIVERSAL_TOOLS = [
-  {
-    type: "function",
-    function: {
-      name: "nango_proxy",
-      description: "Call any REST endpoint of a connected provider via Nango proxy. Use this whenever the user asks to read, send, post, create, schedule on a service they have connected through Integrations (Slack, Notion, GitHub, etc.).",
-      parameters: {
-        type: "object",
-        properties: {
-          provider: { type: "string", description: "Provider id (e.g. github, slack, notion)" },
-          method: { type: "string", enum: ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-          endpoint: { type: "string", description: "Path on the upstream API, starting with /" },
-          body: { type: "object", description: "JSON body for write requests", additionalProperties: true },
-          query: { type: "object", description: "Query string params", additionalProperties: { type: "string" } },
-        },
-        required: ["provider", "method", "endpoint"],
-      },
-    },
-  },
   {
     type: "function",
     function: {
