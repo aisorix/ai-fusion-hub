@@ -1,8 +1,9 @@
-// Hybrid task router: routes user prompts to Nango API tools or Browserless web automation.
-// Streams SSE events: route_decision, tool_use, tool_result, content, error.
+// Unified Sorix Agent backend: merges legacy OAuth tools (Gmail/Telegram/Calendar/Drive/FB/LinkedIn/WhatsApp)
+// with Nango proxy + Browserless web automation + custom HTTP. Streams real telemetry tied to cowork_tasks.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { openrouterChatWithFallback } from "../_shared/openrouter.ts";
 import { nangoProxy } from "../_shared/nango.ts";
+import { TOOL_SCHEMAS as LEGACY_TOOL_SCHEMAS, TOOL_UI as LEGACY_TOOL_UI, executeTool as executeLegacyTool } from "../_shared/agentTools.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -10,16 +11,17 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const TOOLS = [
+// --- Universal tools (always available) ---
+const UNIVERSAL_TOOLS = [
   {
     type: "function",
     function: {
       name: "nango_proxy",
-      description: "Call any REST endpoint of a connected provider via Nango proxy. Use this whenever the user asks to read, send, post, create, schedule on a service they have connected (Gmail, GitHub, Notion, Slack, LinkedIn, Google Calendar, etc.).",
+      description: "Call any REST endpoint of a connected provider via Nango proxy. Use this whenever the user asks to read, send, post, create, schedule on a service they have connected through Integrations (Slack, Notion, GitHub, etc.).",
       parameters: {
         type: "object",
         properties: {
-          provider: { type: "string", description: "Provider id (e.g. github, google-mail, notion, slack)" },
+          provider: { type: "string", description: "Provider id (e.g. github, slack, notion)" },
           method: { type: "string", enum: ["GET", "POST", "PUT", "PATCH", "DELETE"] },
           endpoint: { type: "string", description: "Path on the upstream API, starting with /" },
           body: { type: "object", description: "JSON body for write requests", additionalProperties: true },
@@ -48,15 +50,15 @@ const TOOLS = [
     type: "function",
     function: {
       name: "custom_http_call",
-      description: "Call one of the user's CUSTOM REST integrations by id. The auth header is added automatically by the server. Use when the user references one of their custom integrations by name.",
+      description: "Call one of the user's CUSTOM REST integrations by id. Auth header is added automatically server-side.",
       parameters: {
         type: "object",
         properties: {
-          integration_id: { type: "string", description: "id of the user's custom integration" },
+          integration_id: { type: "string" },
           method: { type: "string", enum: ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-          path: { type: "string", description: "Path appended to base_url, starting with /" },
-          query: { type: "object", description: "Query string params", additionalProperties: { type: "string" } },
-          body: { type: "object", description: "JSON body", additionalProperties: true },
+          path: { type: "string" },
+          query: { type: "object", additionalProperties: { type: "string" } },
+          body: { type: "object", additionalProperties: true },
         },
         required: ["integration_id", "method", "path"],
       },
@@ -64,15 +66,27 @@ const TOOLS = [
   },
 ];
 
-async function runTool(name: string, args: any, userId: string, supabase: any) {
+// Map: legacy tool name -> service it requires (must appear in user_connections)
+const LEGACY_TOOL_REQUIRES: Record<string, string> = {
+  telegram_send_message: "telegram",
+  telegram_list_recent_chats: "telegram",
+  gmail_send_email: "google",
+  gmail_list_recent: "google",
+  calendar_create_event: "google",
+  calendar_list_upcoming: "google",
+  drive_list_files: "google",
+  facebook_page_post: "facebook",
+  linkedin_create_post: "linkedin",
+  whatsapp_send_message: "whatsapp",
+};
+
+const LEGACY_TOOL_NAMES = new Set(LEGACY_TOOL_SCHEMAS.map((t: any) => t.function.name));
+
+async function runUniversalTool(name: string, args: any, userId: string, supabase: any) {
   if (name === "nango_proxy") {
     return await nangoProxy({
-      provider: args.provider,
-      connectionId: userId,
-      method: args.method,
-      endpoint: args.endpoint,
-      body: args.body,
-      query: args.query,
+      provider: args.provider, connectionId: userId,
+      method: args.method, endpoint: args.endpoint, body: args.body, query: args.query,
     });
   }
   if (name === "web_scrape") {
@@ -87,19 +101,16 @@ export default async function ({ page }) {
   return { data: { title, text, screenshot: shot } };
 }`;
     const r = await fetch(`https://production-sfo.browserless.io/function?token=${encodeURIComponent(token)}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/javascript" },
-      body: fnCode,
-      signal: AbortSignal.timeout(60_000),
+      method: "POST", headers: { "Content-Type": "application/javascript" },
+      body: fnCode, signal: AbortSignal.timeout(60_000),
     });
     const j = await r.json().catch(() => ({}));
     return { ok: r.ok, status: r.status, data: j?.data ?? j };
   }
   if (name === "custom_http_call") {
-    const { data: integ, error } = await supabase
-      .from("user_custom_integrations")
-      .select("*").eq("id", args.integration_id).eq("user_id", userId).maybeSingle();
-    if (error || !integ) return { ok: false, status: 404, data: { error: "custom_integration_not_found" } };
+    const { data: integ } = await supabase
+      .from("user_custom_integrations").select("*").eq("id", args.integration_id).eq("user_id", userId).maybeSingle();
+    if (!integ) return { ok: false, status: 404, data: { error: "custom_integration_not_found" } };
     const url = new URL((integ.base_url as string).replace(/\/$/, "") + args.path);
     if (args.query) for (const [k, v] of Object.entries(args.query)) url.searchParams.set(k, String(v));
     const headers: Record<string, string> = {
@@ -108,8 +119,7 @@ export default async function ({ page }) {
     };
     try {
       const r = await fetch(url.toString(), {
-        method: args.method,
-        headers,
+        method: args.method, headers,
         body: ["GET", "DELETE"].includes(args.method) ? undefined : JSON.stringify(args.body ?? {}),
         signal: AbortSignal.timeout(30_000),
       });
@@ -123,6 +133,25 @@ export default async function ({ page }) {
   return { ok: false, status: 400, data: { error: `unknown_tool:${name}` } };
 }
 
+function describeUniversal(name: string, args: any): { title: string; description: string; steps: string[] } {
+  if (name === "nango_proxy") return {
+    title: `Calling ${args.provider}`,
+    description: `${args.method} ${args.endpoint}`,
+    steps: ["Authenticating", "Sending request", "Parsing response"],
+  };
+  if (name === "web_scrape") return {
+    title: "Browsing the web",
+    description: `Opening ${args.url}`,
+    steps: ["Launching browser", "Loading page", "Extracting content"],
+  };
+  if (name === "custom_http_call") return {
+    title: "Custom integration",
+    description: `${args.method} ${args.path}`,
+    steps: ["Authenticating", "Sending request"],
+  };
+  return { title: name, description: "", steps: ["Execute"] };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
@@ -131,37 +160,51 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_ANON_KEY")!,
       { global: { headers: { Authorization: req.headers.get("Authorization") ?? "" } } },
     );
+    const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
     const { messages = [], model } = await req.json();
 
-    // Pull connected providers to inform the router
-    const { data: integ } = await supabase
+    // Connected via Nango
+    const { data: nangoIntegs } = await supabase
       .from("user_integrations").select("provider,status").eq("user_id", user.id);
-    const connected = (integ ?? []).filter((i: any) => i.status === "connected").map((i: any) => i.provider);
+    const nangoConnected = (nangoIntegs ?? []).filter((i: any) => i.status === "connected").map((i: any) => i.provider);
 
-    // Pull user's custom integrations
+    // Connected via legacy OAuth (user_connections)
+    const { data: legacyConns } = await supabase
+      .from("user_connections").select("service,status").eq("user_id", user.id);
+    const legacyConnected = new Set((legacyConns ?? []).filter((c: any) => c.status === "connected").map((c: any) => c.service));
+
+    // Filter legacy tools by connected services (only expose ones the user can actually use)
+    const availableLegacyTools = LEGACY_TOOL_SCHEMAS.filter((t: any) => {
+      const svc = LEGACY_TOOL_REQUIRES[t.function.name];
+      return !svc || legacyConnected.has(svc);
+    });
+
+    // Custom integrations
     const { data: customs } = await supabase
       .from("user_custom_integrations").select("id,name,base_url,description").eq("user_id", user.id);
     const customList = (customs ?? []) as any[];
 
-    const SYSTEM = `You are Sorix Agent, an autonomous executor that DOES tasks.
+    const TOOLS = [...UNIVERSAL_TOOLS, ...availableLegacyTools];
 
-Available connected providers for this user: ${connected.length ? connected.join(", ") : "none yet"}.
+    const SYSTEM = `You are Sorix Agent, an autonomous executor that DOES tasks for the user.
 
-Custom integrations (call with custom_http_call using their id):
-${customList.length
-  ? customList.map(c => `- ${c.name} (id=${c.id}, base=${c.base_url})${c.description ? ` — ${c.description}` : ""}`).join("\n")
-  : "- none yet"}
+Connected services (legacy OAuth): ${[...legacyConnected].join(", ") || "none"}.
+Connected providers (Nango): ${nangoConnected.join(", ") || "none"}.
+Custom integrations:
+${customList.length ? customList.map(c => `- ${c.name} (id=${c.id}, base=${c.base_url})${c.description ? ` — ${c.description}` : ""}`).join("\n") : "- none"}
 
-ROUTING RULES (decide silently before each turn):
-- Custom path: if the request matches one of the user's custom integrations above, call \`custom_http_call\` with the matching integration_id, method and path.
-- API path: if the task touches a connected provider, call \`nango_proxy\` with the right HTTP method and endpoint.
-- Browser path: if the task needs info from a public website with no connected/custom API, call \`web_scrape\`.
-- If the user asks for something on a service that is NOT connected, briefly tell them to open Integrations (/agent/integrations) and connect it. Don't lecture.
+ROUTING:
+- For Gmail/Calendar/Drive/Telegram/Facebook/LinkedIn/WhatsApp use the dedicated tools (e.g. gmail_send_email, telegram_send_message). They appear in your tool list ONLY if the user has connected them.
+- For Slack/Notion/GitHub etc. via Nango, use nango_proxy.
+- For one of the user's custom integrations, use custom_http_call.
+- For info from a public website with no API, use web_scrape.
+- If the user asks for a service that isn't connected, briefly tell them to open Connections (/agent/connections) for Google/Telegram/Socials, or Integrations (/agent/integrations) for everything else. Don't lecture.
 
-Always do the work — never tell the user to copy/paste or "go open the app". After tools succeed, reply in 1–2 short sentences confirming what you did. Match the user's language.`;
+Always do the work — never tell the user to copy/paste. After tools succeed, reply in 1–2 short sentences confirming what you did. Match the user's language.`;
 
     const convo: any[] = [{ role: "system", content: SYSTEM }, ...messages];
     const encoder = new TextEncoder();
@@ -171,6 +214,7 @@ Always do the work — never tell the user to copy/paste or "go open the app". A
         const send = (o: unknown) => controller.enqueue(encoder.encode(`data: ${JSON.stringify(o)}\n\n`));
 
         try {
+          let fullAssistantText = "";
           for (let turn = 0; turn < 6; turn++) {
             const r = await openrouterChatWithFallback({
               messages: convo, tools: TOOLS, tool_choice: "auto", max_tokens: 2048,
@@ -186,7 +230,10 @@ Always do the work — never tell the user to copy/paste or "go open the app". A
             const calls = msg.tool_calls as any[] | undefined;
 
             if (calls?.length) {
-              if (msg.content) send({ type: "content", text: msg.content });
+              if (msg.content) {
+                send({ type: "content", text: msg.content });
+                fullAssistantText += msg.content;
+              }
               convo.push({ role: "assistant", content: msg.content ?? "", tool_calls: calls });
 
               for (const c of calls) {
@@ -194,28 +241,72 @@ Always do the work — never tell the user to copy/paste or "go open the app". A
                 let args: any = {};
                 try { args = JSON.parse(c.function?.arguments || "{}"); } catch { /* */ }
 
+                const isLegacy = LEGACY_TOOL_NAMES.has(name);
+                const ui = isLegacy
+                  ? (LEGACY_TOOL_UI as any)[name] ?? { title: name, description: "", steps: ["Execute"] }
+                  : describeUniversal(name, args);
+
+                // 1. Persist task row
+                const { data: task } = await admin
+                  .from("cowork_tasks")
+                  .insert({
+                    user_id: user.id,
+                    title: ui.title,
+                    description: ui.description,
+                    status: "running",
+                    steps: ui.steps.map((label: string, i: number) => ({
+                      label, status: i === 0 ? "running" : "pending",
+                    })),
+                  })
+                  .select("id")
+                  .single();
+                const taskId = task?.id ?? crypto.randomUUID();
+
                 send({
                   type: "route_decision",
-                  path: name === "nango_proxy" ? "api" : name === "web_scrape" ? "browser" : "custom",
-                  reason: name === "nango_proxy"
-                    ? `Calling ${args.provider} ${args.method} ${args.endpoint}`
-                    : name === "web_scrape"
-                      ? `Browsing ${args.url}`
-                      : `Calling custom integration ${args.method} ${args.path}`,
+                  path: name === "web_scrape" ? "browser" : name === "nango_proxy" || isLegacy ? "api" : "custom",
+                  reason: ui.description || ui.title,
                 });
-                send({ type: "tool_use", tool_name: name, description: name === "nango_proxy" ? `${args.provider} ${args.endpoint}` : name === "web_scrape" ? `Open ${args.url}` : `Custom ${args.method} ${args.path}`, steps: ["Execute"] });
+                send({ type: "tool_use", task_id: taskId, tool_name: name, title: ui.title, description: ui.description, steps: ui.steps });
 
-                const result = await runTool(name, args, user.id, supabase);
-                send({
-                  type: "tool_result",
-                  name,
-                  ok: result.ok,
-                  summary: result.ok ? "Success" : `Error ${result.status}`,
-                });
+                // 2. Execute
+                let resultPayload: any;
+                let okFlag = false;
+                let summary = "";
+                try {
+                  if (isLegacy) {
+                    const lr = await executeLegacyTool(name, args, user.id);
+                    okFlag = lr.ok;
+                    resultPayload = lr;
+                    summary = lr.ok ? "Done" : (lr as any).hint || (lr as any).error || "Failed";
+                  } else {
+                    const ur = await runUniversalTool(name, args, user.id, supabase);
+                    okFlag = ur.ok;
+                    resultPayload = ur;
+                    summary = ur.ok ? "Done" : `Error ${ur.status}`;
+                  }
+                } catch (e) {
+                  okFlag = false;
+                  resultPayload = { ok: false, error: String((e as Error).message ?? e) };
+                  summary = "Exception";
+                }
+
+                // 3. Mark all steps done/failed and persist
+                const finalSteps = ui.steps.map((label: string) => ({
+                  label, status: okFlag ? "done" : "error",
+                }));
+                await admin.from("cowork_tasks").update({
+                  status: okFlag ? "completed" : "failed",
+                  steps: finalSteps,
+                  result: summary,
+                  updated_at: new Date().toISOString(),
+                }).eq("id", taskId);
+
+                send({ type: "tool_result", task_id: taskId, name, ok: okFlag, summary });
 
                 convo.push({
                   role: "tool", tool_call_id: c.id, name,
-                  content: JSON.stringify(result).slice(0, 6000),
+                  content: JSON.stringify(resultPayload).slice(0, 6000),
                 });
               }
               continue;
@@ -223,8 +314,17 @@ Always do the work — never tell the user to copy/paste or "go open the app". A
 
             const final = msg.content ?? "";
             for (let i = 0; i < final.length; i += 60) send({ type: "content", text: final.slice(i, i + 60) });
+            fullAssistantText += final;
             break;
           }
+
+          // Persist assistant turn (user message persisted by client to keep ordering simple)
+          if (fullAssistantText.trim()) {
+            await admin.from("cowork_messages").insert({
+              user_id: user.id, role: "assistant", content: fullAssistantText, model: model ?? null,
+            });
+          }
+
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();
         } catch (e) {
