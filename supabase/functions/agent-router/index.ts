@@ -109,11 +109,6 @@ export default async function ({ page }) {
 }
 
 function describeUniversal(name: string, args: any): { title: string; description: string; steps: string[] } {
-  if (name === "nango_proxy") return {
-    title: `Calling ${args.provider}`,
-    description: `${args.method} ${args.endpoint}`,
-    steps: ["Authenticating", "Sending request", "Parsing response"],
-  };
   if (name === "web_scrape") return {
     title: "Browsing the web",
     description: `Opening ${args.url}`,
