@@ -150,6 +150,7 @@ const AgroChatMode: React.FC<AgroChatModeProps> = ({ cropData, analysisResult, o
           </Button>
           <div className="flex-1 relative">
             <Textarea
+              ref={textareaRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
