@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEOHead from '@/components/SEOHead';
 import { ArrowLeft, Presentation, History, X } from 'lucide-react';
@@ -101,6 +101,8 @@ const DeckPage: React.FC = () => {
     }
   };
 
+  const slidesRef = useRef<HTMLDivElement>(null);
+
   const handleHistoryLoad = async (item: DeckHistoryItem) => {
     setHistoryLoadingId(item.id);
     try {
@@ -114,7 +116,12 @@ const DeckPage: React.FC = () => {
       if (full.input_data?.theme) {
         setSelectedTheme(full.input_data.theme as DeckTheme);
       }
+      if (full.input_data?.textContent) setTextContent(full.input_data.textContent as TextContent);
+      if (full.input_data?.artStyle) setArtStyle(full.input_data.artStyle as ArtStyle);
       setShowHistory(false);
+      requestAnimationFrame(() => {
+        slidesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
     } catch {
       toast.error('Failed to load presentation');
     } finally {
@@ -235,13 +242,15 @@ const DeckPage: React.FC = () => {
           {slides.length > 0 && <DeckActions slides={slides} title={title} theme={selectedTheme} onSlideshow={() => setShowSlideshow(true)} />}
 
           {/* Slides */}
-          <DeckSlideViewer
-            slides={slides}
-            theme={selectedTheme}
-            isGenerating={isGenerating}
-            skeletonCount={effectiveSlideCount}
-            onUpdateSlide={handleUpdateSlide}
-          />
+          <div ref={slidesRef} className="w-full">
+            <DeckSlideViewer
+              slides={slides}
+              theme={selectedTheme}
+              isGenerating={isGenerating}
+              skeletonCount={effectiveSlideCount}
+              onUpdateSlide={handleUpdateSlide}
+            />
+          </div>
         </div>
       </main>
 
