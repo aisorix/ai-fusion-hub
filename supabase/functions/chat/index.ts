@@ -225,7 +225,7 @@ serve(async (req) => {
               { role: 'user', content: lastUserMsg.content }
             ],
             stream: false,
-            max_tokens: 4096,
+            max_tokens: 2048,
           }),
         });
 
@@ -241,7 +241,7 @@ serve(async (req) => {
         console.error(`⚠️ Stage 1 analyzer threw:`, analyzerErr);
       }
 
-      // Build the responder's user message: original text prompt + Gemini analysis (text-only)
+      // Build the responder's user message: original text prompt + analysis (text-only)
       // This lets ANY responder model (including text-only Sonar/nano) answer about attachments.
       let originalText = '';
       if (typeof lastUserMsg.content === 'string') {
@@ -256,7 +256,7 @@ serve(async (req) => {
       }
 
       const analysisBlock = analysisText
-        ? `\n\n---\n## 📎 Attachment Analysis (from Gemini 2.5 Pro)\n\n${analysisText}\n---\n\nUsing the analysis above, please respond to the user's original request in your own voice and style.`
+        ? `\n\n---\n## 📎 Attachment Analysis (from GPT-5 mini)\n\n${analysisText}\n---\n\nUsing the analysis above, please respond to the user's original request in your own voice and style.`
         : `\n\n[⚠️ Attachment analysis was unavailable — please respond based on the user's text and any filenames mentioned.]`;
 
       processedMessages = [
@@ -266,7 +266,7 @@ serve(async (req) => {
 
       console.log(`🎤 Stage 2: Responder model = ${selectedModel} (${responderName})`);
     } else if ((hasImages || hasFiles) && skipAnalyzer) {
-      console.log(`🎯 Single-stage: user selected ${ANALYZER_MODEL} directly — skipping separate analyzer`);
+      console.log(`🎯 Single-stage: ${selectedModel} is strong enough — skipping separate analyzer`);
     }
 
     console.log(`Calling OpenRouter with model: ${selectedModel}, messages count: ${processedMessages.length}, stream: ${stream}`);
