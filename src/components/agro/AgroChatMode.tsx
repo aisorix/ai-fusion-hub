@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useAutoFocusInput } from '@/hooks/useAutoFocusInput';
 import { motion } from 'framer-motion';
 import { Send, Loader2, RotateCcw, Leaf } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,8 @@ const AgroChatMode: React.FC<AgroChatModeProps> = ({ cropData, analysisResult, o
   const [isStreaming, setIsStreaming] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  useAutoFocusInput(textareaRef, [isStreaming], isStreaming);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
@@ -147,6 +150,7 @@ const AgroChatMode: React.FC<AgroChatModeProps> = ({ cropData, analysisResult, o
           </Button>
           <div className="flex-1 relative">
             <Textarea
+              ref={textareaRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}

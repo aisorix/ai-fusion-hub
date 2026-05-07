@@ -1,52 +1,34 @@
-## Status: Most of this is already done — but there's one critical bug
+## Goal
+Make every chat/prompt input bar **always ready for typing** — no manual click needed. Apply on mount, after sending, after attaching files (picker / drag-drop / paste / camera), and after closing menus.
 
-I checked your project and found that **everything you asked for already exists**, but there is a **typo in your secret name** that is silently breaking Google OAuth. That is almost certainly why Gmail / Drive / Calendar won't connect.
+## Files to update
+All input bars across the app:
 
----
+1. `src/components/aichat/ChatInput.tsx` — main AI chat
+2. `src/components/aichat/SharedChatInput.tsx` — shared chat link
+3. `src/components/chat/ChatInput.tsx` — support widget
+4. `src/components/imagine/ImaginePromptBar.tsx` — Sorix Imagine
+5. `src/components/deck/DeckPromptBar.tsx` — Sorix Deck
+6. `src/components/flowbuilder/FlowPromptBar.tsx` — FlowBuilder
+7. `src/components/legends/LegendChat.tsx` — Sorix Legends
+8. `src/components/cowork/CommandCenter.tsx` — Sorix Agent
+9. `src/components/health/HealthChatMode.tsx` — Sorix Health chat
+10. `src/components/agro/AgroChatMode.tsx` — Sorix Agro chat
 
-### What already exists
+(Intake forms in Health/Agro are excluded — those are multi-field forms, not single prompt bars.)
 
-**Secrets configured:**
-- `GOOGLE_CLIENT_ID` ✅
-- `GOOGLE_CLIENT_SECTRET` ⚠️ **TYPO** — should be `GOOGLE_CLIENT_SECRET`
-- `GOOGLE_REDIRECT_URI` ✅
-- `INTERNAL_WEBHOOK_SECRET` ✅ (used to sign OAuth state)
-- `SUPABASE_SERVICE_ROLE_KEY` ✅
+## Pattern applied to each file
+- Add a `textareaRef` (or reuse existing) on the prompt textarea.
+- `useEffect` on mount → focus the textarea.
+- `useEffect` on `pendingAttachments.length` (or local attachment state) → focus when count increases.
+- `useEffect` on `isParsing` / `isUploading` → focus when it transitions `true → false`.
+- After `onSend`/submit → focus (most already do this; standardize).
+- Skip auto-focus while a blocking modal/camera viewfinder is open or `disabled` is true.
 
-**Edge functions deployed:**
-- `supabase/functions/google-oauth-start/index.ts` — validates user JWT, signs state, redirects to Google's consent screen with scopes for Gmail, Drive, Calendar, Docs, Sheets, YouTube ✅
-- `supabase/functions/google-oauth-callback/index.ts` — verifies state, exchanges code for tokens, fetches user email, upserts into `user_connections` table ✅
+## Shared helper (optional)
+Create `src/hooks/useAutoFocusInput.ts` that takes `(ref, deps[], { skipWhen })` and centralizes the three effects. Each prompt bar then calls it once. Reduces duplication and keeps behavior identical everywhere.
 
-**Database:** `user_connections` table exists with proper RLS, columns for `access_token`, `refresh_token`, `expires_at`, `scopes`, `external_account_id`, `metadata`, `status`. ✅
-
-**Frontend:** `ConnectDialog.tsx` opens the popup to `google-oauth-start` and listens for `postMessage` results. ✅
-
----
-
-### The actual bug
-
-The secret is named **`GOOGLE_CLIENT_SECTRET`** (missing an `R`). Both edge functions read `Deno.env.get("GOOGLE_CLIENT_SECRET")` (correct spelling), so they receive `undefined` and the Google token exchange fails with `invalid_client`.
-
-This explains exactly why connections never complete and integrations don't show as "connected."
-
----
-
-### Plan (once approved)
-
-1. **Add the correctly named secret** `GOOGLE_CLIENT_SECRET` (you'll paste the same value you used for the misspelled one).
-2. **Delete the misspelled secret** `GOOGLE_CLIENT_SECTRET` to avoid future confusion.
-3. **Verify** by:
-   - Redeploying `google-oauth-start` and `google-oauth-callback` (they pick up the new env var automatically on next invocation).
-   - Hitting "Connect Google" from the Connections page and confirming the row lands in `user_connections` with `status = 'connected'`.
-4. **Sanity-check** the Google Cloud Console authorized redirect URI matches exactly:
-   `https://flqwpuixevufwxfktdxg.supabase.co/functions/v1/google-oauth-callback`
-
-No new code, no new tables, no new functions needed — just fix the secret name.
-
----
-
-### Why I'm NOT creating new edge functions
-
-Creating duplicates would overwrite working code and lose the HMAC-signed state, the multi-scope set, and the `user_connections` upsert logic that's already wired into the rest of your app (`getValidGoogleToken`, agent tools, etc.). Fix the typo instead.
-
-Approve and I'll add the correct secret, remove the typo'd one, redeploy both functions, and confirm the OAuth flow works end-to-end.
+## Notes
+- Mobile iOS: programmatic `.focus()` may not open the keyboard without a prior user gesture — that's a Safari limitation. Desktop and Android get full auto-focus on every event.
+- No visual or layout changes. Behavior-only update.
+- Save a memory entry: "All prompt input bars auto-focus on mount, after send, and after attachment changes."

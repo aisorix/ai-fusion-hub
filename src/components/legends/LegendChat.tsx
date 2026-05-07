@@ -13,6 +13,7 @@ import type { Persona } from './LegendCard';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { supabase } from '@/integrations/supabase/client';
+import { useAutoFocusInput } from '@/hooks/useAutoFocusInput';
 import { useAuth } from '@/contexts/AuthContext';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 import ToolsMenu from '@/components/aichat/ToolsMenu';
@@ -56,6 +57,12 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const documentInputRef = useRef<HTMLInputElement>(null);
   const hasSaved = useRef(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  useAutoFocusInput(
+    textareaRef,
+    [attachments.length, isParsing, showAttachMenu, showToolsMenu],
+    isStreaming || showUpgradeModal,
+  );
 
   const FILE_SIZE_LIMITS: Record<string, number> = { free: 1*1024*1024, basic: 5*1024*1024, pro: 10*1024*1024, premium: 15*1024*1024 };
   const sizeLimit = FILE_SIZE_LIMITS[user.plan] || FILE_SIZE_LIMITS.free;
@@ -301,6 +308,7 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
             'shadow-sm px-2 sm:px-3 pt-1 pb-1.5'
           )}>
             <TextareaAutosize
+              ref={textareaRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}

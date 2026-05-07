@@ -8,6 +8,7 @@ import { parseFile, getAcceptedFileTypes, getFileType } from '@/lib/fileParser';
 import FileChip from '@/components/aichat/FileChip';
 import ToolsMenu from '@/components/aichat/ToolsMenu';
 import { toast } from 'sonner';
+import { useAutoFocusInput } from '@/hooks/useAutoFocusInput';
 
 interface FlowPromptBarProps {
   onGenerate: (prompt: string, attachments?: Attachment[]) => void;
@@ -36,8 +37,15 @@ const FlowPromptBar: React.FC<FlowPromptBarProps> = ({ onGenerate, isGenerating 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const sizeLimit = FILE_SIZE_LIMITS[user.plan] || FILE_SIZE_LIMITS.free;
+
+  useAutoFocusInput(
+    textareaRef,
+    [attachments.length, isParsing, showAttachMenu, showToolsMenu],
+    isGenerating,
+  );
 
   const processFiles = useCallback(async (files: File[]) => {
     if (files.length === 0) return;
@@ -130,6 +138,7 @@ const FlowPromptBar: React.FC<FlowPromptBarProps> = ({ onGenerate, isGenerating 
         'shadow-sm px-2 sm:px-3 pt-1 pb-1.5'
       )}>
         <TextareaAutosize
+          ref={textareaRef}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={handleKeyDown}

@@ -35,6 +35,7 @@ import { useCustomIntegrations } from "@/hooks/useCustomIntegrations";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ToolsMenu from "@/components/aichat/ToolsMenu";
+import { useAutoFocusInput } from "@/hooks/useAutoFocusInput";
 
 interface CommandCenterProps {
   language: string;
@@ -76,6 +77,12 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
+
+  useAutoFocusInput(
+    inputRef,
+    [attachments.length, showAttachMenu, showToolsMenu, showModelPicker, showIntegrations],
+    agentStatus !== "idle",
+  );
 
   useEffect(() => {
     if (scrollRef.current) {

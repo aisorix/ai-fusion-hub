@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
+import { useAutoFocusInput } from '@/hooks/useAutoFocusInput';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Mic, Send, X, Image as ImageIcon, Paperclip, Square, Sparkles, Camera, Loader2, Upload, Heart, Settings2 } from 'lucide-react';
 import TextareaAutosize from 'react-textarea-autosize';
@@ -84,6 +85,12 @@ const ChatInput = ({ onSend, disabled, onOpenVoiceMode, onStop }: ChatInputProps
   }, [getFileSizeLimit, user.plan]);
   
   const t = translations[language as keyof typeof translations] || translations.en;
+
+  useAutoFocusInput(
+    textareaRef,
+    [pendingAttachments.length, isParsing, isStreaming, showAttachMenu, showToolsMenu],
+    isCameraActive || showHealthModal || !!disabled,
+  );
   
   const handleSend = useCallback(() => {
     if (isStreaming || disabled || isParsing) return;

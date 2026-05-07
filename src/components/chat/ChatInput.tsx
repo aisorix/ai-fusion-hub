@@ -1,7 +1,8 @@
-import { useState, KeyboardEvent } from 'react';
+import { useState, KeyboardEvent, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Send } from 'lucide-react';
+import { useAutoFocusInput } from '@/hooks/useAutoFocusInput';
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -15,6 +16,8 @@ export const ChatInput = ({
   placeholder = "Type a message..."
 }: ChatInputProps) => {
   const [message, setMessage] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  useAutoFocusInput(textareaRef, [], !!disabled);
 
   const handleSend = () => {
     if (message.trim() && !disabled) {
@@ -33,6 +36,7 @@ export const ChatInput = ({
   return (
     <div className="flex items-end gap-2 p-3 border-t bg-background">
       <Textarea
+        ref={textareaRef}
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         onKeyDown={handleKeyDown}

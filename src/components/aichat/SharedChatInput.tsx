@@ -2,6 +2,7 @@
 // Full file upload support matching main ChatInput
 
 import React, { useState, useRef, useCallback } from "react";
+import { useAutoFocusInput } from "@/hooks/useAutoFocusInput";
 import { Send, Square, Loader2, Mic, Image as ImageIcon, Paperclip, Upload, X, Plus, Camera } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import TextareaAutosize from "react-textarea-autosize";
@@ -58,6 +59,9 @@ const SharedChatInput = ({
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const streaming = isStreaming || isAnyStreaming || false;
   const sizeLimit = FILE_SIZE_LIMITS[userPlan] || FILE_SIZE_LIMITS.free;
+
+  useAutoFocusInput(textareaRef, [attachments.length, isParsing, showAttachMenu], streaming);
+
 
   const processFiles = useCallback(async (files: File[]) => {
     if (files.length === 0) return;
