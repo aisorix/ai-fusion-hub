@@ -7,10 +7,35 @@ const corsHeaders = {
 };
 
 // Two-stage attachment pipeline:
-//   Stage 1 — Google Gemini 2.5 Pro analyzes uploaded images/files/audio/PDFs (top-tier multimodal reasoning, huge context)
+//   Stage 1 — OpenAI GPT-5 mini analyzes uploaded images/files/audio/PDFs (fast multimodal)
 //   Stage 2 — User's selected model writes the final response using the analysis as context
-const ANALYZER_MODEL = 'google/gemini-2.5-pro';
+// Stronger user-selected models skip Stage 1 and handle attachments themselves.
+const ANALYZER_MODEL = 'openai/gpt-5-mini';
 const DEFAULT_MODEL = 'openai/gpt-4o'; // Fallback for regular chat when no model is provided
+
+// Models capable enough to handle attachments directly without a Stage 1 analyzer pass.
+const STRONG_MODELS = new Set<string>([
+  'openai/gpt-5',
+  'openai/gpt-5-mini',
+  'openai/gpt-5-nano',
+  'openai/gpt-5.1',
+  'openai/gpt-5.2',
+  'google/gemini-2.5-flash',
+  'google/gemini-2.5-pro',
+  'google/gemini-3-flash-preview',
+  'google/gemini-3.1-pro-preview',
+  'anthropic/claude-sonnet-4.5',
+  'anthropic/claude-opus-4.5',
+  'qwen/qwen3-vl-235b-a22b-instruct',
+  'qwen/qwen3-235b-a22b-2507',
+  'x-ai/grok-4-fast',
+  'x-ai/grok-4.1-fast',
+  'deepseek/deepseek-v3.2',
+  'meta-llama/llama-4-maverick',
+  'meta-llama/llama-4-scout',
+  'mistralai/mistral-large-2512',
+  'moonshotai/kimi-k2.5',
+]);
 
 const ANALYZER_SYSTEM_PROMPT = `You are a multimodal analysis engine. Your sole job is to extract every relevant detail from the attached images and/or files so that another AI model can answer the user's question without seeing the originals.
 
@@ -175,9 +200,9 @@ serve(async (req) => {
     let selectedModel = model || DEFAULT_MODEL;
     const responderName = modelName || 'AI Assistant';
 
-    // ===== STAGE 1: GPT-5.4 Nano analyzer =====
-    // Skip if user already selected GPT-5.4 Nano (no point analyzing with the same model)
-    const skipAnalyzer = selectedModel === ANALYZER_MODEL;
+    // ===== STAGE 1: GPT-5 mini analyzer =====
+    // Skip when the user already picked a strong multimodal model (handles attachments itself).
+    const skipAnalyzer = STRONG_MODELS.has(selectedModel);
 
     if ((hasImages || hasFiles) && !skipAnalyzer && lastUserMsg) {
       console.log(`🔬 Stage 1: Running ${ANALYZER_MODEL} analyzer (images: ${hasImages}, files: ${hasFiles})`);
@@ -200,7 +225,7 @@ serve(async (req) => {
               { role: 'user', content: lastUserMsg.content }
             ],
             stream: false,
-            max_tokens: 4096,
+            max_tokens: 2048,
           }),
         });
 
@@ -216,7 +241,7 @@ serve(async (req) => {
         console.error(`⚠️ Stage 1 analyzer threw:`, analyzerErr);
       }
 
-      // Build the responder's user message: original text prompt + Gemini analysis (text-only)
+      // Build the responder's user message: original text prompt + analysis (text-only)
       // This lets ANY responder model (including text-only Sonar/nano) answer about attachments.
       let originalText = '';
       if (typeof lastUserMsg.content === 'string') {
@@ -231,7 +256,7 @@ serve(async (req) => {
       }
 
       const analysisBlock = analysisText
-        ? `\n\n---\n## 📎 Attachment Analysis (from Gemini 2.5 Pro)\n\n${analysisText}\n---\n\nUsing the analysis above, please respond to the user's original request in your own voice and style.`
+        ? `\n\n---\n## 📎 Attachment Analysis (from GPT-5 mini)\n\n${analysisText}\n---\n\nUsing the analysis above, please respond to the user's original request in your own voice and style.`
         : `\n\n[⚠️ Attachment analysis was unavailable — please respond based on the user's text and any filenames mentioned.]`;
 
       processedMessages = [
@@ -241,7 +266,7 @@ serve(async (req) => {
 
       console.log(`🎤 Stage 2: Responder model = ${selectedModel} (${responderName})`);
     } else if ((hasImages || hasFiles) && skipAnalyzer) {
-      console.log(`🎯 Single-stage: user selected ${ANALYZER_MODEL} directly — skipping separate analyzer`);
+      console.log(`🎯 Single-stage: ${selectedModel} is strong enough — skipping separate analyzer`);
     }
 
     console.log(`Calling OpenRouter with model: ${selectedModel}, messages count: ${processedMessages.length}, stream: ${stream}`);
