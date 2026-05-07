@@ -1,8 +1,7 @@
-// Unified Sorix Agent backend: merges legacy OAuth tools (Gmail/Telegram/Calendar/Drive/FB/LinkedIn/WhatsApp)
-// with Nango proxy + Browserless web automation + custom HTTP. Streams real telemetry tied to cowork_tasks.
+// Unified Sorix Agent backend: legacy OAuth tools (Gmail/Telegram/Calendar/Drive/FB/LinkedIn/WhatsApp)
+// + Browserless web automation + custom HTTP. Streams real telemetry tied to cowork_tasks.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { openrouterChatWithFallback } from "../_shared/openrouter.ts";
-import { nangoProxy } from "../_shared/nango.ts";
 import { TOOL_SCHEMAS as LEGACY_TOOL_SCHEMAS, TOOL_UI as LEGACY_TOOL_UI, executeTool as executeLegacyTool } from "../_shared/agentTools.ts";
 
 const corsHeaders = {
@@ -13,24 +12,6 @@ const corsHeaders = {
 
 // --- Universal tools (always available) ---
 const UNIVERSAL_TOOLS = [
-  {
-    type: "function",
-    function: {
-      name: "nango_proxy",
-      description: "Call any REST endpoint of a connected provider via Nango proxy. Use this whenever the user asks to read, send, post, create, schedule on a service they have connected through Integrations (Slack, Notion, GitHub, etc.).",
-      parameters: {
-        type: "object",
-        properties: {
-          provider: { type: "string", description: "Provider id (e.g. github, slack, notion)" },
-          method: { type: "string", enum: ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-          endpoint: { type: "string", description: "Path on the upstream API, starting with /" },
-          body: { type: "object", description: "JSON body for write requests", additionalProperties: true },
-          query: { type: "object", description: "Query string params", additionalProperties: { type: "string" } },
-        },
-        required: ["provider", "method", "endpoint"],
-      },
-    },
-  },
   {
     type: "function",
     function: {
@@ -83,12 +64,6 @@ const LEGACY_TOOL_REQUIRES: Record<string, string> = {
 const LEGACY_TOOL_NAMES = new Set(LEGACY_TOOL_SCHEMAS.map((t: any) => t.function.name));
 
 async function runUniversalTool(name: string, args: any, userId: string, supabase: any) {
-  if (name === "nango_proxy") {
-    return await nangoProxy({
-      provider: args.provider, connectionId: userId,
-      method: args.method, endpoint: args.endpoint, body: args.body, query: args.query,
-    });
-  }
   if (name === "web_scrape") {
     const token = Deno.env.get("BROWSERLESS_API_KEY");
     if (!token) return { ok: false, status: 500, data: { error: "browserless_missing" } };
@@ -134,11 +109,6 @@ export default async function ({ page }) {
 }
 
 function describeUniversal(name: string, args: any): { title: string; description: string; steps: string[] } {
-  if (name === "nango_proxy") return {
-    title: `Calling ${args.provider}`,
-    description: `${args.method} ${args.endpoint}`,
-    steps: ["Authenticating", "Sending request", "Parsing response"],
-  };
   if (name === "web_scrape") return {
     title: "Browsing the web",
     description: `Opening ${args.url}`,
@@ -167,11 +137,6 @@ Deno.serve(async (req) => {
 
     const { messages = [], model } = await req.json();
 
-    // Connected via Nango
-    const { data: nangoIntegs } = await supabase
-      .from("user_integrations").select("provider,status").eq("user_id", user.id);
-    const nangoConnected = (nangoIntegs ?? []).filter((i: any) => i.status === "connected").map((i: any) => i.provider);
-
     // Connected via legacy OAuth (user_connections)
     const { data: legacyConns } = await supabase
       .from("user_connections").select("service,status").eq("user_id", user.id);
@@ -192,17 +157,15 @@ Deno.serve(async (req) => {
 
     const SYSTEM = `You are Sorix Agent, an autonomous executor that DOES tasks for the user.
 
-Connected services (legacy OAuth): ${[...legacyConnected].join(", ") || "none"}.
-Connected providers (Nango): ${nangoConnected.join(", ") || "none"}.
+Connected services: ${[...legacyConnected].join(", ") || "none"}.
 Custom integrations:
 ${customList.length ? customList.map(c => `- ${c.name} (id=${c.id}, base=${c.base_url})${c.description ? ` — ${c.description}` : ""}`).join("\n") : "- none"}
 
 ROUTING:
 - For Gmail/Calendar/Drive/Telegram/Facebook/LinkedIn/WhatsApp use the dedicated tools (e.g. gmail_send_email, telegram_send_message). They appear in your tool list ONLY if the user has connected them.
-- For Slack/Notion/GitHub etc. via Nango, use nango_proxy.
 - For one of the user's custom integrations, use custom_http_call.
 - For info from a public website with no API, use web_scrape.
-- If the user asks for a service that isn't connected, briefly tell them to open Connections (/agent/connections) for Google/Telegram/Socials, or Integrations (/agent/integrations) for everything else. Don't lecture.
+- If the user asks for a service that isn't connected, briefly tell them to open Connections (/agent/connections) and link it. Don't lecture.
 
 Always do the work — never tell the user to copy/paste. After tools succeed, reply in 1–2 short sentences confirming what you did. Match the user's language.`;
 
@@ -264,7 +227,7 @@ Always do the work — never tell the user to copy/paste. After tools succeed, r
 
                 send({
                   type: "route_decision",
-                  path: name === "web_scrape" ? "browser" : name === "nango_proxy" || isLegacy ? "api" : "custom",
+                  path: name === "web_scrape" ? "browser" : isLegacy ? "api" : "custom",
                   reason: ui.description || ui.title,
                 });
                 send({ type: "tool_use", task_id: taskId, tool_name: name, title: ui.title, description: ui.description, steps: ui.steps });

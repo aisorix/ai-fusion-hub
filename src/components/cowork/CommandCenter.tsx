@@ -29,8 +29,7 @@ import AgentMessage from "./AgentMessage";
 import SmartClipboard from "./SmartClipboard";
 import { cn } from "@/lib/utils";
 import TextareaAutosize from "react-textarea-autosize";
-import { INTEGRATIONS } from "@/components/integrations/integrationsCatalog";
-import { useIntegrations } from "@/hooks/useIntegrations";
+import { useConnections } from "@/hooks/useConnections";
 import { useCustomIntegrations } from "@/hooks/useCustomIntegrations";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -62,14 +61,11 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const [showToolsMenu, setShowToolsMenu] = useState(false);
-  const [showIntegrations, setShowIntegrations] = useState(false);
   const [attachments, setAttachments] = useState<{ name: string; size: number }[]>([]);
-  const [busyId, setBusyId] = useState<string | null>(null);
-  const [intQuery, setIntQuery] = useState("");
 
   const { messages, agentStatus, selectedModel, setSelectedModel } = useCoWorkStore();
   const { sendMessage } = useCoWorkAgent();
-  const { items: connections, getByProvider, startConnect, disconnect } = useIntegrations();
+  const { connections } = useConnections();
   const { items: customItems } = useCustomIntegrations();
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -80,7 +76,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
 
   useAutoFocusInput(
     inputRef,
-    [attachments.length, showAttachMenu, showToolsMenu, showModelPicker, showIntegrations],
+    [attachments.length, showAttachMenu, showToolsMenu, showModelPicker],
     agentStatus !== "idle",
     true,
   );
@@ -118,32 +114,11 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
 
   const status = statusConfig[agentStatus];
   const currentModel = MODELS.find((m) => m.id === selectedModel) || MODELS[0];
-  const connectedCount = connections.length + customItems.length;
-
-  const filteredIntegrations = useMemo(() => {
-    const q = intQuery.trim().toLowerCase();
-    if (!q) return INTEGRATIONS;
-    return INTEGRATIONS.filter(
-      (i) => i.label.toLowerCase().includes(q) || i.description.toLowerCase().includes(q)
-    );
-  }, [intQuery]);
-
-  const handleToggleIntegration = async (providerId: string, connected: boolean) => {
-    try {
-      setBusyId(providerId);
-      if (connected) await disconnect(providerId);
-      else await startConnect(providerId);
-    } catch (e: any) {
-      toast.error(e?.message ?? "Action failed");
-    } finally {
-      setBusyId(null);
-    }
-  };
+  const connectedCount = connections.filter((c) => c.status === "connected").length + customItems.length;
 
   const closeAllPopovers = () => {
     setShowAttachMenu(false);
     setShowModelPicker(false);
-    setShowIntegrations(false);
     setShowToolsMenu(false);
   };
 
@@ -479,20 +454,16 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                   <ToolsMenu open={showToolsMenu} onClose={() => setShowToolsMenu(false)} />
                 </div>
 
-                {/* Integrations pill */}
+                {/* Apps pill — opens Connections page */}
                 <div className="relative shrink-0">
                   <button
-                    onClick={() => {
-                      closeAllPopovers();
-                      setShowIntegrations((v) => !v);
-                    }}
+                    onClick={() => navigate("/agent/connections")}
                     className={cn(
                       "flex items-center gap-1.5 p-2 sm:pl-2 sm:pr-2.5 sm:py-1.5 rounded-full transition-all duration-200",
                       "border border-border/60 text-muted-foreground hover:text-foreground hover:bg-background",
-                      "text-sm font-medium whitespace-nowrap",
-                      showIntegrations && "bg-background text-foreground border-border"
+                      "text-sm font-medium whitespace-nowrap"
                     )}
-                    aria-label="Integrations"
+                    aria-label="Apps"
                   >
                     <Plug className="w-4 h-4 text-cyan-500" />
                     <span className="hidden sm:inline">{language === "bn" ? "অ্যাপস" : "Apps"}</span>
@@ -502,190 +473,6 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                       </span>
                     )}
                   </button>
-
-                  <AnimatePresence>
-                    {showIntegrations && (
-                      <>
-                        <div
-                          className={cn(
-                            "fixed inset-0 z-40",
-                            isMobile && "bg-black/40 backdrop-blur-sm"
-                          )}
-                          onClick={() => setShowIntegrations(false)}
-                        />
-                        <motion.div
-                          initial={
-                            isMobile
-                              ? { opacity: 0, y: "100%" }
-                              : { opacity: 0, y: 5 }
-                          }
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={
-                            isMobile
-                              ? { opacity: 0, y: "100%" }
-                              : { opacity: 0, y: 5 }
-                          }
-                          transition={{ type: "spring", damping: 28, stiffness: 320 }}
-                          className={cn(
-                            "z-[110] bg-popover backdrop-blur-xl shadow-2xl overflow-hidden border border-border",
-                            isMobile
-                              ? "fixed inset-x-0 bottom-0 rounded-t-3xl max-h-[80vh] flex flex-col"
-                              : "absolute bottom-full left-0 mb-2 w-80 rounded-2xl max-h-[60vh] flex flex-col"
-                          )}
-                        >
-                          {isMobile && (
-                            <div className="flex justify-center py-2 shrink-0">
-                              <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
-                            </div>
-                          )}
-                          <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/50 shrink-0">
-                            <div className="flex items-center gap-2">
-                              <Plug className="w-4 h-4 text-cyan-500" />
-                              <h3 className="text-sm font-semibold">
-                                {language === "bn" ? "ইন্টিগ্রেশন" : "Integrations"}
-                              </h3>
-                            </div>
-                            <button
-                              onClick={() => {
-                                setShowIntegrations(false);
-                                navigate("/agent/integrations");
-                              }}
-                              className="text-[11px] text-cyan-500 hover:text-cyan-400 inline-flex items-center gap-1"
-                            >
-                              <Settings2 className="w-3 h-3" /> Manage
-                            </button>
-                          </div>
-
-                          <div className="px-3 pt-2 pb-1 shrink-0">
-                            <div className="relative">
-                              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-                              <input
-                                value={intQuery}
-                                onChange={(e) => setIntQuery(e.target.value)}
-                                placeholder={language === "bn" ? "অ্যাপ খুঁজুন…" : "Search apps…"}
-                                className="w-full pl-8 pr-2 py-1.5 text-xs rounded-lg bg-muted/40 border border-border/40 outline-none focus:border-cyan-500/40"
-                              />
-                            </div>
-                          </div>
-
-                          <div className="flex-1 overflow-y-auto px-2 pb-3 space-y-1">
-                            {filteredIntegrations.map((p) => {
-                              const Icon = p.icon;
-                              const conn = getByProvider(p.id);
-                              const connected = !!conn;
-                              const busy = busyId === p.id;
-                              return (
-                                <button
-                                  key={p.id}
-                                  onClick={() => handleToggleIntegration(p.id, connected)}
-                                  disabled={busy}
-                                  className={cn(
-                                    "w-full flex items-center gap-3 px-3 py-2 rounded-xl border text-left transition-all text-xs disabled:opacity-60",
-                                    connected
-                                      ? "border-cyan-500/30 bg-cyan-500/5 text-foreground"
-                                      : "border-border/30 bg-card/30 text-muted-foreground hover:bg-muted/30"
-                                  )}
-                                >
-                                  <Icon
-                                    className={cn(
-                                      "w-4 h-4 shrink-0",
-                                      connected ? "text-cyan-400" : p.accent
-                                    )}
-                                  />
-                                  <span className="flex-1 font-medium truncate">{p.label}</span>
-                                  {busy ? (
-                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                  ) : connected ? (
-                                    <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                                  ) : (
-                                    <Plug className="w-3.5 h-3.5" />
-                                  )}
-                                </button>
-                              );
-                            })}
-
-                            {customItems.length > 0 && (
-                              <div className="pt-2 mt-2 border-t border-border/40">
-                                <h5 className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1 mb-1.5">
-                                  {language === "bn" ? "কাস্টম" : "Custom"}
-                                </h5>
-                                {customItems.map((c) => (
-                                  <div
-                                    key={c.id}
-                                    className="w-full flex items-center gap-3 px-3 py-2 rounded-xl border border-cyan-500/20 bg-cyan-500/5 text-xs"
-                                  >
-                                    <Globe2 className="w-4 h-4 shrink-0 text-cyan-400" />
-                                    <div className="flex-1 min-w-0">
-                                      <div className="font-medium text-foreground truncate">{c.name}</div>
-                                      <div className="text-[10px] text-muted-foreground truncate">
-                                        {c.base_url}
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </motion.div>
-                      </>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
-
-              {/* Right cluster: model, mic, send */}
-              <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
-                {/* Model selector pill */}
-                <div className="relative shrink-0">
-                  <button
-                    onClick={() => {
-                      closeAllPopovers();
-                      setShowModelPicker((v) => !v);
-                    }}
-                    className={cn(
-                      "flex items-center gap-1 sm:gap-1.5 p-2 sm:pl-2 sm:pr-2.5 sm:py-1.5 rounded-full transition-all duration-200",
-                      "border border-border/60 text-muted-foreground hover:text-foreground hover:bg-background",
-                      "text-sm font-medium whitespace-nowrap",
-                      showModelPicker && "bg-background text-foreground border-border"
-                    )}
-                  >
-                    <Cpu className="w-4 h-4 text-primary" />
-                    <span className="hidden sm:inline">{currentModel.short}</span>
-                    <ChevronDown className="w-3 h-3 text-muted-foreground" />
-                  </button>
-
-                  <AnimatePresence>
-                    {showModelPicker && (
-                      <>
-                        <div
-                          className="fixed inset-0 z-40"
-                          onClick={() => setShowModelPicker(false)}
-                        />
-                        <motion.div
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 5 }}
-                          className="absolute bottom-full right-0 mb-2 w-56 rounded-xl border border-border bg-popover backdrop-blur-xl shadow-2xl z-[110] overflow-hidden"
-                        >
-                          {MODELS.map((m) => (
-                            <button
-                              key={m.id}
-                              onClick={() => {
-                                setSelectedModel(m.id);
-                                setShowModelPicker(false);
-                              }}
-                              className={cn(
-                                "w-full text-left px-3 py-2.5 text-xs hover:bg-accent transition-colors",
-                                selectedModel === m.id && "bg-primary/10 text-primary"
-                              )}
-                            >
-                              <span className="font-medium">{m.label}</span>
-                            </button>
-                          ))}
-                        </motion.div>
-                      </>
-                    )}
-                  </AnimatePresence>
                 </div>
 
                 {/* Mic - desktop only */}

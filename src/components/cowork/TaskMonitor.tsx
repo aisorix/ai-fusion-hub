@@ -2,7 +2,7 @@ import React from "react";
 import { Activity, Trash2 } from "lucide-react";
 import { useCoWorkStore } from "@/stores/coworkStore";
 import TaskCard from "./TaskCard";
-import ConnectorPanel from "./ConnectorPanel";
+
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface TaskMonitorProps {
@@ -50,8 +50,6 @@ const TaskMonitor: React.FC<TaskMonitorProps> = ({ language }) => {
             </div>
           )}
 
-          {/* Connectors */}
-          <ConnectorPanel language={language} />
         </div>
       </ScrollArea>
     </div>
