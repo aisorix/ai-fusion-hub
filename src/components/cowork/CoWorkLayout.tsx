@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useIntegrations } from "@/hooks/useIntegrations";
+import { useCoWorkHistory } from "@/hooks/useCoWorkHistory";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 
@@ -24,6 +25,7 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const { syncFromNango } = useIntegrations();
+  useCoWorkHistory();
 
   // Handle Nango redirect-back when the user lands directly on /agent after OAuth.
   useEffect(() => {
