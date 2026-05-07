@@ -41,11 +41,9 @@ const SharedChatPage = () => {
   useEffect(() => {
     if (!token) return;
     const load = async () => {
-      const { data, error } = await supabase
-        .from('shared_chats')
-        .select('*')
-        .eq('share_token', token)
-        .maybeSingle();
+      const { data: rows, error } = await supabase
+        .rpc('get_shared_chat_by_token', { _token: token });
+      const data = Array.isArray(rows) ? rows[0] : rows;
 
       if (error || !data) {
         setNotFound(true);
