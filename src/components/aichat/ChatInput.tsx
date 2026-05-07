@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
+import { useAutoFocusInput } from '@/hooks/useAutoFocusInput';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Mic, Send, X, Image as ImageIcon, Paperclip, Square, Sparkles, Camera, Loader2, Upload, Heart, Settings2 } from 'lucide-react';
 import TextareaAutosize from 'react-textarea-autosize';
