@@ -16,30 +16,10 @@ interface CoWorkLayoutProps {
 
 const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
   const [showMonitor, setShowMonitor] = useState(true);
-  const [showMobileConnectors, setShowMobileConnectors] = useState(false);
   const [showMobileTasks, setShowMobileTasks] = useState(false);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const [params, setParams] = useSearchParams();
-  const { syncFromNango } = useIntegrations();
   useCoWorkHistory();
-
-  // Handle Nango redirect-back when the user lands directly on /agent after OAuth.
-  useEffect(() => {
-    const connected = params.get("connected");
-    const error = params.get("error");
-    if (connected) {
-      toast.success(`${connected} connected successfully`);
-      params.delete("connected");
-      setParams(params, { replace: true });
-      syncFromNango();
-    }
-    if (error) {
-      toast.error(`Connection failed: ${error}`);
-      params.delete("error");
-      setParams(params, { replace: true });
-    }
-  }, [params, setParams, syncFromNango]);
 
 
   return (
