@@ -64,12 +64,6 @@ const LEGACY_TOOL_REQUIRES: Record<string, string> = {
 const LEGACY_TOOL_NAMES = new Set(LEGACY_TOOL_SCHEMAS.map((t: any) => t.function.name));
 
 async function runUniversalTool(name: string, args: any, userId: string, supabase: any) {
-  if (name === "nango_proxy") {
-    return await nangoProxy({
-      provider: args.provider, connectionId: userId,
-      method: args.method, endpoint: args.endpoint, body: args.body, query: args.query,
-    });
-  }
   if (name === "web_scrape") {
     const token = Deno.env.get("BROWSERLESS_API_KEY");
     if (!token) return { ok: false, status: 500, data: { error: "browserless_missing" } };
