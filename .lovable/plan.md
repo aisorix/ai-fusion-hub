@@ -1,60 +1,45 @@
-# Mobile UX & History Fixes
+# Three precise fixes
 
-Four targeted fixes across input bars, the Agent page, and tool history panels.
+## 1) Sorix Agent — input bar still drifts down on mobile
 
-## 1) Mobile-only "stay focused" after upload (don't steal focus on desktop)
-
-Current `useAutoFocusInput` re-focuses every time deps change on every device. On mobile that's exactly what's wanted after an upload, but on desktop the user complaint history shows we should only force-focus on mount + after sending; not pop the keyboard around. Refine the hook so the *re-focus after deps change* behavior is mobile-aware.
-
-**`src/hooks/useAutoFocusInput.ts`**
-- Add a third option `mobileOnlyDeps: boolean` (default false). When true, the dep-driven re-focus only fires if `window.matchMedia('(max-width: 767px)').matches`. Initial mount focus still always runs.
-- Keep API backward compatible: existing call sites work unchanged.
-
-**Update existing callers (10 files)** to pass `mobileOnlyDeps: true` so dep-triggered re-focus only happens on mobile (matches the user's exact phrasing: "for mobile view when user upload file then user can typing… otherwise previous style for mobile view always"):
-- `ChatInput.tsx` (main), `SharedChatInput.tsx`, `chat/ChatInput.tsx`, `ImaginePromptBar.tsx`, `DeckPromptBar.tsx`, `FlowPromptBar.tsx`, `LegendChat.tsx`, `cowork/CommandCenter.tsx`, `HealthChatMode.tsx`, `AgroChatMode.tsx`.
-
-Initial-mount focus and post-send focus stay universal (already handled).
-
-## 2) Sorix Agent (mobile): input bar drifts down + Tasks sheet behind header
-
-**`src/components/cowork/CommandCenter.tsx`**
-- Wrap messages container so it's `flex-1 min-h-0 overflow-y-auto` and the input area is `shrink-0` (currently the input area lacks `shrink-0`, so a long chat pushes it past the viewport on mobile `100dvh`). Concretely: confirm root `flex flex-col h-full`, change input wrapper `<div className="p-2 sm:p-4 border-t…">` → add `shrink-0`. Also add `min-h-0` to the messages scroll wrapper.
-- The header has `relative z-[100]` — fine.
+Root cause (new hypothesis, different from the last attempt): `CommandCenter` is `flex flex-col h-full` with `shrink-0` on the input and `min-h-0` on the messages — that's correct. But its **parent** in `CoWorkLayout.tsx` is missing the column-flex height constraint, so on mobile the Command Center column grows beyond `100dvh` and pushes the input below the viewport.
 
 **`src/components/cowork/CoWorkLayout.tsx`**
-- Mobile Tasks bottom sheet currently uses `z-50`, but the top bar / Agent header use `z-[100]`. Bump the Tasks overlay + sheet to `z-[120]` so it sits above the Command Center header.
-- Same bump for the Mobile Connectors sheet for consistency.
+- Line 89 wrapper: add `min-h-0` →  
+  `<div className="flex-1 flex flex-col md:flex-row overflow-hidden min-h-0">`
+- Line 91 Command Center column: add `min-h-0 h-full` →  
+  `<div className={cn("flex-1 min-w-0 min-h-0 h-full", !showMonitor && "w-full")}>`
 
-## 3) Sorix Imagine: History panel must overlay the input bar
+This is the standard "column flex child needs `min-h-0`" pattern — without it `h-full` on `CommandCenter` resolves to `auto` on mobile and the input rides down with the message list.
 
-**`src/pages/ImaginePage.tsx`**
-- The prompt bar wrapper uses `relative z-[60]`. The History overlay uses `z-40` and panel `z-50`, so it renders **behind** the prompt. Raise overlay to `z-[200]` and the sliding panel to `z-[210]`. (Aligns with our existing convention from PaymentModal note in memory.)
+## 2) Sorix Imagine — clicking a history thumbnail does nothing
 
-## 4) Tool History: reopen a previous item exactly as it was created (all tools, all viewports)
+Root cause: in `src/components/imagine/ImagineHistory.tsx`, the click handler is on the `<img>`, but two absolute overlays (`absolute inset-0` gradient and `absolute bottom-0 ...` controls row containing the delete button) sit on top of the image. They have `opacity-0` on mobile (no hover) but **still receive pointer events**, swallowing the tap. That's why nothing opens.
 
-User reports: clicking a previous Imagine history item doesn't open it. Root cause: `handleHistorySelect` sets `imageUrl` but **also closes the history panel and** `ImagineCanvas` is rendered inside the main scroll column far below the prompt — on mobile/tab the user doesn't see it scroll into view, so it looks like "nothing happened". Same UX gap exists across other tools.
+Fix:
+- Move `onClick={() => onSelect(gen)}` from the `<img>` up to the outer `motion.div` card.
+- Add `pointer-events-none` to the gradient overlay div.
+- Add `pointer-events-none` to the bottom info row, then `pointer-events-auto` on the delete `<button>` only.
+- Keep `e.stopPropagation()` on delete so it doesn't also trigger select.
 
-Fix pattern (apply to Imagine first, mirror to Deck/Flow/Health/Agro/Legends history selectors):
+Result: tapping anywhere on a history card opens it on mobile/tablet/desktop. Existing `handleHistorySelect` (already restores prompt + style + model + scrolls canvas into view) then runs as intended.
 
-**`src/pages/ImaginePage.tsx`**
-- After `handleHistorySelect`: also `setSelectedStyle` / `setSelectedModel` from the saved record (when the fields exist on `ImageGeneration` — `style`, `model`) so the canvas and selectors reflect the original generation state.
-- After state updates, scroll the canvas into view: keep a `canvasRef` on the `ImagineCanvas` wrapper and call `canvasRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })` inside a `requestAnimationFrame`.
-- Open behavior on mobile/tab/desktop is now identical: panel closes → page smoothly scrolls to show the restored image with its prompt + actions, exactly like right after creation.
+Mirror the same overlay/click hygiene check (only where the same pattern exists) in `DeckHistory`, `FlowHistory`, `HealthHistory`, `AgroHistory` — those use button rows already so likely fine, but I'll verify and patch if any have the same trapping overlays.
 
-**Mirror the same scroll-into-view + full-state restore in:**
-- `DeckPage.tsx` → restore deck slides + scroll to slide viewer.
-- `FlowBuilderPage.tsx` → restore mermaid + scroll to canvas.
-- `HealthPage.tsx` → restore intake + results + scroll to results card.
-- `AgroPage.tsx` → restore form + results + scroll to results.
-- `LegendsPage.tsx` → restore conversation + scroll to chat bottom.
+## 3) Mobile: don't pop the keyboard when tapping tools / attach / mic; only auto-focus after a file is uploaded
 
-(Each page already has `handleLoadHistory`/`handleHistorySelect`; we extend them, no new APIs.)
+Current `useAutoFocusInput` always focuses on mount. On mobile that means iOS/Android opens the keyboard immediately when the page loads, and any state change that re-runs the effect (opening the attach/tools menu) re-focuses too. User wants: on mobile, **no auto-focus on mount, no auto-focus when popovers toggle** — only auto-focus once `attachments.length` increases.
+
+**`src/hooks/useAutoFocusInput.ts`**
+- Add `mountOnMobile: boolean` behavior to the existing `mobileOnlyDeps` flag (or a new `skipMobileMount` flag, default true when `mobileOnlyDeps` is true). On mobile (`matchMedia('(max-width: 767px)').matches`) skip the initial mount focus entirely. Desktop keeps current behavior (focus on mount + on dep changes).
+- For dep-driven re-focus on mobile: only focus when the relevant dep is `attachments.length` increasing. Cleanest implementation: track a ref of the previous deps array, and on mobile only focus if the **first dep** (`attachments.length` by convention in all callers) increased. We'll standardize: callers pass `attachments.length` as the **first** dep (already true in every caller). All other deps (popover toggles, parsing flags) are ignored on mobile.
+
+**Caller alignment** — verify the first dep is `attachments.length` in:
+`ChatInput.tsx`, `SharedChatInput.tsx`, `chat/ChatInput.tsx`, `ImaginePromptBar.tsx`, `DeckPromptBar.tsx`, `FlowPromptBar.tsx`, `LegendChat.tsx`, `cowork/CommandCenter.tsx`, `HealthChatMode.tsx`, `AgroChatMode.tsx`. Reorder where needed.
+
+Net behaviour:
+- **Mobile**: keyboard stays closed on page load and when the user taps Plus / Mic / Tools / Model picker. Keyboard opens automatically only after a file/image is added (and after sending a message that involved attachments).
+- **Desktop**: unchanged — input is always ready for typing.
 
 ## Out of scope
-- No backend changes. History data already contains everything needed (we just weren't applying all of it on the client).
-- No visual redesign of history cards.
-
-## Technical notes
-- Mobile detection in the hook uses `window.matchMedia` (matches existing `use-mobile.tsx` breakpoint of 768).
-- `scrollIntoView` is wrapped in `requestAnimationFrame` so it runs after React commits the new state (image src, etc.) to ensure the target element exists.
-- z-index stack chosen to stay below toasts (`Sonner` typically `z-[9999]`) but above all in-page popovers (`z-[100..110]`).
+No backend, no visual redesign, no new components.
