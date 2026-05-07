@@ -108,7 +108,7 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[120]"
               onClick={() => setShowMobileConnectors(false)}
             />
             <motion.div
@@ -116,7 +116,7 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 320 }}
-              className="fixed inset-x-0 bottom-0 max-h-[85vh] z-50 rounded-t-3xl border-t border-border/50 bg-background/95 backdrop-blur-xl shadow-2xl overflow-hidden flex flex-col"
+              className="fixed inset-x-0 bottom-0 max-h-[85vh] z-[120] rounded-t-3xl border-t border-border/50 bg-background/95 backdrop-blur-xl shadow-2xl overflow-hidden flex flex-col"
             >
               <div className="flex justify-center pt-2 pb-1 shrink-0">
                 <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
@@ -153,7 +153,7 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[120]"
               onClick={() => setShowMobileTasks(false)}
             />
             <motion.div
@@ -161,7 +161,7 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 320 }}
-              className="fixed inset-x-0 bottom-0 max-h-[85vh] z-50 rounded-t-3xl border-t border-border/50 bg-background/95 backdrop-blur-xl shadow-2xl overflow-hidden flex flex-col"
+              className="fixed inset-x-0 bottom-0 max-h-[85vh] z-[120] rounded-t-3xl border-t border-border/50 bg-background/95 backdrop-blur-xl shadow-2xl overflow-hidden flex flex-col"
             >
               <div className="flex justify-center pt-2 pb-1 shrink-0">
                 <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
