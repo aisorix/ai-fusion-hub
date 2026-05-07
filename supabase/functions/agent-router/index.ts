@@ -227,7 +227,7 @@ Always do the work — never tell the user to copy/paste. After tools succeed, r
 
                 send({
                   type: "route_decision",
-                  path: name === "web_scrape" ? "browser" : name === "nango_proxy" || isLegacy ? "api" : "custom",
+                  path: name === "web_scrape" ? "browser" : isLegacy ? "api" : "custom",
                   reason: ui.description || ui.title,
                 });
                 send({ type: "tool_use", task_id: taskId, tool_name: name, title: ui.title, description: ui.description, steps: ui.steps });
