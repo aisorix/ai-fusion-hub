@@ -1,7 +1,8 @@
-import { useState, KeyboardEvent } from 'react';
+import { useState, KeyboardEvent, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Send } from 'lucide-react';
+import { useAutoFocusInput } from '@/hooks/useAutoFocusInput';
 
 interface ChatInputProps {
   onSend: (message: string) => void;
