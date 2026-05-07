@@ -35,6 +35,7 @@ import { useCustomIntegrations } from "@/hooks/useCustomIntegrations";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ToolsMenu from "@/components/aichat/ToolsMenu";
+import { useAutoFocusInput } from "@/hooks/useAutoFocusInput";
 
 interface CommandCenterProps {
   language: string;
