@@ -82,6 +82,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
     inputRef,
     [attachments.length, showAttachMenu, showToolsMenu, showModelPicker, showIntegrations],
     agentStatus !== "idle",
+    true,
   );
 
   useEffect(() => {

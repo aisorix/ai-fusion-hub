@@ -62,6 +62,7 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
     textareaRef,
     [attachments.length, isParsing, showAttachMenu, showToolsMenu],
     isStreaming || showUpgradeModal,
+    true,
   );
 
   const FILE_SIZE_LIMITS: Record<string, number> = { free: 1*1024*1024, basic: 5*1024*1024, pro: 10*1024*1024, premium: 15*1024*1024 };

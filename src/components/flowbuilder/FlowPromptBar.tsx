@@ -45,6 +45,7 @@ const FlowPromptBar: React.FC<FlowPromptBarProps> = ({ onGenerate, isGenerating 
     textareaRef,
     [attachments.length, isParsing, showAttachMenu, showToolsMenu],
     isGenerating,
+    true,
   );
 
   const processFiles = useCallback(async (files: File[]) => {

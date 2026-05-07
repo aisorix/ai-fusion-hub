@@ -45,6 +45,7 @@ const DeckPromptBar: React.FC<DeckPromptBarProps> = ({ onGenerate, isGenerating 
     textareaRef,
     [attachments.length, isParsing, showAttachMenu, showToolsMenu],
     isGenerating,
+    true,
   );
 
   const processFiles = useCallback(async (files: File[]) => {

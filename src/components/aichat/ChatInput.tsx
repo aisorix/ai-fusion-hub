@@ -90,6 +90,7 @@ const ChatInput = ({ onSend, disabled, onOpenVoiceMode, onStop }: ChatInputProps
     textareaRef,
     [pendingAttachments.length, isParsing, isStreaming, showAttachMenu, showToolsMenu],
     isCameraActive || showHealthModal || !!disabled,
+    true,
   );
   
   const handleSend = useCallback(() => {
