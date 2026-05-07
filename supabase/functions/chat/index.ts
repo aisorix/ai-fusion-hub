@@ -7,10 +7,35 @@ const corsHeaders = {
 };
 
 // Two-stage attachment pipeline:
-//   Stage 1 — Google Gemini 2.5 Pro analyzes uploaded images/files/audio/PDFs (top-tier multimodal reasoning, huge context)
+//   Stage 1 — OpenAI GPT-5 mini analyzes uploaded images/files/audio/PDFs (fast multimodal)
 //   Stage 2 — User's selected model writes the final response using the analysis as context
-const ANALYZER_MODEL = 'google/gemini-2.5-pro';
+// Stronger user-selected models skip Stage 1 and handle attachments themselves.
+const ANALYZER_MODEL = 'openai/gpt-5-mini';
 const DEFAULT_MODEL = 'openai/gpt-4o'; // Fallback for regular chat when no model is provided
+
+// Models capable enough to handle attachments directly without a Stage 1 analyzer pass.
+const STRONG_MODELS = new Set<string>([
+  'openai/gpt-5',
+  'openai/gpt-5-mini',
+  'openai/gpt-5-nano',
+  'openai/gpt-5.1',
+  'openai/gpt-5.2',
+  'google/gemini-2.5-flash',
+  'google/gemini-2.5-pro',
+  'google/gemini-3-flash-preview',
+  'google/gemini-3.1-pro-preview',
+  'anthropic/claude-sonnet-4.5',
+  'anthropic/claude-opus-4.5',
+  'qwen/qwen3-vl-235b-a22b-instruct',
+  'qwen/qwen3-235b-a22b-2507',
+  'x-ai/grok-4-fast',
+  'x-ai/grok-4.1-fast',
+  'deepseek/deepseek-v3.2',
+  'meta-llama/llama-4-maverick',
+  'meta-llama/llama-4-scout',
+  'mistralai/mistral-large-2512',
+  'moonshotai/kimi-k2.5',
+]);
 
 const ANALYZER_SYSTEM_PROMPT = `You are a multimodal analysis engine. Your sole job is to extract every relevant detail from the attached images and/or files so that another AI model can answer the user's question without seeing the originals.
 
