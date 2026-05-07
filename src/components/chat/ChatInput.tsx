@@ -36,6 +36,7 @@ export const ChatInput = ({
   return (
     <div className="flex items-end gap-2 p-3 border-t bg-background">
       <Textarea
+        ref={textareaRef}
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         onKeyDown={handleKeyDown}
