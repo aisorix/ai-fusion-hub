@@ -50,8 +50,6 @@ const TaskMonitor: React.FC<TaskMonitorProps> = ({ language }) => {
             </div>
           )}
 
-          {/* Connectors */}
-          <ConnectorPanel language={language} />
         </div>
       </ScrollArea>
     </div>
