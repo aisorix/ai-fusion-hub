@@ -244,11 +244,11 @@ export const useAIChat = () => {
     const hasAttachments = imageAttachments.length > 0 || documentAttachments.length > 0;
     const backendModel = activeBackendId;
     const baseMultiplier = activeMultiplier;
-    // Attachments trigger a Gemini 2.5 Pro analysis pass; charge 3x base on top.
-    const ATTACHMENT_ANALYSIS_MULTIPLIER = 3;
+    // Attachments trigger a Gemini 2.5 Pro analysis pass; charge 1x base (no extra surcharge).
+    const ATTACHMENT_ANALYSIS_MULTIPLIER = 1;
     const finalMultiplier = hasAttachments ? baseMultiplier * ATTACHMENT_ANALYSIS_MULTIPLIER : baseMultiplier;
 
-    console.log(`Sending message with model: ${backendModel}${hasAttachments ? ' (2-stage: gemini-2.5-pro analyzer → responder, 3x cost)' : wasSmartRouted ? ' (smart routed)' : ''}, multiplier: ${finalMultiplier}x`);
+    console.log(`Sending message with model: ${backendModel}${hasAttachments ? ' (2-stage: gemini-2.5-pro analyzer → responder, 1x cost)' : wasSmartRouted ? ' (smart routed)' : ''}, multiplier: ${finalMultiplier}x`);
 
     abortControllerRef.current = new AbortController();
 
