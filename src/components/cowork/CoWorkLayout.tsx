@@ -86,9 +86,9 @@ const CoWorkLayout: React.FC<CoWorkLayoutProps> = ({ language }) => {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden min-h-0">
         {/* Command Center */}
-        <div className={cn("flex-1 min-w-0", !showMonitor && "w-full")}>
+        <div className={cn("flex-1 min-w-0 min-h-0 h-full", !showMonitor && "w-full")}>
           <CommandCenter language={language} />
         </div>
 
