@@ -137,11 +137,6 @@ Deno.serve(async (req) => {
 
     const { messages = [], model } = await req.json();
 
-    // Connected via Nango
-    const { data: nangoIntegs } = await supabase
-      .from("user_integrations").select("provider,status").eq("user_id", user.id);
-    const nangoConnected = (nangoIntegs ?? []).filter((i: any) => i.status === "connected").map((i: any) => i.provider);
-
     // Connected via legacy OAuth (user_connections)
     const { data: legacyConns } = await supabase
       .from("user_connections").select("service,status").eq("user_id", user.id);
@@ -162,17 +157,15 @@ Deno.serve(async (req) => {
 
     const SYSTEM = `You are Sorix Agent, an autonomous executor that DOES tasks for the user.
 
-Connected services (legacy OAuth): ${[...legacyConnected].join(", ") || "none"}.
-Connected providers (Nango): ${nangoConnected.join(", ") || "none"}.
+Connected services: ${[...legacyConnected].join(", ") || "none"}.
 Custom integrations:
 ${customList.length ? customList.map(c => `- ${c.name} (id=${c.id}, base=${c.base_url})${c.description ? ` — ${c.description}` : ""}`).join("\n") : "- none"}
 
 ROUTING:
 - For Gmail/Calendar/Drive/Telegram/Facebook/LinkedIn/WhatsApp use the dedicated tools (e.g. gmail_send_email, telegram_send_message). They appear in your tool list ONLY if the user has connected them.
-- For Slack/Notion/GitHub etc. via Nango, use nango_proxy.
 - For one of the user's custom integrations, use custom_http_call.
 - For info from a public website with no API, use web_scrape.
-- If the user asks for a service that isn't connected, briefly tell them to open Connections (/agent/connections) for Google/Telegram/Socials, or Integrations (/agent/integrations) for everything else. Don't lecture.
+- If the user asks for a service that isn't connected, briefly tell them to open Connections (/agent/connections) and link it. Don't lecture.
 
 Always do the work — never tell the user to copy/paste. After tools succeed, reply in 1–2 short sentences confirming what you did. Match the user's language.`;
 
