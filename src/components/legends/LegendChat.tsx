@@ -13,6 +13,7 @@ import type { Persona } from './LegendCard';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { supabase } from '@/integrations/supabase/client';
+import { useAutoFocusInput } from '@/hooks/useAutoFocusInput';
 import { useAuth } from '@/contexts/AuthContext';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 import ToolsMenu from '@/components/aichat/ToolsMenu';
