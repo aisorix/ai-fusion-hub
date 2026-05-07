@@ -8,6 +8,7 @@ import { parseFile, getAcceptedFileTypes, getFileType } from '@/lib/fileParser';
 import FileChip from '@/components/aichat/FileChip';
 import ToolsMenu from '@/components/aichat/ToolsMenu';
 import { toast } from 'sonner';
+import { useAutoFocusInput } from '@/hooks/useAutoFocusInput';
 
 interface FlowPromptBarProps {
   onGenerate: (prompt: string, attachments?: Attachment[]) => void;
