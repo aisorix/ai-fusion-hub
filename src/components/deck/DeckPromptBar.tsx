@@ -37,8 +37,15 @@ const DeckPromptBar: React.FC<DeckPromptBarProps> = ({ onGenerate, isGenerating 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const sizeLimit = FILE_SIZE_LIMITS[user.plan] || FILE_SIZE_LIMITS.free;
+
+  useAutoFocusInput(
+    textareaRef,
+    [attachments.length, isParsing, showAttachMenu, showToolsMenu],
+    isGenerating,
+  );
 
   const processFiles = useCallback(async (files: File[]) => {
     if (files.length === 0) return;
