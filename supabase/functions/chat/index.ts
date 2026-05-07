@@ -200,9 +200,9 @@ serve(async (req) => {
     let selectedModel = model || DEFAULT_MODEL;
     const responderName = modelName || 'AI Assistant';
 
-    // ===== STAGE 1: GPT-5.4 Nano analyzer =====
-    // Skip if user already selected GPT-5.4 Nano (no point analyzing with the same model)
-    const skipAnalyzer = selectedModel === ANALYZER_MODEL;
+    // ===== STAGE 1: GPT-5 mini analyzer =====
+    // Skip when the user already picked a strong multimodal model (handles attachments itself).
+    const skipAnalyzer = STRONG_MODELS.has(selectedModel);
 
     if ((hasImages || hasFiles) && !skipAnalyzer && lastUserMsg) {
       console.log(`🔬 Stage 1: Running ${ANALYZER_MODEL} analyzer (images: ${hasImages}, files: ${hasFiles})`);
