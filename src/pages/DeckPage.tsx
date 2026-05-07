@@ -116,8 +116,9 @@ const DeckPage: React.FC = () => {
       if (full.input_data?.theme) {
         setSelectedTheme(full.input_data.theme as DeckTheme);
       }
-      if (full.input_data?.textContent) setTextContent(full.input_data.textContent as TextContent);
-      if (full.input_data?.artStyle) setArtStyle(full.input_data.artStyle as ArtStyle);
+      const inp: any = full.input_data;
+      if (inp?.textContent) setTextContent(inp.textContent as TextContent);
+      if (inp?.artStyle) setArtStyle(inp.artStyle as ArtStyle);
       setShowHistory(false);
       requestAnimationFrame(() => {
         slidesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
