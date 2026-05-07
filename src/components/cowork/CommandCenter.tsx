@@ -78,6 +78,12 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
 
+  useAutoFocusInput(
+    inputRef,
+    [attachments.length, showAttachMenu, showToolsMenu, showModelPicker, showIntegrations],
+    agentStatus !== "idle",
+  );
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
