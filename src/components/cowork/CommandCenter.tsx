@@ -61,14 +61,11 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const [showToolsMenu, setShowToolsMenu] = useState(false);
-  const [showIntegrations, setShowIntegrations] = useState(false);
   const [attachments, setAttachments] = useState<{ name: string; size: number }[]>([]);
-  const [busyId, setBusyId] = useState<string | null>(null);
-  const [intQuery, setIntQuery] = useState("");
 
   const { messages, agentStatus, selectedModel, setSelectedModel } = useCoWorkStore();
   const { sendMessage } = useCoWorkAgent();
-  const { items: connections, getByProvider, startConnect, disconnect } = useIntegrations();
+  const { connections } = useConnections();
   const { items: customItems } = useCustomIntegrations();
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -79,7 +76,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
 
   useAutoFocusInput(
     inputRef,
-    [attachments.length, showAttachMenu, showToolsMenu, showModelPicker, showIntegrations],
+    [attachments.length, showAttachMenu, showToolsMenu, showModelPicker],
     agentStatus !== "idle",
     true,
   );
@@ -117,32 +114,11 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
 
   const status = statusConfig[agentStatus];
   const currentModel = MODELS.find((m) => m.id === selectedModel) || MODELS[0];
-  const connectedCount = connections.length + customItems.length;
-
-  const filteredIntegrations = useMemo(() => {
-    const q = intQuery.trim().toLowerCase();
-    if (!q) return INTEGRATIONS;
-    return INTEGRATIONS.filter(
-      (i) => i.label.toLowerCase().includes(q) || i.description.toLowerCase().includes(q)
-    );
-  }, [intQuery]);
-
-  const handleToggleIntegration = async (providerId: string, connected: boolean) => {
-    try {
-      setBusyId(providerId);
-      if (connected) await disconnect(providerId);
-      else await startConnect(providerId);
-    } catch (e: any) {
-      toast.error(e?.message ?? "Action failed");
-    } finally {
-      setBusyId(null);
-    }
-  };
+  const connectedCount = connections.filter((c) => c.status === "connected").length + customItems.length;
 
   const closeAllPopovers = () => {
     setShowAttachMenu(false);
     setShowModelPicker(false);
-    setShowIntegrations(false);
     setShowToolsMenu(false);
   };
 
