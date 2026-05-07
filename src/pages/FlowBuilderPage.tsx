@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEOHead from '@/components/SEOHead';
 import { ArrowLeft, Workflow, History, X, FilePlus } from 'lucide-react';
@@ -67,10 +67,15 @@ const FlowBuilderPage: React.FC = () => {
     setCode(template.code);
   };
 
+  const canvasRef = useRef<HTMLDivElement>(null);
+
   const handleHistorySelect = (item: FlowHistoryItem) => {
     const raw = (item.result_data as any)?.mermaidCode || '';
     setCode(sanitizeMermaid(raw));
     setShowHistory(false);
+    requestAnimationFrame(() => {
+      canvasRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
   };
 
   return (
@@ -141,7 +146,7 @@ const FlowBuilderPage: React.FC = () => {
           )}
 
           {/* Canvas */}
-          <div className="flex-1 min-h-0" data-diagram-container>
+          <div ref={canvasRef} className="flex-1 min-h-0" data-diagram-container>
             <FlowCanvas code={code} onCodeChange={setCode} isGenerating={isGenerating} />
           </div>
         </div>
