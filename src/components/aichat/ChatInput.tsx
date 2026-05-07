@@ -85,6 +85,12 @@ const ChatInput = ({ onSend, disabled, onOpenVoiceMode, onStop }: ChatInputProps
   }, [getFileSizeLimit, user.plan]);
   
   const t = translations[language as keyof typeof translations] || translations.en;
+
+  useAutoFocusInput(
+    textareaRef,
+    [pendingAttachments.length, isParsing, isStreaming, showAttachMenu, showToolsMenu],
+    isCameraActive || showHealthModal || !!disabled,
+  );
   
   const handleSend = useCallback(() => {
     if (isStreaming || disabled || isParsing) return;
