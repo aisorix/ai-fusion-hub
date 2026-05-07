@@ -57,6 +57,12 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const documentInputRef = useRef<HTMLInputElement>(null);
   const hasSaved = useRef(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  useAutoFocusInput(
+    textareaRef,
+    [attachments.length, isParsing, showAttachMenu, showToolsMenu],
+    isStreaming || showUpgradeModal,
+  );
 
   const FILE_SIZE_LIMITS: Record<string, number> = { free: 1*1024*1024, basic: 5*1024*1024, pro: 10*1024*1024, premium: 15*1024*1024 };
   const sizeLimit = FILE_SIZE_LIMITS[user.plan] || FILE_SIZE_LIMITS.free;
