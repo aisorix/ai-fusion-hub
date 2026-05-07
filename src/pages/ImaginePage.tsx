@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEOHead from '@/components/SEOHead';
 import { ArrowLeft, ImageIcon, History, X } from 'lucide-react';
@@ -68,10 +68,24 @@ const ImaginePage: React.FC = () => {
     }
   };
 
+  const canvasRef = useRef<HTMLDivElement>(null);
+
   const handleHistorySelect = (gen: ImageGeneration) => {
     setImageUrl(gen.image_url);
     setCurrentPrompt(gen.prompt);
+    // Restore original style/model when possible so the canvas reflects original state
+    if (gen.style) {
+      const match = trendingStyles.find(s => s.modifier === gen.style || s.id === gen.style);
+      if (match) setSelectedStyle(match);
+    }
+    if (gen.model) {
+      const m = imageModels.find(im => im.modelId === gen.model);
+      if (m) setSelectedModel(m);
+    }
     setShowHistory(false);
+    requestAnimationFrame(() => {
+      canvasRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
   };
 
   return (
