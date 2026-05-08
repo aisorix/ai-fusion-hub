@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, ChevronDown, ChevronRight, Globe, User, LogOut, MessageSquare, Presentation, ImageIcon, Heart, Leaf, Crown, Bot, Workflow, Cpu, GraduationCap, Rocket, FlaskConical, BookOpen, Newspaper, Briefcase, Handshake, Mail, FileText, Users, Code, Sparkles, HelpCircle, Palette, UserCheck } from "lucide-react";
+import { Menu, X, ChevronDown, ChevronRight, Globe, User, LogOut, MessageSquare, Presentation, ImageIcon, Heart, Leaf, Crown, Bot, Workflow, Cpu, GraduationCap, Rocket, FlaskConical, BookOpen, Newspaper, Briefcase, Handshake, Mail, FileText, Users, Code, Sparkles, HelpCircle, Palette, UserCheck, Shield, Chrome, Code2, Headphones, Landmark, Building2, HeartPulse, HandHeart, ShieldCheck, Plug, CalendarDays, Layers, TrendingUp, Eye } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useEmployeeRole } from "../hooks/useEmployeeRole";
@@ -22,17 +22,18 @@ const megaMenus = {
       [
         { icon: Bot, name: "AI Agents", desc: "Autonomous task execution", to: "/agent" },
         { icon: Cpu, name: "Sorix Agent OS", desc: "Multi-agent autonomous workspace", to: "/agent" },
-        { icon: Sparkles, name: "Agent Templates", desc: "Ready-to-use AI agent recipes", to: "/agent" },
         { icon: MessageSquare, name: "AI Chat", desc: "Multi-model AI conversations", to: "/chat" },
         { icon: Presentation, name: "Sorix Deck", desc: "AI-powered presentations", to: "/deck" },
         { icon: ImageIcon, name: "Sorix Imagine", desc: "AI image generation", to: "/imagine" },
+        { icon: Workflow, name: "Flow Builder", desc: "AI diagrams & flowcharts", to: "/flowbuilder" },
       ],
       [
-        { icon: Workflow, name: "Flow Builder", desc: "AI diagrams & flowcharts", to: "/flowbuilder" },
         { icon: Heart, name: "Sorix Health", desc: "AI health analysis", to: "/health" },
         { icon: Leaf, name: "Sorix Agro", desc: "AI agriculture insights", to: "/agro" },
         { icon: Crown, name: "Sorix Legends", desc: "Chat with historical figures", to: "/legends" },
-        { icon: Sparkles, name: "All Features", desc: "Explore all capabilities", scrollTo: "features" },
+        { icon: Shield, name: "Sorix Security", desc: "Zero-trust AI platform security", to: "/sorix-security" },
+        { icon: Chrome, name: "Sorix for Chrome", desc: "AI copilot in every tab", to: "/sorix-for-chrome" },
+        { icon: Sparkles, name: "Skills", desc: "Reusable AI workflow recipes", to: "/skills" },
       ],
     ],
   },
@@ -40,15 +41,16 @@ const megaMenus = {
     label: "Solutions",
     columns: [
       [
-        { icon: Workflow, name: "Workflow Automation", desc: "Automate repetitive tasks", to: "/solutions/workflow-automation" },
-        { icon: GraduationCap, name: "AI for Educators", desc: "Transform teaching with AI", to: "/solutions/ai-for-educators" },
-        { icon: Palette, name: "AI for Creators", desc: "Design, write & create faster", to: "/solutions/ai-for-creators" },
-        { icon: Briefcase, name: "AI for Freelancers", desc: "Win more clients & ship faster", to: "/solutions/ai-for-freelancers" },
+        { icon: Code2, name: "Coding", desc: "AI pair programming for engineering teams", to: "/solutions/coding" },
+        { icon: Headphones, name: "Customer Support", desc: "AI agents that resolve tickets 24/7", to: "/solutions/customer-support" },
+        { icon: Landmark, name: "Financial Services", desc: "Secure AI for banking and fintech", to: "/solutions/financial-services" },
+        { icon: Building2, name: "Government", desc: "AI for public sector and civic agencies", to: "/solutions/government" },
       ],
       [
-        { icon: Rocket, name: "AI for Startups", desc: "Scale faster with AI", to: "/solutions/ai-for-startups" },
-        { icon: FlaskConical, name: "AI for Researchers", desc: "Accelerate research", to: "/solutions/ai-for-researchers" },
-        { icon: UserCheck, name: "AI for Professionals", desc: "Boost daily productivity", to: "/solutions/ai-for-professionals" },
+        { icon: HeartPulse, name: "Healthcare", desc: "HIPAA-aligned AI for clinicians", to: "/solutions/healthcare" },
+        { icon: FlaskConical, name: "Life Sciences", desc: "AI for biotech and pharma research", to: "/solutions/life-sciences" },
+        { icon: HandHeart, name: "Nonprofits", desc: "Discounted AI for social impact", to: "/solutions/nonprofits" },
+        { icon: ShieldCheck, name: "Security", desc: "AI for SOC, GRC and cybersecurity", to: "/solutions/security" },
       ],
     ],
   },
@@ -59,11 +61,16 @@ const megaMenus = {
         { icon: BookOpen, name: "Blog & AI Insights", desc: "Latest AI news & tutorials", to: "/blog" },
         { icon: FileText, name: "Case Studies", desc: "Real-world impact stories", to: "/case-studies" },
         { icon: Cpu, name: "Documentation", desc: "Guides & feature docs", to: "/docs" },
-      ],
-      [
         { icon: Code, name: "Developer API", desc: "Programmatic access", to: "/developer-api" },
         { icon: Users, name: "Community", desc: "Reviews & discussions", to: "/reviews" },
         { icon: HelpCircle, name: "FAQs", desc: "Frequently asked questions", scrollTo: "faq" },
+      ],
+      [
+        { icon: Plug, name: "Connectors", desc: "Integrations to 100+ apps", to: "/connectors" },
+        { icon: GraduationCap, name: "Courses", desc: "AI Sorix Academy", to: "/courses" },
+        { icon: CalendarDays, name: "Events", desc: "Webinars, hackathons & summits", to: "/events" },
+        { icon: Code2, name: "Inside Sorix Code", desc: "Deep-dive into our coding tool", to: "/inside-sorix-code" },
+        { icon: Layers, name: "Inside Sorix Cowork", desc: "Multi-agent workspace tour", to: "/inside-sorix-cowork" },
       ],
     ],
   },
@@ -75,10 +82,14 @@ const megaMenus = {
         { icon: FlaskConical, name: "About SorixLab", desc: "Our parent R&D lab", to: "/about-sorix-lab" },
         { icon: Newspaper, name: "Press & Media", desc: "News & press releases", to: "/press" },
         { icon: Briefcase, name: "Careers", desc: "Join our team", to: "/careers" },
-      ],
-      [
         { icon: Mail, name: "Contact Us", desc: "Get in touch", scrollTo: "contact" },
         { icon: Handshake, name: "Partners", desc: "Partner ecosystem", to: "/partners" },
+      ],
+      [
+        { icon: TrendingUp, name: "Economic Futures", desc: "AI's impact on work & growth", to: "/economic-futures" },
+        { icon: FlaskConical, name: "Research", desc: "Frontier AI publications", to: "/research" },
+        { icon: ShieldCheck, name: "Security & Compliance", desc: "SOC 2, GDPR, HIPAA", to: "/security-and-compliance" },
+        { icon: Eye, name: "Transparency", desc: "How AI Sorix works", to: "/transparency" },
       ],
     ],
   },
