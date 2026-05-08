@@ -198,6 +198,7 @@ const Footer = () => {
               <li><Link to="/usage-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">Usage Policy</Link></li>
             </ul>
           </div>
+        </div>
 
         {/* Bottom Bar */}
         <div className="mt-10 sm:mt-16 pt-6 sm:pt-8 border-t border-border flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between sm:text-left">
