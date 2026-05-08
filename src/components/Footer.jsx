@@ -30,7 +30,7 @@ const Footer = () => {
   return (
     <footer className="bg-card border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-10 sm:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-6 sm:gap-8 lg:gap-10">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-6 sm:gap-8 lg:gap-10">
           {/* Brand */}
           <div className="col-span-2">
             <div className="flex items-center gap-1.5 mb-4 sm:mb-6">
@@ -56,32 +56,8 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">{t("product")}</h4>
-            <ul className="space-y-3 sm:space-y-4">
-              <li>
-                <a href="/#features" onClick={(e) => scrollToSection(e, 'features')} className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  {t("features")}
-                </a>
-              </li>
-              <li>
-                <a href="/#pricing" onClick={(e) => scrollToSection(e, 'pricing')} className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  {t("pricing")}
-                </a>
-              </li>
-              <li>
-                <a href="/#faq" onClick={(e) => scrollToSection(e, 'faq')} className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  {t("faqs")}
-                </a>
-              </li>
-              <li>
-                <Link to="/about-sorix-lab" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  {t("changelog")}
-                </Link>
-              </li>
-            </ul>
-          </div>
+          {/* (Quick links merged into Features/Solutions/Resources columns below) */}
+
 
           {/* Tools */}
           <div>
@@ -125,40 +101,29 @@ const Footer = () => {
             </ul>
           </div>
 
+          {/* Features (extra) */}
+          <div>
+            <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">Features</h4>
+            <ul className="space-y-3 sm:space-y-4">
+              <li><Link to="/sorix-security" className="text-sm text-muted-foreground hover:text-primary transition-colors">Sorix Security</Link></li>
+              <li><Link to="/sorix-for-chrome" className="text-sm text-muted-foreground hover:text-primary transition-colors">Sorix for Chrome</Link></li>
+              <li><Link to="/skills" className="text-sm text-muted-foreground hover:text-primary transition-colors">Skills</Link></li>
+              <li><Link to="/connectors" className="text-sm text-muted-foreground hover:text-primary transition-colors">Connectors</Link></li>
+            </ul>
+          </div>
+
           {/* Solutions */}
           <div>
             <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">Solutions</h4>
             <ul className="space-y-3 sm:space-y-4">
-              <li>
-                <Link to="/solutions/workflow-automation" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Workflow Automation
-                </Link>
-              </li>
-              <li>
-                <Link to="/solutions/ai-for-educators" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  AI for Educators
-                </Link>
-              </li>
-              <li>
-                <Link to="/solutions/ai-for-creators" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  AI for Creators
-                </Link>
-              </li>
-              <li>
-                <Link to="/solutions/ai-for-startups" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  AI for Startups
-                </Link>
-              </li>
-              <li>
-                <Link to="/solutions/ai-for-researchers" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  AI for Researchers
-                </Link>
-              </li>
-              <li>
-                <Link to="/solutions/ai-for-professionals" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  AI for Professionals
-                </Link>
-              </li>
+              <li><Link to="/solutions/coding" className="text-sm text-muted-foreground hover:text-primary transition-colors">Coding</Link></li>
+              <li><Link to="/solutions/customer-support" className="text-sm text-muted-foreground hover:text-primary transition-colors">Customer Support</Link></li>
+              <li><Link to="/solutions/financial-services" className="text-sm text-muted-foreground hover:text-primary transition-colors">Financial Services</Link></li>
+              <li><Link to="/solutions/government" className="text-sm text-muted-foreground hover:text-primary transition-colors">Government</Link></li>
+              <li><Link to="/solutions/healthcare" className="text-sm text-muted-foreground hover:text-primary transition-colors">Healthcare</Link></li>
+              <li><Link to="/solutions/life-sciences" className="text-sm text-muted-foreground hover:text-primary transition-colors">Life Sciences</Link></li>
+              <li><Link to="/solutions/nonprofits" className="text-sm text-muted-foreground hover:text-primary transition-colors">Nonprofits</Link></li>
+              <li><Link to="/solutions/security" className="text-sm text-muted-foreground hover:text-primary transition-colors">Security</Link></li>
             </ul>
           </div>
 
@@ -166,31 +131,15 @@ const Footer = () => {
           <div>
             <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">Resources</h4>
             <ul className="space-y-3 sm:space-y-4">
-              <li>
-                <Link to="/blog" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Blog & AI Insights
-                </Link>
-              </li>
-              <li>
-                <Link to="/case-studies" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Case Studies
-                </Link>
-              </li>
-              <li>
-                <Link to="/docs" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Documentation
-                </Link>
-              </li>
-              <li>
-                <Link to="/developer-api" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Developer API
-                </Link>
-              </li>
-              <li>
-                <Link to="/reviews" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Community
-                </Link>
-              </li>
+              <li><Link to="/blog" className="text-sm text-muted-foreground hover:text-primary transition-colors">Blog & AI Insights</Link></li>
+              <li><Link to="/case-studies" className="text-sm text-muted-foreground hover:text-primary transition-colors">Case Studies</Link></li>
+              <li><Link to="/docs" className="text-sm text-muted-foreground hover:text-primary transition-colors">Documentation</Link></li>
+              <li><Link to="/developer-api" className="text-sm text-muted-foreground hover:text-primary transition-colors">Developer API</Link></li>
+              <li><Link to="/courses" className="text-sm text-muted-foreground hover:text-primary transition-colors">Courses</Link></li>
+              <li><Link to="/events" className="text-sm text-muted-foreground hover:text-primary transition-colors">Events</Link></li>
+              <li><Link to="/inside-sorix-code" className="text-sm text-muted-foreground hover:text-primary transition-colors">Inside Sorix Code</Link></li>
+              <li><Link to="/inside-sorix-cowork" className="text-sm text-muted-foreground hover:text-primary transition-colors">Inside Sorix Cowork</Link></li>
+              <li><Link to="/reviews" className="text-sm text-muted-foreground hover:text-primary transition-colors">Community</Link></li>
             </ul>
           </div>
 
@@ -198,39 +147,17 @@ const Footer = () => {
           <div>
             <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">Company</h4>
             <ul className="space-y-3 sm:space-y-4">
+              <li><Link to="/about-us" className="text-sm text-muted-foreground hover:text-primary transition-colors">About Us</Link></li>
+              <li><Link to="/about-sorix-lab" className="text-sm text-muted-foreground hover:text-primary transition-colors">About SorixLab</Link></li>
+              <li><Link to="/press" className="text-sm text-muted-foreground hover:text-primary transition-colors">Press & Media</Link></li>
+              <li><Link to="/careers" className="text-sm text-muted-foreground hover:text-primary transition-colors">Careers</Link></li>
+              <li><Link to="/partners" className="text-sm text-muted-foreground hover:text-primary transition-colors">Partners</Link></li>
+              <li><Link to="/economic-futures" className="text-sm text-muted-foreground hover:text-primary transition-colors">Economic Futures</Link></li>
+              <li><Link to="/research" className="text-sm text-muted-foreground hover:text-primary transition-colors">Research</Link></li>
+              <li><Link to="/security-and-compliance" className="text-sm text-muted-foreground hover:text-primary transition-colors">Security & Compliance</Link></li>
+              <li><Link to="/transparency" className="text-sm text-muted-foreground hover:text-primary transition-colors">Transparency</Link></li>
               <li>
-                <Link to="/about-us" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link to="/about-sorix-lab" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  About SorixLab
-                </Link>
-              </li>
-              <li>
-                <Link to="/press" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Press & Media
-                </Link>
-              </li>
-              <li>
-                <Link to="/careers" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Careers
-                </Link>
-              </li>
-              <li>
-                <a
-                  href="/#contact"
-                  onClick={(e) => scrollToSection(e, 'contact')}
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Contact Us
-                </a>
-              </li>
-              <li>
-                <Link to="/partners" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Partners
-                </Link>
+                <a href="/#contact" onClick={(e) => scrollToSection(e, 'contact')} className="text-sm text-muted-foreground hover:text-primary transition-colors">Contact Us</a>
               </li>
             </ul>
           </div>
@@ -239,26 +166,12 @@ const Footer = () => {
           <div>
             <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">{t("legal")}</h4>
             <ul className="space-y-3 sm:space-y-4">
-              <li>
-                <Link to="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  {t("privacyPolicy")}
-                </Link>
-              </li>
-              <li>
-                <Link to="/terms-of-service" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  {t("termsOfService")}
-                </Link>
-              </li>
-              <li>
-                <Link to="/cookie-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  {t("cookiePolicy")}
-                </Link>
-              </li>
-              <li>
-                <Link to="/refund-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  {t("refundPolicy")}
-                </Link>
-              </li>
+              <li><Link to="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">{t("privacyPolicy")}</Link></li>
+              <li><Link to="/terms-of-service" className="text-sm text-muted-foreground hover:text-primary transition-colors">{t("termsOfService")}</Link></li>
+              <li><Link to="/cookie-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">{t("cookiePolicy")}</Link></li>
+              <li><Link to="/refund-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">{t("refundPolicy")}</Link></li>
+              <li><Link to="/consumer-health-data-privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">Consumer Health Data Privacy</Link></li>
+              <li><Link to="/usage-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">Usage Policy</Link></li>
             </ul>
           </div>
         </div>
