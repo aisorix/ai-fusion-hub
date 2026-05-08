@@ -56,32 +56,8 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">{t("product")}</h4>
-            <ul className="space-y-3 sm:space-y-4">
-              <li>
-                <a href="/#features" onClick={(e) => scrollToSection(e, 'features')} className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  {t("features")}
-                </a>
-              </li>
-              <li>
-                <a href="/#pricing" onClick={(e) => scrollToSection(e, 'pricing')} className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  {t("pricing")}
-                </a>
-              </li>
-              <li>
-                <a href="/#faq" onClick={(e) => scrollToSection(e, 'faq')} className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  {t("faqs")}
-                </a>
-              </li>
-              <li>
-                <Link to="/about-sorix-lab" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  {t("changelog")}
-                </Link>
-              </li>
-            </ul>
-          </div>
+          {/* (Quick links merged into Features/Solutions/Resources columns below) */}
+
 
           {/* Tools */}
           <div>
