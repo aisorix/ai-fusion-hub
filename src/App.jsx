@@ -168,8 +168,35 @@ const App = () => (
                 <Route path="/press" element={<PressPage />} />
                 <Route path="/careers" element={<CareersPage />} />
                 <Route path="/partners" element={<PartnersPage />} />
+                {/* Specific solution routes (declared BEFORE the dynamic :slug) */}
+                <Route path="/solutions/coding" element={<SolutionCoding />} />
+                <Route path="/solutions/customer-support" element={<SolutionCustomerSupport />} />
+                <Route path="/solutions/financial-services" element={<SolutionFinancial />} />
+                <Route path="/solutions/government" element={<SolutionGovernment />} />
+                <Route path="/solutions/healthcare" element={<SolutionHealthcare />} />
+                <Route path="/solutions/life-sciences" element={<SolutionLifeSciences />} />
+                <Route path="/solutions/nonprofits" element={<SolutionNonprofits />} />
+                <Route path="/solutions/security" element={<SolutionSecurity />} />
                 <Route path="/solutions/:slug" element={<SolutionsPage />} />
                 <Route path="/developer-api" element={<DeveloperApiPage />} />
+                {/* Features pages */}
+                <Route path="/sorix-security" element={<SorixSecurityPage />} />
+                <Route path="/sorix-for-chrome" element={<SorixForChromePage />} />
+                <Route path="/skills" element={<SkillsPage />} />
+                {/* Resources pages */}
+                <Route path="/connectors" element={<ConnectorsPage />} />
+                <Route path="/courses" element={<CoursesPage />} />
+                <Route path="/events" element={<EventsPage />} />
+                <Route path="/inside-sorix-code" element={<InsideSorixCodePage />} />
+                <Route path="/inside-sorix-cowork" element={<InsideSorixCoworkPage />} />
+                {/* Company pages */}
+                <Route path="/economic-futures" element={<EconomicFuturesPage />} />
+                <Route path="/research" element={<ResearchPage />} />
+                <Route path="/security-and-compliance" element={<SecurityCompliancePage />} />
+                <Route path="/transparency" element={<TransparencyPage />} />
+                {/* Legal pages */}
+                <Route path="/consumer-health-data-privacy" element={<ConsumerHealthPrivacyPage />} />
+                <Route path="/usage-policy" element={<UsagePolicyPage />} />
                 {/* Payment Callback Routes */}
                 <Route path="/payment/success" element={<PaymentSuccess />} />
                 <Route path="/payment/failed" element={<PaymentFailed />} />
