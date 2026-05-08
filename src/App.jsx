@@ -50,6 +50,30 @@ const PartnersPage = React.lazy(() => import("./pages/PartnersPage"));
 const SolutionsPage = React.lazy(() => import("./pages/SolutionsPage"));
 const DeveloperApiPage = React.lazy(() => import("./pages/DeveloperApiPage"));
 
+// New marketing/info pages
+const SorixSecurityPage = React.lazy(() => import("./pages/SorixSecurityPage"));
+const SorixForChromePage = React.lazy(() => import("./pages/SorixForChromePage"));
+const SkillsPage = React.lazy(() => import("./pages/SkillsPage"));
+const SolutionCoding = React.lazy(() => import("./pages/solutions/SolutionCoding"));
+const SolutionCustomerSupport = React.lazy(() => import("./pages/solutions/SolutionCustomerSupport"));
+const SolutionFinancial = React.lazy(() => import("./pages/solutions/SolutionFinancial"));
+const SolutionGovernment = React.lazy(() => import("./pages/solutions/SolutionGovernment"));
+const SolutionHealthcare = React.lazy(() => import("./pages/solutions/SolutionHealthcare"));
+const SolutionLifeSciences = React.lazy(() => import("./pages/solutions/SolutionLifeSciences"));
+const SolutionNonprofits = React.lazy(() => import("./pages/solutions/SolutionNonprofits"));
+const SolutionSecurity = React.lazy(() => import("./pages/solutions/SolutionSecurity"));
+const ConnectorsPage = React.lazy(() => import("./pages/ConnectorsPage"));
+const CoursesPage = React.lazy(() => import("./pages/CoursesPage"));
+const EventsPage = React.lazy(() => import("./pages/EventsPage"));
+const InsideSorixCodePage = React.lazy(() => import("./pages/InsideSorixCodePage"));
+const InsideSorixCoworkPage = React.lazy(() => import("./pages/InsideSorixCoworkPage"));
+const EconomicFuturesPage = React.lazy(() => import("./pages/EconomicFuturesPage"));
+const ResearchPage = React.lazy(() => import("./pages/ResearchPage"));
+const SecurityCompliancePage = React.lazy(() => import("./pages/SecurityCompliancePage"));
+const TransparencyPage = React.lazy(() => import("./pages/TransparencyPage"));
+const ConsumerHealthPrivacyPage = React.lazy(() => import("./pages/ConsumerHealthPrivacyPage"));
+const UsagePolicyPage = React.lazy(() => import("./pages/UsagePolicyPage"));
+
 const queryClient = new QueryClient();
 
 const LoadingScreen = () => (
