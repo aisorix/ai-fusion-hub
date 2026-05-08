@@ -247,7 +247,7 @@ const Navbar = () => {
                   {activeDropdown === key && (
                     <div
                       className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-background/95 backdrop-blur-xl border border-border/50 shadow-2xl rounded-2xl p-5 animate-in fade-in slide-in-from-top-2 duration-200 z-[110]"
-                      style={{ minWidth: key === "products" ? 480 : 400 }}
+                      style={{ minWidth: 560 }}
                     >
                       <div className={`grid ${menu.columns.length > 1 ? "grid-cols-2" : "grid-cols-1"} gap-1`}>
                         {menu.columns.map((col, ci) => (
