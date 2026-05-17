@@ -1,6 +1,15 @@
-import { Mail, HardDrive, Calendar, FileText, Sheet, Youtube, Facebook, Linkedin, MessageCircle, Send } from "lucide-react";
+import { Mail, HardDrive, Calendar, FileText, Sheet, Facebook, Linkedin, MessageCircle, Send } from "lucide-react";
 
-export type ServiceId = "google" | "facebook" | "linkedin" | "whatsapp" | "telegram";
+export type ServiceId =
+  | "google_gmail"
+  | "google_drive"
+  | "google_calendar"
+  | "google_docs"
+  | "google_sheets"
+  | "facebook"
+  | "linkedin"
+  | "whatsapp"
+  | "telegram";
 
 export type FieldDef = {
   key: string;
@@ -16,32 +25,91 @@ export type ServiceConfig = {
   label: string;
   description: string;
   icon: typeof Mail;
-  accent: string; // tailwind text color
+  accent: string;
   method: "oauth" | "manual";
+  oauthProvider?: "google";
+  scopes?: string[];
   capabilities: { icon: typeof Mail; label: string }[];
-  fields?: FieldDef[]; // only for manual
+  fields?: FieldDef[];
   helpUrl?: string;
   helpText?: string;
 };
 
+const GOOGLE_BASE_SCOPES = ["openid", "email", "profile"];
+
 export const CONNECTION_SERVICES: ServiceConfig[] = [
   {
-    id: "google",
-    label: "Google",
-    description: "Gmail, Drive, Calendar, Docs, Sheets, YouTube",
+    id: "google_gmail",
+    label: "Gmail",
+    description: "Read, send and manage emails on your behalf",
     icon: Mail,
     accent: "text-red-500",
     method: "oauth",
-    capabilities: [
-      { icon: Mail, label: "Gmail" },
-      { icon: HardDrive, label: "Drive" },
-      { icon: Calendar, label: "Calendar" },
-      { icon: FileText, label: "Docs" },
-      { icon: Sheet, label: "Sheets" },
-      { icon: Youtube, label: "YouTube" },
-    ],
+    oauthProvider: "google",
+    scopes: [...GOOGLE_BASE_SCOPES, "https://www.googleapis.com/auth/gmail.modify"],
+    capabilities: [{ icon: Mail, label: "Compose, reply, label" }],
     helpUrl: "https://myaccount.google.com/permissions",
-    helpText: "You'll be redirected to Google to grant Sorix Agent access. You can revoke access anytime from your Google Account.",
+    helpText: "You'll be redirected to Google to grant Sorix Agent access to Gmail only. You can revoke access anytime from your Google Account.",
+  },
+  {
+    id: "google_drive",
+    label: "Google Drive",
+    description: "Upload, search and download files in your Drive",
+    icon: HardDrive,
+    accent: "text-blue-500",
+    method: "oauth",
+    oauthProvider: "google",
+    scopes: [...GOOGLE_BASE_SCOPES, "https://www.googleapis.com/auth/drive"],
+    capabilities: [{ icon: HardDrive, label: "Files & folders" }],
+    helpUrl: "https://myaccount.google.com/permissions",
+    helpText: "Grants Sorix Agent access to your Drive files only.",
+  },
+  {
+    id: "google_calendar",
+    label: "Google Calendar",
+    description: "Create, update and read calendar events",
+    icon: Calendar,
+    accent: "text-emerald-500",
+    method: "oauth",
+    oauthProvider: "google",
+    scopes: [...GOOGLE_BASE_SCOPES, "https://www.googleapis.com/auth/calendar"],
+    capabilities: [{ icon: Calendar, label: "Events & invites" }],
+    helpUrl: "https://myaccount.google.com/permissions",
+    helpText: "Grants Sorix Agent access to your calendars only.",
+  },
+  {
+    id: "google_docs",
+    label: "Google Docs",
+    description: "Create and edit Google Docs documents",
+    icon: FileText,
+    accent: "text-sky-500",
+    method: "oauth",
+    oauthProvider: "google",
+    scopes: [
+      ...GOOGLE_BASE_SCOPES,
+      "https://www.googleapis.com/auth/documents",
+      "https://www.googleapis.com/auth/drive.file",
+    ],
+    capabilities: [{ icon: FileText, label: "Documents" }],
+    helpUrl: "https://myaccount.google.com/permissions",
+    helpText: "Grants Sorix Agent access to Docs it creates or you open with it.",
+  },
+  {
+    id: "google_sheets",
+    label: "Google Sheets",
+    description: "Read and update spreadsheet data",
+    icon: Sheet,
+    accent: "text-green-500",
+    method: "oauth",
+    oauthProvider: "google",
+    scopes: [
+      ...GOOGLE_BASE_SCOPES,
+      "https://www.googleapis.com/auth/spreadsheets",
+      "https://www.googleapis.com/auth/drive.file",
+    ],
+    capabilities: [{ icon: Sheet, label: "Spreadsheets" }],
+    helpUrl: "https://myaccount.google.com/permissions",
+    helpText: "Grants Sorix Agent access to Sheets it creates or you open with it.",
   },
   {
     id: "facebook",

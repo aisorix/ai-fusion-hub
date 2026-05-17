@@ -250,8 +250,8 @@ function b64url(s: string) {
 }
 
 async function gmailSend(userId: string, args: any): Promise<ToolResult> {
-  const { token, error } = await getValidGoogleToken(userId);
-  if (error || !token) return notConnected("google");
+  const { token, error } = await getValidGoogleToken(userId, "gmail");
+  if (error || !token) return notConnected("google_gmail");
   const raw = b64url(
     [
       `To: ${args.to}`,
@@ -272,8 +272,8 @@ async function gmailSend(userId: string, args: any): Promise<ToolResult> {
 }
 
 async function gmailListRecent(userId: string, args: any): Promise<ToolResult> {
-  const { token, error } = await getValidGoogleToken(userId);
-  if (error || !token) return notConnected("google");
+  const { token, error } = await getValidGoogleToken(userId, "gmail");
+  if (error || !token) return notConnected("google_gmail");
   const max = Math.min(Math.max(Number(args.max) || 10, 1), 25);
   const list = await fetch(
     `https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=${max}&q=in:inbox`,
@@ -296,8 +296,8 @@ async function gmailListRecent(userId: string, args: any): Promise<ToolResult> {
 
 // ---------------- Calendar ----------------
 async function calendarCreate(userId: string, args: any): Promise<ToolResult> {
-  const { token, error } = await getValidGoogleToken(userId);
-  if (error || !token) return notConnected("google");
+  const { token, error } = await getValidGoogleToken(userId, "calendar");
+  if (error || !token) return notConnected("google_calendar");
   const body = {
     summary: args.title,
     description: args.description,
@@ -316,8 +316,8 @@ async function calendarCreate(userId: string, args: any): Promise<ToolResult> {
 }
 
 async function calendarList(userId: string, args: any): Promise<ToolResult> {
-  const { token, error } = await getValidGoogleToken(userId);
-  if (error || !token) return notConnected("google");
+  const { token, error } = await getValidGoogleToken(userId, "calendar");
+  if (error || !token) return notConnected("google_calendar");
   const max = Math.min(Math.max(Number(args.max) || 10, 1), 25);
   const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?maxResults=${max}&orderBy=startTime&singleEvents=true&timeMin=${encodeURIComponent(new Date().toISOString())}`;
   const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
@@ -338,8 +338,8 @@ async function calendarList(userId: string, args: any): Promise<ToolResult> {
 
 // ---------------- Drive ----------------
 async function driveList(userId: string, args: any): Promise<ToolResult> {
-  const { token, error } = await getValidGoogleToken(userId);
-  if (error || !token) return notConnected("google");
+  const { token, error } = await getValidGoogleToken(userId, "drive");
+  if (error || !token) return notConnected("google_drive");
   const max = Math.min(Math.max(Number(args.max) || 15, 1), 50);
   const params = new URLSearchParams({
     pageSize: String(max),

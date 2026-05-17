@@ -35,10 +35,11 @@ const ConnectDialog: React.FC<Props> = ({ service, open, onOpenChange, onSuccess
         return;
       }
       const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-      const startUrl = `https://${projectId}.supabase.co/functions/v1/google-oauth-start?token=${encodeURIComponent(token)}`;
+      const scopesParam = service.scopes?.length ? `&scopes=${encodeURIComponent(service.scopes.join(" "))}` : "";
+      const startUrl = `https://${projectId}.supabase.co/functions/v1/google-oauth-start?token=${encodeURIComponent(token)}&service=${encodeURIComponent(service.id)}${scopesParam}`;
 
       // Open popup
-      const popup = window.open(startUrl, "google_oauth", "width=520,height=640");
+      const popup = window.open(startUrl, `oauth_${service.id}`, "width=520,height=640");
       if (!popup) {
         toast.error("Popup blocked. Please allow popups for this site.");
         return;
@@ -48,11 +49,16 @@ const ConnectDialog: React.FC<Props> = ({ service, open, onOpenChange, onSuccess
         if (e.data?.type === "google_oauth_result") {
           window.removeEventListener("message", messageHandler);
           if (e.data.ok) {
-            toast.success(`Google connected: ${e.data.email || ""}`);
+            toast.success(`All done — ${service.label} connected`, {
+              description: e.data.email
+                ? `${e.data.email} · ready to use in Sorix Agent`
+                : "Ready to use in Sorix Agent",
+              duration: 5000,
+            });
             onSuccess();
             onOpenChange(false);
           } else {
-            toast.error(e.data.error || "Google connection failed");
+            toast.error(e.data.error || `${service.label} connection failed`);
           }
           setSubmitting(false);
         }
@@ -94,7 +100,10 @@ const ConnectDialog: React.FC<Props> = ({ service, open, onOpenChange, onSuccess
       });
       if (error) throw error;
       if (!data?.ok) throw new Error(data?.error || "Failed to save");
-      toast.success(`${service.label} connected${data.account_label ? `: ${data.account_label}` : ""}`);
+      toast.success(`All done — ${service.label} connected`, {
+        description: data.account_label ? `${data.account_label} · ready to use in Sorix Agent` : "Ready to use in Sorix Agent",
+        duration: 5000,
+      });
       onSuccess();
       onOpenChange(false);
     } catch (e: any) {

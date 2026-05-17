@@ -1,4 +1,5 @@
-// Google redirects here with ?code & ?state. Exchanges code for tokens, stores them, posts message back to opener.
+// Google redirects here with ?code & ?state. Exchanges code for tokens, stores them under
+// the per-service connection (google_gmail/google_drive/...) and posts the result back to opener.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
@@ -6,7 +7,23 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-async function verifyState(state: string, secret: string): Promise<{ uid: string; ts: number } | null> {
+const ALLOWED_SERVICES = new Set([
+  "google_gmail",
+  "google_drive",
+  "google_calendar",
+  "google_docs",
+  "google_sheets",
+]);
+
+const SERVICE_LABELS: Record<string, string> = {
+  google_gmail: "Gmail",
+  google_drive: "Google Drive",
+  google_calendar: "Google Calendar",
+  google_docs: "Google Docs",
+  google_sheets: "Google Sheets",
+};
+
+async function verifyState(state: string, secret: string): Promise<{ uid: string; ts: number; service?: string } | null> {
   try {
     const [payloadB64, sig] = state.split(".");
     if (!payloadB64 || !sig) return null;
@@ -46,10 +63,12 @@ Deno.serve(async (req) => {
     const stateData = await verifyState(state, secret);
     if (!stateData) return htmlResult(false, { error: "invalid state" });
 
+    const service = stateData.service && ALLOWED_SERVICES.has(stateData.service) ? stateData.service : "google_gmail";
+
     const clientId = Deno.env.get("GOOGLE_CLIENT_ID")!;
     const clientSecret = Deno.env.get("GOOGLE_CLIENT_SECRET")!;
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const redirectUri = `${supabaseUrl}/functions/v1/google-oauth-callback`;
+    const redirectUri = Deno.env.get("GOOGLE_REDIRECT_URI") || `${supabaseUrl}/functions/v1/google-oauth-callback`;
 
     // Exchange code for tokens
     const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
@@ -70,14 +89,14 @@ Deno.serve(async (req) => {
     const me = await meRes.json();
     const email = me.email || null;
 
-    // Upsert
+    // Upsert per-service connection row
     const admin = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
     const expiresAt = new Date(Date.now() + (tokenData.expires_in ?? 3600) * 1000).toISOString();
     const scopes = (tokenData.scope || "").split(" ").filter(Boolean);
 
     const { error: upErr } = await admin.from("user_connections").upsert({
       user_id: stateData.uid,
-      service: "google",
+      service,
       access_token: tokenData.access_token,
       refresh_token: tokenData.refresh_token ?? null,
       expires_at: expiresAt,
@@ -89,7 +108,7 @@ Deno.serve(async (req) => {
     }, { onConflict: "user_id,service" });
 
     if (upErr) return htmlResult(false, { error: upErr.message });
-    return htmlResult(true, { email });
+    return htmlResult(true, { email, service, label: SERVICE_LABELS[service] || service });
   } catch (e) {
     return htmlResult(false, { error: (e as Error).message });
   }

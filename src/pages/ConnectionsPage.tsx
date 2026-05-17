@@ -55,6 +55,17 @@ const ConnectionsPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Info: Google split */}
+          <div className="rounded-2xl border border-border/60 bg-card/40 p-4 sm:p-5 mb-6 flex items-start gap-3">
+            <Sparkles className="w-5 h-5 text-cyan-500 shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-medium text-foreground">Google is now per-service</p>
+              <p className="text-muted-foreground mt-0.5">
+                Connect Gmail, Drive, Calendar, Docs and Sheets independently — each tile asks Google for only the permissions it needs.
+              </p>
+            </div>
+          </div>
+
           {/* List */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {CONNECTION_SERVICES.map((svc) => (
