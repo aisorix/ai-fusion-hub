@@ -67,8 +67,29 @@ const ChatPage = () => {
         description="Chat with 15+ premium AI models including GPT-5, Claude, Gemini, and more. Get instant answers, generate code, and research anything."
         path="/chat"
       />
-      
-      
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "AI Sorix Chat",
+        "url": "https://www.aisorix.com/chat",
+        "applicationCategory": "BusinessApplication",
+        "applicationSubCategory": "AI Chat Assistant",
+        "operatingSystem": "Web",
+        "description": "Multi-model AI chat with 15+ frontier models — GPT-5, Claude Sonnet 4.5, Gemini 2.5 Pro, DeepSeek V3, Grok 4 — file attachments, voice mode, multi-window chat, projects, and shareable conversations.",
+        "featureList": ["15+ AI Models", "File Attachments", "Voice Mode", "Multi-Window Chat", "Projects Workspace", "Conversation Sharing", "Web Search", "Image Generation"],
+        "isPartOf": { "@type": "WebSite", "name": "AI Sorix", "url": "https://www.aisorix.com" },
+        "publisher": { "@type": "Organization", "name": "AI Sorix", "url": "https://www.aisorix.com" },
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free tier with 15K tokens" }
+      }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.aisorix.com/" },
+          { "@type": "ListItem", "position": 2, "name": "AI Chat", "item": "https://www.aisorix.com/chat" }
+        ]
+      }) }} />
+
       {/* Desktop Sidebar - hidden on mobile */}
       {!isMobile && sidebarOpen && (
         <ChatSidebar onNewChat={handleNewChat} />
