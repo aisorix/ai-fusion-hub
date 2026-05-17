@@ -54,8 +54,15 @@ export function useCoWorkAgent() {
       setAgentStatus("thinking");
 
       try {
-        const { data: sessionData } = await supabase.auth.getSession();
-        const token = sessionData?.session?.access_token;
+        let { data: sessionData } = await supabase.auth.getSession();
+        let token = sessionData?.session?.access_token;
+        if (!token) {
+          const { data: refreshed } = await supabase.auth.refreshSession();
+          token = refreshed?.session?.access_token;
+        }
+        if (!token) {
+          throw new Error("Your session expired. Please sign in again.");
+        }
 
         const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
         const url = `https://${projectId}.supabase.co/functions/v1/agent-router`;
