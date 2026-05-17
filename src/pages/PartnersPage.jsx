@@ -2,6 +2,7 @@ import React from "react";
 import SEOHead from "@/components/SEOHead";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHero, { PageCTA } from "@/components/marketing/PageHero";
 import { Handshake, GraduationCap, Building2, Rocket, Globe, CheckCircle, ArrowRight, Mail, TrendingUp } from "lucide-react";
 
 const partnerTypes = [
