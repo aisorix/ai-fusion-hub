@@ -165,6 +165,7 @@ const CaseStudiesPage = () => {
         </section>
       </main>
 
+      <PageCTA title="Your team could be next." desc="Get started free and see what AI Sorix can do for your organization in under 10 minutes." />
       <Footer />
     </div>
   );
