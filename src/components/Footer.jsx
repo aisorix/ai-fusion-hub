@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Mail, Twitter, Linkedin, Youtube, Facebook, Instagram, MessageSquare, Presentation, ImageIcon, Heart, Leaf, Crown, Bot, Globe } from "lucide-react";
+import { Mail, Twitter, Linkedin, Youtube, Facebook, Instagram, MessageSquare, Presentation, ImageIcon, Heart, Leaf, Crown, Bot, Globe, Columns3, Cpu, Workflow, Shield, Chrome, Sparkles } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import logo from "../assets/logo.png";
 
