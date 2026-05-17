@@ -30,7 +30,7 @@ const Footer = () => {
   return (
     <footer className="bg-card border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-10 sm:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-6 sm:gap-8 lg:gap-10">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 sm:gap-8 lg:gap-10">
           {/* Brand */}
           <div className="col-span-2">
             <div className="flex items-center gap-1.5 mb-4 sm:mb-6">
@@ -56,59 +56,23 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* (Quick links merged into Features/Solutions/Resources columns below) */}
-
-
-          {/* Tools */}
-          <div>
-            <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">{t("product") === "Product" ? "Tools" : "টুলস"}</h4>
-            <ul className="space-y-3 sm:space-y-4">
-              <li>
-                <Link to="/chat" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
-                  <MessageSquare className="w-3.5 h-3.5" /> AI Chat
-                </Link>
-              </li>
-              <li>
-                <Link to="/agent" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
-                  <Bot className="w-3.5 h-3.5" /> Sorix Agents
-                </Link>
-              </li>
-              <li>
-                <Link to="/deck" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
-                  <Presentation className="w-3.5 h-3.5" /> Sorix Deck
-                </Link>
-              </li>
-              <li>
-                <Link to="/imagine" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
-                  <ImageIcon className="w-3.5 h-3.5" /> Sorix Imagine
-                </Link>
-              </li>
-              <li>
-                <Link to="/health" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
-                  <Heart className="w-3.5 h-3.5" /> Sorix Health
-                </Link>
-              </li>
-              <li>
-                <Link to="/agro" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
-                  <Leaf className="w-3.5 h-3.5" /> Sorix Agro
-                </Link>
-              </li>
-              <li>
-                <Link to="/legends" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
-                  <Crown className="w-3.5 h-3.5" /> Sorix Legends
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Features (extra) */}
+          {/* Features (mirrors Navbar Features mega-menu) */}
           <div>
             <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">Features</h4>
             <ul className="space-y-3 sm:space-y-4">
-              <li><Link to="/sorix-security" className="text-sm text-muted-foreground hover:text-primary transition-colors">Sorix Security</Link></li>
-              <li><Link to="/sorix-for-chrome" className="text-sm text-muted-foreground hover:text-primary transition-colors">Sorix for Chrome</Link></li>
-              <li><Link to="/skills" className="text-sm text-muted-foreground hover:text-primary transition-colors">Skills</Link></li>
-              <li><Link to="/connectors" className="text-sm text-muted-foreground hover:text-primary transition-colors">Connectors</Link></li>
+              <li><Link to="/chat" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><MessageSquare className="w-3.5 h-3.5" /> AI Chat</Link></li>
+              <li><Link to="/chat?multi=1" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Columns3 className="w-3.5 h-3.5" /> Multi-window Chat</Link></li>
+              <li><Link to="/agent" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Bot className="w-3.5 h-3.5" /> AI Agents</Link></li>
+              <li><Link to="/agent" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Cpu className="w-3.5 h-3.5" /> Sorix Agent OS</Link></li>
+              <li><Link to="/deck" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Presentation className="w-3.5 h-3.5" /> Sorix Deck</Link></li>
+              <li><Link to="/imagine" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><ImageIcon className="w-3.5 h-3.5" /> Sorix Imagine</Link></li>
+              <li><Link to="/flowbuilder" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Workflow className="w-3.5 h-3.5" /> Flow Builder</Link></li>
+              <li><Link to="/health" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Heart className="w-3.5 h-3.5" /> Sorix Health</Link></li>
+              <li><Link to="/agro" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Leaf className="w-3.5 h-3.5" /> Sorix Agro</Link></li>
+              <li><Link to="/legends" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Crown className="w-3.5 h-3.5" /> Sorix Legends</Link></li>
+              <li><Link to="/sorix-security" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Shield className="w-3.5 h-3.5" /> Sorix Security</Link></li>
+              <li><Link to="/sorix-for-chrome" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Chrome className="w-3.5 h-3.5" /> Sorix for Chrome</Link></li>
+              <li><Link to="/skills" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5" /> Skills</Link></li>
             </ul>
           </div>
 
@@ -124,6 +88,13 @@ const Footer = () => {
               <li><Link to="/solutions/life-sciences" className="text-sm text-muted-foreground hover:text-primary transition-colors">Life Sciences</Link></li>
               <li><Link to="/solutions/nonprofits" className="text-sm text-muted-foreground hover:text-primary transition-colors">Nonprofits</Link></li>
               <li><Link to="/solutions/security" className="text-sm text-muted-foreground hover:text-primary transition-colors">Security</Link></li>
+              <li><Link to="/solutions/workflow-automation" className="text-sm text-muted-foreground hover:text-primary transition-colors">Workflow Automation</Link></li>
+              <li><Link to="/solutions/ai-for-educators" className="text-sm text-muted-foreground hover:text-primary transition-colors">Educators</Link></li>
+              <li><Link to="/solutions/ai-for-startups" className="text-sm text-muted-foreground hover:text-primary transition-colors">Startups</Link></li>
+              <li><Link to="/solutions/ai-for-researchers" className="text-sm text-muted-foreground hover:text-primary transition-colors">Researchers</Link></li>
+              <li><Link to="/solutions/ai-for-creators" className="text-sm text-muted-foreground hover:text-primary transition-colors">Creators</Link></li>
+              <li><Link to="/solutions/ai-for-freelancers" className="text-sm text-muted-foreground hover:text-primary transition-colors">Freelancers</Link></li>
+              <li><Link to="/solutions/ai-for-professionals" className="text-sm text-muted-foreground hover:text-primary transition-colors">Professionals</Link></li>
             </ul>
           </div>
 
@@ -135,6 +106,7 @@ const Footer = () => {
               <li><Link to="/case-studies" className="text-sm text-muted-foreground hover:text-primary transition-colors">Case Studies</Link></li>
               <li><Link to="/docs" className="text-sm text-muted-foreground hover:text-primary transition-colors">Documentation</Link></li>
               <li><Link to="/developer-api" className="text-sm text-muted-foreground hover:text-primary transition-colors">Developer API</Link></li>
+              <li><Link to="/connectors" className="text-sm text-muted-foreground hover:text-primary transition-colors">Connectors</Link></li>
               <li><Link to="/courses" className="text-sm text-muted-foreground hover:text-primary transition-colors">Courses</Link></li>
               <li><Link to="/events" className="text-sm text-muted-foreground hover:text-primary transition-colors">Events</Link></li>
               <li><Link to="/inside-sorix-code" className="text-sm text-muted-foreground hover:text-primary transition-colors">Inside Sorix Code</Link></li>
