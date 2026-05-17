@@ -6,19 +6,23 @@ import type { ServiceConfig } from "./connectionConfig";
 import type { UserConnection } from "@/hooks/useConnections";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
 
 interface Props {
   service: ServiceConfig;
   connection?: UserConnection;
   onConnect: () => void;
   onDisconnect: () => Promise<void>;
+  onOAuthSuccess?: () => void;
 }
 
-const ConnectionCard: React.FC<Props> = ({ service, connection, onConnect, onDisconnect }) => {
+const ConnectionCard: React.FC<Props> = ({ service, connection, onConnect, onDisconnect, onOAuthSuccess }) => {
   const [testing, setTesting] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
+  const { startOAuth, loading: oauthLoading } = useGoogleOAuth({ onSuccess: onOAuthSuccess });
   const Icon = service.icon;
   const isConnected = !!connection;
+  const isOAuth = service.method === "oauth";
 
   const accountLabel =
     connection?.external_account_id ||
@@ -52,6 +56,11 @@ const ConnectionCard: React.FC<Props> = ({ service, connection, onConnect, onDis
     } finally {
       setDisconnecting(false);
     }
+  };
+
+  const handleConnectClick = () => {
+    if (isOAuth) startOAuth();
+    else onConnect();
   };
 
   return (
@@ -88,7 +97,8 @@ const ConnectionCard: React.FC<Props> = ({ service, connection, onConnect, onDis
               {testing ? <Loader2 className="w-3 h-3 mr-1.5 animate-spin" /> : null}
               Test
             </Button>
-            <Button size="sm" variant="outline" onClick={onConnect}>
+            <Button size="sm" variant="outline" onClick={handleConnectClick} disabled={oauthLoading}>
+              {oauthLoading ? <Loader2 className="w-3 h-3 mr-1.5 animate-spin" /> : null}
               Reconnect
             </Button>
             <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={handleDisconnect} disabled={disconnecting}>
@@ -96,8 +106,13 @@ const ConnectionCard: React.FC<Props> = ({ service, connection, onConnect, onDis
             </Button>
           </>
         ) : (
-          <Button size="sm" onClick={onConnect}>
-            <Plug className="w-3.5 h-3.5 mr-1.5" /> Connect
+          <Button size="sm" onClick={handleConnectClick} disabled={oauthLoading}>
+            {oauthLoading ? (
+              <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+            ) : (
+              <Plug className="w-3.5 h-3.5 mr-1.5" />
+            )}
+            {isOAuth ? `Connect with ${service.label}` : "Connect"}
           </Button>
         )}
       </div>
