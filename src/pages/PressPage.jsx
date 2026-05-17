@@ -47,16 +47,15 @@ const PressPage = () => {
         path="/press"
       />
       <Navbar />
+      <PageHero
+        eyebrow="Press & Media"
+        title="AI Sorix in the press."
+        subtitle="News, press releases, brand assets and media resources from the AI Sorix team — a global, zero-trust AI workspace."
+        primaryCta={{ label: "Contact Press Team", to: "/press" }}
+        secondaryCta={{ label: "About AI Sorix", to: "/about-us" }}
+      />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-16 sm:py-24">
-        <div className="text-center mb-12 sm:mb-16">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Press & Media
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            News, press releases, and media resources from AI Sorix — built in Dhaka, Bangladesh.
-          </p>
-        </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16">
 
         {/* Press Releases */}
         <div className="space-y-6 mb-16">
