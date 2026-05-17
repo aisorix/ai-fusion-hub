@@ -471,9 +471,67 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                   </button>
                   <ToolsMenu open={showToolsMenu} onClose={() => setShowToolsMenu(false)} />
                 </div>
+              </div>
 
-              {/* Right cluster: Mic + Send */}
+              {/* Right cluster: Model + Mic + Send */}
               <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
+                {/* Model picker pill */}
+                <div className="relative shrink-0">
+                  <button
+                    onClick={() => {
+                      closeAllPopovers();
+                      setShowModelPicker((v) => !v);
+                    }}
+                    className={cn(
+                      "flex items-center gap-1.5 p-2 sm:pl-2 sm:pr-2.5 sm:py-1.5 rounded-full transition-all duration-200",
+                      "border border-border/60 text-muted-foreground hover:text-foreground hover:bg-background",
+                      "text-sm font-medium whitespace-nowrap",
+                      showModelPicker && "bg-background text-foreground border-border"
+                    )}
+                    aria-label="Model"
+                  >
+                    <Cpu className="w-4 h-4 shrink-0" />
+                    <span className="hidden sm:inline">{currentModel.short}</span>
+                    <ChevronDown className="w-3.5 h-3.5 hidden sm:inline" />
+                  </button>
+
+                  <AnimatePresence>
+                    {showModelPicker && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-40"
+                          onClick={() => setShowModelPicker(false)}
+                        />
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                          className="absolute bottom-full right-0 mb-2 rounded-xl shadow-xl overflow-hidden z-[100] bg-popover border border-border backdrop-blur-xl min-w-[220px]"
+                        >
+                          {MODELS.map((m) => (
+                            <button
+                              key={m.id}
+                              onClick={() => {
+                                setSelectedModel(m.id);
+                                setShowModelPicker(false);
+                              }}
+                              className={cn(
+                                "flex items-center justify-between gap-3 px-4 py-2.5 w-full transition-colors hover:bg-accent text-left",
+                                selectedModel === m.id && "bg-accent/60"
+                              )}
+                            >
+                              <span className="text-sm">{m.label}</span>
+                              {selectedModel === m.id && (
+                                <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                              )}
+                            </button>
+                          ))}
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
+
                 <button
                   onClick={() =>
                     toast.message(language === "bn" ? "ভয়েস মোড শীঘ্রই" : "Voice mode coming soon")
