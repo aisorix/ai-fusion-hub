@@ -85,6 +85,29 @@ const FlowBuilderPage: React.FC = () => {
         description="Create professional diagrams and flowcharts from text prompts. Generate Mermaid diagrams with AI — export as PNG, SVG, PDF."
         path="/flowbuilder"
       />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Sorix FlowBuilder",
+        "url": "https://www.aisorix.com/flowbuilder",
+        "applicationCategory": "DesignApplication",
+        "applicationSubCategory": "AI Diagram Generator",
+        "operatingSystem": "Web",
+        "description": "AI-powered diagram and flowchart generator. Turn prompts into Mermaid diagrams, customize themes, choose templates, and export as PNG, SVG, or PDF.",
+        "featureList": ["AI Mermaid Generation", "Diagram Templates", "Color Themes", "PNG / SVG / PDF Export", "History & Versioning", "Prompt Iteration"],
+        "isPartOf": { "@type": "WebSite", "name": "AI Sorix", "url": "https://www.aisorix.com" },
+        "publisher": { "@type": "Organization", "name": "AI Sorix", "url": "https://www.aisorix.com" },
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Included in AI Sorix plans" }
+      }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.aisorix.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Tools", "item": "https://www.aisorix.com/tools" },
+          { "@type": "ListItem", "position": 3, "name": "Sorix FlowBuilder", "item": "https://www.aisorix.com/flowbuilder" }
+        ]
+      }) }} />
 
       {/* Header */}
       <header className="shrink-0 bg-card/80 backdrop-blur-xl relative">

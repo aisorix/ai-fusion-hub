@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Stethoscope, Leaf, Crown, Presentation, Workflow, Palette, Languages, Music } from "lucide-react";
+import SEOHead from "@/components/SEOHead";
 
 const tools = [
   { id: "health", name: "Sorix Health", desc: "AI health analysis assistant", icon: Stethoscope, route: "/health", gradient: "from-emerald-500 to-teal-500", free: true },
@@ -20,6 +21,44 @@ const ToolsPage = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SEOHead
+        title="Sorix Tools | AI Tools Gallery | AI Sorix"
+        description="Explore Sorix Tools — Health, Agro, Legends, Deck, FlowBuilder, Imagine. A complete suite of specialized AI tools by AI Sorix."
+        path="/tools"
+      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Sorix Tools",
+        "url": "https://www.aisorix.com/tools",
+        "description": "A gallery of specialized AI tools by AI Sorix: Health, Agro, Legends, Deck, FlowBuilder, and Imagine.",
+        "isPartOf": { "@type": "WebSite", "name": "AI Sorix", "url": "https://www.aisorix.com" },
+        "publisher": { "@type": "Organization", "name": "AI Sorix", "url": "https://www.aisorix.com" },
+        "mainEntity": {
+          "@type": "ItemList",
+          "itemListElement": tools.map((t, i) => ({
+            "@type": "ListItem",
+            "position": i + 1,
+            "item": {
+              "@type": "SoftwareApplication",
+              "name": t.name,
+              "description": t.desc,
+              "url": `https://www.aisorix.com${t.route}`,
+              "applicationCategory": "BusinessApplication",
+              "operatingSystem": "Web",
+              "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+            }
+          }))
+        }
+      }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.aisorix.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Tools", "item": "https://www.aisorix.com/tools" }
+        ]
+      }) }} />
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-3">

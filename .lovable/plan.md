@@ -1,58 +1,72 @@
-# SEO upgrade plan
+# Add JSON-LD to main product pages
 
-Overall SEO health is strong (JSON-LD, sitemap, canonicals, hreflang, robots, OG/Twitter all present). Four targeted fixes will close real gaps — no rewrite needed.
+All four pages already have (or will get) `<SEOHead>` for title/description/canonical/OG. This plan adds **schema.org structured data** so Google can render rich results and AI search engines can correctly identify each product.
 
-## 1. Fix rebrand inconsistencies (global, not Bangladesh)
+## Current state
 
-Per project memory the brand is now "global / Zero-Trust", but stale Dhaka/Bangladesh signals remain and hurt geo targeting:
+| Page | Route | SEOHead | JSON-LD |
+|---|---|---|---|
+| ChatPage | `/chat` | ✓ | ✗ |
+| ToolsPage | `/tools` | ✗ | ✗ |
+| FlowBuilderPage | `/flowbuilder` | ✓ | ✗ |
+| CoWorkPage (Agent) | `/agent` | ✓ | ✗ |
 
-- `src/pages/Index.jsx` JSON-LD: `foundingLocation: Dhaka, Bangladesh`, `areaServed: [Bangladesh, Asia]`, `LocalBusiness` with Dhaka address + geo coords, page title "#1 AI Research Ecosystem in Bangladesh & Asia".
-- `index.html` `<meta name="keywords">` is fine but JSON-LD pricing is BDT-only — keep BDT (real prices) but description text is good.
+## What I'll add
 
-Action: rewrite Index.jsx JSON-LD + `<SEOHead title>` to global positioning; drop `LocalBusiness` (or change to global Organization). Remove `geo.region BD` meta from Index.jsx.
+Each page gets two inline `<script type="application/ld+json">` blocks (same pattern as `Index.jsx`):
 
-## 2. Sync sitemap.xml with current routes
+1. **SoftwareApplication / WebApplication** — names the tool, its category, the parent Organization (AI Sorix), URL, feature list, and free-offer (`price: "0"`). This drives Google's app-style rich result.
+2. **BreadcrumbList** — `Home → AI Sorix → {Page}` so Sitelinks show the hierarchy.
 
-Sitemap still lists removed solution slugs and is missing real routes.
+`isPartOf` references the global `WebSite` already declared in `index.html`, and `publisher`/`provider` references the global `Organization` (also in `index.html`) — keeping a single source of truth for brand identity.
 
-Remove (no longer exist):
-- `/solutions/workflow-automation`
-- `/solutions/ai-for-educators`, `/ai-for-startups`, `/ai-for-researchers`, `/ai-for-creators`, `/ai-for-professionals`, `/ai-for-freelancers`
+## Per-page specifics
 
-Add (live but missing):
-- `/multi-window-chat` (or `/chat?multi=1` — confirm canonical form)
-- `/tools`
-- `/solutions` (index page)
-- Any other routes from `src/App.jsx` not yet listed
+**ChatPage (`/chat`)**
+- `@type: SoftwareApplication`, name "AI Sorix Chat"
+- `applicationCategory: BusinessApplication`, `featureList`: 15+ models (GPT-5, Claude, Gemini, DeepSeek, Grok…), file attachments, voice mode, multi-window chat, projects, sharing.
+- Add `ToolsPage`-style breadcrumb.
 
-Also bump `<lastmod>` on the new marketing pages to today's date.
+**ToolsPage (`/tools`)**
+- Also wire in `<SEOHead>` (currently missing).
+- `@type: CollectionPage` with an embedded `ItemList` of the 6 active tools (Health, Agro, Legends, Deck, FlowBuilder, Imagine) — each as a `SoftwareApplication` `ListItem`. This is the correct schema for a gallery/index page.
 
-## 3. Dedupe duplicate meta tags in index.html
+**FlowBuilderPage (`/flowbuilder`)**
+- `@type: SoftwareApplication`, name "Sorix FlowBuilder"
+- `applicationCategory: DesignApplication`, `featureList`: Mermaid diagrams, templates, themes, SVG/PNG export, history.
 
-Lines 301–304 re-declare `og:title`, `twitter:title`, `og:description`, `twitter:description` that already exist earlier in `<head>`. Some crawlers honor the last value, some the first — keep one set only.
+**CoWorkPage (`/agent`)**
+- `@type: SoftwareApplication`, name "Sorix Agent"
+- `applicationCategory: BusinessApplication`, `featureList`: autonomous task execution, web search, document generation, integrations (Google, FB, LinkedIn, WhatsApp, Telegram), real-time progress.
 
-## 4. Add per-route Helmet titles where missing
+## Implementation pattern
 
-Spot-check: `Index.jsx` uses SEOHead ✓, new InfoPage pages use SEOHead ✓. Verify these still set unique title/description via Helmet (not relying on index.html default):
-- `ChatPage`, `ToolsPage`, `SolutionsPage`, `AboutSorixLab`, `AboutUsPage`, `Reviews`, `Login`, `Register`, legal pages.
+Same shape as `src/pages/Index.jsx` (no new component, no Helmet rewrite):
 
-Any missing → add `<SEOHead>` with route-specific title/description/path.
-
-## 5. Optional polish
-
-- Update `Index.jsx` `<title>` to remove "Bangladesh" — e.g. `"AI Sorix | Global AI Research Ecosystem & Multi-Model Workspace"` (<60 chars target — current proposal is 64, will trim).
-- Add `<meta name="theme-color">` to index.html for mobile browser chrome.
-- Consider migrating sitemap to a generator script (`scripts/generate-sitemap.ts`) so routes stay in sync automatically — flag only, not required.
-
-## Out of scope
-
-- No new pages, no content rewrites, no design changes.
-- Pricing schema (BDT) stays — those are real prices.
-- robots.txt is correct as-is.
+```jsx
+const jsonLd = [ { /* SoftwareApplication */ }, { /* BreadcrumbList */ } ];
+return (
+  <>
+    <SEOHead title="…" description="…" path="/chat" />
+    {jsonLd.map((d, i) => (
+      <script key={i} type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(d) }} />
+    ))}
+    {/* existing page JSX */}
+  </>
+);
+```
 
 ## Files to edit
 
-- `index.html` — remove duplicate meta tags (lines 301–304), optionally add theme-color.
-- `src/pages/Index.jsx` — rewrite Organization/LocalBusiness JSON-LD + SEOHead title to global; remove `geo.*` meta.
-- `public/sitemap.xml` — remove dead routes, add `/tools`, `/solutions`, `/multi-window-chat`, refresh lastmod.
-- Any page missing `<SEOHead>` (audit pass).
+- `src/pages/ChatPage.tsx` — add JSON-LD next to existing SEOHead.
+- `src/pages/ToolsPage.tsx` — add `<SEOHead>` + JSON-LD (CollectionPage + ItemList).
+- `src/pages/FlowBuilderPage.tsx` — add JSON-LD next to existing SEOHead.
+- `src/pages/CoWorkPage.tsx` — add JSON-LD next to existing SEOHead.
+
+## Out of scope
+
+- No content, layout, or behavior changes.
+- No edits to `index.html` (global Organization/WebSite schema already correct).
+- No sitemap changes (already current).
+- No new components — inline schema blocks only, matching the existing Index.jsx pattern.
