@@ -89,6 +89,7 @@ const DeveloperApiPage = () => {
         </section>
       </main>
 
+      <PageCTA title="Be first on the AI Sorix API." desc="Join the waitlist for early access, docs and free API credits at launch." button={{ label: "Join Waitlist", to: "/developer-api" }} />
       <Footer />
     </div>
   );
