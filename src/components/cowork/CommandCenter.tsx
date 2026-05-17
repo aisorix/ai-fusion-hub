@@ -15,6 +15,8 @@ import {
   Image as ImageIcon,
   Camera,
   Paperclip,
+  LayoutGrid,
+  ChevronRight,
   Search,
   CheckCircle2,
   Loader2,
