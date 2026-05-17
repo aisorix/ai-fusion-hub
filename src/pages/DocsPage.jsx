@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHero, { PageCTA } from "@/components/marketing/PageHero";
 import { MessageSquare, Presentation, ImageIcon, Heart, Leaf, Crown, Workflow, Bot, BookOpen, Rocket, ArrowRight, Mail, HelpCircle } from "lucide-react";
 
 const docSections = [
@@ -33,16 +34,15 @@ const DocsPage = () => {
         path="/docs"
       />
       <Navbar />
+      <PageHero
+        eyebrow="Documentation"
+        title="Everything you need to ship with AI Sorix."
+        subtitle="Quick-start guides, feature docs and best practices for AI Chat, Sorix Deck, Imagine, Health, Agro, Legends, AI Agents and Flow Builder."
+        primaryCta={{ label: "Open AI Sorix", to: "/chat" }}
+        secondaryCta={{ label: "Developer API", to: "/developer-api" }}
+      />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-16 sm:py-24">
-        <div className="text-center mb-12 sm:mb-16">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Documentation
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Everything you need to get started with AI Sorix. Explore our tools and features.
-          </p>
-        </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16">
 
         {/* Quick Start */}
         <section className="mb-16 sm:mb-20">
@@ -106,6 +106,7 @@ const DocsPage = () => {
         </div>
       </main>
 
+      <PageCTA title="Ready to build with AI Sorix?" desc="Sign up free, pick a tool, and ship your first AI-powered output in minutes." />
       <Footer />
     </div>
   );

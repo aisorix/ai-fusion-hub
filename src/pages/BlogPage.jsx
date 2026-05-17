@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHero, { PageCTA } from "@/components/marketing/PageHero";
 import { ArrowRight, Calendar, Clock, Tag, Mail, Rss } from "lucide-react";
 
 const blogPosts = [
@@ -89,16 +90,15 @@ const BlogPage = () => {
         path="/blog"
       />
       <Navbar />
+      <PageHero
+        eyebrow="Blog & AI Insights"
+        title="The AI Sorix blog — frontier AI, decoded."
+        subtitle="Discover how AI is reshaping work, research, education and creativity. Tutorials, model releases, and industry insights from the AI Sorix team."
+        primaryCta={{ label: "Try AI Sorix Free", to: "/register" }}
+        secondaryCta={{ label: "Browse Tools", to: "/tools" }}
+      />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-16 sm:py-24">
-        <div className="text-center mb-12 sm:mb-16">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Blog & AI Insights
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Discover how AI is reshaping industries across Bangladesh and Asia. Stay updated with the latest from AI Sorix.
-          </p>
-        </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16">
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {blogPosts.map((post) => (
@@ -181,6 +181,10 @@ const BlogPage = () => {
         </section>
       </main>
 
+      <PageCTA
+        title="Read smarter. Build faster."
+        desc="Get AI Sorix free and turn every insight on this blog into shipped work — across chat, decks, images, agents and more."
+      />
       <Footer />
     </div>
   );

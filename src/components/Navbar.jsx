@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, ChevronDown, ChevronRight, Globe, User, LogOut, MessageSquare, Presentation, ImageIcon, Heart, Leaf, Crown, Bot, Workflow, Cpu, GraduationCap, Rocket, FlaskConical, BookOpen, Newspaper, Briefcase, Handshake, Mail, FileText, Users, Code, Sparkles, HelpCircle, Palette, UserCheck, Shield, Chrome, Code2, Headphones, Landmark, Building2, HeartPulse, HandHeart, ShieldCheck, Plug, CalendarDays, Layers, TrendingUp, Eye } from "lucide-react";
+import { Menu, X, ChevronDown, ChevronRight, Globe, User, LogOut, MessageSquare, Presentation, ImageIcon, Heart, Leaf, Crown, Bot, Workflow, Cpu, GraduationCap, Rocket, FlaskConical, BookOpen, Newspaper, Briefcase, Handshake, Mail, FileText, Users, Code, Sparkles, HelpCircle, Palette, UserCheck, Shield, Chrome, Code2, Headphones, Landmark, Building2, HeartPulse, HandHeart, ShieldCheck, Plug, CalendarDays, Layers, TrendingUp, Eye, Columns3 } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useEmployeeRole } from "../hooks/useEmployeeRole";
@@ -20,9 +20,10 @@ const megaMenus = {
     label: "Features",
     columns: [
       [
+        { icon: MessageSquare, name: "AI Chat", desc: "Multi-model AI conversations", to: "/chat" },
+        { icon: Columns3, name: "Multi-window Chat", desc: "Compare AI models side-by-side", to: "/chat?multi=1" },
         { icon: Bot, name: "AI Agents", desc: "Autonomous task execution", to: "/agent" },
         { icon: Cpu, name: "Sorix Agent OS", desc: "Multi-agent autonomous workspace", to: "/agent" },
-        { icon: MessageSquare, name: "AI Chat", desc: "Multi-model AI conversations", to: "/chat" },
         { icon: Presentation, name: "Sorix Deck", desc: "AI-powered presentations", to: "/deck" },
         { icon: ImageIcon, name: "Sorix Imagine", desc: "AI image generation", to: "/imagine" },
         { icon: Workflow, name: "Flow Builder", desc: "AI diagrams & flowcharts", to: "/flowbuilder" },
@@ -45,12 +46,21 @@ const megaMenus = {
         { icon: Headphones, name: "Customer Support", desc: "AI agents that resolve tickets 24/7", to: "/solutions/customer-support" },
         { icon: Landmark, name: "Financial Services", desc: "Secure AI for banking and fintech", to: "/solutions/financial-services" },
         { icon: Building2, name: "Government", desc: "AI for public sector and civic agencies", to: "/solutions/government" },
+        { icon: HeartPulse, name: "Healthcare", desc: "HIPAA-aligned AI for clinicians", to: "/solutions/healthcare" },
       ],
       [
-        { icon: HeartPulse, name: "Healthcare", desc: "HIPAA-aligned AI for clinicians", to: "/solutions/healthcare" },
         { icon: FlaskConical, name: "Life Sciences", desc: "AI for biotech and pharma research", to: "/solutions/life-sciences" },
         { icon: HandHeart, name: "Nonprofits", desc: "Discounted AI for social impact", to: "/solutions/nonprofits" },
         { icon: ShieldCheck, name: "Security", desc: "AI for SOC, GRC and cybersecurity", to: "/solutions/security" },
+        { icon: Workflow, name: "Workflow Automation", desc: "Automate multi-step tasks with AI", to: "/solutions/workflow-automation" },
+        { icon: GraduationCap, name: "Educators", desc: "AI tools for teaching and learning", to: "/solutions/ai-for-educators" },
+      ],
+      [
+        { icon: Rocket, name: "Startups", desc: "All-in-one AI stack for early-stage teams", to: "/solutions/ai-for-startups" },
+        { icon: FlaskConical, name: "Researchers", desc: "Multi-model research and analysis", to: "/solutions/ai-for-researchers" },
+        { icon: Palette, name: "Creators", desc: "AI for designers, writers and editors", to: "/solutions/ai-for-creators" },
+        { icon: Briefcase, name: "Freelancers", desc: "One AI workspace for solo earners", to: "/solutions/ai-for-freelancers" },
+        { icon: UserCheck, name: "Professionals", desc: "AI productivity for knowledge workers", to: "/solutions/ai-for-professionals" },
       ],
     ],
   },
@@ -247,9 +257,9 @@ const Navbar = () => {
                   {activeDropdown === key && (
                     <div
                       className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-background/95 backdrop-blur-xl border border-border/50 shadow-2xl rounded-2xl p-5 animate-in fade-in slide-in-from-top-2 duration-200 z-[110]"
-                      style={{ minWidth: 560 }}
+                      style={{ minWidth: menu.columns.length >= 3 ? 820 : 560 }}
                     >
-                      <div className={`grid ${menu.columns.length > 1 ? "grid-cols-2" : "grid-cols-1"} gap-1`}>
+                      <div className={`grid ${menu.columns.length >= 3 ? "grid-cols-3" : menu.columns.length === 2 ? "grid-cols-2" : "grid-cols-1"} gap-1`}>
                         {menu.columns.map((col, ci) => (
                           <div key={ci} className="space-y-1">
                             {col.map(renderMegaItem)}

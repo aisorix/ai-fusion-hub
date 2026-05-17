@@ -2,6 +2,7 @@ import React from "react";
 import SEOHead from "@/components/SEOHead";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHero, { PageCTA } from "@/components/marketing/PageHero";
 import { Code, Webhook, Box, Zap, ArrowRight, Mail, Shield, Globe } from "lucide-react";
 
 const features = [
@@ -31,21 +32,15 @@ const DeveloperApiPage = () => {
         path="/developer-api"
       />
       <Navbar />
+      <PageHero
+        eyebrow="Developer API · Coming Soon"
+        title="The AI Sorix Developer API."
+        subtitle="Programmatic access to AI Sorix — GPT-5, Claude, Gemini 3 and 10+ frontier models behind one unified, zero-trust REST API."
+        primaryCta={{ label: "Join the Waitlist", to: "/developer-api" }}
+        secondaryCta={{ label: "Read Docs", to: "/docs" }}
+      />
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-16 sm:py-24">
-        {/* Hero */}
-        <div className="text-center mb-16 sm:mb-20">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium mb-6">
-            <Zap className="w-3.5 h-3.5" />
-            Coming Soon
-          </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-5">
-            Developer API
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Programmatic access to AI Sorix's full suite of AI tools. Build, integrate, and scale AI-powered applications with our upcoming API.
-          </p>
-        </div>
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16">
 
         {/* What to Expect */}
         <section className="mb-16 sm:mb-20">
@@ -94,6 +89,7 @@ const DeveloperApiPage = () => {
         </section>
       </main>
 
+      <PageCTA title="Be first on the AI Sorix API." desc="Join the waitlist for early access, docs and free API credits at launch." button={{ label: "Join Waitlist", to: "/developer-api" }} />
       <Footer />
     </div>
   );

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHero, { PageCTA } from "@/components/marketing/PageHero";
 import { TrendingUp, GraduationCap, Leaf, Heart, Building2, ArrowRight, Mail, Quote } from "lucide-react";
 
 const caseStudies = [
@@ -82,16 +83,13 @@ const CaseStudiesPage = () => {
         path="/case-studies"
       />
       <Navbar />
+      <PageHero
+        eyebrow="Case Studies"
+        title="Real teams shipping more with AI Sorix."
+        subtitle="See how organizations across education, agriculture, healthcare, and business achieve measurable results with AI Sorix's unified multi-model AI workspace."
+      />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-16 sm:py-24">
-        <div className="text-center mb-12 sm:mb-16">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Case Studies
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            See how organizations across Bangladesh and Asia are achieving real results with AI Sorix.
-          </p>
-        </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16">
 
         <div className="space-y-10">
           {caseStudies.map((study, i) => (
@@ -167,6 +165,7 @@ const CaseStudiesPage = () => {
         </section>
       </main>
 
+      <PageCTA title="Your team could be next." desc="Get started free and see what AI Sorix can do for your organization in under 10 minutes." />
       <Footer />
     </div>
   );
