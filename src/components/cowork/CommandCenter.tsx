@@ -471,28 +471,10 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                   </button>
                   <ToolsMenu open={showToolsMenu} onClose={() => setShowToolsMenu(false)} />
                 </div>
+              </div>
 
-                {/* Apps pill — opens Connections page */}
-                <div className="relative shrink-0">
-                  <button
-                    onClick={() => navigate("/agent/connections")}
-                    className={cn(
-                      "flex items-center gap-1.5 p-2 sm:pl-2 sm:pr-2.5 sm:py-1.5 rounded-full transition-all duration-200",
-                      "border border-border/60 text-muted-foreground hover:text-foreground hover:bg-background",
-                      "text-sm font-medium whitespace-nowrap"
-                    )}
-                    aria-label="Apps"
-                  >
-                    <Plug className="w-4 h-4 text-cyan-500" />
-                    <span className="hidden sm:inline">{language === "bn" ? "অ্যাপস" : "Apps"}</span>
-                    {connectedCount > 0 && (
-                      <span className="ml-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-cyan-500/15 text-cyan-500">
-                        {connectedCount}
-                      </span>
-                    )}
-                  </button>
-                </div>
-
+              {/* Right cluster: Model + Mic + Send */}
+              <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
                 {/* Model picker pill */}
                 <div className="relative shrink-0">
                   <button
@@ -524,7 +506,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                           initial={{ opacity: 0, y: 10, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          className="absolute bottom-full left-0 mb-2 rounded-xl shadow-xl overflow-hidden z-[100] bg-popover border border-border backdrop-blur-xl min-w-[220px]"
+                          className="absolute bottom-full right-0 mb-2 rounded-xl shadow-xl overflow-hidden z-[100] bg-popover border border-border backdrop-blur-xl min-w-[220px]"
                         >
                           {MODELS.map((m) => (
                             <button
@@ -549,10 +531,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                     )}
                   </AnimatePresence>
                 </div>
-              </div>
 
-              {/* Right cluster: Mic + Send */}
-              <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
                 <button
                   onClick={() =>
                     toast.message(language === "bn" ? "ভয়েস মোড শীঘ্রই" : "Voice mode coming soon")
