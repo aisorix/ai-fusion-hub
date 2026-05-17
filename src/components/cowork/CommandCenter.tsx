@@ -429,6 +429,22 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                               {language === "bn" ? "ফাইল সংযুক্ত করুন" : "Attach File"}
                             </span>
                           </button>
+                          <div className="border-t border-border" />
+                          <button
+                            onClick={() => {
+                              setShowAttachMenu(false);
+                              navigate("/agent/connections");
+                            }}
+                            className="flex items-center gap-3 px-4 py-3 w-full transition-colors hover:bg-accent"
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+                              <LayoutGrid className="w-4 h-4 text-indigo-500" />
+                            </div>
+                            <span className="text-sm whitespace-nowrap flex-1 text-left">
+                              {language === "bn" ? "অ্যাপস ও কানেক্টর" : "Apps & Connectors"}
+                            </span>
+                            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                          </button>
                         </motion.div>
                       </>
                     )}
