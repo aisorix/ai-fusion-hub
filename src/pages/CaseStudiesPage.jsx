@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHero, { PageCTA } from "@/components/marketing/PageHero";
 import { TrendingUp, GraduationCap, Leaf, Heart, Building2, ArrowRight, Mail, Quote } from "lucide-react";
 
 const caseStudies = [
