@@ -99,6 +99,7 @@ const CareersPage = () => {
         </div>
       </main>
 
+      <PageCTA title="Want to ship AI at global scale?" desc="Send us your portfolio — we hire generalists, specialists and everything in between." button={{ label: "Email support@aisorix.com", to: "/careers" }} />
       <Footer />
     </div>
   );
