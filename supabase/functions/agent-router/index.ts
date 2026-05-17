@@ -138,11 +138,11 @@ Deno.serve(async (req) => {
     );
     const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims?.sub) {
+    const { data: userData, error: userError } = await supabase.auth.getUser(token);
+    if (userError || !userData?.user?.id) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
-    const user = { id: claimsData.claims.sub as string, email: (claimsData.claims.email as string) ?? "" };
+    const user = { id: userData.user.id, email: userData.user.email ?? "" };
 
 
     const { messages = [], model } = await req.json();
