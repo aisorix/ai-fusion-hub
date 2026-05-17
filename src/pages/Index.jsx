@@ -84,16 +84,13 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="AI Sorix | #1 AI Research Ecosystem in Bangladesh & Asia"
-        description="AI Sorix is the top AI platform in Bangladesh and Asia. Multi-model AI chat, image generation, presentations, health AI, agriculture AI, and autonomous agents — all in one workspace."
+        title="AI Sorix | Global AI Research Ecosystem & Workspace"
+        description="AI Sorix is the global zero-trust AI workspace. 15+ frontier models, image generation, presentations, health & agriculture AI, and autonomous agents in one place."
         path="/"
       />
       {jsonLd.map((data, i) => (
         <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
       ))}
-      <meta name="geo.region" content="BD" />
-      <meta name="geo.placename" content="Dhaka" />
-      <meta name="geo.position" content="23.8103;90.4125" />
       <Navbar />
 
       <Hero />
