@@ -18,6 +18,7 @@ const CoWorkPage: React.FC = () => {
         "@type": "SoftwareApplication",
         "name": "Sorix Agent",
         "url": "https://www.aisorix.com/agent",
+        "image": "https://storage.googleapis.com/gpt-engineer-file-uploads/TW4KYntEtgdPvf4urbHFts3hfl32/uploads/1770273544597-logo_(2).png",
         "applicationCategory": "BusinessApplication",
         "applicationSubCategory": "Autonomous AI Agent",
         "operatingSystem": "Web",

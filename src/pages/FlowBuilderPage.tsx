@@ -90,6 +90,7 @@ const FlowBuilderPage: React.FC = () => {
         "@type": "SoftwareApplication",
         "name": "Sorix FlowBuilder",
         "url": "https://www.aisorix.com/flowbuilder",
+        "image": "https://storage.googleapis.com/gpt-engineer-file-uploads/TW4KYntEtgdPvf4urbHFts3hfl32/uploads/1770273544597-logo_(2).png",
         "applicationCategory": "DesignApplication",
         "applicationSubCategory": "AI Diagram Generator",
         "operatingSystem": "Web",
