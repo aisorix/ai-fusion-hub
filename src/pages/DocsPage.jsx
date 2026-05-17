@@ -106,6 +106,7 @@ const DocsPage = () => {
         </div>
       </main>
 
+      <PageCTA title="Ready to build with AI Sorix?" desc="Sign up free, pick a tool, and ship your first AI-powered output in minutes." />
       <Footer />
     </div>
   );
