@@ -2,6 +2,7 @@ import React from "react";
 import SEOHead from "@/components/SEOHead";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHero, { PageCTA } from "@/components/marketing/PageHero";
 import { Code, Webhook, Box, Zap, ArrowRight, Mail, Shield, Globe } from "lucide-react";
 
 const features = [
