@@ -163,6 +163,7 @@ const PartnersPage = () => {
         </div>
       </main>
 
+      <PageCTA title="Let's grow together." desc="Apply today and unlock partner pricing, co-marketing and early access to the AI Sorix roadmap." />
       <Footer />
     </div>
   );
