@@ -58,9 +58,8 @@ const Index = () => {
       "name": "AI Sorix",
       "url": "https://www.aisorix.com",
       "logo": "https://www.aisorix.com/logo.png",
-      "description": "AI Sorix is a leading AI research ecosystem built in Bangladesh, offering multi-model AI chat, image generation, presentations, health analysis, agriculture AI, and autonomous agents.",
-      "foundingLocation": { "@type": "Place", "name": "Dhaka, Bangladesh" },
-      "areaServed": ["Bangladesh", "Asia", "Worldwide"],
+      "description": "AI Sorix is a global zero-trust AI research ecosystem offering multi-model AI chat, image generation, presentations, health analysis, agriculture AI, and autonomous agents in one secure workspace.",
+      "areaServed": "Worldwide",
       "sameAs": [
         "https://facebook.com/profile.php?id=61586687081259",
         "https://instagram.com/aisorix_",
@@ -68,7 +67,7 @@ const Index = () => {
         "https://twitter.com/aisorix_",
         "https://linkedin.com/company/aisorix"
       ],
-      "contactPoint": { "@type": "ContactPoint", "email": "support@aisorix.com", "contactType": "customer support" }
+      "contactPoint": { "@type": "ContactPoint", "email": "support@aisorix.com", "contactType": "customer support", "availableLanguage": ["English", "Bengali"] }
     },
     {
       "@context": "https://schema.org",
@@ -78,20 +77,7 @@ const Index = () => {
       "applicationCategory": "Artificial Intelligence",
       "operatingSystem": "Web",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free tier available" },
-      "featureList": ["Multi-Model AI Chat", "AI Image Generation", "AI Presentations", "Health Analysis", "Agriculture AI", "AI Agents", "Flow Builder", "Sorix Legends"]
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "LocalBusiness",
-      "name": "Sorix Lab",
-      "description": "AI research company building AI Sorix — the top AI platform in Bangladesh and Asia.",
-      "url": "https://www.aisorix.com",
-      "address": { "@type": "PostalAddress", "addressLocality": "Dhaka", "addressCountry": "BD" },
-      "geo": { "@type": "GeoCoordinates", "latitude": "23.8103", "longitude": "90.4125" },
-      "areaServed": [
-        { "@type": "Country", "name": "Bangladesh" },
-        { "@type": "Continent", "name": "Asia" }
-      ]
+      "featureList": ["Multi-Model AI Chat", "AI Image Generation", "AI Presentations", "Health Analysis", "Agriculture AI", "AI Agents", "Flow Builder", "Sorix Legends", "Multi-Window Chat"]
     }
   ];
 
