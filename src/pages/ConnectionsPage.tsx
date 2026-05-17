@@ -15,6 +15,7 @@ const ConnectionsPage: React.FC = () => {
   const [open, setOpen] = useState(false);
 
   const handleConnect = (svc: ServiceConfig) => {
+    if (svc.method === "oauth") return; // OAuth handled inline by card
     setSelected(svc);
     setOpen(true);
   };
