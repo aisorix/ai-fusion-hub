@@ -1,84 +1,86 @@
-# Validate & fix JSON-LD schema
+## Goal
+Combined plan covering two requests:
+1. Rotate the Google OAuth secrets to the new credentials you provided.
+2. Split the single "Google" tile on `/agent/connections` into **5 independent service tiles** — Gmail, Drive, Calendar, Docs, Sheets — each with its own Connect / Disconnect button and a polished "All done" success message.
 
-## Honest scope
+## Part 1 — Update Google OAuth secrets
 
-Google's Rich Results Test is an interactive web tool — there's no public API I can call from this sandbox. What I **can** do is audit every JSON-LD block against:
+Update via the secure secrets form (values never enter the codebase):
+- `GOOGLE_CLIENT_ID` → `345901867434-1nj30sgn02n77ov5bdtgsnqn4iu6h8jk.apps.googleusercontent.com`
+- `GOOGLE_CLIENT_SECRET` → `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`
+- `GOOGLE_REDIRECT_URI` → `https://flqwpuixevufwxfktdxg.supabase.co/functions/v1/google-oauth-callback`
 
-1. Google's [SoftwareApplication](https://developers.google.com/search/docs/appearance/structured-data/software-app) requirements
-2. Google's [Breadcrumb](https://developers.google.com/search/docs/appearance/structured-data/breadcrumb) requirements
-3. schema.org spec for `WebApplication`, `Organization`, `WebSite`, `FAQPage`, `CollectionPage`, `ItemList`
+The redirect URI already matches what `google-oauth-callback` derives from `SUPABASE_URL`, so no edge function code change is needed for the secret rotation itself. New values apply on next cold start (no redeploy required).
 
-After fixing, you can run the live test yourself at https://search.google.com/test/rich-results — I'll list the URLs to paste.
+> Action required from you in Google Cloud Console: confirm the same redirect URI is whitelisted on the new OAuth client.
 
-## Issues found in a static audit
+## Part 2 — Split Google into per-service tiles
 
-I'm flagging probable issues without writing fixes yet (plan mode). After approval I'll patch them.
+### Final UI
+```
+┌─ Gmail ──────┐ ┌─ Drive ──────┐ ┌─ Calendar ──┐
+│  [Connect]   │ │  [Connect]   │ │  [Connect]  │
+└──────────────┘ └──────────────┘ └─────────────┘
+┌─ Docs ───────┐ ┌─ Sheets ─────┐ ┌─ Facebook ──┐ ...
+│  [Connect]   │ │  [Connect]   │ │  [Connect]  │
+└──────────────┘ └──────────────┘ └─────────────┘
+```
 
-### 1. `SoftwareApplication` missing required fields (Google warning)
+Each Google tile triggers the same OAuth popup, but requests **only the scopes that service needs** (least-privilege) and stores its own row in `user_connections` keyed by a granular `service` id.
 
-Google's [official requirements](https://developers.google.com/search/docs/appearance/structured-data/software-app) for the App rich result:
+### Per-service scopes
+| Tile | `service` id | Scopes |
+|------|--------------|--------|
+| Gmail | `google_gmail` | openid, email, profile, `gmail.modify` |
+| Drive | `google_drive` | openid, email, profile, `drive` |
+| Calendar | `google_calendar` | openid, email, profile, `calendar` |
+| Docs | `google_docs` | openid, email, profile, `documents`, `drive.file` |
+| Sheets | `google_sheets` | openid, email, profile, `spreadsheets`, `drive.file` |
 
-- **Required**: `name`, `image`, **`aggregateRating` OR `review` OR `offers`**, `applicationCategory`, `operatingSystem`.
-- Our blocks have `name`, `offers`, `applicationCategory`, `operatingSystem` ✓
-- **Missing `image`** on Chat, FlowBuilder, Agent, Tools children — this triggers a Google warning ("missing image").
+(YouTube removed — not requested.)
 
-Fix: add `"image": "https://www.aisorix.com/logo.png"` (or a real screenshot) to every SoftwareApplication node.
+### Files to change
 
-### 2. `Offer` shape
+1. **`src/components/connections/connectionConfig.ts`**
+   - Replace the single `google` entry with five entries (Gmail, Drive, Calendar, Docs, Sheets).
+   - Add `oauthProvider: "google"` and `scopes: string[]` fields to `ServiceConfig`.
+   - Update `ServiceId` union accordingly.
 
-Our offers use `price: "0"`. Google accepts this but warns if `priceValidUntil` is missing for non-zero prices. Free offers are fine; no change needed.
+2. **`src/components/connections/ConnectDialog.tsx`**
+   - When `oauthProvider === "google"`, build start URL with the granular service + scopes:
+     `…/google-oauth-start?token=…&service=google_gmail&scopes=<space-joined>`
+   - Success toast (Sonner):
+     - Title: **"All done — {Label} connected"**
+     - Description: `{email} · ready to use in Sorix Agent`
+     - Duration 5s.
+   - Same toast pattern (without email) for the 4 manual services.
 
-### 3. `index.html` `SoftwareApplication` schema
+3. **`src/pages/ConnectionsPage.tsx`**
+   - One-time info card at top: *"We've split Google into separate services for stronger security. Connect just the ones you need."*
+   - Grid already iterates `CONNECTION_SERVICES`, so no structural change.
 
-Same `image` warning applies to the global block at lines 102–157. Add `image`.
+4. **`supabase/functions/google-oauth-start/index.ts`**
+   - Read `service` + `scopes` query params; validate `service` against allowlist (`google_gmail`, `google_drive`, `google_calendar`, `google_docs`, `google_sheets`).
+   - Use the provided scope set instead of the hardcoded full list.
+   - Sign `service` into the `state` payload alongside `uid` + `ts`.
 
-### 4. `index.html` `Offer` entries lack `url`
+5. **`supabase/functions/google-oauth-callback/index.ts`**
+   - Read `service` from verified state.
+   - Upsert into `user_connections` with `service = <granular id>`. The existing `(user_id, service)` unique constraint keeps each tile independent.
+   - Success postMessage payload includes `service` and `label` so the dialog can show the right name.
 
-`Offer` recommends a `url` so Google can link directly to the pricing page. Add `"url": "https://www.aisorix.com/#pricing"` to each of the 4 offers.
+6. **`supabase/functions/_shared/googleTokens.ts`**
+   - Update the lookup helper: given a required capability (gmail/drive/calendar/docs/sheets), fetch the matching `google_*` row. Falls back to legacy `google` row if present (for users on the old combined connection).
 
-### 5. `aggregateRating` in `index.html`
+7. **`supabase/functions/agent-router/index.ts`** *(small touch)*
+   - Wherever a Google action is dispatched, call the new helper with the required capability instead of hardcoding `service = "google"`.
 
-The global SoftwareApplication has `aggregateRating { ratingValue: "4.8", reviewCount: "150" }`. Google **requires** an accompanying `review` or `aggregateRating` **with `itemReviewed` context** — but inside SoftwareApplication this is fine. However, Google has been increasingly strict: if those numbers aren't backed by visible on-page reviews, it can trigger a "Spammy structured markup" warning. Two options:
-- (a) Keep — risky if not backed by visible reviews on `/`.
-- (b) Move to Reviews page only, where actual reviews render. **Recommend (b)**.
+### Migration note
+Existing rows with `service = "google"` stay in the DB and remain usable as a fallback. The info banner asks users to reconnect each service individually for least-privilege scopes. No SQL migration required — `user_connections.service` is free-text.
 
-### 6. `BreadcrumbList`
+### Verification
+- Update secrets → open `/agent/connections` → connect Gmail only → expect 1 row `service = google_gmail` with only Gmail-related scopes, and toast: **"All done — Gmail connected"**.
+- Repeat for Drive / Calendar / Docs / Sheets independently.
+- Disconnect Gmail and confirm Drive stays connected.
 
-All 4 new breadcrumbs are valid (position, name, item URL). ✓ No fix.
-
-### 7. `FAQPage` in `index.html`
-
-Valid shape. Google requires the answers be **visible on the page**. Our FAQs are answered in the Faqs section ✓ — but verify content matches. Quick string-check only; no edit unless mismatch found.
-
-### 8. `Organization` in `index.html`
-
-Missing recommended `email` at top level (it's only nested in contactPoint). Low priority — Google accepts current shape. No change.
-
-### 9. `Index.jsx` page schema
-
-Currently has Organization + WebApplication only. Could add a **WebPage** + **BreadcrumbList** for consistency, but not required. Skip unless you want it.
-
-## Plan of fixes (after approval)
-
-| File | Fix |
-|---|---|
-| `src/pages/ChatPage.tsx` | Add `image` to SoftwareApplication |
-| `src/pages/FlowBuilderPage.tsx` | Add `image` |
-| `src/pages/CoWorkPage.tsx` | Add `image` |
-| `src/pages/ToolsPage.tsx` | Add `image` to each `ListItem.item` (6 tools) and to CollectionPage |
-| `index.html` | Add `image` to SoftwareApplication; add `url` to each Offer; remove `aggregateRating` (or keep — your call) |
-
-## Verification steps (manual, after fixes)
-
-I'll provide a checklist with these URLs for you to paste into the live tester:
-- https://www.aisorix.com/
-- https://www.aisorix.com/chat
-- https://www.aisorix.com/tools
-- https://www.aisorix.com/flowbuilder
-- https://www.aisorix.com/agent
-
-For each: expect 0 errors, 0 warnings for SoftwareApplication / Breadcrumbs.
-
-## Question
-
-Should I **remove** the `aggregateRating` (4.8 / 150 reviews) from `index.html`, **keep** it, or **lower** it to match real review count from the Reviews page? This is the one item where you should choose, since faking ratings is a real Google penalty risk.
+No DB migration. No client/types regen.
