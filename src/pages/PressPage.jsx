@@ -146,6 +146,7 @@ const PressPage = () => {
         </div>
       </main>
 
+      <PageCTA title="Try AI Sorix yourself" desc="Spin up the workspace journalists and analysts are talking about — free, no credit card needed." />
       <Footer />
     </div>
   );
