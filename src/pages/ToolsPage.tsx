@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Stethoscope, Leaf, Crown, Presentation, Workflow, Palette, Languages, Music } from "lucide-react";
+import SEOHead from "@/components/SEOHead";
 
 const tools = [
   { id: "health", name: "Sorix Health", desc: "AI health analysis assistant", icon: Stethoscope, route: "/health", gradient: "from-emerald-500 to-teal-500", free: true },
