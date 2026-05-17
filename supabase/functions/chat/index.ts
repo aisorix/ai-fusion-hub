@@ -151,13 +151,16 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_ANON_KEY')!,
       { global: { headers: { Authorization: authHeader } } }
     );
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !user) {
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: authError } = await supabaseClient.auth.getClaims(token);
+    if (authError || !claimsData?.claims?.sub) {
+      console.error('chat auth failed', authError?.message);
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+    const user = { id: claimsData.claims.sub, email: claimsData.claims.email } as { id: string; email?: string };
 
     const { messages, model, stream = true, userPlan, modelName } = await req.json();
     
