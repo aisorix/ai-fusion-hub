@@ -15,7 +15,6 @@ const ConnectionsPage: React.FC = () => {
   const [open, setOpen] = useState(false);
 
   const handleConnect = (svc: ServiceConfig) => {
-    if (svc.method === "oauth") return; // OAuth handled inline by card
     setSelected(svc);
     setOpen(true);
   };
@@ -65,7 +64,6 @@ const ConnectionsPage: React.FC = () => {
                 connection={getByService(svc.id)}
                 onConnect={() => handleConnect(svc)}
                 onDisconnect={() => disconnect(svc.id)}
-                onOAuthSuccess={refresh}
               />
             ))}
           </div>

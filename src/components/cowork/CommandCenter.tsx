@@ -27,7 +27,6 @@ import { useCoWorkStore, type AgentStatus } from "@/stores/coworkStore";
 import { useCoWorkAgent } from "@/hooks/useCoWorkAgent";
 import AgentMessage from "./AgentMessage";
 import SmartClipboard from "./SmartClipboard";
-import ServicePanels from "./ServicePanels";
 import { cn } from "@/lib/utils";
 import TextareaAutosize from "react-textarea-autosize";
 import { useConnections } from "@/hooks/useConnections";
@@ -153,7 +152,6 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto">
         <div className="p-4 space-y-4 max-w-3xl mx-auto w-full">
-          <ServicePanels language={language} />
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center flex-1 min-h-0 text-center px-4 pt-8">
               <motion.div

@@ -54,15 +54,8 @@ export function useCoWorkAgent() {
       setAgentStatus("thinking");
 
       try {
-        let { data: sessionData } = await supabase.auth.getSession();
-        let supabaseSessionToken = sessionData?.session?.access_token;
-        if (!supabaseSessionToken) {
-          const { data: refreshed } = await supabase.auth.refreshSession();
-          supabaseSessionToken = refreshed?.session?.access_token;
-        }
-        if (!supabaseSessionToken) {
-          throw new Error("Your session expired. Please sign in again.");
-        }
+        const { data: sessionData } = await supabase.auth.getSession();
+        const token = sessionData?.session?.access_token;
 
         const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
         const url = `https://${projectId}.supabase.co/functions/v1/agent-router`;
@@ -73,7 +66,7 @@ export function useCoWorkAgent() {
 
         const response = await fetch(url, {
           method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${supabaseSessionToken}` },
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ messages: history, model: selectedModel }),
         });
 

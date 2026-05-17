@@ -1,37 +1,84 @@
-## Problem
+# Validate & fix JSON-LD schema
 
-The `/agent/connections` page already renders a "Connect" button on every `ConnectionCard`, and `ConnectDialog` contains the Google OAuth popup logic. But for the Google card the user has to click **Connect → then "Connect with Google"** inside a dialog, which is confusing and easy to miss — making it look like there is no working OAuth button.
+## Honest scope
 
-The OAuth wiring itself (popup → `google-oauth-start` edge function → `postMessage` callback → token saved by `google-oauth-callback`) is already implemented and the Google secrets are configured.
+Google's Rich Results Test is an interactive web tool — there's no public API I can call from this sandbox. What I **can** do is audit every JSON-LD block against:
 
-## Goal
+1. Google's [SoftwareApplication](https://developers.google.com/search/docs/appearance/structured-data/software-app) requirements
+2. Google's [Breadcrumb](https://developers.google.com/search/docs/appearance/structured-data/breadcrumb) requirements
+3. schema.org spec for `WebApplication`, `Organization`, `WebSite`, `FAQPage`, `CollectionPage`, `ItemList`
 
-Make the Google integration one-click from the connections page: clicking **Connect** on the Google card should immediately open the Google OAuth popup, no intermediate dialog.
+After fixing, you can run the live test yourself at https://search.google.com/test/rich-results — I'll list the URLs to paste.
 
-## Changes
+## Issues found in a static audit
 
-### 1. Extract the OAuth popup logic into a reusable hook
+I'm flagging probable issues without writing fixes yet (plan mode). After approval I'll patch them.
 
-New file `src/hooks/useGoogleOAuth.ts`:
-- Exports `useGoogleOAuth({ onSuccess })` returning `{ startOAuth, loading }`.
-- Moves the existing logic from `ConnectDialog.handleGoogleOAuth` verbatim (session token fetch, popup open with `google-oauth-start?token=...`, `postMessage` listener for `google_oauth_result`, popup-closed polling, sonner toasts).
+### 1. `SoftwareApplication` missing required fields (Google warning)
 
-### 2. Update `ConnectionCard.tsx`
-- Import `useGoogleOAuth`.
-- When `service.method === "oauth"`, the **Connect** and **Reconnect** buttons call `startOAuth()` directly instead of `onConnect()` (which opens the dialog).
-- Show `Loader2` spinner while `loading` is true.
-- For manual services, behavior is unchanged (still opens the dialog).
+Google's [official requirements](https://developers.google.com/search/docs/appearance/structured-data/software-app) for the App rich result:
 
-### 3. Update `ConnectDialog.tsx`
-- Refactor to use the same `useGoogleOAuth` hook (so the dialog path keeps working as a fallback), or simply delete the OAuth branch since the dialog will no longer be opened for Google. Pick the simpler: keep the dialog manual-only and drop the `method === "oauth"` branch.
+- **Required**: `name`, `image`, **`aggregateRating` OR `review` OR `offers`**, `applicationCategory`, `operatingSystem`.
+- Our blocks have `name`, `offers`, `applicationCategory`, `operatingSystem` ✓
+- **Missing `image`** on Chat, FlowBuilder, Agent, Tools children — this triggers a Google warning ("missing image").
 
-### 4. No backend changes
-- `google-oauth-start`, `google-oauth-callback`, secrets, and `user_connections` table are already in place.
+Fix: add `"image": "https://www.aisorix.com/logo.png"` (or a real screenshot) to every SoftwareApplication node.
 
-## Verification
+### 2. `Offer` shape
 
-1. Sign in, navigate to `/agent/connections`.
-2. Click **Connect** on the Google card → popup opens to Google consent screen.
-3. Approve → popup closes, toast "Google connected: <email>", card flips to **Connected** badge via realtime subscription on `user_connections`.
-4. Click **Test** → `connection-test` edge function returns ok.
-5. Click **Disconnect** → row removed, card returns to Not connected.
+Our offers use `price: "0"`. Google accepts this but warns if `priceValidUntil` is missing for non-zero prices. Free offers are fine; no change needed.
+
+### 3. `index.html` `SoftwareApplication` schema
+
+Same `image` warning applies to the global block at lines 102–157. Add `image`.
+
+### 4. `index.html` `Offer` entries lack `url`
+
+`Offer` recommends a `url` so Google can link directly to the pricing page. Add `"url": "https://www.aisorix.com/#pricing"` to each of the 4 offers.
+
+### 5. `aggregateRating` in `index.html`
+
+The global SoftwareApplication has `aggregateRating { ratingValue: "4.8", reviewCount: "150" }`. Google **requires** an accompanying `review` or `aggregateRating` **with `itemReviewed` context** — but inside SoftwareApplication this is fine. However, Google has been increasingly strict: if those numbers aren't backed by visible on-page reviews, it can trigger a "Spammy structured markup" warning. Two options:
+- (a) Keep — risky if not backed by visible reviews on `/`.
+- (b) Move to Reviews page only, where actual reviews render. **Recommend (b)**.
+
+### 6. `BreadcrumbList`
+
+All 4 new breadcrumbs are valid (position, name, item URL). ✓ No fix.
+
+### 7. `FAQPage` in `index.html`
+
+Valid shape. Google requires the answers be **visible on the page**. Our FAQs are answered in the Faqs section ✓ — but verify content matches. Quick string-check only; no edit unless mismatch found.
+
+### 8. `Organization` in `index.html`
+
+Missing recommended `email` at top level (it's only nested in contactPoint). Low priority — Google accepts current shape. No change.
+
+### 9. `Index.jsx` page schema
+
+Currently has Organization + WebApplication only. Could add a **WebPage** + **BreadcrumbList** for consistency, but not required. Skip unless you want it.
+
+## Plan of fixes (after approval)
+
+| File | Fix |
+|---|---|
+| `src/pages/ChatPage.tsx` | Add `image` to SoftwareApplication |
+| `src/pages/FlowBuilderPage.tsx` | Add `image` |
+| `src/pages/CoWorkPage.tsx` | Add `image` |
+| `src/pages/ToolsPage.tsx` | Add `image` to each `ListItem.item` (6 tools) and to CollectionPage |
+| `index.html` | Add `image` to SoftwareApplication; add `url` to each Offer; remove `aggregateRating` (or keep — your call) |
+
+## Verification steps (manual, after fixes)
+
+I'll provide a checklist with these URLs for you to paste into the live tester:
+- https://www.aisorix.com/
+- https://www.aisorix.com/chat
+- https://www.aisorix.com/tools
+- https://www.aisorix.com/flowbuilder
+- https://www.aisorix.com/agent
+
+For each: expect 0 errors, 0 warnings for SoftwareApplication / Breadcrumbs.
+
+## Question
+
+Should I **remove** the `aggregateRating` (4.8 / 150 reviews) from `index.html`, **keep** it, or **lower** it to match real review count from the Reviews page? This is the one item where you should choose, since faking ratings is a real Google penalty risk.
