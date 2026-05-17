@@ -65,6 +65,7 @@ const ConnectionsPage: React.FC = () => {
                 connection={getByService(svc.id)}
                 onConnect={() => handleConnect(svc)}
                 onDisconnect={() => disconnect(svc.id)}
+                onOAuthSuccess={refresh}
               />
             ))}
           </div>
