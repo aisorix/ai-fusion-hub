@@ -181,6 +181,10 @@ const BlogPage = () => {
         </section>
       </main>
 
+      <PageCTA
+        title="Read smarter. Build faster."
+        desc="Get AI Sorix free and turn every insight on this blog into shipped work — across chat, decks, images, agents and more."
+      />
       <Footer />
     </div>
   );
