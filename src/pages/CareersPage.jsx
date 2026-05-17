@@ -32,16 +32,15 @@ const CareersPage = () => {
         path="/careers"
       />
       <Navbar />
+      <PageHero
+        eyebrow="Careers at AI Sorix"
+        title="Build the world's most trusted AI workspace."
+        subtitle="Remote-first, global team. Help us ship AI Sorix to millions across chat, agents, decks, imagine, health, agro and beyond."
+        primaryCta={{ label: "View Open Roles", to: "/careers" }}
+        secondaryCta={{ label: "About AI Sorix", to: "/about-us" }}
+      />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-20">
-        <div className="text-center mb-12 sm:mb-16">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Careers at AI Sorix
-          </h1>
-          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-            Help us build the world's most trusted multi-model AI workspace. Remote-first, global team, hiring across continents.
-          </p>
-        </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-10 sm:py-16">
 
         {/* Mission */}
         <section className="mb-12 sm:mb-16 bg-card border border-border rounded-2xl p-6 sm:p-10">
