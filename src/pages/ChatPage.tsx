@@ -72,6 +72,7 @@ const ChatPage = () => {
         "@type": "SoftwareApplication",
         "name": "AI Sorix Chat",
         "url": "https://www.aisorix.com/chat",
+        "image": "https://storage.googleapis.com/gpt-engineer-file-uploads/TW4KYntEtgdPvf4urbHFts3hfl32/uploads/1770273544597-logo_(2).png",
         "applicationCategory": "BusinessApplication",
         "applicationSubCategory": "AI Chat Assistant",
         "operatingSystem": "Web",
