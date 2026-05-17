@@ -1,6 +1,27 @@
 import React from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Mail, Twitter, Linkedin, Youtube, Facebook, Instagram, MessageSquare, Presentation, ImageIcon, Heart, Leaf, Crown, Bot, Globe, Columns3, Cpu, Workflow, Shield, Chrome, Sparkles } from "lucide-react";
+import {
+  Mail,
+  Twitter,
+  Linkedin,
+  Youtube,
+  Facebook,
+  Instagram,
+  MessageSquare,
+  Presentation,
+  ImageIcon,
+  Heart,
+  Leaf,
+  Crown,
+  Bot,
+  Globe,
+  Columns3,
+  Cpu,
+  Workflow,
+  Shield,
+  Chrome,
+  Sparkles,
+} from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import logo from "../assets/logo.png";
 
@@ -58,60 +79,311 @@ const Footer = () => {
 
           {/* Features (mirrors Navbar Features mega-menu) */}
           <div>
-            <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">Features</h4>
+            <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">
+              Features
+            </h4>
             <ul className="space-y-3 sm:space-y-4">
-              <li><Link to="/chat" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><MessageSquare className="w-3.5 h-3.5" /> AI Chat</Link></li>
-              <li><Link to="/chat?multi=1" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Columns3 className="w-3.5 h-3.5" /> Multi-window Chat</Link></li>
-              <li><Link to="/agent" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Bot className="w-3.5 h-3.5" /> AI Agents</Link></li>
-              <li><Link to="/agent" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Cpu className="w-3.5 h-3.5" /> Sorix Agent OS</Link></li>
-              <li><Link to="/deck" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Presentation className="w-3.5 h-3.5" /> Sorix Deck</Link></li>
-              <li><Link to="/imagine" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><ImageIcon className="w-3.5 h-3.5" /> Sorix Imagine</Link></li>
-              <li><Link to="/flowbuilder" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Workflow className="w-3.5 h-3.5" /> Flow Builder</Link></li>
-              <li><Link to="/health" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Heart className="w-3.5 h-3.5" /> Sorix Health</Link></li>
-              <li><Link to="/agro" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Leaf className="w-3.5 h-3.5" /> Sorix Agro</Link></li>
-              <li><Link to="/legends" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Crown className="w-3.5 h-3.5" /> Sorix Legends</Link></li>
-              <li><Link to="/sorix-security" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Shield className="w-3.5 h-3.5" /> Sorix Security</Link></li>
-              <li><Link to="/sorix-for-chrome" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Chrome className="w-3.5 h-3.5" /> Sorix for Chrome</Link></li>
-              <li><Link to="/skills" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5" /> Skills</Link></li>
+              <li>
+                <Link
+                  to="/chat"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" /> AI Chat
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/chat?multi=1"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+                >
+                  <Columns3 className="w-3.5 h-3.5" /> Multi-window Chat
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/agent"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+                >
+                  <Bot className="w-3.5 h-3.5" /> AI Agents
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/agent"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+                >
+                  <Cpu className="w-3.5 h-3.5" /> Sorix Agent OS
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/deck"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+                >
+                  <Presentation className="w-3.5 h-3.5" /> Sorix Deck
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/imagine"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+                >
+                  <ImageIcon className="w-3.5 h-3.5" /> Sorix Imagine
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/flowbuilder"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+                >
+                  <Workflow className="w-3.5 h-3.5" /> Flow Builder
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/health"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+                >
+                  <Heart className="w-3.5 h-3.5" /> Sorix Health
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/agro"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+                >
+                  <Leaf className="w-3.5 h-3.5" /> Sorix Agro
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/legends"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+                >
+                  <Crown className="w-3.5 h-3.5" /> Sorix Legends
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/sorix-security"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+                >
+                  <Shield className="w-3.5 h-3.5" /> Sorix Security
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/sorix-for-chrome"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+                >
+                  <Chrome className="w-3.5 h-3.5" /> Sorix for Chrome
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/skills"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5" /> Skills
+                </Link>
+              </li>
             </ul>
           </div>
 
           {/* Solutions */}
           <div>
-            <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">Solutions</h4>
+            <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">
+              Solutions
+            </h4>
             <ul className="space-y-3 sm:space-y-4">
-              <li><Link to="/solutions/coding" className="text-sm text-muted-foreground hover:text-primary transition-colors">Coding</Link></li>
-              <li><Link to="/solutions/customer-support" className="text-sm text-muted-foreground hover:text-primary transition-colors">Customer Support</Link></li>
-              <li><Link to="/solutions/financial-services" className="text-sm text-muted-foreground hover:text-primary transition-colors">Financial Services</Link></li>
-              <li><Link to="/solutions/government" className="text-sm text-muted-foreground hover:text-primary transition-colors">Government</Link></li>
-              <li><Link to="/solutions/healthcare" className="text-sm text-muted-foreground hover:text-primary transition-colors">Healthcare</Link></li>
-              <li><Link to="/solutions/life-sciences" className="text-sm text-muted-foreground hover:text-primary transition-colors">Life Sciences</Link></li>
-              <li><Link to="/solutions/nonprofits" className="text-sm text-muted-foreground hover:text-primary transition-colors">Nonprofits</Link></li>
-              <li><Link to="/solutions/security" className="text-sm text-muted-foreground hover:text-primary transition-colors">Security</Link></li>
-              <li><Link to="/solutions/workflow-automation" className="text-sm text-muted-foreground hover:text-primary transition-colors">Workflow Automation</Link></li>
-              <li><Link to="/solutions/ai-for-educators" className="text-sm text-muted-foreground hover:text-primary transition-colors">Educators</Link></li>
-              <li><Link to="/solutions/ai-for-startups" className="text-sm text-muted-foreground hover:text-primary transition-colors">Startups</Link></li>
-              <li><Link to="/solutions/ai-for-researchers" className="text-sm text-muted-foreground hover:text-primary transition-colors">Researchers</Link></li>
-              <li><Link to="/solutions/ai-for-creators" className="text-sm text-muted-foreground hover:text-primary transition-colors">Creators</Link></li>
-              <li><Link to="/solutions/ai-for-freelancers" className="text-sm text-muted-foreground hover:text-primary transition-colors">Freelancers</Link></li>
-              <li><Link to="/solutions/ai-for-professionals" className="text-sm text-muted-foreground hover:text-primary transition-colors">Professionals</Link></li>
+              <li>
+                <Link
+                  to="/solutions/coding"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Coding
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/solutions/customer-support"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Customer Support
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/solutions/financial-services"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Financial Services
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/solutions/government"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Government
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/solutions/healthcare"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Healthcare
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/solutions/life-sciences"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Life Sciences
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/solutions/nonprofits"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Nonprofits
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/solutions/security"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Security
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/solutions/workflow-automation"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Workflow Automation
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/solutions/ai-for-educators"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Educators
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/solutions/ai-for-startups"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Startups
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/solutions/ai-for-researchers"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Researchers
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/solutions/ai-for-creators"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Creators
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/solutions/ai-for-freelancers"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Freelancers
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/solutions/ai-for-professionals"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Professionals
+                </Link>
+              </li>
             </ul>
           </div>
 
           {/* Resources */}
           <div>
-            <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">Resources</h4>
+            <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">
+              Resources
+            </h4>
             <ul className="space-y-3 sm:space-y-4">
-              <li><Link to="/blog" className="text-sm text-muted-foreground hover:text-primary transition-colors">Blog & AI Insights</Link></li>
-              <li><Link to="/case-studies" className="text-sm text-muted-foreground hover:text-primary transition-colors">Case Studies</Link></li>
-              <li><Link to="/docs" className="text-sm text-muted-foreground hover:text-primary transition-colors">Documentation</Link></li>
-              <li><Link to="/developer-api" className="text-sm text-muted-foreground hover:text-primary transition-colors">Developer API</Link></li>
-              <li><Link to="/connectors" className="text-sm text-muted-foreground hover:text-primary transition-colors">Connectors</Link></li>
-              <li><Link to="/courses" className="text-sm text-muted-foreground hover:text-primary transition-colors">Courses</Link></li>
-              <li><Link to="/events" className="text-sm text-muted-foreground hover:text-primary transition-colors">Events</Link></li>
-              <li><Link to="/inside-sorix-code" className="text-sm text-muted-foreground hover:text-primary transition-colors">Inside Sorix Code</Link></li>
-              <li><Link to="/inside-sorix-cowork" className="text-sm text-muted-foreground hover:text-primary transition-colors">Inside Sorix Cowork</Link></li>
-              <li><Link to="/reviews" className="text-sm text-muted-foreground hover:text-primary transition-colors">Community</Link></li>
+              <li>
+                <Link to="/blog" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Blog & AI Insights
+                </Link>
+              </li>
+              <li>
+                <Link to="/case-studies" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Case Studies
+                </Link>
+              </li>
+              <li>
+                <Link to="/docs" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Documentation
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/developer-api"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Developer API
+                </Link>
+              </li>
+              <li>
+                <Link to="/connectors" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Connectors
+                </Link>
+              </li>
+              <li>
+                <Link to="/courses" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Courses
+                </Link>
+              </li>
+              <li>
+                <Link to="/events" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Events
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/inside-sorix-code"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Inside Sorix Code
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/inside-sorix-cowork"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Inside Sorix Cowork
+                </Link>
+              </li>
+              <li>
+                <Link to="/reviews" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Community
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -119,45 +391,132 @@ const Footer = () => {
           <div>
             <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">Company</h4>
             <ul className="space-y-3 sm:space-y-4">
-              <li><Link to="/about-us" className="text-sm text-muted-foreground hover:text-primary transition-colors">About Us</Link></li>
-              <li><Link to="/about-sorix-lab" className="text-sm text-muted-foreground hover:text-primary transition-colors">About SorixLab</Link></li>
-              <li><Link to="/press" className="text-sm text-muted-foreground hover:text-primary transition-colors">Press & Media</Link></li>
-              <li><Link to="/careers" className="text-sm text-muted-foreground hover:text-primary transition-colors">Careers</Link></li>
-              <li><Link to="/partners" className="text-sm text-muted-foreground hover:text-primary transition-colors">Partners</Link></li>
-              <li><Link to="/economic-futures" className="text-sm text-muted-foreground hover:text-primary transition-colors">Economic Futures</Link></li>
-              <li><Link to="/research" className="text-sm text-muted-foreground hover:text-primary transition-colors">Research</Link></li>
-              <li><Link to="/security-and-compliance" className="text-sm text-muted-foreground hover:text-primary transition-colors">Security & Compliance</Link></li>
-              <li><Link to="/transparency" className="text-sm text-muted-foreground hover:text-primary transition-colors">Transparency</Link></li>
               <li>
-                <a href="/#contact" onClick={(e) => scrollToSection(e, 'contact')} className="text-sm text-muted-foreground hover:text-primary transition-colors">Contact Us</a>
+                <Link to="/about-us" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/about-sorix-lab"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  About SorixLab
+                </Link>
+              </li>
+              <li>
+                <Link to="/press" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Press & Media
+                </Link>
+              </li>
+              <li>
+                <Link to="/careers" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Careers
+                </Link>
+              </li>
+              <li>
+                <Link to="/partners" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Partners
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/economic-futures"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Economic Futures
+                </Link>
+              </li>
+              <li>
+                <Link to="/research" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Research
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/security-and-compliance"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Security & Compliance
+                </Link>
+              </li>
+              <li>
+                <Link to="/transparency" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Transparency
+                </Link>
+              </li>
+              <li>
+                <a
+                  href="/#contact"
+                  onClick={(e) => scrollToSection(e, "contact")}
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Contact Us
+                </a>
               </li>
             </ul>
           </div>
 
           {/* Legal */}
           <div>
-            <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">{t("legal")}</h4>
+            <h4 className="uppercase tracking-wider text-[11px] font-semibold text-foreground mb-4 sm:mb-6">
+              {t("legal")}
+            </h4>
             <ul className="space-y-3 sm:space-y-4">
-              <li><Link to="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">{t("privacyPolicy")}</Link></li>
-              <li><Link to="/terms-of-service" className="text-sm text-muted-foreground hover:text-primary transition-colors">{t("termsOfService")}</Link></li>
-              <li><Link to="/cookie-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">{t("cookiePolicy")}</Link></li>
-              <li><Link to="/refund-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">{t("refundPolicy")}</Link></li>
-              <li><Link to="/consumer-health-data-privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">Consumer Health Data Privacy</Link></li>
-              <li><Link to="/usage-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">Usage Policy</Link></li>
+              <li>
+                <Link
+                  to="/privacy-policy"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {t("privacyPolicy")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/terms-of-service"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {t("termsOfService")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/cookie-policy"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {t("cookiePolicy")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/refund-policy"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {t("refundPolicy")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/consumer-health-data-privacy"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Consumer Health Data Privacy
+                </Link>
+              </li>
+              <li>
+                <Link to="/usage-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Usage Policy
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
 
         {/* Bottom Bar */}
         <div className="mt-10 sm:mt-16 pt-6 sm:pt-8 border-t border-border flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between sm:text-left">
-          <p className="text-muted-foreground text-xs sm:text-sm">
-            © 2026 AI Sorix. {t("allRightsReserved")}
-          </p>
+          <p className="text-muted-foreground text-xs sm:text-sm">© 2026 AI Sorix. {t("allRightsReserved")}</p>
           {/* Hidden on mobile — shown from sm: upwards */}
-          <div className="hidden sm:flex items-center gap-1.5 text-muted-foreground text-xs sm:text-sm">
-            <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
-            <span>Global AI Workspace. Built for the world.</span>
-          </div>
+
           <div className="hidden sm:flex items-center gap-2 text-muted-foreground text-xs sm:text-sm">
             <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <a href="mailto:support@aisorix.com" className="hover:text-primary transition-colors">
