@@ -2,6 +2,7 @@ import React from "react";
 import SEOHead from "@/components/SEOHead";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHero, { PageCTA } from "@/components/marketing/PageHero";
 import { MapPin, Briefcase, Globe, Rocket, Heart, Zap, Users, Mail } from "lucide-react";
 
 const benefits = [
