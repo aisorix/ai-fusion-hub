@@ -32,6 +32,7 @@ const ToolsPage = () => {
         "name": "Sorix Tools",
         "url": "https://www.aisorix.com/tools",
         "description": "A gallery of specialized AI tools by AI Sorix: Health, Agro, Legends, Deck, FlowBuilder, and Imagine.",
+        "image": "https://storage.googleapis.com/gpt-engineer-file-uploads/TW4KYntEtgdPvf4urbHFts3hfl32/uploads/1770273544597-logo_(2).png",
         "isPartOf": { "@type": "WebSite", "name": "AI Sorix", "url": "https://www.aisorix.com" },
         "publisher": { "@type": "Organization", "name": "AI Sorix", "url": "https://www.aisorix.com" },
         "mainEntity": {
@@ -44,6 +45,7 @@ const ToolsPage = () => {
               "name": t.name,
               "description": t.desc,
               "url": `https://www.aisorix.com${t.route}`,
+              "image": "https://storage.googleapis.com/gpt-engineer-file-uploads/TW4KYntEtgdPvf4urbHFts3hfl32/uploads/1770273544597-logo_(2).png",
               "applicationCategory": "BusinessApplication",
               "operatingSystem": "Web",
               "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
