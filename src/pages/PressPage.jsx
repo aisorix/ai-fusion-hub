@@ -2,6 +2,7 @@ import React from "react";
 import SEOHead from "@/components/SEOHead";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHero, { PageCTA } from "@/components/marketing/PageHero";
 import { Newspaper, Download, Mail, Image, FileText, Globe } from "lucide-react";
 
 const pressReleases = [
