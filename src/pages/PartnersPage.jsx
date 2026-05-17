@@ -55,16 +55,15 @@ const PartnersPage = () => {
         path="/partners"
       />
       <Navbar />
+      <PageHero
+        eyebrow="Partners"
+        title="Partner with AI Sorix and grow together."
+        subtitle="Join the AI Sorix partner ecosystem — for education, enterprise, startups and regional distributors building on a unified, zero-trust multi-model AI workspace."
+        primaryCta={{ label: "Become a Partner", to: "/partners" }}
+        secondaryCta={{ label: "Explore Tools", to: "/tools" }}
+      />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-16 sm:py-24">
-        <div className="text-center mb-12 sm:mb-16">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Partner with AI Sorix
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Join our partner ecosystem and help bring AI innovation to Bangladesh, Asia, and the world.
-          </p>
-        </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16">
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
