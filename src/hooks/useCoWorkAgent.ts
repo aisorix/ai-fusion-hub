@@ -55,12 +55,12 @@ export function useCoWorkAgent() {
 
       try {
         let { data: sessionData } = await supabase.auth.getSession();
-        let token = sessionData?.session?.access_token;
-        if (!token) {
+        let supabaseSessionToken = sessionData?.session?.access_token;
+        if (!supabaseSessionToken) {
           const { data: refreshed } = await supabase.auth.refreshSession();
-          token = refreshed?.session?.access_token;
+          supabaseSessionToken = refreshed?.session?.access_token;
         }
-        if (!token) {
+        if (!supabaseSessionToken) {
           throw new Error("Your session expired. Please sign in again.");
         }
 
@@ -73,7 +73,7 @@ export function useCoWorkAgent() {
 
         const response = await fetch(url, {
           method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${supabaseSessionToken}` },
           body: JSON.stringify({ messages: history, model: selectedModel }),
         });
 
