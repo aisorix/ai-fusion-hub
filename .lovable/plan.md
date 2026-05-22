@@ -1,32 +1,25 @@
-## Add "Apps / Connectors" entry inside the + upload menu (Agent chatbox)
+## Goal
 
-Add a new item inside the `+` attachment popover in the Agent's CommandCenter, mirroring Claude's layout. It opens the existing Connections page so users can connect Gmail, Drive, Calendar, Docs, Sheets, etc.
+Trigger one of each auth email type to `support@aisorix.com` and confirm the webhook → pgmq queue → dispatcher → Lovable Email API pipeline works end-to-end.
 
-### Scope
-- Single file: `src/components/cowork/CommandCenter.tsx`
-- Affects both desktop and mobile (the popover is shared)
-- No backend / business-logic changes
+## Steps
 
-### Changes
+1. **Trigger each auth email** via Supabase Auth admin/public APIs against the project:
+   - **Signup confirmation** — call `auth/v1/signup` with `support@aisorix.com` + a throwaway password.
+   - **Magic link (login)** — call `auth/v1/otp` with `should_create_user: false` (user already exists from step 1).
+   - **Password reset (recovery)** — call `auth/v1/recover`.
+   - **Email change** — sign in as the user, then call `auth/v1/user` with a new email to fire the `email_change` template.
 
-1. **Imports**
-   - Add `LayoutGrid` (or `Blocks`) icon from `lucide-react`
-   - Add `useNavigate` from `react-router-dom` (if not already)
+2. **Verify the queue + delivery** by querying `email_send_log` for rows where `recipient_email = 'support@aisorix.com'`, deduplicated by `message_id`. Expect 4 rows progressing `pending → sent`. Report:
+   - Template name
+   - Final status
+   - Any `error_message` if `failed` / `dlq`
 
-2. **Popover structure** (inside `{showAttachMenu && ...}` block, lines ~385–430)
-   - Keep the existing "Max file size" header
-   - Existing items: Upload Image, Take Photo, Attach File
-   - Add a thin divider (`border-t border-border`)
-   - Add new item: **"Apps & Connectors"** (BN: "অ্যাপস ও কানেক্টর")
-     - Icon: `LayoutGrid` in an indigo tile (`bg-indigo-500/10 text-indigo-500`)
-     - Subtle right-side chevron (`ChevronRight`) to mimic Claude's submenu hint
-     - On click: `setShowAttachMenu(false)` then `navigate("/agent/connections")`
+3. **If anything is stuck in `pending`**, check `process-email-queue` edge function logs and the `cron.job` entry to confirm the dispatcher is running, and report findings.
 
-3. **Bilingual labels** use the existing `language === "bn"` pattern already in the file.
+4. **No code changes** — this is verification only. If a real failure surfaces (missing cron, bad `SENDER_DOMAIN`, etc.), I'll report it and propose a follow-up plan rather than fixing inline.
 
-4. **No other UI moved.** The Tools pill, model picker, and Web search remain untouched.
+## Notes
 
-### Verification
-- Open `/agent` on desktop (1261px) → click `+` → menu shows 4 items, last is "Apps & Connectors" → click navigates to `/agent/connections`
-- Resize to mobile width → same menu opens above the `+` button, item is tappable, label doesn't wrap (uses `whitespace-nowrap`)
-- BN language toggle renders Bangla label correctly
+- DNS for `notify.www.aisorix.com` must already be verified for emails to actually leave the queue. If it's still propagating, sends will sit in `pending` / be retried — that's expected and I'll flag it.
+- The signup test creates a real auth user for `support@aisorix.com`. Let me know if you'd prefer I delete it after the test.
