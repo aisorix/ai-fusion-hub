@@ -6,6 +6,7 @@ import { useAutoFocusInput } from "@/hooks/useAutoFocusInput";
 import { Send, Square, Loader2, Mic, Image as ImageIcon, Paperclip, Upload, X, Plus, Camera } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import TextareaAutosize from "react-textarea-autosize";
+import { isSubmitEnter } from "@/lib/inputHelpers";
 import { useChatStore, type Attachment, type UserPlan } from "@/stores/chatStore";
 import { cn } from "@/lib/utils";
 import { parseFile, getAcceptedFileTypes, getFileType } from "@/lib/fileParser";

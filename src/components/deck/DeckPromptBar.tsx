@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback, KeyboardEvent } from 'react';
 import { Send, Loader2, Plus, Image as ImageIcon, Camera, Paperclip, Settings2, Mic } from 'lucide-react';
 import ToolsMenu from '@/components/aichat/ToolsMenu';
 import TextareaAutosize from 'react-textarea-autosize';
+import { isSubmitEnter } from '@/lib/inputHelpers';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useChatStore, type Attachment } from '@/stores/chatStore';

@@ -6,6 +6,7 @@ import { useChatStore, type Attachment } from '@/stores/chatStore';
 import { parseFile, getAcceptedFileTypes, getFileType } from '@/lib/fileParser';
 import FileChip from '@/components/aichat/FileChip';
 import TextareaAutosize from 'react-textarea-autosize';
+import { isSubmitEnter } from '@/lib/inputHelpers';
 import { toast } from 'sonner';
 import ToolsMenu from '@/components/aichat/ToolsMenu';
 import { useAutoFocusInput } from '@/hooks/useAutoFocusInput';

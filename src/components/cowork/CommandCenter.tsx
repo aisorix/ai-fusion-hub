@@ -31,6 +31,7 @@ import AgentMessage from "./AgentMessage";
 import SmartClipboard from "./SmartClipboard";
 import { cn } from "@/lib/utils";
 import TextareaAutosize from "react-textarea-autosize";
+import { isSubmitEnter } from "@/lib/inputHelpers";
 import { useConnections } from "@/hooks/useConnections";
 import { useCustomIntegrations } from "@/hooks/useCustomIntegrations";
 import { toast } from "sonner";
