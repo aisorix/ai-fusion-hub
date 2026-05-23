@@ -31,6 +31,7 @@ import AgentMessage from "./AgentMessage";
 import SmartClipboard from "./SmartClipboard";
 import { cn } from "@/lib/utils";
 import TextareaAutosize from "react-textarea-autosize";
+import { isSubmitEnter } from "@/lib/inputHelpers";
 import { useConnections } from "@/hooks/useConnections";
 import { useCustomIntegrations } from "@/hooks/useCustomIntegrations";
 import { toast } from "sonner";
@@ -101,7 +102,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (isSubmitEnter(e)) {
       e.preventDefault();
       handleSend();
     }
@@ -337,6 +338,8 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={language === "bn" ? "আপনার টাস্ক লিখুন..." : "Describe your task..."}
+              enterKeyHint="send"
+              inputMode="text"
               className={cn(
                 "w-full px-2 sm:px-3 pt-2.5 pb-1 bg-transparent resize-none focus:outline-none",
                 "text-[15px] sm:text-base text-foreground placeholder:text-muted-foreground/70",

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Loader2, ArrowLeft, X, Plus, Image as ImageIcon, Camera, Paperclip, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import TextareaAutosize from 'react-textarea-autosize';
+import { isSubmitEnter } from '@/lib/inputHelpers';
 import { cn } from '@/lib/utils';
 import { legendsApi } from '@/services/legendsApi';
 import { useChatStore, type Attachment } from '@/stores/chatStore';
@@ -202,7 +203,7 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (isSubmitEnter(e)) {
       e.preventDefault();
       sendMessage();
     }
@@ -317,6 +318,8 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
               disabled={isStreaming}
               minRows={1}
               maxRows={6}
+              enterKeyHint="send"
+              inputMode="text"
               className={cn(
                 'w-full px-2 sm:px-3 pt-2.5 pb-1 bg-transparent resize-none focus:outline-none',
                 'text-[15px] sm:text-base text-foreground placeholder:text-muted-foreground/70',
