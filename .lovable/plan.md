@@ -1,50 +1,26 @@
-# Fix: Mobile keyboard breaks prompt bars on space / predictive typing
+# Mobile keyboard: Enter inserts newline, only Send button submits
 
-## Problem
-On mobile (Gboard, SwiftKey, iOS keyboard), pressing space or accepting a predictive suggestion fires a synthetic `keydown` event where `e.key === 'Enter'` (with `keyCode === 229` or `isComposing === true`). Our `handleKeyDown` does:
+## What the user wants
+On mobile, the keyboard's return/enter key should behave like Shift+Enter on desktop — insert a newline so users can type multi-line messages and spaces naturally. The on-screen Send (paper-plane) button is the only way to submit. Desktop behavior stays unchanged (Enter sends, Shift+Enter newline).
 
-```ts
-if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
-```
+## Change
+Extend the existing `isSubmitEnter` helper in `src/lib/inputHelpers.ts` so it also returns `false` on mobile / coarse-pointer / touch devices. Detection uses `window.matchMedia('(pointer: coarse)')` with a fallback to `'ontouchstart' in window`. This means Enter on mobile never triggers submit — the textarea's default newline insertion runs instead.
 
-So mid-typing, the message gets submitted and the textarea cleared — user has to start over. This affects every input bar in the app.
-
-## Root cause
-Missing IME-composition guard. The standard fix is to ignore Enter while the input method editor is active.
-
-## Fix
-Add a single shared helper and use it in every prompt bar's `handleKeyDown`:
-
-```ts
-// src/lib/inputHelpers.ts
-export const isSubmitEnter = (e: React.KeyboardEvent) =>
-  e.key === 'Enter' &&
-  !e.shiftKey &&
-  !e.nativeEvent.isComposing &&
-  (e as any).keyCode !== 229;
-```
-
-Then replace the guard in each file:
-
-```ts
-if (isSubmitEnter(e)) { e.preventDefault(); handleSend(); }
-```
+Also change `enterKeyHint="send"` → `enterKeyHint="enter"` on every prompt bar so the mobile keyboard shows a return/newline key icon (not "Send"), matching the new behavior.
 
 ## Files to update
-- `src/lib/inputHelpers.ts` — new, exports `isSubmitEnter`
-- `src/components/aichat/ChatInput.tsx` — line ~107
-- `src/components/aichat/SharedChatInput.tsx` — line ~113
-- `src/components/cowork/CommandCenter.tsx` — line ~104
-- `src/components/legends/LegendChat.tsx` — line ~205
-- `src/components/imagine/ImaginePromptBar.tsx` — line ~87
-- `src/components/flowbuilder/FlowPromptBar.tsx` — line ~87
-- `src/components/deck/DeckPromptBar.tsx` — line ~87
+- `src/lib/inputHelpers.ts` — add mobile guard inside `isSubmitEnter`.
+- `src/components/aichat/ChatInput.tsx`
+- `src/components/aichat/SharedChatInput.tsx`
+- `src/components/cowork/CommandCenter.tsx`
+- `src/components/legends/LegendChat.tsx`
+- `src/components/imagine/ImaginePromptBar.tsx`
+- `src/components/flowbuilder/FlowPromptBar.tsx`
+- `src/components/deck/DeckPromptBar.tsx`
 
-Also add `enterKeyHint="send"` and `inputMode="text"` props on each `TextareaAutosize` so the mobile keyboard shows a proper Send button instead of a newline key, which further reduces accidental submits.
+(Each of the 7 textareas only needs `enterKeyHint` flipped from `"send"` to `"enter"`.)
 
-## Scope
-Surgical: only the keydown guard and two textarea props per file. No behavior change on desktop (Enter still submits, Shift+Enter still newlines). No backend / business-logic changes.
-
-## Verification
-- Desktop: Enter submits, Shift+Enter inserts newline (unchanged).
-- Mobile: typing "hello world subscription" with spaces between words no longer submits/clears the box. Tapping the keyboard's "Send" button still submits.
+## Result
+- Mobile: typing space + Enter inserts spaces and newlines freely; nothing submits except tapping the Send button.
+- Desktop: Enter sends, Shift+Enter newlines (unchanged).
+- IME composition guard from the previous fix is preserved.
