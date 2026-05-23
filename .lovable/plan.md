@@ -1,25 +1,50 @@
-## Goal
+# Fix: Mobile keyboard breaks prompt bars on space / predictive typing
 
-Trigger one of each auth email type to `support@aisorix.com` and confirm the webhook → pgmq queue → dispatcher → Lovable Email API pipeline works end-to-end.
+## Problem
+On mobile (Gboard, SwiftKey, iOS keyboard), pressing space or accepting a predictive suggestion fires a synthetic `keydown` event where `e.key === 'Enter'` (with `keyCode === 229` or `isComposing === true`). Our `handleKeyDown` does:
 
-## Steps
+```ts
+if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+```
 
-1. **Trigger each auth email** via Supabase Auth admin/public APIs against the project:
-   - **Signup confirmation** — call `auth/v1/signup` with `support@aisorix.com` + a throwaway password.
-   - **Magic link (login)** — call `auth/v1/otp` with `should_create_user: false` (user already exists from step 1).
-   - **Password reset (recovery)** — call `auth/v1/recover`.
-   - **Email change** — sign in as the user, then call `auth/v1/user` with a new email to fire the `email_change` template.
+So mid-typing, the message gets submitted and the textarea cleared — user has to start over. This affects every input bar in the app.
 
-2. **Verify the queue + delivery** by querying `email_send_log` for rows where `recipient_email = 'support@aisorix.com'`, deduplicated by `message_id`. Expect 4 rows progressing `pending → sent`. Report:
-   - Template name
-   - Final status
-   - Any `error_message` if `failed` / `dlq`
+## Root cause
+Missing IME-composition guard. The standard fix is to ignore Enter while the input method editor is active.
 
-3. **If anything is stuck in `pending`**, check `process-email-queue` edge function logs and the `cron.job` entry to confirm the dispatcher is running, and report findings.
+## Fix
+Add a single shared helper and use it in every prompt bar's `handleKeyDown`:
 
-4. **No code changes** — this is verification only. If a real failure surfaces (missing cron, bad `SENDER_DOMAIN`, etc.), I'll report it and propose a follow-up plan rather than fixing inline.
+```ts
+// src/lib/inputHelpers.ts
+export const isSubmitEnter = (e: React.KeyboardEvent) =>
+  e.key === 'Enter' &&
+  !e.shiftKey &&
+  !e.nativeEvent.isComposing &&
+  (e as any).keyCode !== 229;
+```
 
-## Notes
+Then replace the guard in each file:
 
-- DNS for `notify.www.aisorix.com` must already be verified for emails to actually leave the queue. If it's still propagating, sends will sit in `pending` / be retried — that's expected and I'll flag it.
-- The signup test creates a real auth user for `support@aisorix.com`. Let me know if you'd prefer I delete it after the test.
+```ts
+if (isSubmitEnter(e)) { e.preventDefault(); handleSend(); }
+```
+
+## Files to update
+- `src/lib/inputHelpers.ts` — new, exports `isSubmitEnter`
+- `src/components/aichat/ChatInput.tsx` — line ~107
+- `src/components/aichat/SharedChatInput.tsx` — line ~113
+- `src/components/cowork/CommandCenter.tsx` — line ~104
+- `src/components/legends/LegendChat.tsx` — line ~205
+- `src/components/imagine/ImaginePromptBar.tsx` — line ~87
+- `src/components/flowbuilder/FlowPromptBar.tsx` — line ~87
+- `src/components/deck/DeckPromptBar.tsx` — line ~87
+
+Also add `enterKeyHint="send"` and `inputMode="text"` props on each `TextareaAutosize` so the mobile keyboard shows a proper Send button instead of a newline key, which further reduces accidental submits.
+
+## Scope
+Surgical: only the keydown guard and two textarea props per file. No behavior change on desktop (Enter still submits, Shift+Enter still newlines). No backend / business-logic changes.
+
+## Verification
+- Desktop: Enter submits, Shift+Enter inserts newline (unchanged).
+- Mobile: typing "hello world subscription" with spaces between words no longer submits/clears the box. Tapping the keyboard's "Send" button still submits.
