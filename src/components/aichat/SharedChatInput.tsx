@@ -325,7 +325,7 @@ const SharedChatInput = ({
           disabled={streaming}
           minRows={1}
           maxRows={4}
-          enterKeyHint="send"
+          enterKeyHint="enter"
           inputMode="text"
           className={cn(
             "flex-1 py-4 px-2 bg-transparent resize-none focus:outline-none",
