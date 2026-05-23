@@ -110,7 +110,7 @@ const SharedChatInput = ({
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === "Enter" && !e.shiftKey) {
+      if (isSubmitEnter(e)) {
         e.preventDefault();
         handleSend();
       }
@@ -324,6 +324,8 @@ const SharedChatInput = ({
           disabled={streaming}
           minRows={1}
           maxRows={4}
+          enterKeyHint="send"
+          inputMode="text"
           className={cn(
             "flex-1 py-4 px-2 bg-transparent resize-none focus:outline-none",
             "text-base text-foreground placeholder:text-muted-foreground",

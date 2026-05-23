@@ -84,7 +84,7 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled 
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (isSubmitEnter(e)) {
       e.preventDefault();
       handleSubmit();
     }
@@ -148,6 +148,8 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled 
           disabled={isGenerating || disabled}
           minRows={1}
           maxRows={6}
+          enterKeyHint="send"
+          inputMode="text"
           className={cn(
             'w-full px-2 sm:px-3 pt-2.5 pb-1 bg-transparent resize-none focus:outline-none',
             'text-[15px] sm:text-base text-foreground placeholder:text-muted-foreground/70',

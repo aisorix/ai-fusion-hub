@@ -101,7 +101,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (isSubmitEnter(e)) {
       e.preventDefault();
       handleSend();
     }
@@ -337,6 +337,8 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={language === "bn" ? "আপনার টাস্ক লিখুন..." : "Describe your task..."}
+              enterKeyHint="send"
+              inputMode="text"
               className={cn(
                 "w-full px-2 sm:px-3 pt-2.5 pb-1 bg-transparent resize-none focus:outline-none",
                 "text-[15px] sm:text-base text-foreground placeholder:text-muted-foreground/70",
