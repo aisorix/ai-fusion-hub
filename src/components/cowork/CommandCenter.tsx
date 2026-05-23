@@ -338,7 +338,7 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={language === "bn" ? "আপনার টাস্ক লিখুন..." : "Describe your task..."}
-              enterKeyHint="send"
+              enterKeyHint="enter"
               inputMode="text"
               className={cn(
                 "w-full px-2 sm:px-3 pt-2.5 pb-1 bg-transparent resize-none focus:outline-none",

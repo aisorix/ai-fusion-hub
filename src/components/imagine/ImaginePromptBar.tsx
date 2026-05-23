@@ -149,7 +149,7 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled 
           disabled={isGenerating || disabled}
           minRows={1}
           maxRows={6}
-          enterKeyHint="send"
+          enterKeyHint="enter"
           inputMode="text"
           className={cn(
             'w-full px-2 sm:px-3 pt-2.5 pb-1 bg-transparent resize-none focus:outline-none',

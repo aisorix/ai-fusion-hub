@@ -570,7 +570,7 @@ const ChatInput = ({ onSend, disabled, onOpenVoiceMode, onStop }: ChatInputProps
           disabled={isStreaming || disabled || isParsing}
           minRows={1}
           maxRows={6}
-          enterKeyHint="send"
+          enterKeyHint="enter"
           inputMode="text"
           className={cn(
             'w-full px-2 sm:px-3 pt-2.5 pb-1 bg-transparent resize-none focus:outline-none',
