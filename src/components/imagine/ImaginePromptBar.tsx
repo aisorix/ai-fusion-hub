@@ -10,11 +10,16 @@ import { isSubmitEnter } from '@/lib/inputHelpers';
 import { toast } from 'sonner';
 import ToolsMenu from '@/components/aichat/ToolsMenu';
 import { useAutoFocusInput } from '@/hooks/useAutoFocusInput';
+import ImagineModelSelector, { type ImageModel } from './ImagineModelSelector';
 
 interface Props {
   onGenerate: (prompt: string, attachments?: Attachment[]) => void;
   isGenerating: boolean;
   disabled?: boolean;
+  selectedModel: ImageModel;
+  onSelectModel: (m: ImageModel) => void;
+  userPlan: string;
+  onUpgrade: () => void;
 }
 
 const FILE_SIZE_LIMITS: Record<string, number> = {
@@ -29,7 +34,7 @@ const formatSize = (bytes: number): string => {
   return `${(bytes / (1024 * 1024)).toFixed(0)} MB`;
 };
 
-const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled }) => {
+const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled, selectedModel, onSelectModel, userPlan, onUpgrade }) => {
   const [prompt, setPrompt] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
@@ -234,13 +239,19 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled 
             </div>
           </div>
 
-          {/* Right cluster: mic + send */}
-          <div className="flex items-center gap-0.5 shrink-0">
+          {/* Right cluster: model picker + mic + send */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <ImagineModelSelector
+              selectedModelId={selectedModel.modelId}
+              onSelectModel={onSelectModel}
+              userPlan={userPlan}
+              onUpgrade={onUpgrade}
+            />
             {!hasContent && (
               <button
                 type="button"
                 aria-label="Voice"
-                className="p-2 sm:p-2.5 rounded-full hover:bg-background text-muted-foreground hover:text-primary transition-colors relative"
+                className="p-2 sm:p-2.5 rounded-full hover:bg-background text-muted-foreground hover:text-primary transition-colors relative hidden sm:inline-flex"
               >
                 <Mic className="w-5 h-5" />
                 <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-green-500 rounded-full" />

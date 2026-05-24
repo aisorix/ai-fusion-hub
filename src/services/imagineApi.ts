@@ -24,20 +24,33 @@ export interface ImageGeneration {
   created_at: string;
 }
 
+export interface GenerateImageParams {
+  prompt: string;
+  model?: string;
+  imageData?: string;
+  aspectRatio?: string;
+  resolution?: string;
+  format?: string;
+  count?: number;
+}
+
+export interface GenerateImageResult {
+  imageUrls: string[];
+  imageUrl: string;
+  ids: string[];
+  tokensUsed: number;
+  totalTokensUsed: number;
+}
+
 export const imagineApi = {
-  generateImage: async (prompt: string, style?: string, model?: string, imageData?: string): Promise<{
-    imageUrl: string;
-    id: string;
-    tokensUsed: number;
-    totalTokensUsed: number;
-  }> => {
+  generateImage: async (params: GenerateImageParams): Promise<GenerateImageResult> => {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/imagine`,
       {
         method: 'POST',
         headers,
-        body: JSON.stringify({ prompt, style, model, imageData }),
+        body: JSON.stringify(params),
       }
     );
 
@@ -55,7 +68,7 @@ export const imagineApi = {
       .from('image_generations' as any)
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(50);
+      .limit(60);
 
     if (error) throw error;
     return (data as any) || [];

@@ -7,19 +7,29 @@ import { toast } from 'sonner';
 import { useChatStore, type Attachment } from '@/stores/chatStore';
 import { imagineApi, type ImageGeneration } from '@/services/imagineApi';
 import ImaginePromptBar from '@/components/imagine/ImaginePromptBar';
-import ImagineStyleCarousel, { trendingStyles, type StyleOption } from '@/components/imagine/ImagineStyleCarousel';
-import ImagineModelSelector, { imageModels, type ImageModel } from '@/components/imagine/ImagineModelSelector';
+import { imageModels, type ImageModel } from '@/components/imagine/ImagineModelSelector';
+import ImagineOptionsPanel, {
+  type AspectRatio,
+  type Resolution,
+  type OutputFormat,
+  type OutputCount,
+} from '@/components/imagine/ImagineOptionsPanel';
 import ImagineCanvas from '@/components/imagine/ImagineCanvas';
 import ImagineHistory from '@/components/imagine/ImagineHistory';
+import ImagineHistoryFeed from '@/components/imagine/ImagineHistoryFeed';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 
 const ImaginePage: React.FC = () => {
   const navigate = useNavigate();
   const { user, setUser } = useChatStore();
 
-  const [selectedStyle, setSelectedStyle] = useState<StyleOption>(trendingStyles[0]);
   const [selectedModel, setSelectedModel] = useState<ImageModel>(imageModels[0]);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [aspect, setAspect] = useState<AspectRatio>('1:1');
+  const [resolution, setResolution] = useState<Resolution>('1K');
+  const [format, setFormat] = useState<OutputFormat>('webp');
+  const [count, setCount] = useState<OutputCount>(1);
+
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [currentPrompt, setCurrentPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
@@ -27,34 +37,38 @@ const ImaginePage: React.FC = () => {
   const [refreshHistory, setRefreshHistory] = useState(0);
 
   const tokensRemaining = user.tokensLimit - user.tokensUsed;
+  const isProPlus = user.plan === 'pro' || user.plan === 'premium';
+
+  const resMultiplier = resolution === '4K' ? 4 : resolution === '2K' ? 2 : 1;
+  const costEstimate = 12000 * count * resMultiplier;
 
   const handleGenerate = async (prompt: string, attachments?: Attachment[]) => {
-    if (tokensRemaining < 12000) {
+    if (tokensRemaining < costEstimate) {
       setShowUpgrade(true);
       return;
     }
 
     setCurrentPrompt(prompt);
     setIsGenerating(true);
-    setImageUrl(null);
+    setImageUrls([]);
 
-    // Extract image data from first image attachment if present
     let imageData: string | undefined;
     if (attachments?.length) {
-      const imgAtt = attachments.find(a => a.type === 'image' && a.url);
-      if (imgAtt) {
-        imageData = imgAtt.url;
-      }
+      const imgAtt = attachments.find((a) => a.type === 'image' && a.url);
+      if (imgAtt) imageData = imgAtt.url;
     }
 
     try {
-      const result = await imagineApi.generateImage(
+      const result = await imagineApi.generateImage({
         prompt,
-        selectedStyle.modifier || undefined,
-        selectedModel.modelId,
-        imageData
-      );
-      setImageUrl(result.imageUrl);
+        model: selectedModel.modelId,
+        imageData,
+        aspectRatio: aspect,
+        resolution,
+        format,
+        count,
+      });
+      setImageUrls(result.imageUrls || (result.imageUrl ? [result.imageUrl] : []));
       setRefreshHistory((p) => p + 1);
       setUser({ ...user, tokensUsed: result.totalTokensUsed });
     } catch (err: any) {
@@ -71,15 +85,10 @@ const ImaginePage: React.FC = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
 
   const handleHistorySelect = (gen: ImageGeneration) => {
-    setImageUrl(gen.image_url);
+    setImageUrls([gen.image_url]);
     setCurrentPrompt(gen.prompt);
-    // Restore original style/model when possible so the canvas reflects original state
-    if (gen.style) {
-      const match = trendingStyles.find(s => s.modifier === gen.style || s.id === gen.style);
-      if (match) setSelectedStyle(match);
-    }
     if (gen.model) {
-      const m = imageModels.find(im => im.modelId === gen.model);
+      const m = imageModels.find((im) => im.modelId === gen.model);
       if (m) setSelectedModel(m);
     }
     setShowHistory(false);
@@ -90,7 +99,11 @@ const ImaginePage: React.FC = () => {
 
   return (
     <div className="h-[100dvh] flex flex-col bg-background overflow-hidden">
-      <SEOHead title="Sorix Imagine | AI Image Generation | AI Sorix" description="Generate beautiful AI images with multiple artistic styles. Create stunning visuals from text prompts instantly." path="/imagine" />
+      <SEOHead
+        title="Sorix Imagine | AI Image Generation | AI Sorix"
+        description="Generate beautiful AI images with multiple artistic styles. Create stunning visuals from text prompts instantly."
+        path="/imagine"
+      />
       {/* Header */}
       <header className="shrink-0 bg-card/80 backdrop-blur-xl relative">
         <div className="flex items-center justify-between px-4 md:px-6 h-14">
@@ -120,42 +133,63 @@ const ImaginePage: React.FC = () => {
             <History className="w-4 h-4" />
           </button>
         </div>
-        {/* Gradient accent line */}
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
       </header>
 
-      {/* Main Content — Prompt First */}
       <main className="flex-1 overflow-y-auto">
-        <div className="max-w-2xl mx-auto px-4 py-8 md:py-12 flex flex-col items-center gap-5">
-          {/* Prompt Bar (hero) */}
-          <div className="relative z-[60] w-full">
-            <ImaginePromptBar onGenerate={handleGenerate} isGenerating={isGenerating} />
+        <div className="max-w-3xl mx-auto px-4 py-6 md:py-10 flex flex-col gap-5">
+          {/* Prompt bar with embedded model picker */}
+          <div className="relative z-[60]">
+            <ImaginePromptBar
+              onGenerate={handleGenerate}
+              isGenerating={isGenerating}
+              selectedModel={selectedModel}
+              onSelectModel={setSelectedModel}
+              userPlan={user.plan}
+              onUpgrade={() => setShowUpgrade(true)}
+            />
           </div>
 
-          {/* Token info */}
-          <p className="text-[10px] text-muted-foreground/50 text-center -mt-2">
-            {tokensRemaining.toLocaleString()} tokens remaining • 12,000 per image
+          <p className="text-[10.5px] text-muted-foreground/60 text-center -mt-2">
+            {tokensRemaining.toLocaleString()} tokens remaining · {costEstimate.toLocaleString()} for this generation
           </p>
 
-          {/* Model Selector */}
-          <ImagineModelSelector
-            selectedModelId={selectedModel.modelId}
-            onSelectModel={setSelectedModel}
-            userPlan={user.plan}
+          {/* Options panel */}
+          <ImagineOptionsPanel
+            aspect={aspect}
+            onAspectChange={setAspect}
+            resolution={resolution}
+            onResolutionChange={setResolution}
+            format={format}
+            onFormatChange={setFormat}
+            count={count}
+            onCountChange={setCount}
+            isProPlus={isProPlus}
             onUpgrade={() => setShowUpgrade(true)}
           />
 
-          {/* Style Carousel */}
-          <ImagineStyleCarousel selectedStyle={selectedStyle.id} onSelectStyle={setSelectedStyle} />
-
-          {/* Canvas / Image Display */}
-          <div ref={canvasRef} className="w-full">
-            <ImagineCanvas imageUrl={imageUrl} isGenerating={isGenerating} prompt={currentPrompt} />
+          {/* Canvas */}
+          <div ref={canvasRef} className="w-full pt-2">
+            <ImagineCanvas
+              imageUrls={imageUrls}
+              isGenerating={isGenerating}
+              prompt={currentPrompt}
+              aspect={aspect}
+              count={count}
+            />
           </div>
+
+          {/* Visual gap */}
+          <div className="py-6" />
+
+          {/* Inline history feed */}
+          <ImagineHistoryFeed onSelect={handleHistorySelect} refreshTrigger={refreshHistory} />
+
+          <div className="h-6" />
         </div>
       </main>
 
-      {/* History Panel */}
+      {/* Slide-in history panel */}
       <AnimatePresence>
         {showHistory && (
           <>
