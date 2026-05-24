@@ -301,25 +301,27 @@ Rules:${isSingle ? singleRules : deckRules}
 
     const title = slides[0]?.heading || "Untitled Presentation";
 
-    // Save to presentations table
-    await supabase.from("presentations").insert({
-      user_id: userId,
-      title,
-      prompt,
-      slide_count: slides.length,
-      slides_data: slides,
-      theme,
-      tokens_used: totalTokens,
-    });
+    if (!isSingle) {
+      // Save to presentations table
+      await supabase.from("presentations").insert({
+        user_id: userId,
+        title,
+        prompt,
+        slide_count: slides.length,
+        slides_data: slides,
+        theme,
+        tokens_used: totalTokens,
+      });
 
-    // Save to analysis_history
-    await supabase.from("analysis_history").insert({
-      user_id: userId,
-      tool: "deck",
-      title,
-      input_data: { prompt, slideCount, theme, generateImages },
-      result_data: { slides, tokens_used: totalTokens },
-    });
+      // Save to analysis_history
+      await supabase.from("analysis_history").insert({
+        user_id: userId,
+        tool: "deck",
+        title,
+        input_data: { prompt, slideCount, theme, generateImages },
+        result_data: { slides, tokens_used: totalTokens },
+      });
+    }
 
     // Deduct tokens only for paid users
     if (sub && !isFreeSlides) {
@@ -328,6 +330,17 @@ Rules:${isSingle ? singleRules : deckRules}
         .update({ tokens_used: currentUsed + totalTokens })
         .eq("user_id", userId)
         .eq("status", "active");
+    }
+
+    if (isSingle) {
+      return new Response(
+        JSON.stringify({
+          slide: slides[0],
+          tokensUsed: totalTokens,
+          totalTokensUsed: currentUsed + totalTokens,
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     return new Response(
