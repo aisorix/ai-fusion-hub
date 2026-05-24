@@ -313,6 +313,12 @@ const DeckPage: React.FC = () => {
           </div>
 
           {/* Text content card */}
+          {/* Advanced format / scenario / audience / tone / aspect / instructions */}
+          <DeckAdvancedPanel
+            values={advanced}
+            onChange={(patch) => setAdvanced((prev) => ({ ...prev, ...patch }))}
+          />
+
           <DeckTextContentCard selected={textContent} onSelect={setTextContent} />
 
           {/* Theme showcase */}
