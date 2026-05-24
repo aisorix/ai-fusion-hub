@@ -311,18 +311,47 @@ const DeckPage: React.FC = () => {
       {showEditor ? (
         <>
           {slides.length > 0 && (
-            <div className="shrink-0 border-b border-border/40 bg-card/40 backdrop-blur-md px-3 sm:px-5 py-2">
-              <DeckActions
-                slides={slides}
-                title={title}
-                theme={selectedTheme}
-                onSlideshow={() => setShowSlideshow(true)}
-              />
+            <div className="shrink-0 border-b border-border/40 bg-card/40 backdrop-blur-md px-3 sm:px-5 py-2 flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap min-w-0">
+                <div className="inline-flex items-center rounded-lg border border-border/60 bg-card/60 overflow-hidden">
+                  <button
+                    onClick={undo}
+                    disabled={!canUndo}
+                    title="Undo (Ctrl/Cmd+Z)"
+                    className="inline-flex items-center justify-center w-8 h-8 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <Undo2 className="w-4 h-4" />
+                  </button>
+                  <div className="w-px h-5 bg-border/60" />
+                  <button
+                    onClick={redo}
+                    disabled={!canRedo}
+                    title="Redo (Ctrl/Cmd+Shift+Z)"
+                    className="inline-flex items-center justify-center w-8 h-8 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <Redo2 className="w-4 h-4" />
+                  </button>
+                </div>
+                <DeckActions
+                  slides={slides}
+                  title={title}
+                  theme={selectedTheme}
+                  onSlideshow={() => setShowSlideshow(true)}
+                />
+              </div>
+              <div className="flex items-center gap-2 ml-auto">
+                <DeckThemePicker selected={selectedTheme} onSelect={handleThemeChange} />
+                <DeckCreateNewButton
+                  label="Create New One"
+                  onBlank={handleCreateNew}
+                  onFromPrompt={handleCreateNew}
+                />
+              </div>
             </div>
           )}
           <DeckEditor
             slides={slides}
-            onSlidesChange={setSlides}
+            onSlidesChange={handleSlidesChange}
             theme={selectedTheme}
             isGenerating={isGenerating}
             expectedSlideCount={effectiveSlideCount}
