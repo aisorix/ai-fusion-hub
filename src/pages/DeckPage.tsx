@@ -1,7 +1,7 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEOHead from '@/components/SEOHead';
-import { ArrowLeft, Presentation, History, X, Layers } from 'lucide-react';
+import { ArrowLeft, Presentation, History, X, Layers, Undo2, Redo2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useChatStore } from '@/stores/chatStore';
@@ -21,6 +21,7 @@ import DeckExplorer from '@/components/deck/DeckExplorer';
 import DeckAdvancedPanel, { type DeckAdvancedValues } from '@/components/deck/DeckAdvancedPanel';
 import DeckEditor from '@/components/deck/editor/DeckEditor';
 import DeckCreateNewButton from '@/components/deck/editor/DeckCreateNewButton';
+import DeckThemePicker from '@/components/deck/DeckThemePicker';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 import { cn } from '@/lib/utils';
 
@@ -58,6 +59,70 @@ const DeckPage: React.FC = () => {
     aspectRatio: '16:9',
     additionalInstructions: '',
   });
+
+  // ───── Undo / Redo history ─────
+  type Snapshot = { slides: Slide[]; theme: DeckTheme };
+  const [history, setHistory] = useState<Snapshot[]>([{ slides: [], theme: 'dark' }]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+
+  const commit = useCallback((nextSlides: Slide[], nextTheme?: DeckTheme) => {
+    const theme = nextTheme ?? selectedTheme;
+    setSlides(nextSlides);
+    if (nextTheme) setSelectedTheme(nextTheme);
+    setHistory((h) => {
+      const truncated = h.slice(0, historyIndex + 1);
+      const next = [...truncated, { slides: nextSlides, theme }];
+      // cap at 50
+      const trimmed = next.length > 50 ? next.slice(next.length - 50) : next;
+      setHistoryIndex(trimmed.length - 1);
+      return trimmed;
+    });
+  }, [historyIndex, selectedTheme]);
+
+  const resetHistory = useCallback((snap: Snapshot) => {
+    setSlides(snap.slides);
+    setSelectedTheme(snap.theme);
+    setHistory([snap]);
+    setHistoryIndex(0);
+  }, []);
+
+  const canUndo = historyIndex > 0;
+  const canRedo = historyIndex < history.length - 1;
+
+  const undo = useCallback(() => {
+    if (!canUndo) return;
+    const idx = historyIndex - 1;
+    const snap = history[idx];
+    setSlides(snap.slides);
+    setSelectedTheme(snap.theme);
+    setHistoryIndex(idx);
+  }, [canUndo, historyIndex, history]);
+
+  const redo = useCallback(() => {
+    if (!canRedo) return;
+    const idx = historyIndex + 1;
+    const snap = history[idx];
+    setSlides(snap.slides);
+    setSelectedTheme(snap.theme);
+    setHistoryIndex(idx);
+  }, [canRedo, historyIndex, history]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && /INPUT|TEXTAREA/.test(t.tagName)) return;
+      if (t?.isContentEditable) return;
+      const mod = e.metaKey || e.ctrlKey;
+      if (!mod) return;
+      if (e.key.toLowerCase() === 'z' && !e.shiftKey) {
+        e.preventDefault(); undo();
+      } else if ((e.key.toLowerCase() === 'z' && e.shiftKey) || e.key.toLowerCase() === 'y') {
+        e.preventDefault(); redo();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [undo, redo]);
 
   useEffect(() => {
     deckApi.getHistory().then(items => {
@@ -116,7 +181,7 @@ const DeckPage: React.FC = () => {
           additionalInstructions: advanced.additionalInstructions,
         }
       );
-      setSlides(result.slides);
+      resetHistory({ slides: result.slides, theme: selectedTheme });
       setTitle(result.title);
       const newHistoryItem: DeckHistoryItem = {
         id: crypto.randomUUID(),
@@ -147,9 +212,9 @@ const DeckPage: React.FC = () => {
         toast.error('Failed to load presentation data');
         return;
       }
-      setSlides(full.result_data.slides);
+      const loadedTheme = (full.input_data?.theme as DeckTheme) || selectedTheme;
+      resetHistory({ slides: full.result_data.slides, theme: loadedTheme });
       setTitle(full.title);
-      if (full.input_data?.theme) setSelectedTheme(full.input_data.theme as DeckTheme);
       const inp: any = full.input_data;
       if (inp?.textContent) setTextContent(inp.textContent as TextContent);
       if (inp?.artStyle) setArtStyle(inp.artStyle as ArtStyle);
@@ -164,12 +229,17 @@ const DeckPage: React.FC = () => {
     }
   };
 
-  const handleUpdateSlide = (index: number, updated: Slide) => {
-    setSlides(prev => prev.map((s, i) => (i === index ? updated : s)));
+
+  const handleSlidesChange = (next: Slide[]) => {
+    commit(next);
+  };
+
+  const handleThemeChange = (next: DeckTheme) => {
+    commit(slides, next);
   };
 
   const handleCreateNew = () => {
-    setSlides([]);
+    resetHistory({ slides: [], theme: selectedTheme });
     setTitle('');
     requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
   };
@@ -184,14 +254,12 @@ const DeckPage: React.FC = () => {
       layout,
       slideNumber: insertAt + 1,
     });
-    setSlides(prev => {
-      const next = [...prev];
-      // Replace placeholder at insertAt if present, else insert
-      next.splice(insertAt, 1, result.slide);
-      return next.map((s, i) => ({ ...s, slide_number: i + 1 }));
-    });
+    const next = [...slides];
+    next.splice(insertAt, 1, result.slide);
+    commit(next.map((s, i) => ({ ...s, slide_number: i + 1 })));
     setUser({ ...user, tokensUsed: result.totalTokensUsed });
   };
+
 
   const showEditor = slides.length > 0 || isGenerating;
 
@@ -240,18 +308,47 @@ const DeckPage: React.FC = () => {
       {showEditor ? (
         <>
           {slides.length > 0 && (
-            <div className="shrink-0 border-b border-border/40 bg-card/40 backdrop-blur-md px-3 sm:px-5 py-2">
-              <DeckActions
-                slides={slides}
-                title={title}
-                theme={selectedTheme}
-                onSlideshow={() => setShowSlideshow(true)}
-              />
+            <div className="shrink-0 border-b border-border/40 bg-card/40 backdrop-blur-md px-3 sm:px-5 py-2 flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap min-w-0">
+                <div className="inline-flex items-center rounded-lg border border-border/60 bg-card/60 overflow-hidden">
+                  <button
+                    onClick={undo}
+                    disabled={!canUndo}
+                    title="Undo (Ctrl/Cmd+Z)"
+                    className="inline-flex items-center justify-center w-8 h-8 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <Undo2 className="w-4 h-4" />
+                  </button>
+                  <div className="w-px h-5 bg-border/60" />
+                  <button
+                    onClick={redo}
+                    disabled={!canRedo}
+                    title="Redo (Ctrl/Cmd+Shift+Z)"
+                    className="inline-flex items-center justify-center w-8 h-8 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <Redo2 className="w-4 h-4" />
+                  </button>
+                </div>
+                <DeckActions
+                  slides={slides}
+                  title={title}
+                  theme={selectedTheme}
+                  onSlideshow={() => setShowSlideshow(true)}
+                />
+              </div>
+              <div className="flex items-center gap-2 ml-auto">
+                <DeckThemePicker selected={selectedTheme} onSelect={handleThemeChange} />
+                <DeckCreateNewButton
+                  label="Create New One"
+                  onBlank={handleCreateNew}
+                  onFromPrompt={handleCreateNew}
+                />
+              </div>
             </div>
           )}
           <DeckEditor
             slides={slides}
-            onSlidesChange={setSlides}
+            onSlidesChange={handleSlidesChange}
             theme={selectedTheme}
             isGenerating={isGenerating}
             expectedSlideCount={effectiveSlideCount}

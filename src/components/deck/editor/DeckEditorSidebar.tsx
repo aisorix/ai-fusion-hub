@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import type { Slide } from '@/services/deckApi';
 import type { DeckTheme } from '../DeckThemePicker';
 import DeckSlideCard from '../DeckSlideCard';
-import DeckCreateNewButton from './DeckCreateNewButton';
+
 import DeckAddSlideMenu from './DeckAddSlideMenu';
 import DeckGeneratingCard from './DeckGeneratingCard';
 
@@ -67,14 +67,8 @@ const DeckEditorSidebar: React.FC<Props> = ({
         )}
       </div>
 
-      {/* New button row */}
-      <div className="px-2.5 py-2 border-b border-border/40">
-        <DeckCreateNewButton
-          onBlank={onCreateNewDeck}
-          onFromPrompt={onCreateNewDeck}
-          className="w-full justify-center [&>button]:flex-1"
-        />
-      </div>
+
+
 
       {/* List */}
       <div className="flex-1 overflow-y-auto px-2 py-2 space-y-2">
