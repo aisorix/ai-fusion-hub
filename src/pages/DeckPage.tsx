@@ -181,7 +181,7 @@ const DeckPage: React.FC = () => {
           additionalInstructions: advanced.additionalInstructions,
         }
       );
-      setSlides(result.slides);
+      resetHistory({ slides: result.slides, theme: selectedTheme });
       setTitle(result.title);
       const newHistoryItem: DeckHistoryItem = {
         id: crypto.randomUUID(),
