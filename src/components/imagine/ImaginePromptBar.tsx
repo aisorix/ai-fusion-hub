@@ -246,27 +246,30 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled,
                 onClick={() => { setShowToolsMenu(!showToolsMenu); setShowAttachMenu(false); }}
                 disabled={isGenerating || disabled}
                 className={cn(
-                  'flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full border text-sm font-medium select-none whitespace-nowrap transition-colors',
+                  'flex items-center gap-1.5 pl-2 pr-2 sm:pr-3 py-1.5 rounded-full border text-sm font-medium select-none whitespace-nowrap transition-colors',
                   showToolsMenu
                     ? 'bg-background text-foreground border-border'
                     : 'border-border/60 text-muted-foreground hover:text-foreground hover:bg-background'
                 )}
               >
                 <Settings2 className="w-4 h-4" />
-                <span>Tools</span>
+                <span className="hidden sm:inline">Tools</span>
               </button>
               <ToolsMenu open={showToolsMenu} onClose={() => setShowToolsMenu(false)} direction="down" />
             </div>
           </div>
 
           {/* Right cluster: model picker + mic + send */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            <ImagineModelSelector
-              selectedModelId={selectedModel.modelId}
-              onSelectModel={onSelectModel}
-              userPlan={userPlan}
-              onUpgrade={onUpgrade}
-            />
+          <div className="flex items-center gap-1.5 shrink-0 max-w-[55%] sm:max-w-none">
+            <div className="min-w-0 max-w-[140px] sm:max-w-none truncate">
+              <ImagineModelSelector
+                selectedModelId={selectedModel.modelId}
+                onSelectModel={onSelectModel}
+                userPlan={userPlan}
+                onUpgrade={onUpgrade}
+              />
+            </div>
+
             {!hasContent && (
               <button
                 type="button"

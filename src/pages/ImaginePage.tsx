@@ -126,38 +126,40 @@ const ImaginePage: React.FC = () => {
       />
       {/* Header */}
       <header className="shrink-0 bg-card/80 backdrop-blur-xl relative">
-        <div className="flex items-center justify-between px-4 md:px-6 h-14">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between px-3 sm:px-4 md:px-6 h-12 sm:h-14">
+          <div className="flex items-center gap-2.5 min-w-0">
             <button
               onClick={() => navigate(-1)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
+              className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground shrink-0"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shrink-0">
                 <ImageIcon className="w-4 h-4 text-white" />
               </div>
-              <div>
-                <h1 className="text-sm font-bold text-foreground">Sorix Imagine</h1>
-                <p className="text-[10px] text-muted-foreground">AI Image Generation</p>
+              <div className="min-w-0">
+                <h1 className="text-sm font-bold text-foreground truncate">Sorix Imagine</h1>
+                <p className="hidden sm:block text-[10px] text-muted-foreground">AI Image Generation</p>
               </div>
             </div>
           </div>
 
           <button
             onClick={() => setShowHistory(true)}
-            className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
+            className="inline-flex items-center gap-1.5 h-9 px-2.5 sm:px-3 rounded-xl border border-border/60 bg-card/60 hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
             title="Generation History"
           >
             <History className="w-4 h-4" />
+            <span className="hidden sm:inline text-[12.5px] font-medium">History</span>
           </button>
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
       </header>
 
       <main className="flex-1 overflow-y-auto">
-        <div className="max-w-3xl mx-auto px-4 py-6 md:py-10 flex flex-col gap-5">
+        <div className="max-w-3xl mx-auto px-3 sm:px-4 lg:px-6 pt-3 pb-6 sm:pt-5 sm:pb-8 md:pt-8 flex flex-col gap-4 sm:gap-5">
+
           {/* Prompt bar with embedded model picker */}
           <div className="relative z-[60]">
             <ImaginePromptBar
@@ -173,9 +175,15 @@ const ImaginePage: React.FC = () => {
             />
           </div>
 
-          <p className="text-[10.5px] text-muted-foreground/60 text-center -mt-2">
-            {tokensRemaining.toLocaleString()} tokens remaining · {costEstimate.toLocaleString()} for this generation
-          </p>
+          <div className="flex justify-center -mt-1">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-card/60 px-2.5 py-1 text-[10.5px] text-muted-foreground">
+              <span className="w-1 h-1 rounded-full bg-primary/70" />
+              <span className="tabular-nums">{tokensRemaining.toLocaleString()}</span> tokens left
+              <span className="text-muted-foreground/40">·</span>
+              <span className="tabular-nums">{costEstimate.toLocaleString()}</span> per run
+            </span>
+          </div>
+
 
           {/* Options panel */}
           <ImagineOptionsPanel
@@ -203,7 +211,8 @@ const ImaginePage: React.FC = () => {
           </div>
 
           {/* Visual gap */}
-          <div className="py-4" />
+          <div className="py-2 sm:py-4" />
+
 
           {/* Tabbed explorer: Templates | Your Creations */}
           <ImagineExplorer

@@ -23,7 +23,7 @@ const ImagineExplorer: React.FC<Props> = ({ onSelectHistory, refreshHistory, onU
       <button
         onClick={() => setTab(id)}
         className={cn(
-          'relative flex items-center gap-2 px-1 pb-3 pt-1 text-[14px] font-semibold transition-colors whitespace-nowrap',
+          'relative flex items-center gap-2 px-1 pb-3 pt-2 text-[13.5px] sm:text-[14px] font-semibold transition-colors whitespace-nowrap',
           active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
         )}
       >
@@ -47,19 +47,22 @@ const ImagineExplorer: React.FC<Props> = ({ onSelectHistory, refreshHistory, onU
   return (
     <section className="w-full">
       <div className="border-b border-border/60 mb-4">
-        <div className="flex items-center gap-6 overflow-x-auto scrollbar-hide">
+        <div className="flex items-center gap-4 sm:gap-6 px-1 sm:px-0 overflow-x-auto scrollbar-hide">
           <TabBtn id="templates" label="Templates" icon={LayoutGrid} count={TEMPLATE_COUNT} />
           <TabBtn id="creations" label="Your Creations" icon={Sparkles} />
         </div>
       </div>
 
-      {tab === 'templates' ? (
-        <ImagineTemplates onUseTemplate={onUseTemplate} embedded />
-      ) : (
-        <ImagineHistoryFeed onSelect={onSelectHistory} refreshTrigger={refreshHistory} />
-      )}
+      <div className="min-h-[40vh]">
+        {tab === 'templates' ? (
+          <ImagineTemplates onUseTemplate={onUseTemplate} embedded />
+        ) : (
+          <ImagineHistoryFeed onSelect={onSelectHistory} refreshTrigger={refreshHistory} />
+        )}
+      </div>
     </section>
   );
 };
 
 export default ImagineExplorer;
+
