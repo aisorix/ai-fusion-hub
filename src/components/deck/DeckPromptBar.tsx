@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect, KeyboardEvent } from 'react';
 import { Send, Loader2, Plus, Image as ImageIcon, Camera, Paperclip, Settings2, Mic } from 'lucide-react';
+import VoiceDictationButton from '@/components/voice/VoiceDictationButton';
 import ToolsMenu from '@/components/aichat/ToolsMenu';
 import TextareaAutosize from 'react-textarea-autosize';
 import { isSubmitEnter } from '@/lib/inputHelpers';
@@ -245,16 +246,11 @@ const DeckPromptBar: React.FC<DeckPromptBarProps> = ({ onGenerate, isGenerating,
           </div>
 
           <div className="flex items-center gap-0.5 shrink-0">
-            {!hasContent && (
-              <button
-                type="button"
-                aria-label="Voice"
-                className="p-2 sm:p-2.5 rounded-full hover:bg-background text-muted-foreground hover:text-primary transition-colors relative"
-              >
-                <Mic className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-green-500 rounded-full" />
-              </button>
-            )}
+            <VoiceDictationButton
+              onTranscript={(t) => setPrompt((prev: string) => (prev ? prev.trimEnd() + ' ' + t : t))}
+              disabled={isGenerating}
+            />
+
             <button
               type="button"
               onClick={handleSubmit}

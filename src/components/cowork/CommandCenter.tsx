@@ -535,20 +535,12 @@ const CommandCenter: React.FC<CommandCenterProps> = ({ language }) => {
                   </AnimatePresence>
                 </div>
 
-                <button
-                  onClick={() =>
-                    toast.message(language === "bn" ? "ভয়েস মোড শীঘ্রই" : "Voice mode coming soon")
-                  }
-                  className={cn(
-                    "p-2 rounded-full transition-all duration-200 shrink-0 relative",
-                    "hover:bg-background text-muted-foreground hover:text-primary"
-                  )}
-                  title={language === "bn" ? "ভয়েস মোড" : "Voice mode"}
-                  aria-label="Voice"
-                >
-                  <Mic className="w-5 h-5" />
-                  <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-green-500 rounded-full" />
-                </button>
+                <VoiceDictationButton
+                  onTranscript={(t) => setInput((prev) => (prev ? prev.trimEnd() + ' ' + t : t))}
+                  disabled={agentStatus !== 'idle'}
+                  language={language === 'bn' ? 'bn' : 'en'}
+                />
+
 
                 <button
                   onClick={handleSend}
