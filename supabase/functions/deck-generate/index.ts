@@ -52,6 +52,9 @@ serve(async (req) => {
       format = "presentation", cardSize = "traditional", scenario = "general",
       audience = "auto", tone = "neutral", aspectRatio = "16:9",
       additionalInstructions = "",
+      mode = "deck",
+      layout: singleLayout = "split",
+      slideNumber: singleSlideNumber = 1,
     } = await req.json();
 
     const LANGUAGE_LABELS: Record<string, string> = {
