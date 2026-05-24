@@ -46,7 +46,13 @@ serve(async (req) => {
     }
     const userId = user.id;
 
-    const { prompt, slideCount = 5, theme = "dark", generateImages = true, textContent = "concise", artStyle = "illustration", language = "auto" } = await req.json();
+    const {
+      prompt, slideCount = 5, theme = "dark", generateImages = true,
+      textContent = "concise", artStyle = "illustration", language = "auto",
+      format = "presentation", cardSize = "traditional", scenario = "general",
+      audience = "auto", tone = "neutral", aspectRatio = "16:9",
+      additionalInstructions = "",
+    } = await req.json();
 
     const LANGUAGE_LABELS: Record<string, string> = {
       english: "English", bangla: "Bangla (Bengali)", hindi: "Hindi", urdu: "Urdu",
@@ -56,6 +62,26 @@ serve(async (req) => {
     const languageInstruction = languageLabel
       ? `\nIMPORTANT: Write every slide heading and bullet point in ${languageLabel}. image_prompt MUST stay in English so the image model understands it.`
       : "";
+
+    const SCENARIO_LABELS: Record<string, string> = {
+      "teaching": "Teaching Courseware", "work-summary": "Work Summary", "work-plan": "Work Plan",
+      "project-report": "Project Report", "solution": "Solution", "research-report": "Research Report",
+      "general": "General",
+    };
+    const AUDIENCE_LABELS: Record<string, string> = {
+      students: "Students", educator: "Educators", manager: "Managers",
+      "direct-report": "Direct Reports", colleague: "Colleagues",
+    };
+    const extraGuidance: string[] = [];
+    if (scenario && scenario !== "auto" && SCENARIO_LABELS[scenario]) extraGuidance.push(`Scenario: ${SCENARIO_LABELS[scenario]}`);
+    if (audience && audience !== "auto" && AUDIENCE_LABELS[audience]) extraGuidance.push(`Target audience: ${AUDIENCE_LABELS[audience]}`);
+    if (tone && tone !== "neutral") extraGuidance.push(`Tone: ${tone}`);
+    if (format && format !== "presentation") extraGuidance.push(`Output format style: ${format}`);
+    if (aspectRatio) extraGuidance.push(`Intended aspect ratio: ${aspectRatio}`);
+    if (additionalInstructions && typeof additionalInstructions === "string" && additionalInstructions.trim()) {
+      extraGuidance.push(`Additional instructions from user: ${additionalInstructions.trim()}`);
+    }
+    const extraInstruction = extraGuidance.length ? `\n${extraGuidance.map((g) => `- ${g}`).join("\n")}` : "";
 
     if (!prompt || typeof prompt !== "string") {
       return new Response(JSON.stringify({ error: "Prompt is required" }), {
@@ -149,7 +175,7 @@ Rules:
 - First slide should be a title slide with layout "full-image"
 - Last slide should be a summary/conclusion with layout "text-only"
 - Most middle slides should use "split" layout
-- Make image_prompts vivid, specific, and professional${artInstruction}${languageInstruction}
+- Make image_prompts vivid, specific, and professional${artInstruction}${languageInstruction}${extraInstruction}
 - Output ONLY the JSON array, no markdown, no explanation`;
 
     const llmResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {

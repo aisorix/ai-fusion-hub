@@ -18,6 +18,7 @@ import DeckHistory from '@/components/deck/DeckHistory';
 import DeckActions from '@/components/deck/DeckActions';
 import DeckSlideshow from '@/components/deck/DeckSlideshow';
 import DeckExplorer from '@/components/deck/DeckExplorer';
+import DeckAdvancedPanel, { type DeckAdvancedValues } from '@/components/deck/DeckAdvancedPanel';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 import { cn } from '@/lib/utils';
 
@@ -46,6 +47,15 @@ const DeckPage: React.FC = () => {
   const [historyLoadingId, setHistoryLoadingId] = useState<string | null>(null);
   const [injectPrompt, setInjectPrompt] = useState<string | undefined>();
   const [injectKey, setInjectKey] = useState(0);
+  const [advanced, setAdvanced] = useState<DeckAdvancedValues>({
+    format: 'presentation',
+    cardSize: 'traditional',
+    scenario: 'general',
+    audience: 'auto',
+    tone: 'neutral',
+    aspectRatio: '16:9',
+    additionalInstructions: '',
+  });
 
   useEffect(() => {
     deckApi.getHistory().then(items => {
@@ -93,7 +103,16 @@ const DeckPage: React.FC = () => {
 
     try {
       const result = await deckApi.generate(
-        prompt, effectiveSlideCount, selectedTheme, true, textContent, finalArtStyle, language
+        prompt, effectiveSlideCount, selectedTheme, true, textContent, finalArtStyle, language,
+        {
+          format: advanced.format,
+          cardSize: advanced.cardSize,
+          scenario: advanced.scenario,
+          audience: advanced.audience,
+          tone: advanced.tone,
+          aspectRatio: advanced.aspectRatio,
+          additionalInstructions: advanced.additionalInstructions,
+        }
       );
       setSlides(result.slides);
       setTitle(result.title);
@@ -294,6 +313,12 @@ const DeckPage: React.FC = () => {
           </div>
 
           {/* Text content card */}
+          {/* Advanced format / scenario / audience / tone / aspect / instructions */}
+          <DeckAdvancedPanel
+            values={advanced}
+            onChange={(patch) => setAdvanced((prev) => ({ ...prev, ...patch }))}
+          />
+
           <DeckTextContentCard selected={textContent} onSelect={setTextContent} />
 
           {/* Theme showcase */}
