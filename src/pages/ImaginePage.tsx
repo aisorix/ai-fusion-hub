@@ -204,7 +204,12 @@ const ImaginePage: React.FC = () => {
           </div>
 
           {/* Visual gap */}
-          <div className="py-6" />
+          <div className="py-4" />
+
+          {/* Templates gallery */}
+          <ImagineTemplates onUseTemplate={handleUseTemplate} />
+
+          <div className="py-2" />
 
           {/* Inline history feed */}
           <ImagineHistoryFeed onSelect={handleHistorySelect} refreshTrigger={refreshHistory} />
