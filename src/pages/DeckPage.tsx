@@ -229,9 +229,6 @@ const DeckPage: React.FC = () => {
     }
   };
 
-  const handleUpdateSlide = (index: number, updated: Slide) => {
-    commit(slides.map((s, i) => (i === index ? updated : s)));
-  };
 
   const handleSlidesChange = (next: Slide[]) => {
     commit(next);
