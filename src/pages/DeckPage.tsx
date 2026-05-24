@@ -21,6 +21,7 @@ import DeckExplorer from '@/components/deck/DeckExplorer';
 import DeckAdvancedPanel, { type DeckAdvancedValues } from '@/components/deck/DeckAdvancedPanel';
 import DeckEditor from '@/components/deck/editor/DeckEditor';
 import DeckCreateNewButton from '@/components/deck/editor/DeckCreateNewButton';
+import DeckThemePicker from '@/components/deck/DeckThemePicker';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 import { cn } from '@/lib/utils';
 
