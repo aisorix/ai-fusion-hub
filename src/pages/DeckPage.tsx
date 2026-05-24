@@ -168,6 +168,34 @@ const DeckPage: React.FC = () => {
     setSlides(prev => prev.map((s, i) => (i === index ? updated : s)));
   };
 
+  const handleCreateNew = () => {
+    setSlides([]);
+    setTitle('');
+    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  };
+
+  const handleAddAiSlide = async (prompt: string, layout: Slide['layout'], insertAt: number) => {
+    const finalArtStyle = artStyle === 'custom' ? customArtStyle : artStyle;
+    const result = await deckApi.generateSingleSlide(prompt, {
+      theme: selectedTheme,
+      textContent,
+      artStyle: finalArtStyle,
+      language,
+      layout,
+      slideNumber: insertAt + 1,
+    });
+    setSlides(prev => {
+      const next = [...prev];
+      // Replace placeholder at insertAt if present, else insert
+      next.splice(insertAt, 1, result.slide);
+      return next.map((s, i) => ({ ...s, slide_number: i + 1 }));
+    });
+    setUser({ ...user, tokensUsed: result.totalTokensUsed });
+  };
+
+  const showEditor = slides.length > 0 || isGenerating;
+
+
   return (
     <div className="h-[100dvh] flex flex-col bg-background overflow-hidden">
       <SEOHead
