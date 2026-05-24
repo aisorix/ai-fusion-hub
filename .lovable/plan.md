@@ -1,54 +1,27 @@
-## Imagine — Tabbed Explorer + Real Template Thumbnails
+## Goal
+Show **Templates** (left) and **Your Creations** (right) as side-by-side tabs under the canvas on `/imagine`. Keep the existing labels exactly — no renaming.
 
-Two changes:
+## Changes
 
-### 1. Tabbed switcher (matches upload 1)
+### 1. `src/components/imagine/ImagineExplorer.tsx`
+- Tab order (left → right):
+  1. **Templates** (default active) — `LayoutGrid` icon + count badge → renders `<ImagineTemplates embedded />`
+  2. **Your Creations** — `Sparkles` icon → renders `<ImagineHistoryFeed />`
+- Tab type: `'templates' | 'creations'`, default `'templates'`.
+- Active tab: `text-primary` + primary underline. Inactive: `text-muted-foreground hover:text-foreground`.
+- Tab row: `flex items-center gap-6 overflow-x-auto scrollbar-hide`; each button uses `whitespace-nowrap` so both tabs always render side by side.
 
-Replace the stacked "Templates" + "Your Creations" sections with a single **tabbed explorer** placed below the canvas:
+### 2. `src/pages/ImaginePage.tsx`
+- Remove the stacked `<ImagineTemplates />` + spacer + `<ImagineHistoryFeed />` block.
+- Replace with a single:
+  ```tsx
+  <ImagineExplorer
+    onSelectHistory={handleHistorySelect}
+    refreshHistory={refreshHistory}
+    onUseTemplate={handleUseTemplate}
+  />
+  ```
+- Drop unused imports (`ImagineHistoryFeed`, `ImagineTemplates`); add `ImagineExplorer` import.
+- Everything else (header, prompt bar, options panel, canvas, slide-in history panel, upgrade modal) stays untouched.
 
-```text
-┌────────────────────────────────────┐
-│  ✦ My Images   ⏱ Templates         │  ← underline tab bar
-│ ────────────                        │
-│  [grid of user creations]           │
-└────────────────────────────────────┘
-```
-
-- **My Images** (default, position 1) — the existing `ImagineHistoryFeed` grid.
-- **Templates** (position 2) — the existing template gallery (category pills + card scroller).
-- Active tab uses primary-colored underline + icon (✦ sparkle for My Images, ⏱ history-style icon for Templates, matching the upload).
-- Tab labels stay left-aligned; category pills for Templates move inside the Templates tab panel.
-
-Implementation: new wrapper `ImagineExplorer.tsx` that renders the tab bar and conditionally shows `ImagineHistoryFeed` or `ImagineTemplates`. `ImaginePage.tsx` replaces the current two-section render with `<ImagineExplorer />`.
-
-### 2. Real template thumbnails
-
-Replace gradient-only cards with **actual generated sample images** for every template. Each template still keeps a prompt + aspect + resolution, but the card now displays a real photo/illustration that visually demonstrates the style (like upload 1 — Monochrome shows a real monochrome portrait, Colour block shows a real colour-block room, etc.).
-
-**Asset generation:** Use `imagegen--generate_image` (fast model, 512×640, jpg) once per template — 37 images total — saved under `src/assets/templates/{id}.jpg`. Each generation uses a compact, visually faithful prompt derived from the template's full prompt. After generation, QA by viewing 4–6 sample thumbnails to confirm they look professional; regenerate any that fail.
-
-**Card layout (refined):**
-- Real image as background (`object-cover`)
-- Soft bottom gradient overlay for label readability
-- Title bottom-left, white, drop-shadow
-- "Photo" badge top-left for `needsPhoto` templates (unchanged)
-- Hover: scale `1.03` + primary glow shadow (unchanged)
-
-**Static asset map:** `ImagineTemplates.tsx` imports all 37 images via ES module imports and maps `id → imported asset`. Card renders `<img src={asset} />` instead of the gradient div. Gradient stays as a fallback skeleton while the image loads.
-
-The preview dialog (`ImagineTemplatePreview.tsx`) also uses the real image. "Use as Reference" now attaches the real asset URL (via `fetch → blob → dataURL`) to the prompt bar — much cleaner than the previous SVG-foreignObject capture trick.
-
-### Files
-
-- **Create**: `src/components/imagine/ImagineExplorer.tsx`, `src/assets/templates/*.jpg` (37 sample images)
-- **Edit**: 
-  - `src/components/imagine/ImagineTemplates.tsx` — drop category-section header (now lives in ExplorerTab), add image import map, render real images on cards
-  - `src/components/imagine/ImagineTemplatePreview.tsx` — render real image, swap reference-capture logic to fetch the asset
-  - `src/pages/ImaginePage.tsx` — replace separate sections with `<ImagineExplorer />`
-
-### Technical notes
-
-- Image generation is the slow step (~37 calls, batched in parallel groups of 6 to avoid rate limits). Total time ≈ 2–4 min.
-- Cards use `loading="lazy"` and a small blurred placeholder div behind the `<img>` so layout doesn't shift.
-- All styling stays on semantic tokens (`primary`, `border`, `card`, `muted-foreground`).
-- No backend / edge function changes.
+Pure presentation wire-up. No store, API, or generation-logic changes.
