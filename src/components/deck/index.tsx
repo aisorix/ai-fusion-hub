@@ -17,3 +17,5 @@ export { default as DeckDropdown } from './DeckDropdown';
 export { default as DeckFormatPicker } from './DeckFormatPicker';
 export { default as DeckAspectRatioPicker } from './DeckAspectRatioPicker';
 export { default as DeckAdvancedPanel } from './DeckAdvancedPanel';
+export { default as DeckEditor } from './editor/DeckEditor';
+export { default as DeckCreateNewButton } from './editor/DeckCreateNewButton';

@@ -74,6 +74,42 @@ export const deckApi = {
     return data;
   },
 
+  generateSingleSlide: async (
+    prompt: string,
+    opts: {
+      theme?: string;
+      textContent?: string;
+      artStyle?: string;
+      language?: string;
+      layout?: 'split' | 'text-only' | 'full-image';
+      slideNumber?: number;
+    } = {}
+  ): Promise<{ slide: Slide; tokensUsed: number; totalTokensUsed: number }> => {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/deck-generate`,
+      {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          prompt,
+          mode: 'single',
+          theme: opts.theme ?? 'dark',
+          textContent: opts.textContent ?? 'concise',
+          artStyle: opts.artStyle ?? 'illustration',
+          language: opts.language ?? 'auto',
+          layout: opts.layout ?? 'split',
+          slideNumber: opts.slideNumber ?? 1,
+        }),
+      }
+    );
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || 'Slide generation failed');
+    }
+    return data;
+  },
+
   getHistory: async (): Promise<DeckHistoryItem[]> => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return [];

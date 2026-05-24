@@ -52,6 +52,9 @@ serve(async (req) => {
       format = "presentation", cardSize = "traditional", scenario = "general",
       audience = "auto", tone = "neutral", aspectRatio = "16:9",
       additionalInstructions = "",
+      mode = "deck",
+      layout: singleLayout = "split",
+      slideNumber: singleSlideNumber = 1,
     } = await req.json();
 
     const LANGUAGE_LABELS: Record<string, string> = {
@@ -89,6 +92,9 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    const isSingle = mode === "single";
+    const effectiveSlideCount = isSingle ? 1 : slideCount;
 
     // Check token balance
     const { data: sub } = await supabase
@@ -163,6 +169,16 @@ serve(async (req) => {
     const artDescription = artStyleMap[artStyle] || artStyle;
     const artInstruction = `\nCRITICAL: Every image_prompt MUST start with "${artDescription}, " — this is mandatory for all slides.`;
 
+    const singleRules = `
+- Generate exactly 1 slide
+- Use layout "${singleLayout}"
+- slide_number must be ${singleSlideNumber}`;
+    const deckRules = `
+- Generate exactly ${slideCount} slides
+- First slide should be a title slide with layout "full-image"
+- Last slide should be a summary/conclusion with layout "text-only"
+- Most middle slides should use "split" layout`;
+
     const systemPrompt = `You are an expert presentation designer. Output a strict JSON array where each object represents a slide. Each slide must contain:
 - slide_number (integer starting from 1)
 - heading (string, concise title)
@@ -170,11 +186,7 @@ serve(async (req) => {
 - image_prompt (a highly detailed prompt optimized for FLUX.2 image generation, describing a professional visual for the slide)
 - layout (one of: "split", "text-only", "full-image")
 
-Rules:
-- Generate exactly ${slideCount} slides
-- First slide should be a title slide with layout "full-image"
-- Last slide should be a summary/conclusion with layout "text-only"
-- Most middle slides should use "split" layout
+Rules:${isSingle ? singleRules : deckRules}
 - Make image_prompts vivid, specific, and professional${artInstruction}${languageInstruction}${extraInstruction}
 - Output ONLY the JSON array, no markdown, no explanation`;
 
@@ -289,25 +301,27 @@ Rules:
 
     const title = slides[0]?.heading || "Untitled Presentation";
 
-    // Save to presentations table
-    await supabase.from("presentations").insert({
-      user_id: userId,
-      title,
-      prompt,
-      slide_count: slides.length,
-      slides_data: slides,
-      theme,
-      tokens_used: totalTokens,
-    });
+    if (!isSingle) {
+      // Save to presentations table
+      await supabase.from("presentations").insert({
+        user_id: userId,
+        title,
+        prompt,
+        slide_count: slides.length,
+        slides_data: slides,
+        theme,
+        tokens_used: totalTokens,
+      });
 
-    // Save to analysis_history
-    await supabase.from("analysis_history").insert({
-      user_id: userId,
-      tool: "deck",
-      title,
-      input_data: { prompt, slideCount, theme, generateImages },
-      result_data: { slides, tokens_used: totalTokens },
-    });
+      // Save to analysis_history
+      await supabase.from("analysis_history").insert({
+        user_id: userId,
+        tool: "deck",
+        title,
+        input_data: { prompt, slideCount, theme, generateImages },
+        result_data: { slides, tokens_used: totalTokens },
+      });
+    }
 
     // Deduct tokens only for paid users
     if (sub && !isFreeSlides) {
@@ -316,6 +330,17 @@ Rules:
         .update({ tokens_used: currentUsed + totalTokens })
         .eq("user_id", userId)
         .eq("status", "active");
+    }
+
+    if (isSingle) {
+      return new Response(
+        JSON.stringify({
+          slide: slides[0],
+          tokensUsed: totalTokens,
+          totalTokensUsed: currentUsed + totalTokens,
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     return new Response(
