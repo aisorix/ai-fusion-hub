@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import { useAutoFocusInput } from '@/hooks/useAutoFocusInput';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Mic, Send, X, Image as ImageIcon, Paperclip, Square, Sparkles, Camera, Loader2, Upload, Heart, Settings2 } from 'lucide-react';
+import VoiceDictationButton from '@/components/voice/VoiceDictationButton';
 import TextareaAutosize from 'react-textarea-autosize';
 import { isSubmitEnter } from '@/lib/inputHelpers';
 import { useChatStore } from '@/stores/chatStore';
@@ -696,21 +697,15 @@ const ChatInput = ({ onSend, disabled, onOpenVoiceMode, onStop }: ChatInputProps
 
           {/* Right cluster: mic and send */}
           <div className="flex items-center gap-0.5 shrink-0">
-            {/* Mic Button - Opens Live Voice Mode */}
-            {!input.trim() && pendingAttachments.length === 0 && !isStreaming && (
-              <button
-                onClick={onOpenVoiceMode}
-                className={cn(
-                  'p-2 sm:p-2.5 rounded-full transition-all duration-200',
-                  'hover:bg-background text-muted-foreground hover:text-primary',
-                  'relative'
-                )}
-                title={language === 'bn' ? 'লাইভ ভয়েস মোড' : 'Live Voice Mode'}
-              >
-                <Mic className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-green-500 rounded-full" />
-              </button>
+            {/* Voice-to-text dictation (Whisper) */}
+            {!isStreaming && (
+              <VoiceDictationButton
+                onTranscript={(t) => setInput((prev) => (prev ? prev.trimEnd() + ' ' + t : t))}
+                disabled={disabled}
+                language={language === 'bn' ? 'bn' : 'en'}
+              />
             )}
+
 
             {/* Send/Stop Button */}
             <button
