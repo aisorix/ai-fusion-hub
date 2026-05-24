@@ -17,6 +17,7 @@ import ImagineOptionsPanel, {
 import ImagineCanvas from '@/components/imagine/ImagineCanvas';
 import ImagineHistory from '@/components/imagine/ImagineHistory';
 import ImagineHistoryFeed from '@/components/imagine/ImagineHistoryFeed';
+import ImagineTemplates from '@/components/imagine/ImagineTemplates';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 
 const ImaginePage: React.FC = () => {
