@@ -18,6 +18,7 @@ import DeckHistory from '@/components/deck/DeckHistory';
 import DeckActions from '@/components/deck/DeckActions';
 import DeckSlideshow from '@/components/deck/DeckSlideshow';
 import DeckExplorer from '@/components/deck/DeckExplorer';
+import DeckAdvancedPanel, { type DeckAdvancedValues } from '@/components/deck/DeckAdvancedPanel';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 import { cn } from '@/lib/utils';
 
