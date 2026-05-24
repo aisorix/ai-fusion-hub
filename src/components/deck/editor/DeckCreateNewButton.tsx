@@ -10,9 +10,11 @@ interface Props {
   className?: string;
   /** Compact pill variant used inside sidebar */
   compact?: boolean;
+  /** Main button label (defaults to "New") */
+  label?: string;
 }
 
-const DeckCreateNewButton: React.FC<Props> = ({ onBlank, onFromPrompt, onFromTemplate, className, compact }) => {
+const DeckCreateNewButton: React.FC<Props> = ({ onBlank, onFromPrompt, onFromTemplate, className, compact, label = 'New' }) => {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -35,7 +37,7 @@ const DeckCreateNewButton: React.FC<Props> = ({ onBlank, onFromPrompt, onFromTem
         )}
       >
         <Plus className={cn(compact ? 'w-3.5 h-3.5' : 'w-4 h-4')} />
-        New
+        {label}
       </button>
       <button
         onClick={() => setOpen((v) => !v)}
