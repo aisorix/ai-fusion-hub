@@ -103,7 +103,16 @@ const DeckPage: React.FC = () => {
 
     try {
       const result = await deckApi.generate(
-        prompt, effectiveSlideCount, selectedTheme, true, textContent, finalArtStyle, language
+        prompt, effectiveSlideCount, selectedTheme, true, textContent, finalArtStyle, language,
+        {
+          format: advanced.format,
+          cardSize: advanced.cardSize,
+          scenario: advanced.scenario,
+          audience: advanced.audience,
+          tone: advanced.tone,
+          aspectRatio: advanced.aspectRatio,
+          additionalInstructions: advanced.additionalInstructions,
+        }
       );
       setSlides(result.slides);
       setTitle(result.title);
