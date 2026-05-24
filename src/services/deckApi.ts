@@ -43,7 +43,8 @@ export const deckApi = {
     theme: string = 'dark',
     generateImages: boolean = true,
     textContent: string = 'concise',
-    artStyle: string = 'illustration'
+    artStyle: string = 'illustration',
+    language: string = 'auto'
   ): Promise<DeckResult> => {
     const headers = await getAuthHeaders();
     const response = await fetch(
@@ -51,7 +52,7 @@ export const deckApi = {
       {
         method: 'POST',
         headers,
-        body: JSON.stringify({ prompt, slideCount, theme, generateImages, textContent, artStyle }),
+        body: JSON.stringify({ prompt, slideCount, theme, generateImages, textContent, artStyle, language }),
       }
     );
 

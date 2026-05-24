@@ -46,7 +46,16 @@ serve(async (req) => {
     }
     const userId = user.id;
 
-    const { prompt, slideCount = 5, theme = "dark", generateImages = true, textContent = "concise", artStyle = "illustration" } = await req.json();
+    const { prompt, slideCount = 5, theme = "dark", generateImages = true, textContent = "concise", artStyle = "illustration", language = "auto" } = await req.json();
+
+    const LANGUAGE_LABELS: Record<string, string> = {
+      english: "English", bangla: "Bangla (Bengali)", hindi: "Hindi", urdu: "Urdu",
+      arabic: "Arabic", spanish: "Spanish", french: "French", chinese: "Chinese (Simplified)", japanese: "Japanese",
+    };
+    const languageLabel = LANGUAGE_LABELS[String(language).toLowerCase()];
+    const languageInstruction = languageLabel
+      ? `\nIMPORTANT: Write every slide heading and bullet point in ${languageLabel}. image_prompt MUST stay in English so the image model understands it.`
+      : "";
 
     if (!prompt || typeof prompt !== "string") {
       return new Response(JSON.stringify({ error: "Prompt is required" }), {
@@ -140,7 +149,7 @@ Rules:
 - First slide should be a title slide with layout "full-image"
 - Last slide should be a summary/conclusion with layout "text-only"
 - Most middle slides should use "split" layout
-- Make image_prompts vivid, specific, and professional${artInstruction}
+- Make image_prompts vivid, specific, and professional${artInstruction}${languageInstruction}
 - Output ONLY the JSON array, no markdown, no explanation`;
 
     const llmResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
