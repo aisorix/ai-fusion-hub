@@ -55,15 +55,16 @@ const AboutSorixLab = () => {
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
-      <SEOHead title="About Sorix Lab | AI Sorix" description="Meet the team behind AI Sorix. A Bangladesh-based R&D hub dedicated to shaping the future of AI, Education, and Social Innovation." path="/about-sorix-lab" />
+      <SEOHead
+        title="About Sorix Lab | AI Sorix"
+        description="Meet the team behind AI Sorix. A Bangladesh-based R&D hub dedicated to shaping the future of AI, Education, and Social Innovation."
+        path="/about-sorix-lab"
+      />
       {/* Professional Header */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <Link
-              to="/"
-              className="flex items-center gap-1.5 group transition-all duration-300 hover:opacity-80"
-            >
+            <Link to="/" className="flex items-center gap-1.5 group transition-all duration-300 hover:opacity-80">
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                 <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
@@ -256,7 +257,7 @@ const AboutSorixLab = () => {
                 </div>
                 <div>
                   <p className="text-foreground font-medium mb-1">Sorixlab HQ</p>
-                  <p className="text-muted-foreground text-sm">Ashulia, Savar, Dhaka, Bangladesh</p>
+                  <p className="text-muted-foreground text-sm">Uttara, Dhaka, Bangladesh</p>
                   <p className="text-sm text-primary mt-2">
                     📍 {language === "en" ? "Proudly Made in Bangladesh" : "গর্বের সাথে বাংলাদেশে তৈরি"}
                   </p>
