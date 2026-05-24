@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, KeyboardEvent } from 'react';
+import React, { useState, useRef, useCallback, useEffect, KeyboardEvent } from 'react';
 import { Send, Loader2, Plus, Image as ImageIcon, Camera, Paperclip, Settings2, Mic } from 'lucide-react';
 import ToolsMenu from '@/components/aichat/ToolsMenu';
 import TextareaAutosize from 'react-textarea-autosize';
@@ -14,6 +14,9 @@ import { useAutoFocusInput } from '@/hooks/useAutoFocusInput';
 interface DeckPromptBarProps {
   onGenerate: (prompt: string, attachments?: Attachment[]) => void;
   isGenerating: boolean;
+  /** External injection from template tiles. Bumping `injectKey` re-applies. */
+  injectPrompt?: string;
+  injectKey?: number;
 }
 
 const FILE_SIZE_LIMITS: Record<string, number> = {
@@ -28,7 +31,7 @@ const formatSize = (bytes: number): string => {
   return `${(bytes / (1024 * 1024)).toFixed(0)} MB`;
 };
 
-const DeckPromptBar: React.FC<DeckPromptBarProps> = ({ onGenerate, isGenerating }) => {
+const DeckPromptBar: React.FC<DeckPromptBarProps> = ({ onGenerate, isGenerating, injectPrompt, injectKey }) => {
   const [prompt, setPrompt] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
@@ -48,6 +51,15 @@ const DeckPromptBar: React.FC<DeckPromptBarProps> = ({ onGenerate, isGenerating 
     isGenerating,
     true,
   );
+
+  useEffect(() => {
+    if (injectKey === undefined) return;
+    if (typeof injectPrompt === 'string') {
+      setPrompt(injectPrompt);
+    }
+    requestAnimationFrame(() => textareaRef.current?.focus());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [injectKey]);
 
   const processFiles = useCallback(async (files: File[]) => {
     if (files.length === 0) return;
