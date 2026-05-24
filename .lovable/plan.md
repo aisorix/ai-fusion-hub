@@ -1,72 +1,74 @@
-## Goal
-Bring Sorix Deck to the same professional layout/UX as Sorix Imagine, and apply 4 targeted UI upgrades the user called out:
+# Sorix Deck — Pro Dropdown Controls
 
-1. Imagine-style page chrome (header, prompt bar, tokens pill, options card)
-2. Language selector (Auto / English / Bangla / Hindi / Urdu / Arabic / Spanish / French / Chinese / Japanese)
-3. Text content picker restyled to match screenshot 7 (boxed card with header)
-4. Theme picker shows 3 inline preview cards + "View more" dialog with the full grid (screenshot 8)
-5. Templates + Your Creations tabs below, identical pattern to `ImagineExplorer`
+Add the seven new controls visible in the reference screenshots to Sorix Deck, all built on a single, professional dropdown primitive so the panel feels consistent (no mixed shadcn/native styles).
 
-## File changes
+## New controls
 
-### `src/pages/DeckPage.tsx` (restructure)
-Mirror the structure of `ImaginePage.tsx`:
-- Same header (back, gradient icon, "Sorix Deck" / "AI Presentations", History pill in top-right with label on `sm+`).
-- `max-w-3xl` centered column, `gap-4 sm:gap-5`, same paddings.
-- Order:
-  1. `DeckPromptBar` (unchanged behavior; visually already close to Imagine).
-  2. Centered tokens/free-slides pill (same chip style as Imagine: `inline-flex rounded-full border bg-card/60 px-2.5 py-1 text-[10.5px]`). Shows either `X/20 free slides used · Y remaining` or `tokens left · est. cost per run`.
-  3. New `DeckOptionsPanel` card (one bordered card, `p-3.5 sm:p-5`, `space-y-3.5 sm:space-y-4`) containing in this order:
-     - **Slides** row (existing chip selector + Custom input, restyled to fit panel).
-     - **Language** row (new selector — see below).
-     - **Image style** (existing `DeckArtStylePicker`, moved inside the panel; keep its current visual).
-  4. New `DeckTextContentCard` (its own boxed card, matches screenshot 7).
-  5. New `DeckThemeShowcase` (inline 3 theme preview cards + "View more" — see below).
-  6. `DeckActions` + `DeckSlideViewer` (unchanged).
-  7. New `DeckExplorer` tabbed section (Templates / Your Creations).
+1. **Format** — `Presentation` (default) · `Webpage` · `Document` · `Social`. 2×2 grid of selectable cards with icon + label and a circular check indicator (matches screenshot 1).
+2. **Card size** — `Default (Fluid)` · `Traditional (16:9)` · `Tall (4:3)`. Pill dropdown with frame icon + ratio hint on the right (screenshot 2).
+3. **Scenario** — `Auto`, `Teaching Courseware`, `Work Summary`, `Work Plan`, `Project Report`, `Solution`, `Research Report`, `General` (default). Scrollable dropdown (screenshot 4).
+4. **Audience (Optional)** — `Auto`, `Students`, `Educator`, `Manager`, `Direct Report`, `Colleague` (screenshot 5).
+5. **Tone** — `Neutral` (default), `Professional`, `Educational`, `Casual`, `Friendly`, `Inspirational`, `Humorous` (screenshot 6).
+6. **Aspect Ratio** — segmented pill row `16:9` · `4:3` · `1:1`, each with a small frame icon (screenshot 3).
+7. **Additional instructions (Optional)** — multi-line textarea (autosize, max ~5 rows) with placeholder "Add any additional requirements to make AI results better match your needs." (screenshot 3).
 
-### New: `src/components/deck/DeckLanguageSelector.tsx`
-Pill button styled like screenshot 6 (`Auto` with globe icon + chevron). Opens a small popover/dropdown with: Auto, English, Bangla (বাংলা), Hindi (हिन्दी), Urdu (اردو), Arabic (العربية), Spanish, French, Chinese (中文), Japanese (日本語). Exports `type DeckLanguage`.
+## UI / Component plan
 
-Stored on `DeckPage` state and passed to `deckApi.generate(...)`.
+- **New shared primitive**: `src/components/deck/DeckDropdown.tsx`
+  - Generic `<DeckDropdown<T>>` with: `label`, `value`, `options[{ id, label, hint?, icon? }]`, `onChange`, optional `leadingIcon`, `placeholder`.
+  - Visual: full-width pill button, `h-10 rounded-xl border border-border/60 bg-card/60 hover:bg-card`, leading icon (primary tint), label text, chevron right. Matches the look already used by `DeckLanguageSelector` but full-width and with a top label row.
+  - Popover: framer-motion fade/slide (same timing as `DeckLanguageSelector`), `rounded-xl border bg-popover shadow-xl z-[100]`, max-h with scroll, check icon on active item, optional right-aligned hint (e.g. `Fluid`, `16:9`, `4:3`).
+  - Outside-click + Escape to close. Keyboard up/down/enter navigation.
+  - Used by Card size, Scenario, Audience, Tone (all share identical styling).
 
-### New: `src/components/deck/DeckTextContentCard.tsx`
-Replaces visual of `DeckTextContentPicker`. Layout from screenshot 7:
-- Outer card: `rounded-2xl border bg-card p-4`.
-- Header row: small icon (Lines icon) + `Text content` bold title.
-- Sub-label: `Amount of text per card` (`text-xs text-muted-foreground`).
-- 4 selectable tiles in `grid-cols-4 gap-2` (Minimal / Concise / Detailed / Extensive). Each tile = rounded card with the existing line-graphic visual + label below. Selected tile = `border-primary bg-primary/5 text-primary`. Reuses the existing `TextContent` type from `DeckTextContentPicker`.
+- **New `DeckFormatPicker.tsx`**: 2×2 grid of square cards (icon top, label bottom), selected card gets `border-primary bg-primary/5 text-primary` plus a filled check circle in the top-left, matching screenshot 1. Icons: `Presentation`, `Globe`, `FileText`, `Smartphone`.
 
-`DeckTextContentPicker.tsx` is kept but no longer imported on the page (left in place to avoid removing exports; we can also drop the export from `index.tsx`).
+- **New `DeckAspectRatioPicker.tsx`**: Segmented pill row, three options with small frame icon + ratio label. Active = `border-primary bg-primary/10 text-primary`.
 
-### Update: `src/components/deck/DeckThemePicker.tsx` → new wrapper `DeckThemeShowcase.tsx`
-Inline preview row matching screenshot 8:
-- Card container: `rounded-2xl border bg-card p-4`.
-- Header: image icon + `Visuals` bold + sub-text `Theme — Use one of our popular themes below or view more`. Right-aligned "View more" pill button (Palette icon).
-- Body: `grid-cols-3 gap-3` of 3 large theme cards (default: `dark`, `gamma`, `minimalist`). Each card uses the existing `themes[]` definitions to render a Title / Body & link preview inside the theme background, with a checkmark badge + label below. Selected card gets `border-primary ring-2 ring-primary/30`.
-- "View more" opens the existing themes Dialog (reuse current `DeckThemePicker` modal content) — all 22 themes in `grid-cols-2 sm:grid-cols-3 gap-3`.
+- **New `DeckAdvancedPanel.tsx`** (single card that wraps the new controls so the layout looks like screenshots 1–6):
+  ```
+  ┌─ Format ──────────────────────────┐
+  │ [Presentation] [Webpage]          │
+  │ [Document]     [Social]           │
+  │ Card size ▾  Traditional   16:9   │
+  ├───────────────────────────────────┤
+  │ Scenario ▾   General              │
+  │ Audience ▾   Auto    Tone ▾ Neutral│
+  │ Aspect Ratio  [16:9][4:3][1:1]    │
+  │ Additional instructions           │
+  │ [ textarea autosize           ]   │
+  └───────────────────────────────────┘
+  ```
+  - Header row collapsible (chevron at top-right) like screenshot 1, default expanded on desktop, collapsed on mobile.
+  - Uses semantic tokens only (`bg-card/60`, `border-border/60`, `text-foreground`, `text-muted-foreground`, `text-primary`).
 
-Implementation: keep `DeckThemePicker.tsx` for the Dialog list, but extract its `themes[]` array into the new file (or export it). The page uses `DeckThemeShowcase` instead of the old pill trigger.
+- **Textarea**: `react-textarea-autosize`, `minRows={2} maxRows={5}`, `rounded-xl border bg-card/60` to match other tool prompt bars (per project memory).
 
-### New: `src/components/deck/DeckExplorer.tsx`
-Mirror `ImagineExplorer.tsx` exactly (tab bar with active underline + count):
-- Tabs: `Templates` (LayoutGrid icon) and `Your Creations` (Sparkles icon).
-- Templates tab → new `DeckTemplates` component with a curated set of starter prompts (e.g. Pitch Deck, Product Launch, Quarterly Review, Course Outline, Conference Keynote, Investor Update, Workshop, Sales Playbook). Each tile is `aspect-[4/5] rounded-2xl` with a gradient background + title + 1-line subtitle. Clicking inserts the prompt into the prompt bar (via a new `injectPrompt`/`injectKey` prop on `DeckPromptBar`, copied from `ImaginePromptBar`).
-- Your Creations tab → new `DeckHistoryFeed` (visual twin of `ImagineHistoryFeed`) rendering the existing `historyItems` as a `grid-cols-2 sm:grid-cols-3 lg:grid-cols-4` grid of cards. Each card shows the first slide image (or a theme-colored placeholder if no image) + title + slide count, hover delete button, click → `handleHistoryLoad`.
+## DeckPage integration
 
-### Update: `src/components/deck/DeckPromptBar.tsx`
-Add the same `injectPrompt` / `injectKey` props pattern used by `ImaginePromptBar` so template tiles can pre-fill the textarea and scroll back to top. No other behavior changes.
+`src/pages/DeckPage.tsx`:
+- New state: `format` ('presentation' default), `cardSize` ('traditional'), `scenario` ('general'), `audience` ('auto'), `tone` ('neutral'), `aspectRatio` ('16:9'), `additionalInstructions` ('').
+- Render `<DeckAdvancedPanel ... />` immediately after the existing Slides/Language/Image-style options card, before `DeckTextContentCard`.
+- Pass new fields into `deckApi.generate(...)` via an options object (extend the existing positional call to accept an object for new params to avoid a long signature).
 
-### Update: `src/services/deckApi.ts`
-Add optional `language` param to `deckApi.generate()` and pass through in the POST body.
+## Service + Edge function
 
-### Update: `supabase/functions/deck-generate/index.ts`
-Accept `language` from the request body; when set and not `"auto"`, append `"Write all slide headings and bullet points in {language}."` to the existing system prompt. No other backend logic changes.
-
-### Update: `src/components/deck/index.tsx`
-Export `DeckLanguageSelector`, `DeckTextContentCard`, `DeckThemeShowcase`, `DeckExplorer`, `DeckTemplates`, `DeckHistoryFeed`.
+- **`src/services/deckApi.ts`**: extend `generate()` to accept `{ format, cardSize, scenario, audience, tone, aspectRatio, additionalInstructions }` and include them in the request body.
+- **`supabase/functions/deck-generate/index.ts`**: read the new fields, append them as guidance lines to the system prompt only when not `auto`/empty (e.g. `Scenario: Project Report`, `Audience: Students`, `Tone: Professional`, `Additional instructions: ...`). `aspectRatio` and `cardSize` are passed through into the returned deck metadata so the viewer can later honor them — no slide-rendering changes in this scope.
 
 ## Out of scope
-- No changes to slide rendering, slideshow, export logic, or pricing.
-- Audience / Tone / Scenario / Additional-instructions fields from screenshot 5 are not added (user only asked for language, text content style, themes, templates/creations).
-- The header History panel keeps using the existing `DeckHistory` list component (sidebar).
+
+- No changes to slide rendering, slideshow, export, or pricing.
+- No changes to theme/text-content/art-style components.
+- `format` other than `presentation` is wired into state and the request body, but actually rendering Webpage / Document / Social outputs is a follow-up.
+
+## Files
+
+- new: `src/components/deck/DeckDropdown.tsx`
+- new: `src/components/deck/DeckFormatPicker.tsx`
+- new: `src/components/deck/DeckAspectRatioPicker.tsx`
+- new: `src/components/deck/DeckAdvancedPanel.tsx`
+- edit: `src/components/deck/index.tsx` (exports)
+- edit: `src/pages/DeckPage.tsx` (state + render)
+- edit: `src/services/deckApi.ts` (params)
+- edit: `supabase/functions/deck-generate/index.ts` (prompt guidance)
