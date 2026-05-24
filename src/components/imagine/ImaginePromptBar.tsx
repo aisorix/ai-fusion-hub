@@ -59,6 +59,22 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled,
     true,
   );
 
+  // Apply template-injected prompt / reference image
+  useEffect(() => {
+    if (injectKey === undefined) return;
+    if (typeof injectPrompt === 'string') {
+      setPrompt(injectPrompt);
+    }
+    if (injectAttachmentUrl) {
+      setAttachments(prev => [
+        ...prev,
+        { type: 'image', url: injectAttachmentUrl, name: 'template-reference.png', size: 0, fileType: 'image' },
+      ]);
+    }
+    requestAnimationFrame(() => textareaRef.current?.focus());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [injectKey]);
+
   const processFiles = useCallback(async (files: File[]) => {
     if (files.length === 0) return;
     setIsParsing(true);
