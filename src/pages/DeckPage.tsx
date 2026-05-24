@@ -60,6 +60,70 @@ const DeckPage: React.FC = () => {
     additionalInstructions: '',
   });
 
+  // ───── Undo / Redo history ─────
+  type Snapshot = { slides: Slide[]; theme: DeckTheme };
+  const [history, setHistory] = useState<Snapshot[]>([{ slides: [], theme: 'dark' }]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+
+  const commit = useCallback((nextSlides: Slide[], nextTheme?: DeckTheme) => {
+    const theme = nextTheme ?? selectedTheme;
+    setSlides(nextSlides);
+    if (nextTheme) setSelectedTheme(nextTheme);
+    setHistory((h) => {
+      const truncated = h.slice(0, historyIndex + 1);
+      const next = [...truncated, { slides: nextSlides, theme }];
+      // cap at 50
+      const trimmed = next.length > 50 ? next.slice(next.length - 50) : next;
+      setHistoryIndex(trimmed.length - 1);
+      return trimmed;
+    });
+  }, [historyIndex, selectedTheme]);
+
+  const resetHistory = useCallback((snap: Snapshot) => {
+    setSlides(snap.slides);
+    setSelectedTheme(snap.theme);
+    setHistory([snap]);
+    setHistoryIndex(0);
+  }, []);
+
+  const canUndo = historyIndex > 0;
+  const canRedo = historyIndex < history.length - 1;
+
+  const undo = useCallback(() => {
+    if (!canUndo) return;
+    const idx = historyIndex - 1;
+    const snap = history[idx];
+    setSlides(snap.slides);
+    setSelectedTheme(snap.theme);
+    setHistoryIndex(idx);
+  }, [canUndo, historyIndex, history]);
+
+  const redo = useCallback(() => {
+    if (!canRedo) return;
+    const idx = historyIndex + 1;
+    const snap = history[idx];
+    setSlides(snap.slides);
+    setSelectedTheme(snap.theme);
+    setHistoryIndex(idx);
+  }, [canRedo, historyIndex, history]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && /INPUT|TEXTAREA/.test(t.tagName)) return;
+      if (t?.isContentEditable) return;
+      const mod = e.metaKey || e.ctrlKey;
+      if (!mod) return;
+      if (e.key.toLowerCase() === 'z' && !e.shiftKey) {
+        e.preventDefault(); undo();
+      } else if ((e.key.toLowerCase() === 'z' && e.shiftKey) || e.key.toLowerCase() === 'y') {
+        e.preventDefault(); redo();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [undo, redo]);
+
   useEffect(() => {
     deckApi.getHistory().then(items => {
       setHistoryItems(items);
