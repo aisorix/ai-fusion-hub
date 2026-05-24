@@ -1,7 +1,8 @@
 import React, { useState, useCallback, memo, useEffect, useRef } from 'react';
 import {
-  Copy, Check, RotateCcw, Share, Volume2, Pencil
+  Copy, Check, RotateCcw, Share, Volume2, Pencil, Pause, Loader2
 } from 'lucide-react';
+import { useTtsPlayback } from '@/hooks/useTtsPlayback';
 import copy from 'copy-to-clipboard';
 import { motion } from 'framer-motion';
 import MarkdownRenderer from './MarkdownRenderer';
@@ -245,9 +246,8 @@ const MessageBubble = memo(({ message, isStreaming, isLast, onEditAndResend }: M
                     {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   </ActionButton>
                   
-                  <ActionButton onClick={() => {}} tooltip={bn ? 'জোরে পড়ুন' : 'Read aloud'} theme={theme}>
-                    <Volume2 className="w-4 h-4" />
-                  </ActionButton>
+                  <ReadAloudButton id={message.id} text={message.content} bn={bn} theme={theme} />
+
                   
                   <div className="relative">
                     <button
@@ -326,5 +326,29 @@ const ActionButton = memo(({ onClick, children, tooltip, active, activeColor, th
 
 ActionButton.displayName = 'ActionButton';
 MessageBubble.displayName = 'MessageBubble';
+
+const ReadAloudButton = memo(({ id, text, bn, theme }: { id: string; text: string; bn: boolean; theme: 'light' | 'dark' }) => {
+  const activeId = useTtsPlayback(s => s.activeId);
+  const status = useTtsPlayback(s => s.status);
+  const toggle = useTtsPlayback(s => s.toggle);
+  const isActive = activeId === id;
+  const loading = isActive && status === 'loading';
+  const playing = isActive && status === 'playing';
+  return (
+    <button
+      onClick={() => toggle(id, text)}
+      className={cn(
+        'p-2 rounded-lg transition-all duration-150',
+        'text-muted-foreground hover:bg-secondary hover:text-foreground',
+        isActive && 'text-primary bg-primary/10 hover:bg-primary/15'
+      )}
+      title={bn ? (playing ? 'বিরতি' : 'জোরে পড়ুন') : (playing ? 'Pause' : 'Read aloud')}
+    >
+      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : playing ? <Pause className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+    </button>
+  );
+});
+ReadAloudButton.displayName = 'ReadAloudButton';
+
 
 export default MessageBubble;

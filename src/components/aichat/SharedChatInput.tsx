@@ -4,6 +4,7 @@
 import React, { useState, useRef, useCallback } from "react";
 import { useAutoFocusInput } from "@/hooks/useAutoFocusInput";
 import { Send, Square, Loader2, Mic, Image as ImageIcon, Paperclip, Upload, X, Plus, Camera } from "lucide-react";
+import VoiceDictationButton from "@/components/voice/VoiceDictationButton";
 import { motion, AnimatePresence } from "framer-motion";
 import TextareaAutosize from "react-textarea-autosize";
 import { isSubmitEnter } from "@/lib/inputHelpers";
@@ -334,14 +335,11 @@ const SharedChatInput = ({
           )}
         />
 
-        {onOpenVoiceMode && (
-          <button
-            onClick={onOpenVoiceMode}
-            className={cn("p-3 rounded-xl transition-all duration-200", "hover:bg-accent text-muted-foreground hover:text-primary")}
-          >
-            <Mic className="w-5 h-5" />
-          </button>
-        )}
+        <VoiceDictationButton
+          onTranscript={(t) => setInput((prev: string) => (prev ? prev.trimEnd() + ' ' + t : t))}
+          disabled={streaming}
+        />
+
 
         <button
           onClick={streaming ? onStopStreaming : handleSend}

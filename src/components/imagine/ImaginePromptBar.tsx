@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Send, Plus, Image as ImageIcon, Camera, Paperclip, Loader2, Settings2, Mic } from 'lucide-react';
+import VoiceDictationButton from '@/components/voice/VoiceDictationButton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useChatStore, type Attachment } from '@/stores/chatStore';
@@ -270,16 +271,12 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled,
               />
             </div>
 
-            {!hasContent && (
-              <button
-                type="button"
-                aria-label="Voice"
-                className="p-2 sm:p-2.5 rounded-full hover:bg-background text-muted-foreground hover:text-primary transition-colors relative hidden sm:inline-flex"
-              >
-                <Mic className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-green-500 rounded-full" />
-              </button>
-            )}
+            <VoiceDictationButton
+              onTranscript={(t) => setPrompt((prev: string) => (prev ? prev.trimEnd() + ' ' + t : t))}
+              disabled={isGenerating || disabled}
+              className="hidden sm:inline-flex"
+            />
+
             <button
               type="button"
               onClick={handleSubmit}
