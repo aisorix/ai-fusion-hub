@@ -94,7 +94,7 @@ const ImagineActions: React.FC<Props> = ({ imageUrl, prompt }) => {
   };
 
   return (
-    <div className="flex items-center justify-center gap-2 flex-wrap">
+    <div className="flex items-center justify-center sm:justify-center gap-2 flex-nowrap overflow-x-auto scrollbar-hide px-1 -mx-1 sm:flex-wrap">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm" className="gap-1.5 rounded-xl">
