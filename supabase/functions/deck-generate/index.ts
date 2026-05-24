@@ -175,7 +175,7 @@ Rules:
 - First slide should be a title slide with layout "full-image"
 - Last slide should be a summary/conclusion with layout "text-only"
 - Most middle slides should use "split" layout
-- Make image_prompts vivid, specific, and professional${artInstruction}${languageInstruction}
+- Make image_prompts vivid, specific, and professional${artInstruction}${languageInstruction}${extraInstruction}
 - Output ONLY the JSON array, no markdown, no explanation`;
 
     const llmResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
