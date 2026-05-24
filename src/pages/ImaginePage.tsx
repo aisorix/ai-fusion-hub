@@ -168,6 +168,9 @@ const ImaginePage: React.FC = () => {
               onSelectModel={setSelectedModel}
               userPlan={user.plan}
               onUpgrade={() => setShowUpgrade(true)}
+              injectPrompt={injectPrompt}
+              injectAttachmentUrl={injectAttachmentUrl}
+              injectKey={injectKey}
             />
           </div>
 
