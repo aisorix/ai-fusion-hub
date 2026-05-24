@@ -1,20 +1,25 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEOHead from '@/components/SEOHead';
-import { ArrowLeft, Presentation, History, X } from 'lucide-react';
-import DeckSlideshow from '@/components/deck/DeckSlideshow';
+import { ArrowLeft, Presentation, History, X, Layers } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useChatStore } from '@/stores/chatStore';
 import { deckApi, type Slide, type DeckHistoryItem } from '@/services/deckApi';
 import DeckPromptBar from '@/components/deck/DeckPromptBar';
-import DeckThemePicker, { type DeckTheme } from '@/components/deck/DeckThemePicker';
-import DeckTextContentPicker, { type TextContent } from '@/components/deck/DeckTextContentPicker';
+import DeckThemeShowcase from '@/components/deck/DeckThemeShowcase';
+import type { DeckTheme } from '@/components/deck/DeckThemePicker';
+import type { TextContent } from '@/components/deck/DeckTextContentPicker';
+import DeckTextContentCard from '@/components/deck/DeckTextContentCard';
 import DeckArtStylePicker, { type ArtStyle } from '@/components/deck/DeckArtStylePicker';
+import DeckLanguageSelector, { type DeckLanguage } from '@/components/deck/DeckLanguageSelector';
 import DeckSlideViewer from '@/components/deck/DeckSlideViewer';
 import DeckHistory from '@/components/deck/DeckHistory';
 import DeckActions from '@/components/deck/DeckActions';
+import DeckSlideshow from '@/components/deck/DeckSlideshow';
+import DeckExplorer from '@/components/deck/DeckExplorer';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
+import { cn } from '@/lib/utils';
 
 const SLIDE_COUNTS = [3, 5, 8, 10, 12, 15, 20, 25, 30];
 
@@ -31,6 +36,7 @@ const DeckPage: React.FC = () => {
   const [textContent, setTextContent] = useState<TextContent>('concise');
   const [artStyle, setArtStyle] = useState<ArtStyle>('illustration');
   const [customArtStyle, setCustomArtStyle] = useState('');
+  const [language, setLanguage] = useState<DeckLanguage>('auto');
   const [isGenerating, setIsGenerating] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
@@ -38,8 +44,9 @@ const DeckPage: React.FC = () => {
   const [historyItems, setHistoryItems] = useState<DeckHistoryItem[]>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [historyLoadingId, setHistoryLoadingId] = useState<string | null>(null);
+  const [injectPrompt, setInjectPrompt] = useState<string | undefined>();
+  const [injectKey, setInjectKey] = useState(0);
 
-  // Pre-fetch history on mount
   useEffect(() => {
     deckApi.getHistory().then(items => {
       setHistoryItems(items);
@@ -47,26 +54,35 @@ const DeckPage: React.FC = () => {
     }).catch(() => setHistoryLoading(false));
   }, []);
 
-  const effectiveSlideCount = showCustomInput && customSlideCount ? parseInt(customSlideCount) || slideCount : slideCount;
+  const effectiveSlideCount = showCustomInput && customSlideCount
+    ? parseInt(customSlideCount) || slideCount
+    : slideCount;
   const tokensRemaining = user.tokensLimit - user.tokensUsed;
   const estimatedCost = effectiveSlideCount * 2000 + effectiveSlideCount * 12000;
   const isFreeUser = user.plan === 'free';
 
-  // Count total slides from history for free users
   const totalSlidesUsed = isFreeUser
-    ? historyItems.reduce((sum, item) => sum + (item.result_data?.slides?.length || 0), 0)
+    ? historyItems.reduce((sum, item) => sum + (item.result_data?.slides?.length || item.input_data?.slideCount || 0), 0)
     : 0;
-  const freeSlidesRemaining = 20 - totalSlidesUsed;
+  const freeSlidesRemaining = Math.max(0, 20 - totalSlidesUsed);
+
+  const slidesRef = useRef<HTMLDivElement>(null);
+
+  const handleUseTemplate = (prompt: string, recommendedSlides?: number) => {
+    setInjectPrompt(prompt);
+    setInjectKey(k => k + 1);
+    if (recommendedSlides && SLIDE_COUNTS.includes(recommendedSlides)) {
+      setSlideCount(recommendedSlides);
+      setShowCustomInput(false);
+    }
+    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  };
 
   const handleGenerate = async (prompt: string) => {
     if (isFreeUser) {
-      if (freeSlidesRemaining <= 0) {
-        setShowUpgrade(true);
-        return;
-      }
+      if (freeSlidesRemaining <= 0) { setShowUpgrade(true); return; }
     } else if (tokensRemaining < estimatedCost) {
-      setShowUpgrade(true);
-      return;
+      setShowUpgrade(true); return;
     }
 
     setIsGenerating(true);
@@ -76,10 +92,11 @@ const DeckPage: React.FC = () => {
     const finalArtStyle = artStyle === 'custom' ? customArtStyle : artStyle;
 
     try {
-      const result = await deckApi.generate(prompt, effectiveSlideCount, selectedTheme, true, textContent, finalArtStyle);
+      const result = await deckApi.generate(
+        prompt, effectiveSlideCount, selectedTheme, true, textContent, finalArtStyle, language
+      );
       setSlides(result.slides);
       setTitle(result.title);
-      // Instantly add to local history cache
       const newHistoryItem: DeckHistoryItem = {
         id: crypto.randomUUID(),
         title: result.title,
@@ -90,18 +107,16 @@ const DeckPage: React.FC = () => {
       setHistoryItems(prev => [newHistoryItem, ...prev]);
       setUser({ ...user, tokensUsed: result.totalTokensUsed });
       toast.success(`Generated ${result.slides.length} slides`);
+      requestAnimationFrame(() => {
+        slidesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
     } catch (err: any) {
-      if (err.message === 'insufficient_tokens') {
-        setShowUpgrade(true);
-      } else {
-        toast.error(err.message || 'Failed to generate presentation');
-      }
+      if (err.message === 'insufficient_tokens') setShowUpgrade(true);
+      else toast.error(err.message || 'Failed to generate presentation');
     } finally {
       setIsGenerating(false);
     }
   };
-
-  const slidesRef = useRef<HTMLDivElement>(null);
 
   const handleHistoryLoad = async (item: DeckHistoryItem) => {
     setHistoryLoadingId(item.id);
@@ -113,9 +128,7 @@ const DeckPage: React.FC = () => {
       }
       setSlides(full.result_data.slides);
       setTitle(full.title);
-      if (full.input_data?.theme) {
-        setSelectedTheme(full.input_data.theme as DeckTheme);
-      }
+      if (full.input_data?.theme) setSelectedTheme(full.input_data.theme as DeckTheme);
       const inp: any = full.input_data;
       if (inp?.textContent) setTextContent(inp.textContent as TextContent);
       if (inp?.artStyle) setArtStyle(inp.artStyle as ArtStyle);
@@ -131,131 +144,199 @@ const DeckPage: React.FC = () => {
   };
 
   const handleUpdateSlide = (index: number, updated: Slide) => {
-    setSlides((prev) => prev.map((s, i) => (i === index ? updated : s)));
+    setSlides(prev => prev.map((s, i) => (i === index ? updated : s)));
   };
 
   return (
     <div className="h-[100dvh] flex flex-col bg-background overflow-hidden">
-      <SEOHead title="Sorix Deck | AI Presentations | AI Sorix" description="Create stunning AI-powered presentations instantly. Generate professional slides with custom themes, art styles, and content." path="/deck" />
-      {/* Header */}
+      <SEOHead
+        title="Sorix Deck | AI Presentations | AI Sorix"
+        description="Create stunning AI-powered presentations instantly. Generate professional slides with custom themes, art styles, and multilingual content."
+        path="/deck"
+      />
+
+      {/* Header — matches Imagine */}
       <header className="shrink-0 bg-card/80 backdrop-blur-xl relative">
-        <div className="flex items-center justify-between px-4 md:px-6 h-14">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between px-3 sm:px-4 md:px-6 h-12 sm:h-14">
+          <div className="flex items-center gap-2.5 min-w-0">
             <button
               onClick={() => navigate(-1)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground"
+              className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground shrink-0"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shrink-0">
                 <Presentation className="w-4 h-4 text-white" />
               </div>
-              <div>
-                <h1 className="text-sm font-bold text-foreground">Sorix Deck</h1>
-                <p className="text-[10px] text-muted-foreground">AI Presentations</p>
+              <div className="min-w-0">
+                <h1 className="text-sm font-bold text-foreground truncate">Sorix Deck</h1>
+                <p className="hidden sm:block text-[10px] text-muted-foreground">AI Presentations</p>
               </div>
             </div>
           </div>
 
           <button
             onClick={() => setShowHistory(true)}
-            className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
+            className="inline-flex items-center gap-1.5 h-9 px-2.5 sm:px-3 rounded-xl border border-border/60 bg-card/60 hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
             title="Presentation History"
           >
             <History className="w-4 h-4" />
+            <span className="hidden sm:inline text-[12.5px] font-medium">History</span>
           </button>
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
       </header>
 
-      {/* Main */}
       <main className="flex-1 overflow-y-auto">
-        <div className="max-w-3xl mx-auto px-3 md:px-4 py-4 md:py-12 flex flex-col items-center gap-4 md:gap-5">
-          <DeckPromptBar onGenerate={handleGenerate} isGenerating={isGenerating} />
+        <div className="max-w-3xl mx-auto px-3 sm:px-4 lg:px-6 pt-3 pb-6 sm:pt-5 sm:pb-8 md:pt-8 flex flex-col gap-4 sm:gap-5">
 
-          {/* Slide count row */}
-          <div className="w-full">
-            <span className="text-xs text-muted-foreground mb-2 block">Slides:</span>
-            <div className="flex items-center gap-1.5 flex-wrap">
-              {SLIDE_COUNTS.map((n) => (
+          {/* Prompt bar */}
+          <div className="relative z-[60]">
+            <DeckPromptBar
+              onGenerate={handleGenerate}
+              isGenerating={isGenerating}
+              injectPrompt={injectPrompt}
+              injectKey={injectKey}
+            />
+          </div>
+
+          {/* Tokens / free-slides pill */}
+          <div className="flex justify-center -mt-1">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-card/60 px-2.5 py-1 text-[10.5px] text-muted-foreground">
+              <span className="w-1 h-1 rounded-full bg-primary/70" />
+              {isFreeUser ? (
+                <>
+                  <span className="tabular-nums">{totalSlidesUsed}/20</span> free slides used
+                  <span className="text-muted-foreground/40">·</span>
+                  <span className="tabular-nums">{freeSlidesRemaining}</span> remaining
+                </>
+              ) : (
+                <>
+                  <span className="tabular-nums">{tokensRemaining.toLocaleString()}</span> tokens left
+                  <span className="text-muted-foreground/40">·</span>
+                  <span className="tabular-nums">{estimatedCost.toLocaleString()}</span> per run
+                </>
+              )}
+            </span>
+          </div>
+
+          {/* Options panel — Slides + Language + Image style */}
+          <div className="w-full rounded-2xl border border-border/60 bg-card/60 p-3.5 sm:p-5 space-y-3.5 sm:space-y-4">
+            {/* Slides row */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Layers className="w-4 h-4 text-primary" />
+                <h3 className="text-[13px] font-semibold text-foreground">Slides</h3>
+                <span className="text-[11px] text-muted-foreground">· {effectiveSlideCount}</span>
+              </div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {SLIDE_COUNTS.map((n) => {
+                  const active = slideCount === n && !showCustomInput;
+                  return (
+                    <button
+                      key={n}
+                      onClick={() => { setSlideCount(n); setShowCustomInput(false); }}
+                      className={cn(
+                        'min-w-[34px] px-2.5 py-1 rounded-lg text-xs font-medium transition-colors',
+                        active
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                      )}
+                    >
+                      {n}
+                    </button>
+                  );
+                })}
                 <button
-                  key={n}
-                  onClick={() => { setSlideCount(n); setShowCustomInput(false); }}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
-                    slideCount === n && !showCustomInput
+                  onClick={() => setShowCustomInput(!showCustomInput)}
+                  className={cn(
+                    'px-2.5 py-1 rounded-lg text-xs font-medium transition-colors',
+                    showCustomInput
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted/50 text-muted-foreground hover:bg-muted'
-                  }`}
+                  )}
                 >
-                  {n}
+                  Custom
                 </button>
-              ))}
-              <button
-                onClick={() => setShowCustomInput(!showCustomInput)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
-                  showCustomInput
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted/50 text-muted-foreground hover:bg-muted'
-                }`}
-              >
-                Custom
-              </button>
-              {showCustomInput && (
-                <input
-                  type="number"
-                  min={1}
-                  max={50}
-                  value={customSlideCount}
-                  onChange={(e) => setCustomSlideCount(e.target.value)}
-                  placeholder="1-50"
-                  className="w-16 px-2 py-1 rounded-lg text-xs border border-border bg-card text-foreground outline-none focus:border-primary"
-                />
-              )}
+                {showCustomInput && (
+                  <input
+                    type="number"
+                    min={1}
+                    max={50}
+                    value={customSlideCount}
+                    onChange={(e) => setCustomSlideCount(e.target.value)}
+                    placeholder="1-50"
+                    className="w-20 px-2 py-1 rounded-lg text-xs border border-border bg-card text-foreground outline-none focus:border-primary"
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Language row */}
+            <div>
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <h3 className="text-[13px] font-semibold text-foreground">Language</h3>
+                <span className="text-[10.5px] text-muted-foreground">Multilingual</span>
+              </div>
+              <DeckLanguageSelector value={language} onChange={setLanguage} />
+            </div>
+
+            {/* Image style */}
+            <div>
+              <DeckArtStylePicker
+                selected={artStyle}
+                onSelect={setArtStyle}
+                customStyle={customArtStyle}
+                onCustomStyleChange={setCustomArtStyle}
+              />
             </div>
           </div>
 
-          {/* Text Content */}
-          <DeckTextContentPicker selected={textContent} onSelect={setTextContent} />
+          {/* Text content card */}
+          <DeckTextContentCard selected={textContent} onSelect={setTextContent} />
 
-          {/* Art Style */}
-          <DeckArtStylePicker
-            selected={artStyle}
-            onSelect={setArtStyle}
-            customStyle={customArtStyle}
-            onCustomStyleChange={setCustomArtStyle}
-          />
-
-          {/* Theme */}
-          <div className="w-full flex items-center gap-3">
-            <DeckThemePicker selected={selectedTheme} onSelect={setSelectedTheme} />
-          </div>
-
-          {/* Token / Free slides info */}
-          <p className="text-[10px] text-muted-foreground/50 text-center -mt-2">
-            {isFreeUser
-              ? `${totalSlidesUsed}/20 free slides used • ${freeSlidesRemaining > 0 ? `${freeSlidesRemaining} remaining` : 'Upgrade for more'}`
-              : `${tokensRemaining.toLocaleString()} tokens remaining • Est. cost: ${estimatedCost.toLocaleString()} tokens`
-            }
-          </p>
-
-          {/* Actions */}
-          {slides.length > 0 && <DeckActions slides={slides} title={title} theme={selectedTheme} onSlideshow={() => setShowSlideshow(true)} />}
+          {/* Theme showcase */}
+          <DeckThemeShowcase selected={selectedTheme} onSelect={setSelectedTheme} />
 
           {/* Slides */}
-          <div ref={slidesRef} className="w-full">
-            <DeckSlideViewer
-              slides={slides}
-              theme={selectedTheme}
-              isGenerating={isGenerating}
-              skeletonCount={effectiveSlideCount}
-              onUpdateSlide={handleUpdateSlide}
-            />
-          </div>
+          {(slides.length > 0 || isGenerating) && (
+            <div ref={slidesRef} className="w-full pt-2 space-y-4">
+              {slides.length > 0 && (
+                <DeckActions
+                  slides={slides}
+                  title={title}
+                  theme={selectedTheme}
+                  onSlideshow={() => setShowSlideshow(true)}
+                />
+              )}
+              <DeckSlideViewer
+                slides={slides}
+                theme={selectedTheme}
+                isGenerating={isGenerating}
+                skeletonCount={effectiveSlideCount}
+                onUpdateSlide={handleUpdateSlide}
+              />
+            </div>
+          )}
+
+          <div className="py-2 sm:py-4" />
+
+          {/* Templates / Your Creations */}
+          <DeckExplorer
+            onUseTemplate={handleUseTemplate}
+            historyItems={historyItems}
+            historyLoading={historyLoading}
+            historyLoadingId={historyLoadingId}
+            onLoadHistory={handleHistoryLoad}
+            onDeleteHistory={(id) => setHistoryItems(prev => prev.filter(i => i.id !== id))}
+          />
+
+          <div className="h-6" />
         </div>
       </main>
 
-      {/* History Panel */}
+      {/* History side panel */}
       <AnimatePresence>
         {showHistory && (
           <>
@@ -263,7 +344,7 @@ const DeckPage: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/30 z-[200]"
+              className="fixed inset-0 bg-black/40 z-[200]"
               onClick={() => setShowHistory(false)}
             />
             <motion.div
@@ -280,7 +361,13 @@ const DeckPage: React.FC = () => {
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto">
-                <DeckHistory onLoad={handleHistoryLoad} items={historyItems} loading={historyLoading} loadingId={historyLoadingId} onDelete={(id) => setHistoryItems(prev => prev.filter(i => i.id !== id))} />
+                <DeckHistory
+                  onLoad={handleHistoryLoad}
+                  items={historyItems}
+                  loading={historyLoading}
+                  loadingId={historyLoadingId}
+                  onDelete={(id) => setHistoryItems(prev => prev.filter(i => i.id !== id))}
+                />
               </div>
             </motion.div>
           </>
