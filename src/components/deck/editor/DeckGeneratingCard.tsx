@@ -37,9 +37,16 @@ const DeckGeneratingCard: React.FC<Props> = ({ theme, index, visibleLines = 0, c
         className,
       )}
     >
-      {/* Slide badge */}
-      <div className={cn('text-[10px] font-mono px-2 py-0.5 rounded-full w-fit', tc.badge)}>
-        {index + 1}
+      {/* Top row: slide number + AI generating badge */}
+      <div className="flex items-center justify-between">
+        <div className={cn('text-[10px] font-mono px-2 py-0.5 rounded-full w-fit', tc.badge)}>
+          {index + 1}
+        </div>
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10.5px] font-medium text-primary bg-primary/10 border border-primary/20 backdrop-blur-sm">
+          <Sparkles className="w-3 h-3" />
+          AI generating
+          <span className="ml-0.5 w-1 h-1 rounded-full bg-primary deck-pulse-dot" />
+        </span>
       </div>
 
       {/* Heading skeleton */}
@@ -49,14 +56,8 @@ const DeckGeneratingCard: React.FC<Props> = ({ theme, index, visibleLines = 0, c
         ) : (
           <div className={cn('h-7 md:h-9 rounded-md', tc.line, 'opacity-40')} style={{ width: '40%' }} />
         )}
-
-        {/* Floating AI generating badge */}
-        <span className="absolute -top-1 right-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10.5px] font-medium text-primary bg-primary/10 border border-primary/20 backdrop-blur-sm">
-          <Sparkles className="w-3 h-3" />
-          AI generating
-          <span className="ml-0.5 w-1 h-1 rounded-full bg-primary deck-pulse-dot" />
-        </span>
       </div>
+
 
       {/* Body lines */}
       <div className="flex flex-col gap-2.5 mt-1">

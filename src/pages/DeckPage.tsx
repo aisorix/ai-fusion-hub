@@ -13,7 +13,7 @@ import type { TextContent } from '@/components/deck/DeckTextContentPicker';
 import DeckTextContentCard from '@/components/deck/DeckTextContentCard';
 import DeckArtStylePicker, { type ArtStyle } from '@/components/deck/DeckArtStylePicker';
 import DeckLanguageSelector, { type DeckLanguage } from '@/components/deck/DeckLanguageSelector';
-import DeckSlideViewer from '@/components/deck/DeckSlideViewer';
+// DeckSlideViewer removed — replaced by DeckEditor
 import DeckHistory from '@/components/deck/DeckHistory';
 import DeckActions from '@/components/deck/DeckActions';
 import DeckSlideshow from '@/components/deck/DeckSlideshow';
@@ -168,6 +168,34 @@ const DeckPage: React.FC = () => {
     setSlides(prev => prev.map((s, i) => (i === index ? updated : s)));
   };
 
+  const handleCreateNew = () => {
+    setSlides([]);
+    setTitle('');
+    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  };
+
+  const handleAddAiSlide = async (prompt: string, layout: Slide['layout'], insertAt: number) => {
+    const finalArtStyle = artStyle === 'custom' ? customArtStyle : artStyle;
+    const result = await deckApi.generateSingleSlide(prompt, {
+      theme: selectedTheme,
+      textContent,
+      artStyle: finalArtStyle,
+      language,
+      layout,
+      slideNumber: insertAt + 1,
+    });
+    setSlides(prev => {
+      const next = [...prev];
+      // Replace placeholder at insertAt if present, else insert
+      next.splice(insertAt, 1, result.slide);
+      return next.map((s, i) => ({ ...s, slide_number: i + 1 }));
+    });
+    setUser({ ...user, tokensUsed: result.totalTokensUsed });
+  };
+
+  const showEditor = slides.length > 0 || isGenerating;
+
+
   return (
     <div className="h-[100dvh] flex flex-col bg-background overflow-hidden">
       <SEOHead
@@ -209,159 +237,156 @@ const DeckPage: React.FC = () => {
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
       </header>
 
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-3xl mx-auto px-3 sm:px-4 lg:px-6 pt-3 pb-6 sm:pt-5 sm:pb-8 md:pt-8 flex flex-col gap-4 sm:gap-5">
-
-          {/* Prompt bar */}
-          <div className="relative z-[60]">
-            <DeckPromptBar
-              onGenerate={handleGenerate}
-              isGenerating={isGenerating}
-              injectPrompt={injectPrompt}
-              injectKey={injectKey}
-            />
-          </div>
-
-          {/* Tokens / free-slides pill */}
-          <div className="flex justify-center -mt-1">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-card/60 px-2.5 py-1 text-[10.5px] text-muted-foreground">
-              <span className="w-1 h-1 rounded-full bg-primary/70" />
-              {isFreeUser ? (
-                <>
-                  <span className="tabular-nums">{totalSlidesUsed}/20</span> free slides used
-                  <span className="text-muted-foreground/40">·</span>
-                  <span className="tabular-nums">{freeSlidesRemaining}</span> remaining
-                </>
-              ) : (
-                <>
-                  <span className="tabular-nums">{tokensRemaining.toLocaleString()}</span> tokens left
-                  <span className="text-muted-foreground/40">·</span>
-                  <span className="tabular-nums">{estimatedCost.toLocaleString()}</span> per run
-                </>
-              )}
-            </span>
-          </div>
-
-          {/* Options panel — Slides + Language + Image style */}
-          <div className="w-full rounded-2xl border border-border/60 bg-card/60 p-3.5 sm:p-5 space-y-3.5 sm:space-y-4">
-            {/* Slides row */}
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Layers className="w-4 h-4 text-primary" />
-                <h3 className="text-[13px] font-semibold text-foreground">Slides</h3>
-                <span className="text-[11px] text-muted-foreground">· {effectiveSlideCount}</span>
-              </div>
-              <div className="flex items-center gap-1.5 flex-wrap">
-                {SLIDE_COUNTS.map((n) => {
-                  const active = slideCount === n && !showCustomInput;
-                  return (
-                    <button
-                      key={n}
-                      onClick={() => { setSlideCount(n); setShowCustomInput(false); }}
-                      className={cn(
-                        'min-w-[34px] px-2.5 py-1 rounded-lg text-xs font-medium transition-colors',
-                        active
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted/50 text-muted-foreground hover:bg-muted'
-                      )}
-                    >
-                      {n}
-                    </button>
-                  );
-                })}
-                <button
-                  onClick={() => setShowCustomInput(!showCustomInput)}
-                  className={cn(
-                    'px-2.5 py-1 rounded-lg text-xs font-medium transition-colors',
-                    showCustomInput
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted/50 text-muted-foreground hover:bg-muted'
-                  )}
-                >
-                  Custom
-                </button>
-                {showCustomInput && (
-                  <input
-                    type="number"
-                    min={1}
-                    max={50}
-                    value={customSlideCount}
-                    onChange={(e) => setCustomSlideCount(e.target.value)}
-                    placeholder="1-50"
-                    className="w-20 px-2 py-1 rounded-lg text-xs border border-border bg-card text-foreground outline-none focus:border-primary"
-                  />
-                )}
-              </div>
-            </div>
-
-            {/* Language row */}
-            <div>
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <h3 className="text-[13px] font-semibold text-foreground">Language</h3>
-                <span className="text-[10.5px] text-muted-foreground">Multilingual</span>
-              </div>
-              <DeckLanguageSelector value={language} onChange={setLanguage} />
-            </div>
-
-            {/* Image style */}
-            <div>
-              <DeckArtStylePicker
-                selected={artStyle}
-                onSelect={setArtStyle}
-                customStyle={customArtStyle}
-                onCustomStyleChange={setCustomArtStyle}
-              />
-            </div>
-          </div>
-
-          {/* Text content card */}
-          {/* Advanced format / scenario / audience / tone / aspect / instructions */}
-          <DeckAdvancedPanel
-            values={advanced}
-            onChange={(patch) => setAdvanced((prev) => ({ ...prev, ...patch }))}
-          />
-
-          <DeckTextContentCard selected={textContent} onSelect={setTextContent} />
-
-          {/* Theme showcase */}
-          <DeckThemeShowcase selected={selectedTheme} onSelect={setSelectedTheme} />
-
-          {/* Slides */}
-          {(slides.length > 0 || isGenerating) && (
-            <div ref={slidesRef} className="w-full pt-2 space-y-4">
-              {slides.length > 0 && (
-                <DeckActions
-                  slides={slides}
-                  title={title}
-                  theme={selectedTheme}
-                  onSlideshow={() => setShowSlideshow(true)}
-                />
-              )}
-              <DeckSlideViewer
+      {showEditor ? (
+        <>
+          {slides.length > 0 && (
+            <div className="shrink-0 border-b border-border/40 bg-card/40 backdrop-blur-md px-3 sm:px-5 py-2">
+              <DeckActions
                 slides={slides}
+                title={title}
                 theme={selectedTheme}
-                isGenerating={isGenerating}
-                skeletonCount={effectiveSlideCount}
-                onUpdateSlide={handleUpdateSlide}
+                onSlideshow={() => setShowSlideshow(true)}
               />
             </div>
           )}
-
-          <div className="py-2 sm:py-4" />
-
-          {/* Templates / Your Creations */}
-          <DeckExplorer
-            onUseTemplate={handleUseTemplate}
-            historyItems={historyItems}
-            historyLoading={historyLoading}
-            historyLoadingId={historyLoadingId}
-            onLoadHistory={handleHistoryLoad}
-            onDeleteHistory={(id) => setHistoryItems(prev => prev.filter(i => i.id !== id))}
+          <DeckEditor
+            slides={slides}
+            onSlidesChange={setSlides}
+            theme={selectedTheme}
+            isGenerating={isGenerating}
+            expectedSlideCount={effectiveSlideCount}
+            onCreateNew={handleCreateNew}
+            onAddAiSlide={handleAddAiSlide}
           />
+        </>
+      ) : (
+        <main className="flex-1 overflow-y-auto">
+          <div className="max-w-3xl mx-auto px-3 sm:px-4 lg:px-6 pt-3 pb-6 sm:pt-5 sm:pb-8 md:pt-8 flex flex-col gap-4 sm:gap-5">
 
-          <div className="h-6" />
-        </div>
-      </main>
+            {/* Prompt bar */}
+            <div className="relative z-[60]">
+              <DeckPromptBar
+                onGenerate={handleGenerate}
+                isGenerating={isGenerating}
+                injectPrompt={injectPrompt}
+                injectKey={injectKey}
+              />
+            </div>
+
+            {/* Tokens / free-slides pill */}
+            <div className="flex justify-center -mt-1">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-card/60 px-2.5 py-1 text-[10.5px] text-muted-foreground">
+                <span className="w-1 h-1 rounded-full bg-primary/70" />
+                {isFreeUser ? (
+                  <>
+                    <span className="tabular-nums">{totalSlidesUsed}/20</span> free slides used
+                    <span className="text-muted-foreground/40">·</span>
+                    <span className="tabular-nums">{freeSlidesRemaining}</span> remaining
+                  </>
+                ) : (
+                  <>
+                    <span className="tabular-nums">{tokensRemaining.toLocaleString()}</span> tokens left
+                    <span className="text-muted-foreground/40">·</span>
+                    <span className="tabular-nums">{estimatedCost.toLocaleString()}</span> per run
+                  </>
+                )}
+              </span>
+            </div>
+
+            {/* Options panel — Slides + Language + Image style */}
+            <div className="w-full rounded-2xl border border-border/60 bg-card/60 p-3.5 sm:p-5 space-y-3.5 sm:space-y-4">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Layers className="w-4 h-4 text-primary" />
+                  <h3 className="text-[13px] font-semibold text-foreground">Slides</h3>
+                  <span className="text-[11px] text-muted-foreground">· {effectiveSlideCount}</span>
+                </div>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {SLIDE_COUNTS.map((n) => {
+                    const active = slideCount === n && !showCustomInput;
+                    return (
+                      <button
+                        key={n}
+                        onClick={() => { setSlideCount(n); setShowCustomInput(false); }}
+                        className={cn(
+                          'min-w-[34px] px-2.5 py-1 rounded-lg text-xs font-medium transition-colors',
+                          active
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                        )}
+                      >
+                        {n}
+                      </button>
+                    );
+                  })}
+                  <button
+                    onClick={() => setShowCustomInput(!showCustomInput)}
+                    className={cn(
+                      'px-2.5 py-1 rounded-lg text-xs font-medium transition-colors',
+                      showCustomInput
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                    )}
+                  >
+                    Custom
+                  </button>
+                  {showCustomInput && (
+                    <input
+                      type="number"
+                      min={1}
+                      max={50}
+                      value={customSlideCount}
+                      onChange={(e) => setCustomSlideCount(e.target.value)}
+                      placeholder="1-50"
+                      className="w-20 px-2 py-1 rounded-lg text-xs border border-border bg-card text-foreground outline-none focus:border-primary"
+                    />
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <h3 className="text-[13px] font-semibold text-foreground">Language</h3>
+                  <span className="text-[10.5px] text-muted-foreground">Multilingual</span>
+                </div>
+                <DeckLanguageSelector value={language} onChange={setLanguage} />
+              </div>
+
+              <div>
+                <DeckArtStylePicker
+                  selected={artStyle}
+                  onSelect={setArtStyle}
+                  customStyle={customArtStyle}
+                  onCustomStyleChange={setCustomArtStyle}
+                />
+              </div>
+            </div>
+
+            <DeckAdvancedPanel
+              values={advanced}
+              onChange={(patch) => setAdvanced((prev) => ({ ...prev, ...patch }))}
+            />
+
+            <DeckTextContentCard selected={textContent} onSelect={setTextContent} />
+
+            <DeckThemeShowcase selected={selectedTheme} onSelect={setSelectedTheme} />
+
+            <div className="py-2 sm:py-4" />
+
+            <DeckExplorer
+              onUseTemplate={handleUseTemplate}
+              historyItems={historyItems}
+              historyLoading={historyLoading}
+              historyLoadingId={historyLoadingId}
+              onLoadHistory={handleHistoryLoad}
+              onDeleteHistory={(id) => setHistoryItems(prev => prev.filter(i => i.id !== id))}
+            />
+
+            <div className="h-6" />
+          </div>
+        </main>
+      )}
+
 
       {/* History side panel */}
       <AnimatePresence>
