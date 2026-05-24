@@ -36,6 +36,16 @@ export interface DeckHistoryItem {
   created_at: string;
 }
 
+export interface DeckGenerateExtras {
+  format?: string;
+  cardSize?: string;
+  scenario?: string;
+  audience?: string;
+  tone?: string;
+  aspectRatio?: string;
+  additionalInstructions?: string;
+}
+
 export const deckApi = {
   generate: async (
     prompt: string,
@@ -44,7 +54,8 @@ export const deckApi = {
     generateImages: boolean = true,
     textContent: string = 'concise',
     artStyle: string = 'illustration',
-    language: string = 'auto'
+    language: string = 'auto',
+    extras: DeckGenerateExtras = {}
   ): Promise<DeckResult> => {
     const headers = await getAuthHeaders();
     const response = await fetch(
@@ -52,7 +63,7 @@ export const deckApi = {
       {
         method: 'POST',
         headers,
-        body: JSON.stringify({ prompt, slideCount, theme, generateImages, textContent, artStyle, language }),
+        body: JSON.stringify({ prompt, slideCount, theme, generateImages, textContent, artStyle, language, ...extras }),
       }
     );
 
