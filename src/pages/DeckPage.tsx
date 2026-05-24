@@ -212,9 +212,9 @@ const DeckPage: React.FC = () => {
         toast.error('Failed to load presentation data');
         return;
       }
-      setSlides(full.result_data.slides);
+      const loadedTheme = (full.input_data?.theme as DeckTheme) || selectedTheme;
+      resetHistory({ slides: full.result_data.slides, theme: loadedTheme });
       setTitle(full.title);
-      if (full.input_data?.theme) setSelectedTheme(full.input_data.theme as DeckTheme);
       const inp: any = full.input_data;
       if (inp?.textContent) setTextContent(inp.textContent as TextContent);
       if (inp?.artStyle) setArtStyle(inp.artStyle as ArtStyle);
