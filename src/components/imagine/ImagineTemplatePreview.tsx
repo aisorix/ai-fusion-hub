@@ -1,7 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Copy, Wand2, ImagePlus, Sparkles, Camera, Check } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { AspectRatio, Resolution } from './ImagineOptionsPanel';
 
@@ -10,8 +9,7 @@ export interface Template {
   category: 'styles' | 'creations' | 'portraits' | 'transforms';
   title: string;
   prompt: string;
-  grad: string; // tailwind gradient classes (without "bg-gradient-to-br")
-  icon: string; // glyph
+  image: string; // imported asset URL
   aspect: AspectRatio;
   resolution: Resolution;
   needsPhoto?: boolean;
@@ -24,61 +22,32 @@ interface Props {
   onUseAsReference: (t: Template, sampleDataUrl: string) => void;
 }
 
-const RES_PX: Record<Resolution, string> = {
-  '1K': '1024',
-  '2K': '2048',
-  '4K': '4096',
-};
-
-const ASPECT_RATIO_PX: Record<AspectRatio, [number, number]> = {
+const RES_PX: Record<Resolution, number> = { '1K': 1024, '2K': 2048, '4K': 4096 };
+const ASPECT_RATIO: Record<AspectRatio, [number, number]> = {
   '1:1': [1, 1], '16:9': [16, 9], '9:16': [9, 16], '4:3': [4, 3],
   '3:4': [3, 4], '3:2': [3, 2], '2:3': [2, 3], '21:9': [21, 9],
 };
 
 const dimsFor = (a: AspectRatio, r: Resolution): string => {
-  const base = parseInt(RES_PX[r], 10);
-  const [w, h] = ASPECT_RATIO_PX[a];
-  const long = base;
-  if (w >= h) {
-    return `${long}px × ${Math.round(long * h / w)}px`;
-  }
-  return `${Math.round(long * w / h)}px × ${long}px`;
+  const base = RES_PX[r];
+  const [w, h] = ASPECT_RATIO[a];
+  if (w >= h) return `${base}px × ${Math.round(base * h / w)}px`;
+  return `${Math.round(base * w / h)}px × ${base}px`;
 };
 
-// Render the sample card to a data URL so it can be attached as a reference image.
-const cardToDataUrl = async (el: HTMLElement): Promise<string> => {
-  const rect = el.getBoundingClientRect();
-  const w = Math.max(512, Math.round(rect.width));
-  const h = Math.max(640, Math.round(rect.height));
-  // Use foreignObject SVG → blob trick (lightweight, no external deps).
-  const html = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
-    <foreignObject width="100%" height="100%">
-      <div xmlns="http://www.w3.org/1999/xhtml" style="width:${w}px;height:${h}px;">
-        ${el.outerHTML}
-      </div>
-    </foreignObject>
-  </svg>`;
-  const svg = new Blob([html], { type: 'image/svg+xml;charset=utf-8' });
-  const url = URL.createObjectURL(svg);
+const fetchAsDataUrl = async (url: string): Promise<string> => {
+  const res = await fetch(url);
+  const blob = await res.blob();
   return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) { reject(new Error('canvas')); return; }
-      ctx.drawImage(img, 0, 0, w, h);
-      URL.revokeObjectURL(url);
-      resolve(canvas.toDataURL('image/png'));
-    };
-    img.onerror = (e) => { URL.revokeObjectURL(url); reject(e); };
-    img.src = url;
+    const r = new FileReader();
+    r.onload = () => resolve(r.result as string);
+    r.onerror = reject;
+    r.readAsDataURL(blob);
   });
 };
 
 const ImagineTemplatePreview: React.FC<Props> = ({ template, onClose, onUsePrompt, onUseAsReference }) => {
-  const [copied, setCopied] = React.useState(false);
-  const sampleRef = useRef<HTMLDivElement>(null);
+  const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
     if (!template) return;
@@ -88,13 +57,12 @@ const ImagineTemplatePreview: React.FC<Props> = ({ template, onClose, onUsePromp
   };
 
   const handleReference = async () => {
-    if (!template || !sampleRef.current) return;
+    if (!template) return;
     try {
-      const dataUrl = await cardToDataUrl(sampleRef.current);
+      const dataUrl = await fetchAsDataUrl(template.image);
       onUseAsReference(template, dataUrl);
     } catch {
-      // Fallback: just send a placeholder solid color
-      toast.error('Could not capture sample. Use Prompt instead.');
+      toast.error('Could not load reference. Use Prompt instead.');
     }
   };
 
@@ -125,16 +93,15 @@ const ImagineTemplatePreview: React.FC<Props> = ({ template, onClose, onUsePromp
                 >
                   <X className="w-4 h-4" />
                 </button>
-                <div
-                  ref={sampleRef}
-                  className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden border border-border/50 shadow-lg"
-                >
-                  <div className={cn('absolute inset-0 bg-gradient-to-br', template.grad)} />
-                  <div className="absolute inset-0 opacity-25 mix-blend-overlay bg-[radial-gradient(circle_at_30%_20%,_white,_transparent_60%)]" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                  <span className="absolute top-4 right-4 text-4xl text-white/70 drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)]">
-                    {template.icon}
-                  </span>
+                <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden border border-border/50 shadow-lg bg-muted">
+                  <img
+                    src={template.image}
+                    alt={template.title}
+                    width={512}
+                    height={640}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/70 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 p-4">
                     <p className="text-white text-base font-semibold drop-shadow-md">{template.title}</p>
                   </div>
