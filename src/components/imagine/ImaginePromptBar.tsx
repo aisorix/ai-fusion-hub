@@ -20,6 +20,10 @@ interface Props {
   onSelectModel: (m: ImageModel) => void;
   userPlan: string;
   onUpgrade: () => void;
+  /** External injection from template picker. Bumping `injectKey` re-applies. */
+  injectPrompt?: string;
+  injectAttachmentUrl?: string;
+  injectKey?: number;
 }
 
 const FILE_SIZE_LIMITS: Record<string, number> = {
@@ -34,7 +38,7 @@ const formatSize = (bytes: number): string => {
   return `${(bytes / (1024 * 1024)).toFixed(0)} MB`;
 };
 
-const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled, selectedModel, onSelectModel, userPlan, onUpgrade }) => {
+const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled, selectedModel, onSelectModel, userPlan, onUpgrade, injectPrompt, injectAttachmentUrl, injectKey }) => {
   const [prompt, setPrompt] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
