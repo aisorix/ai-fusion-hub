@@ -127,7 +127,11 @@ const ChatPage = () => {
 
       {/* Voice Mode Overlay */}
       <LiveVoiceOverlay isOpen={showVoiceMode} onClose={() => setShowVoiceMode(false)} />
+
+      {/* Read-aloud floating bar */}
+      <ReadAloudBar />
     </div>
+
   );
 };
 
