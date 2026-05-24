@@ -17,6 +17,7 @@ import ImagineOptionsPanel, {
 import ImagineCanvas from '@/components/imagine/ImagineCanvas';
 import ImagineHistory from '@/components/imagine/ImagineHistory';
 import ImagineHistoryFeed from '@/components/imagine/ImagineHistoryFeed';
+import ImagineTemplates from '@/components/imagine/ImagineTemplates';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 
 const ImaginePage: React.FC = () => {
@@ -35,6 +36,26 @@ const ImaginePage: React.FC = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [refreshHistory, setRefreshHistory] = useState(0);
+  const [injectPrompt, setInjectPrompt] = useState<string | undefined>();
+  const [injectAttachmentUrl, setInjectAttachmentUrl] = useState<string | undefined>();
+  const [injectKey, setInjectKey] = useState(0);
+
+  const handleUseTemplate = (prompt: string, asp?: AspectRatio, res?: Resolution, sampleUrl?: string) => {
+    setInjectPrompt(prompt);
+    setInjectAttachmentUrl(sampleUrl);
+    setInjectKey(k => k + 1);
+    if (asp) setAspect(asp);
+    if (res) {
+      if ((res === '2K' || res === '4K') && !isProPlus) {
+        // keep current resolution; user will see upgrade if they generate at higher tier
+      } else {
+        setResolution(res);
+      }
+    }
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  };
 
   const tokensRemaining = user.tokensLimit - user.tokensUsed;
   const isProPlus = user.plan === 'pro' || user.plan === 'premium';
@@ -147,6 +168,9 @@ const ImaginePage: React.FC = () => {
               onSelectModel={setSelectedModel}
               userPlan={user.plan}
               onUpgrade={() => setShowUpgrade(true)}
+              injectPrompt={injectPrompt}
+              injectAttachmentUrl={injectAttachmentUrl}
+              injectKey={injectKey}
             />
           </div>
 
@@ -180,7 +204,12 @@ const ImaginePage: React.FC = () => {
           </div>
 
           {/* Visual gap */}
-          <div className="py-6" />
+          <div className="py-4" />
+
+          {/* Templates gallery */}
+          <ImagineTemplates onUseTemplate={handleUseTemplate} />
+
+          <div className="py-2" />
 
           {/* Inline history feed */}
           <ImagineHistoryFeed onSelect={handleHistorySelect} refreshTrigger={refreshHistory} />

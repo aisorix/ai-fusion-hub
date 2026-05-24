@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Send, Plus, Image as ImageIcon, Camera, Paperclip, Loader2, Settings2, Mic } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -20,6 +20,10 @@ interface Props {
   onSelectModel: (m: ImageModel) => void;
   userPlan: string;
   onUpgrade: () => void;
+  /** External injection from template picker. Bumping `injectKey` re-applies. */
+  injectPrompt?: string;
+  injectAttachmentUrl?: string;
+  injectKey?: number;
 }
 
 const FILE_SIZE_LIMITS: Record<string, number> = {
@@ -34,7 +38,7 @@ const formatSize = (bytes: number): string => {
   return `${(bytes / (1024 * 1024)).toFixed(0)} MB`;
 };
 
-const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled, selectedModel, onSelectModel, userPlan, onUpgrade }) => {
+const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled, selectedModel, onSelectModel, userPlan, onUpgrade, injectPrompt, injectAttachmentUrl, injectKey }) => {
   const [prompt, setPrompt] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
@@ -54,6 +58,22 @@ const ImaginePromptBar: React.FC<Props> = ({ onGenerate, isGenerating, disabled,
     !!disabled || isGenerating,
     true,
   );
+
+  // Apply template-injected prompt / reference image
+  useEffect(() => {
+    if (injectKey === undefined) return;
+    if (typeof injectPrompt === 'string') {
+      setPrompt(injectPrompt);
+    }
+    if (injectAttachmentUrl) {
+      setAttachments(prev => [
+        ...prev,
+        { type: 'image', url: injectAttachmentUrl, name: 'template-reference.png', size: 0, fileType: 'image' },
+      ]);
+    }
+    requestAnimationFrame(() => textareaRef.current?.focus());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [injectKey]);
 
   const processFiles = useCallback(async (files: File[]) => {
     if (files.length === 0) return;

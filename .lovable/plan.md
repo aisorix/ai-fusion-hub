@@ -1,33 +1,67 @@
-# Polish Imagine Options Panel
+## Sorix Imagine — Templates Gallery
 
-Refine `src/components/imagine/ImagineOptionsPanel.tsx` so the Aspect Ratio, Output Format, Resolution, and Number of Outputs controls feel premium and on-brand.
+Add a curated **Templates** section above "Your Creations" so users can one-click a styled prompt (and optionally attach a reference photo) instead of writing from scratch.
 
-## Changes
+### What gets built
 
-### 1. Replace generic icons with contextual ones
-- **Aspect Ratio dropdown**: per-option icons — `Square` (1:1), `RectangleHorizontal` (16:9, 4:3, 3:2, 21:9), `RectangleVertical` (9:16, 3:4, 2:3). Trigger shows the icon of the current value (no more static `Square` for every option).
-- **Output Format dropdown**: `ImageIcon` for webp/png, `FileImage` for jpg. Show small uppercase format tag (e.g. "WEBP").
-- **Resolution segments**: prepend `Sparkles` for 2K/4K (Pro tiers) and keep 1K clean. Lock icon stays for gated tiers but moves to a small badge in the top-right corner instead of inline.
-- **Outputs segments**: `Grid2x2` / `LayoutGrid` glyph next to count for 2/3/4; single dot indicator for 1.
+**1. New component: `ImagineTemplates.tsx`**
+A horizontally scrollable, category-tabbed gallery of template cards inspired by uploads 1, 4, 5, 6.
 
-### 2. Button / segment style refinement
-- Increase height from `h-9` → `h-10`, radius `rounded-lg` → `rounded-xl`.
-- Active state: soft gradient `bg-gradient-to-br from-primary/15 to-primary/5`, `border-primary/50`, subtle inner ring `ring-1 ring-primary/20`, and `shadow-[0_2px_12px_-2px_hsl(var(--primary)/0.35)]`.
-- Inactive state: `bg-card/60` with `hover:bg-card hover:border-primary/30` and a smooth `transition-all duration-200`.
-- Locked tiers get a small floating `Lock` chip (top-right, `bg-background/80 backdrop-blur`) instead of an inline icon so the label stays centered.
+Categories:
+- **Styles** (from image 1): Monochrome, Colour Block, Runway, Risograph, Technicolour, Gothic Clay, Dynamite, Salon, Sketch, Cinematic, Steampunk, Sunrise
+- **Creations** (from image 4): Product Ad, Fantasy Cover, Educational Diagram, Cosmic Infographic, Autumn Portrait, Cyberpunk Game, Manga Strip, Architecture, Recipe Infographic, Storybook
+- **Portraits** (from image 5): Chibi, Professional Headshot, Logo Editor, 70s Street Style, Quality Enhancer, Comic Book, Virtual Try-On
+- **Transforms** (from image 6, photo-required): Swap Background, Model Product Shot, 80s Anime, Style Transfer, Watercolour Portrait, Video Game, 3D Animation
 
-### 3. Dropdown trigger refinement
-- Add a leading icon slot (per-value, not fixed).
-- Right side: animated chevron with `rotate-180` on open already exists — add `text-primary` tint when open.
-- Popover: `rounded-2xl`, `border-border/80`, `shadow-xl`, item rows get a subtle left accent bar (`before:` pseudo via a small div) when selected.
+Each template card shows:
+- Sample image (rounded `aspect-[4/5]` thumbnail, hover scale, gradient label overlay)
+- Title (bottom-left, like uploads 1/5/6)
+- Optional badge: "Needs photo" for transform templates
 
-### 4. Section labels
-- Upgrade `<Label>` to include a tiny leading dot (`bg-primary/60`) + uppercase tracking-wide (`tracking-[0.08em]`) for an editorial feel. Keep size `text-[11px]`.
+**2. Template click behavior (matches uploads 3 & 7)**
+Clicking a card opens a compact preview sheet:
+- Left: sample image
+- Right: Title, "Image Prompt" with copy button, full prompt text, suggested aspect ratio (e.g. "9:16  |  2K  |  1536×2752")
+- Two CTAs:
+  - **Use Prompt** — fills `ImaginePromptBar` text and applies suggested aspect/resolution
+  - **Use as Reference** — attaches sample image to the prompt bar as image-to-image input (like upload 3 "Add a photo and describe changes")
+- For "Needs photo" templates: only "Use Prompt" is enabled; a hint reads "Add a photo and describe changes" and opens the attach menu.
 
-### 5. Panel container
-- Soften: `rounded-2xl` → `rounded-3xl`, add `shadow-[0_8px_30px_-12px_hsl(var(--foreground)/0.08)]` and a faint top border highlight (`before:` gradient line).
+**3. Wiring into `ImaginePage.tsx`**
+- Render `<ImagineTemplates />` directly above `<ImagineHistoryFeed />`
+- Pass `onUseTemplate(prompt, aspect?, attachmentUrl?)` to populate `ImaginePromptBar` (via a new ref/imperative method or controlled `initialPrompt` prop)
+- Sample images sourced via `imagegen` (one per template, stored under `src/assets/templates/`)
 
-## Scope
-- **Only edits** `src/components/imagine/ImagineOptionsPanel.tsx`.
-- No prop changes, no logic changes, no other files touched.
-- Uses existing semantic tokens (`primary`, `border`, `card`, `muted-foreground`, `popover`) — no hardcoded colors.
+### Layout
+
+```text
+┌─────────────────────────────────────┐
+│  [Prompt Bar with model picker]     │
+│  [Options panel]                    │
+│  [Canvas / generating]              │
+│                                     │
+│  ✦ Templates              [tabs]    │
+│  ┌──┐ ┌──┐ ┌──┐ ┌──┐ ┌──┐ →        │
+│  │  │ │  │ │  │ │  │ │  │           │
+│  └──┘ └──┘ └──┘ └──┘ └──┘           │
+│                                     │
+│  ✦ Your Creations  24               │
+│  [history grid]                     │
+└─────────────────────────────────────┘
+```
+
+### Technical notes
+
+- `ImagineTemplates.tsx` exports a static `TEMPLATES` array: `{ id, title, category, prompt, sampleAsset, suggestedAspect, suggestedResolution, needsPhoto }`.
+- Category tabs are pill buttons; active uses the same `bg-gradient-to-br from-primary/15 to-primary/5` treatment as `ImagineOptionsPanel` for consistency.
+- Cards: `rounded-2xl overflow-hidden border border-border/50`, hover `scale-[1.02]` + `shadow-[0_8px_30px_-12px_hsl(var(--primary)/0.4)]`.
+- Preview sheet: shadcn `Dialog`, two-column on desktop, stacked on mobile.
+- `ImaginePromptBar` gets a new optional prop `externalPrompt` + `externalAttachment` (controlled set from parent), plus calls `setAspect`/`setResolution` on parent when a template is applied.
+- Sample images generated with `imagegen--generate_image` (fast model, 512×640) — ~30 assets total, named `tpl-{id}.jpg`.
+- All styling uses semantic tokens (`primary`, `border`, `card`, `muted-foreground`).
+- No backend / edge function changes.
+
+### Files
+
+- **Create**: `src/components/imagine/ImagineTemplates.tsx`, `src/components/imagine/ImagineTemplatePreview.tsx`, `src/assets/templates/*.jpg` (sample thumbnails)
+- **Edit**: `src/pages/ImaginePage.tsx` (mount templates, wire callback), `src/components/imagine/ImaginePromptBar.tsx` (accept external prompt + attachment)
