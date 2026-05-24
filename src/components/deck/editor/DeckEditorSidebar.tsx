@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import type { Slide } from '@/services/deckApi';
 import type { DeckTheme } from '../DeckThemePicker';
 import DeckSlideCard from '../DeckSlideCard';
-import DeckCreateNewButton from './DeckCreateNewButton';
+
 import DeckAddSlideMenu from './DeckAddSlideMenu';
 import DeckGeneratingCard from './DeckGeneratingCard';
 
