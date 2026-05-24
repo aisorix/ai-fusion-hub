@@ -36,6 +36,26 @@ const ImaginePage: React.FC = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [refreshHistory, setRefreshHistory] = useState(0);
+  const [injectPrompt, setInjectPrompt] = useState<string | undefined>();
+  const [injectAttachmentUrl, setInjectAttachmentUrl] = useState<string | undefined>();
+  const [injectKey, setInjectKey] = useState(0);
+
+  const handleUseTemplate = (prompt: string, asp?: AspectRatio, res?: Resolution, sampleUrl?: string) => {
+    setInjectPrompt(prompt);
+    setInjectAttachmentUrl(sampleUrl);
+    setInjectKey(k => k + 1);
+    if (asp) setAspect(asp);
+    if (res) {
+      if ((res === '2K' || res === '4K') && !isProPlus) {
+        // keep current resolution; user will see upgrade if they generate at higher tier
+      } else {
+        setResolution(res);
+      }
+    }
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  };
 
   const tokensRemaining = user.tokensLimit - user.tokensUsed;
   const isProPlus = user.plan === 'pro' || user.plan === 'premium';
