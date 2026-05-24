@@ -13,3 +13,7 @@ export { default as DeckSlideViewer } from './DeckSlideViewer';
 export { default as DeckHistory } from './DeckHistory';
 export { default as DeckActions } from './DeckActions';
 export { default as DeckSlideshow } from './DeckSlideshow';
+export { default as DeckDropdown } from './DeckDropdown';
+export { default as DeckFormatPicker } from './DeckFormatPicker';
+export { default as DeckAspectRatioPicker } from './DeckAspectRatioPicker';
+export { default as DeckAdvancedPanel } from './DeckAdvancedPanel';
