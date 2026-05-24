@@ -169,6 +169,16 @@ serve(async (req) => {
     const artDescription = artStyleMap[artStyle] || artStyle;
     const artInstruction = `\nCRITICAL: Every image_prompt MUST start with "${artDescription}, " — this is mandatory for all slides.`;
 
+    const singleRules = `
+- Generate exactly 1 slide
+- Use layout "${singleLayout}"
+- slide_number must be ${singleSlideNumber}`;
+    const deckRules = `
+- Generate exactly ${slideCount} slides
+- First slide should be a title slide with layout "full-image"
+- Last slide should be a summary/conclusion with layout "text-only"
+- Most middle slides should use "split" layout`;
+
     const systemPrompt = `You are an expert presentation designer. Output a strict JSON array where each object represents a slide. Each slide must contain:
 - slide_number (integer starting from 1)
 - heading (string, concise title)
@@ -176,11 +186,7 @@ serve(async (req) => {
 - image_prompt (a highly detailed prompt optimized for FLUX.2 image generation, describing a professional visual for the slide)
 - layout (one of: "split", "text-only", "full-image")
 
-Rules:
-- Generate exactly ${slideCount} slides
-- First slide should be a title slide with layout "full-image"
-- Last slide should be a summary/conclusion with layout "text-only"
-- Most middle slides should use "split" layout
+Rules:${isSingle ? singleRules : deckRules}
 - Make image_prompts vivid, specific, and professional${artInstruction}${languageInstruction}${extraInstruction}
 - Output ONLY the JSON array, no markdown, no explanation`;
 
