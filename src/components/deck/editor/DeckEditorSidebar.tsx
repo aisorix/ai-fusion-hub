@@ -67,14 +67,8 @@ const DeckEditorSidebar: React.FC<Props> = ({
         )}
       </div>
 
-      {/* New button row */}
-      <div className="px-2.5 py-2 border-b border-border/40">
-        <DeckCreateNewButton
-          onBlank={onCreateNewDeck}
-          onFromPrompt={onCreateNewDeck}
-          className="w-full justify-center [&>button]:flex-1"
-        />
-      </div>
+
+
 
       {/* List */}
       <div className="flex-1 overflow-y-auto px-2 py-2 space-y-2">
