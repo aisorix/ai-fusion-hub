@@ -230,11 +230,19 @@ const DeckPage: React.FC = () => {
   };
 
   const handleUpdateSlide = (index: number, updated: Slide) => {
-    setSlides(prev => prev.map((s, i) => (i === index ? updated : s)));
+    commit(slides.map((s, i) => (i === index ? updated : s)));
+  };
+
+  const handleSlidesChange = (next: Slide[]) => {
+    commit(next);
+  };
+
+  const handleThemeChange = (next: DeckTheme) => {
+    commit(slides, next);
   };
 
   const handleCreateNew = () => {
-    setSlides([]);
+    resetHistory({ slides: [], theme: selectedTheme });
     setTitle('');
     requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
   };
@@ -249,14 +257,12 @@ const DeckPage: React.FC = () => {
       layout,
       slideNumber: insertAt + 1,
     });
-    setSlides(prev => {
-      const next = [...prev];
-      // Replace placeholder at insertAt if present, else insert
-      next.splice(insertAt, 1, result.slide);
-      return next.map((s, i) => ({ ...s, slide_number: i + 1 }));
-    });
+    const next = [...slides];
+    next.splice(insertAt, 1, result.slide);
+    commit(next.map((s, i) => ({ ...s, slide_number: i + 1 })));
     setUser({ ...user, tokensUsed: result.totalTokensUsed });
   };
+
 
   const showEditor = slides.length > 0 || isGenerating;
 
