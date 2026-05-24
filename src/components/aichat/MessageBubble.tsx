@@ -1,7 +1,8 @@
 import React, { useState, useCallback, memo, useEffect, useRef } from 'react';
 import {
-  Copy, Check, RotateCcw, Share, Volume2, Pencil
+  Copy, Check, RotateCcw, Share, Volume2, Pencil, Pause, Loader2
 } from 'lucide-react';
+import { useTtsPlayback } from '@/hooks/useTtsPlayback';
 import copy from 'copy-to-clipboard';
 import { motion } from 'framer-motion';
 import MarkdownRenderer from './MarkdownRenderer';
@@ -245,9 +246,8 @@ const MessageBubble = memo(({ message, isStreaming, isLast, onEditAndResend }: M
                     {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   </ActionButton>
                   
-                  <ActionButton onClick={() => {}} tooltip={bn ? 'জোরে পড়ুন' : 'Read aloud'} theme={theme}>
-                    <Volume2 className="w-4 h-4" />
-                  </ActionButton>
+                  <ReadAloudButton id={message.id} text={message.content} bn={bn} theme={theme} />
+
                   
                   <div className="relative">
                     <button
