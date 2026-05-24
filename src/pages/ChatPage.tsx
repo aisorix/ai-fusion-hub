@@ -15,6 +15,7 @@ import MobileSidebar from '@/components/aichat/MobileSidebar';
 import ShareModal from '@/components/aichat/ShareModal';
 import MultiWindowChat from '@/components/aichat/MultiWindowChat';
 import ProjectsModal from '@/components/aichat/ProjectsModal';
+import ReadAloudBar from '@/components/aichat/ReadAloudBar';
 import { LiveVoiceOverlay } from '@/components/voice';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
