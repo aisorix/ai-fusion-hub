@@ -93,6 +93,9 @@ serve(async (req) => {
       });
     }
 
+    const isSingle = mode === "single";
+    const effectiveSlideCount = isSingle ? 1 : slideCount;
+
     // Check token balance
     const { data: sub } = await supabase
       .from("subscriptions")
