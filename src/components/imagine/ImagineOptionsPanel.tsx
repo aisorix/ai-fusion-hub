@@ -14,9 +14,8 @@ import {
   Grid2x2,
   Dot,
   Crop,
-  Settings2,
 } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
+
 
 
 export type AspectRatio = '1:1' | '16:9' | '9:16' | '4:3' | '3:4' | '3:2' | '2:3' | '21:9';
@@ -187,10 +186,6 @@ const ImagineOptionsPanel: React.FC<Props> = ({
   count, onCountChange,
   isProPlus, onUpgrade,
 }) => {
-  const isMobile = useIsMobile();
-  const [openMobile, setOpenMobile] = useState(false);
-  const expanded = !isMobile || openMobile;
-
   const handleRes = (r: Resolution) => {
     if ((r === '2K' || r === '4K') && !isProPlus) { onUpgrade(); return; }
     onResolutionChange(r);
@@ -216,102 +211,78 @@ const ImagineOptionsPanel: React.FC<Props> = ({
     <div className="relative w-full rounded-3xl border border-border/50 bg-card/40 backdrop-blur-sm p-3.5 sm:p-5 shadow-[0_8px_30px_-12px_hsl(var(--foreground)/0.08)]">
       <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
-      {/* Mobile collapsible header */}
-      {isMobile && (
-        <button
-          type="button"
-          onClick={() => setOpenMobile(v => !v)}
-          className="flex items-center justify-between w-full gap-2"
-          aria-expanded={openMobile}
-        >
-          <span className="flex items-center gap-2 min-w-0">
-            <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/10 text-primary">
-              <Settings2 className="w-3.5 h-3.5" />
-            </span>
-            <span className="flex flex-col items-start min-w-0">
-              <span className="text-[12.5px] font-semibold text-foreground">Image settings</span>
-              <span className="text-[10.5px] text-muted-foreground truncate">
-                {aspect} · {resolution} · {format.toUpperCase()} · ×{count}
-              </span>
-            </span>
-          </span>
-          <ChevronDown className={cn('w-4 h-4 text-muted-foreground transition-transform', openMobile && 'rotate-180')} />
-        </button>
-      )}
-
-      {expanded && (
-        <div className={cn('space-y-3.5 sm:space-y-4', isMobile && 'mt-3.5')}>
-          {/* Row 1: Aspect + Format */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
-            <div>
-              <Label>Aspect Ratio</Label>
-              <Dropdown
-                value={aspect}
-                label="Select aspect"
-                options={aspectOptions}
-                leadingIcon={aspectIcon(aspect)}
-                onChange={(v) => onAspectChange(v as AspectRatio)}
-              />
-            </div>
-            <div>
-              <Label>Output Format</Label>
-              <Dropdown
-                value={format}
-                label="Format"
-                options={formatOptions}
-                leadingIcon={formatIcon(format)}
-                onChange={(v) => onFormatChange(v as OutputFormat)}
-              />
-            </div>
-          </div>
-
-          {/* Row 2: Resolution */}
+      <div className="space-y-3.5 sm:space-y-4">
+        {/* Row 1: Aspect + Format */}
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           <div>
-            <Label>Resolution</Label>
-            <div className="flex gap-2">
-              {(['1K', '2K', '4K'] as Resolution[]).map((r) => {
-                const locked = (r === '2K' || r === '4K') && !isProPlus;
-                return (
-                  <SegBtn
-                    key={r}
-                    active={resolution === r}
-                    locked={locked}
-                    onClick={() => handleRes(r)}
-                  >
-                    {(r === '2K' || r === '4K') && <Sparkles className="w-3 h-3" />}
-                    <span className="font-semibold">{r}</span>
-                  </SegBtn>
-                );
-              })}
-            </div>
+            <Label>Aspect Ratio</Label>
+            <Dropdown
+              value={aspect}
+              label="Select aspect"
+              options={aspectOptions}
+              leadingIcon={aspectIcon(aspect)}
+              onChange={(v) => onAspectChange(v as AspectRatio)}
+            />
           </div>
-
-          {/* Row 3: Number of Outputs */}
           <div>
-            <Label>Number of Outputs</Label>
-            <div className="flex gap-2">
-              {([1, 2, 3, 4] as OutputCount[]).map((c) => {
-                const locked = (c === 3 || c === 4) && !isProPlus;
-                const Icon = c === 1 ? Dot : c === 2 ? Grid2x2 : LayoutGrid;
-                return (
-                  <SegBtn
-                    key={c}
-                    active={count === c}
-                    locked={locked}
-                    onClick={() => handleCount(c)}
-                  >
-                    <Icon className={cn('w-3.5 h-3.5', c === 1 && 'w-4 h-4 -mx-1')} />
-                    <span className="font-semibold">{c}</span>
-                  </SegBtn>
-                );
-              })}
-            </div>
+            <Label>Output Format</Label>
+            <Dropdown
+              value={format}
+              label="Format"
+              options={formatOptions}
+              leadingIcon={formatIcon(format)}
+              onChange={(v) => onFormatChange(v as OutputFormat)}
+            />
           </div>
         </div>
-      )}
+
+        {/* Row 2: Resolution */}
+        <div>
+          <Label>Resolution</Label>
+          <div className="flex gap-2">
+            {(['1K', '2K', '4K'] as Resolution[]).map((r) => {
+              const locked = (r === '2K' || r === '4K') && !isProPlus;
+              return (
+                <SegBtn
+                  key={r}
+                  active={resolution === r}
+                  locked={locked}
+                  onClick={() => handleRes(r)}
+                >
+                  {(r === '2K' || r === '4K') && <Sparkles className="w-3 h-3" />}
+                  <span className="font-semibold">{r}</span>
+                </SegBtn>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Row 3: Number of Outputs */}
+        <div>
+          <Label>Number of Outputs</Label>
+          <div className="flex gap-2">
+            {([1, 2, 3, 4] as OutputCount[]).map((c) => {
+              const locked = (c === 3 || c === 4) && !isProPlus;
+              const Icon = c === 1 ? Dot : c === 2 ? Grid2x2 : LayoutGrid;
+              return (
+                <SegBtn
+                  key={c}
+                  active={count === c}
+                  locked={locked}
+                  onClick={() => handleCount(c)}
+                >
+                  <Icon className={cn('w-3.5 h-3.5', c === 1 && 'w-4 h-4 -mx-1')} />
+                  <span className="font-semibold">{c}</span>
+                </SegBtn>
+              );
+            })}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
+
 
 export default ImagineOptionsPanel;
 
