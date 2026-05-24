@@ -13,7 +13,7 @@ import type { TextContent } from '@/components/deck/DeckTextContentPicker';
 import DeckTextContentCard from '@/components/deck/DeckTextContentCard';
 import DeckArtStylePicker, { type ArtStyle } from '@/components/deck/DeckArtStylePicker';
 import DeckLanguageSelector, { type DeckLanguage } from '@/components/deck/DeckLanguageSelector';
-import DeckSlideViewer from '@/components/deck/DeckSlideViewer';
+// DeckSlideViewer removed — replaced by DeckEditor
 import DeckHistory from '@/components/deck/DeckHistory';
 import DeckActions from '@/components/deck/DeckActions';
 import DeckSlideshow from '@/components/deck/DeckSlideshow';
