@@ -38,6 +38,7 @@ import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ToolsMenu from "@/components/aichat/ToolsMenu";
 import { useAutoFocusInput } from "@/hooks/useAutoFocusInput";
+import VoiceDictationButton from "@/components/voice/VoiceDictationButton";
 
 interface CommandCenterProps {
   language: string;
