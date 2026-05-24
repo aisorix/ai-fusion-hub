@@ -16,8 +16,7 @@ import ImagineOptionsPanel, {
 } from '@/components/imagine/ImagineOptionsPanel';
 import ImagineCanvas from '@/components/imagine/ImagineCanvas';
 import ImagineHistory from '@/components/imagine/ImagineHistory';
-import ImagineHistoryFeed from '@/components/imagine/ImagineHistoryFeed';
-import ImagineTemplates from '@/components/imagine/ImagineTemplates';
+import ImagineExplorer from '@/components/imagine/ImagineExplorer';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 
 const ImaginePage: React.FC = () => {
@@ -206,13 +205,12 @@ const ImaginePage: React.FC = () => {
           {/* Visual gap */}
           <div className="py-4" />
 
-          {/* Templates gallery */}
-          <ImagineTemplates onUseTemplate={handleUseTemplate} />
-
-          <div className="py-2" />
-
-          {/* Inline history feed */}
-          <ImagineHistoryFeed onSelect={handleHistorySelect} refreshTrigger={refreshHistory} />
+          {/* Tabbed explorer: Templates | Your Creations */}
+          <ImagineExplorer
+            onSelectHistory={handleHistorySelect}
+            refreshHistory={refreshHistory}
+            onUseTemplate={handleUseTemplate}
+          />
 
           <div className="h-6" />
         </div>

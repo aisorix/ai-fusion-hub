@@ -12,10 +12,10 @@ interface Props {
   onUseTemplate: (prompt: string, aspect?: AspectRatio, resolution?: Resolution, sampleUrl?: string) => void;
 }
 
-type Tab = 'mine' | 'templates';
+type Tab = 'templates' | 'creations';
 
 const ImagineExplorer: React.FC<Props> = ({ onSelectHistory, refreshHistory, onUseTemplate }) => {
-  const [tab, setTab] = useState<Tab>('mine');
+  const [tab, setTab] = useState<Tab>('templates');
 
   const TabBtn = ({ id, label, icon: Icon, count }: { id: Tab; label: string; icon: React.ComponentType<{ className?: string }>; count?: number }) => {
     const active = tab === id;
@@ -23,7 +23,7 @@ const ImagineExplorer: React.FC<Props> = ({ onSelectHistory, refreshHistory, onU
       <button
         onClick={() => setTab(id)}
         className={cn(
-          'relative flex items-center gap-2 px-1 pb-3 pt-1 text-[14px] font-semibold transition-colors',
+          'relative flex items-center gap-2 px-1 pb-3 pt-1 text-[14px] font-semibold transition-colors whitespace-nowrap',
           active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
         )}
       >
@@ -47,16 +47,16 @@ const ImagineExplorer: React.FC<Props> = ({ onSelectHistory, refreshHistory, onU
   return (
     <section className="w-full">
       <div className="border-b border-border/60 mb-4">
-        <div className="flex items-center gap-6">
-          <TabBtn id="mine" label="My Images" icon={Sparkles} />
+        <div className="flex items-center gap-6 overflow-x-auto scrollbar-hide">
           <TabBtn id="templates" label="Templates" icon={LayoutGrid} count={TEMPLATE_COUNT} />
+          <TabBtn id="creations" label="Your Creations" icon={Sparkles} />
         </div>
       </div>
 
-      {tab === 'mine' ? (
-        <ImagineHistoryFeed onSelect={onSelectHistory} refreshTrigger={refreshHistory} />
-      ) : (
+      {tab === 'templates' ? (
         <ImagineTemplates onUseTemplate={onUseTemplate} embedded />
+      ) : (
+        <ImagineHistoryFeed onSelect={onSelectHistory} refreshTrigger={refreshHistory} />
       )}
     </section>
   );
