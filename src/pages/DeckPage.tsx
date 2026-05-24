@@ -47,6 +47,15 @@ const DeckPage: React.FC = () => {
   const [historyLoadingId, setHistoryLoadingId] = useState<string | null>(null);
   const [injectPrompt, setInjectPrompt] = useState<string | undefined>();
   const [injectKey, setInjectKey] = useState(0);
+  const [advanced, setAdvanced] = useState<DeckAdvancedValues>({
+    format: 'presentation',
+    cardSize: 'traditional',
+    scenario: 'general',
+    audience: 'auto',
+    tone: 'neutral',
+    aspectRatio: '16:9',
+    additionalInstructions: '',
+  });
 
   useEffect(() => {
     deckApi.getHistory().then(items => {
