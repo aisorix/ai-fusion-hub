@@ -1,13 +1,32 @@
 // Voice dictation: MediaRecorder + OpenAI Whisper via edge function.
+// Robust on iOS Safari (audio/mp4 fallback) with user-facing error toasts.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export type DictationStatus = 'idle' | 'recording' | 'transcribing' | 'error';
 
 interface UseVoiceDictationOptions {
   onTranscript: (text: string) => void;
-  language?: string; // e.g. 'en', 'bn'
+  language?: string;
   maxSeconds?: number;
+}
+
+const MIME_CANDIDATES = [
+  'audio/webm;codecs=opus',
+  'audio/webm',
+  'audio/mp4;codecs=mp4a.40.2',
+  'audio/mp4',
+  'audio/ogg;codecs=opus',
+  'audio/ogg',
+];
+
+function pickMime(): string {
+  if (typeof MediaRecorder === 'undefined') return '';
+  for (const c of MIME_CANDIDATES) {
+    try { if (MediaRecorder.isTypeSupported(c)) return c; } catch {}
+  }
+  return '';
 }
 
 export function useVoiceDictation({ onTranscript, language, maxSeconds = 60 }: UseVoiceDictationOptions) {
@@ -45,35 +64,54 @@ export function useVoiceDictation({ onTranscript, language, maxSeconds = 60 }: U
 
   useEffect(() => () => cleanup(), [cleanup]);
 
+  const stop = useCallback(() => {
+    const r = mediaRecorderRef.current;
+    if (r && r.state !== 'inactive') {
+      try { r.stop(); } catch {}
+    }
+  }, []);
+
   const start = useCallback(async () => {
     if (status === 'recording' || status === 'transcribing') return;
     setError(null);
     cancelledRef.current = false;
+
+    if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+      toast.error('Microphone not supported in this browser');
+      return;
+    }
+    if (typeof MediaRecorder === 'undefined') {
+      toast.error('Voice recording is not supported in this browser');
+      return;
+    }
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
       });
       streamRef.current = stream;
 
-      const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-        ? 'audio/webm;codecs=opus'
-        : MediaRecorder.isTypeSupported('audio/webm')
-          ? 'audio/webm'
-          : '';
-      const recorder = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+      const mime = pickMime();
+      let recorder: MediaRecorder;
+      try {
+        recorder = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+      } catch {
+        recorder = new MediaRecorder(stream);
+      }
       mediaRecorderRef.current = recorder;
       chunksRef.current = [];
 
       recorder.ondataavailable = (e) => {
         if (e.data && e.data.size > 0) chunksRef.current.push(e.data);
       };
+
       recorder.onstop = async () => {
         const wasCancelled = cancelledRef.current;
-        const mimeType = recorder.mimeType || 'audio/webm';
+        const mimeType = recorder.mimeType || mime || 'audio/webm';
         const blob = new Blob(chunksRef.current, { type: mimeType });
         chunksRef.current = [];
         cleanup();
-        if (wasCancelled || blob.size < 1200) {
+        if (wasCancelled || blob.size < 600) {
           setStatus('idle');
           setElapsed(0);
           return;
@@ -82,10 +120,13 @@ export function useVoiceDictation({ onTranscript, language, maxSeconds = 60 }: U
         try {
           const { data: { session } } = await supabase.auth.getSession();
           const accessToken = session?.access_token;
-          if (!accessToken) throw new Error('Not authenticated');
+          if (!accessToken) throw new Error('Please sign in to use voice');
 
           const form = new FormData();
-          const ext = mimeType.includes('webm') ? 'webm' : mimeType.includes('ogg') ? 'ogg' : 'mp4';
+          const ext = mimeType.includes('mp4') ? 'm4a'
+            : mimeType.includes('ogg') ? 'ogg'
+            : mimeType.includes('webm') ? 'webm'
+            : 'webm';
           form.append('file', blob, `voice.${ext}`);
           if (language) form.append('language', language);
 
@@ -98,14 +139,22 @@ export function useVoiceDictation({ onTranscript, language, maxSeconds = 60 }: U
             },
             body: form,
           });
-          if (!res.ok) throw new Error(`STT failed: ${res.status}`);
+          if (!res.ok) {
+            const txt = await res.text().catch(() => '');
+            throw new Error(txt || `Transcription failed (${res.status})`);
+          }
           const json = await res.json();
           const text = (json.text || '').trim();
-          if (text) onTranscript(text);
+          if (text) {
+            onTranscript(text);
+          } else {
+            toast.message("Didn't catch that — try again");
+          }
           setStatus('idle');
           setElapsed(0);
         } catch (err: any) {
-          console.error('[useVoiceDictation]', err);
+          console.error('[useVoiceDictation] transcribe', err);
+          toast.error(err?.message || 'Transcription failed');
           setError(err?.message || 'Transcription failed');
           setStatus('error');
           setTimeout(() => setStatus('idle'), 1500);
@@ -150,20 +199,20 @@ export function useVoiceDictation({ onTranscript, language, maxSeconds = 60 }: U
       setStatus('recording');
     } catch (err: any) {
       console.error('[useVoiceDictation] start', err);
-      setError(err?.message || 'Microphone access denied');
+      const name = err?.name || '';
+      const msg = name === 'NotAllowedError'
+        ? 'Microphone access denied. Please allow mic in browser settings.'
+        : name === 'NotFoundError'
+          ? 'No microphone detected'
+          : err?.message || 'Could not start recording';
+      toast.error(msg);
+      setError(msg);
       setStatus('error');
       setTimeout(() => setStatus('idle'), 1500);
       cleanup();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, language, maxSeconds, onTranscript, cleanup]);
-
-  const stop = useCallback(() => {
-    const r = mediaRecorderRef.current;
-    if (r && r.state !== 'inactive') {
-      try { r.stop(); } catch {}
-    }
-  }, []);
+  }, [status, language, maxSeconds, onTranscript, cleanup, stop]);
 
   const cancel = useCallback(() => {
     cancelledRef.current = true;
