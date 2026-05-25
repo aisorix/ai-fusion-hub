@@ -183,7 +183,9 @@ const DeckPage: React.FC = () => {
           tone: advanced.tone,
           aspectRatio: advanced.aspectRatio,
           additionalInstructions: advanced.additionalInstructions,
+          imageModel: deckImageModel.modelId,
         }
+
       );
       resetHistory({ slides: result.slides, theme: selectedTheme });
       setTitle(result.title);
@@ -453,14 +455,27 @@ const DeckPage: React.FC = () => {
                 <DeckLanguageSelector value={language} onChange={setLanguage} />
               </div>
 
-              <div>
+              <div className="space-y-3">
                 <DeckArtStylePicker
                   selected={artStyle}
                   onSelect={setArtStyle}
                   customStyle={customArtStyle}
                   onCustomStyleChange={setCustomArtStyle}
                 />
+                <div className="flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-card/60 px-3 py-2.5">
+                  <div className="min-w-0">
+                    <div className="text-[12px] font-semibold text-foreground">Image model</div>
+                    <div className="text-[10.5px] text-muted-foreground truncate">Choose how slide images are generated</div>
+                  </div>
+                  <ImagineModelSelector
+                    selectedModelId={deckImageModel.modelId}
+                    onSelectModel={setDeckImageModel}
+                    userPlan={user.plan}
+                    onUpgrade={() => setShowUpgrade(true)}
+                  />
+                </div>
               </div>
+
             </div>
 
             <DeckAdvancedPanel
