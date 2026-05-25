@@ -23,7 +23,9 @@ import DeckEditor from '@/components/deck/editor/DeckEditor';
 import DeckCreateNewButton from '@/components/deck/editor/DeckCreateNewButton';
 import DeckThemePicker from '@/components/deck/DeckThemePicker';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
+import ImagineModelSelector, { imageModels, type ImageModel } from '@/components/imagine/ImagineModelSelector';
 import { cn } from '@/lib/utils';
+
 
 const SLIDE_COUNTS = [3, 5, 8, 10, 12, 15, 20, 25, 30];
 
@@ -39,6 +41,8 @@ const DeckPage: React.FC = () => {
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [textContent, setTextContent] = useState<TextContent>('concise');
   const [artStyle, setArtStyle] = useState<ArtStyle>('illustration');
+  const [deckImageModel, setDeckImageModel] = useState<ImageModel>(imageModels[0]);
+
   const [customArtStyle, setCustomArtStyle] = useState('');
   const [language, setLanguage] = useState<DeckLanguage>('auto');
   const [isGenerating, setIsGenerating] = useState(false);
