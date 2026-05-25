@@ -234,7 +234,9 @@ const MessageBubble = memo(({ message, isStreaming, isLast, onEditAndResend }: M
                 {isStreaming && isLast && message.content && (
                   <span className="inline-block w-[3px] h-5 ml-0.5 bg-primary rounded-sm align-middle animate-[pulse_0.8s_ease-in-out_infinite]" />
                 )}
+                {!isStreaming && <ReadingHighlight messageId={message.id} />}
               </div>
+
               
               {message.citations && message.citations.length > 0 && !isStreaming && (
                 <SourcesWidget citations={message.citations} theme={theme} />
@@ -350,5 +352,49 @@ const ReadAloudButton = memo(({ id, text, bn, theme }: { id: string; text: strin
 });
 ReadAloudButton.displayName = 'ReadAloudButton';
 
+const ReadingHighlight = memo(({ messageId }: { messageId: string }) => {
+  const activeId = useTtsPlayback(s => s.activeId);
+  const words = useTtsPlayback(s => s.words);
+  const activeWordIndex = useTtsPlayback(s => s.activeWordIndex);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const activeRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (activeId !== messageId) return;
+    activeRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [activeId, messageId, activeWordIndex]);
+
+  if (activeId !== messageId || words.length === 0) return null;
+
+  return (
+    <div ref={wrapRef} className="mt-3 p-3 rounded-xl border border-primary/30 bg-primary/5">
+      <div className="text-[10px] uppercase tracking-wider font-semibold text-primary mb-1.5 flex items-center gap-1.5">
+        <Volume2 className="w-3 h-3" /> Reading aloud
+      </div>
+      <p className="text-[14px] leading-relaxed flex flex-wrap gap-x-0 max-h-40 overflow-y-auto">
+        {words.map((w, i) => {
+          const isActive = i === activeWordIndex;
+          const isPast = i < activeWordIndex;
+          return (
+            <span
+              key={i}
+              ref={isActive ? activeRef : undefined}
+              className={cn(
+                'transition-colors duration-100 px-0.5 rounded',
+                isActive && 'bg-primary/25 text-primary font-semibold',
+                !isActive && isPast && 'text-muted-foreground/70',
+                !isActive && !isPast && 'text-foreground/90'
+              )}
+            >
+              {w.text}{' '}
+            </span>
+          );
+        })}
+      </p>
+    </div>
+  );
+});
+ReadingHighlight.displayName = 'ReadingHighlight';
 
 export default MessageBubble;
+

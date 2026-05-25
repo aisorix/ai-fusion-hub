@@ -52,10 +52,12 @@ serve(async (req) => {
       format = "presentation", cardSize = "traditional", scenario = "general",
       audience = "auto", tone = "neutral", aspectRatio = "16:9",
       additionalInstructions = "",
+      imageModel = "black-forest-labs/flux.2-klein-4b",
       mode = "deck",
       layout: singleLayout = "split",
       slideNumber: singleSlideNumber = 1,
     } = await req.json();
+
 
     const LANGUAGE_LABELS: Record<string, string> = {
       english: "English", bangla: "Bangla (Bengali)", hindi: "Hindi", urdu: "Urdu",
@@ -257,7 +259,7 @@ Rules:${isSingle ? singleRules : deckRules}
               "X-Title": "Sorix Deck",
             },
             body: JSON.stringify({
-              model: "black-forest-labs/flux.2-klein-4b",
+              model: imageModel || "black-forest-labs/flux.2-klein-4b",
               messages: [{ role: "user", content: slide.image_prompt }],
               modalities: ["image"],
             }),

@@ -26,7 +26,7 @@ const ImaginePage: React.FC = () => {
   const [selectedModel, setSelectedModel] = useState<ImageModel>(imageModels[0]);
   const [aspect, setAspect] = useState<AspectRatio>('1:1');
   const [resolution, setResolution] = useState<Resolution>('1K');
-  const [format, setFormat] = useState<OutputFormat>('webp');
+  const [format, setFormat] = useState<OutputFormat>('png');
   const [count, setCount] = useState<OutputCount>(1);
 
   const [imageUrls, setImageUrls] = useState<string[]>([]);

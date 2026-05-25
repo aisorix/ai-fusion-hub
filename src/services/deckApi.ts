@@ -44,7 +44,9 @@ export interface DeckGenerateExtras {
   tone?: string;
   aspectRatio?: string;
   additionalInstructions?: string;
+  imageModel?: string;
 }
+
 
 export const deckApi = {
   generate: async (
