@@ -209,79 +209,115 @@ const ImagineOptionsPanel: React.FC<Props> = ({
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const summary = `${format.toUpperCase()} · ${aspect} · ${resolution} · ×${count}`;
+
   const Body = (
     <div className="space-y-3.5 sm:space-y-4">
-        {/* Row 1: Output Format (first) + Aspect */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
-          <div>
-            <Label>Output Format</Label>
-            <Dropdown
-              value={format}
-              label="Format"
-              options={formatOptions}
-              leadingIcon={formatIcon(format)}
-              onChange={(v) => onFormatChange(v as OutputFormat)}
-            />
-          </div>
-          <div>
-            <Label>Aspect Ratio</Label>
-            <Dropdown
-              value={aspect}
-              label="Select aspect"
-              options={aspectOptions}
-              leadingIcon={aspectIcon(aspect)}
-              onChange={(v) => onAspectChange(v as AspectRatio)}
-            />
-          </div>
-        </div>
-
-
-        {/* Row 2: Resolution */}
+      {/* Row 1: Output Format (first) + Aspect */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <div>
-          <Label>Resolution</Label>
-          <div className="flex gap-2">
-            {(['1K', '2K', '4K'] as Resolution[]).map((r) => {
-              const locked = (r === '2K' || r === '4K') && !isProPlus;
-              return (
-                <SegBtn
-                  key={r}
-                  active={resolution === r}
-                  locked={locked}
-                  onClick={() => handleRes(r)}
-                >
-                  {(r === '2K' || r === '4K') && <Sparkles className="w-3 h-3" />}
-                  <span className="font-semibold">{r}</span>
-                </SegBtn>
-              );
-            })}
-          </div>
+          <Label>Output Format</Label>
+          <Dropdown
+            value={format}
+            label="Format"
+            options={formatOptions}
+            leadingIcon={formatIcon(format)}
+            onChange={(v) => onFormatChange(v as OutputFormat)}
+          />
         </div>
-
-        {/* Row 3: Number of Outputs */}
         <div>
-          <Label>Number of Outputs</Label>
-          <div className="flex gap-2">
-            {([1, 2, 3, 4] as OutputCount[]).map((c) => {
-              const locked = (c === 3 || c === 4) && !isProPlus;
-              const Icon = c === 1 ? Dot : c === 2 ? Grid2x2 : LayoutGrid;
-              return (
-                <SegBtn
-                  key={c}
-                  active={count === c}
-                  locked={locked}
-                  onClick={() => handleCount(c)}
-                >
-                  <Icon className={cn('w-3.5 h-3.5', c === 1 && 'w-4 h-4 -mx-1')} />
-                  <span className="font-semibold">{c}</span>
-                </SegBtn>
-              );
-            })}
-          </div>
+          <Label>Aspect Ratio</Label>
+          <Dropdown
+            value={aspect}
+            label="Select aspect"
+            options={aspectOptions}
+            leadingIcon={aspectIcon(aspect)}
+            onChange={(v) => onAspectChange(v as AspectRatio)}
+          />
+        </div>
+      </div>
+
+      {/* Row 2: Resolution */}
+      <div>
+        <Label>Resolution</Label>
+        <div className="flex gap-2">
+          {(['1K', '2K', '4K'] as Resolution[]).map((r) => {
+            const locked = (r === '2K' || r === '4K') && !isProPlus;
+            return (
+              <SegBtn key={r} active={resolution === r} locked={locked} onClick={() => handleRes(r)}>
+                {(r === '2K' || r === '4K') && <Sparkles className="w-3 h-3" />}
+                <span className="font-semibold">{r}</span>
+              </SegBtn>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Row 3: Number of Outputs */}
+      <div>
+        <Label>Number of Outputs</Label>
+        <div className="flex gap-2">
+          {([1, 2, 3, 4] as OutputCount[]).map((c) => {
+            const locked = (c === 3 || c === 4) && !isProPlus;
+            const Icon = c === 1 ? Dot : c === 2 ? Grid2x2 : LayoutGrid;
+            return (
+              <SegBtn key={c} active={count === c} locked={locked} onClick={() => handleCount(c)}>
+                <Icon className={cn('w-3.5 h-3.5', c === 1 && 'w-4 h-4 -mx-1')} />
+                <span className="font-semibold">{c}</span>
+              </SegBtn>
+            );
+          })}
         </div>
       </div>
     </div>
   );
+
+  return (
+    <>
+      {/* Desktop & tablet: inline panel */}
+      <div className="relative w-full rounded-3xl border border-border/50 bg-card/40 backdrop-blur-sm p-3.5 sm:p-5 shadow-[0_8px_30px_-12px_hsl(var(--foreground)/0.08)] hidden sm:block">
+        <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+        {Body}
+      </div>
+
+      {/* Mobile: compact trigger + bottom-sheet dropdown */}
+      <div className="sm:hidden">
+        <button
+          type="button"
+          onClick={() => setMobileOpen((v) => !v)}
+          className="w-full flex items-center justify-between gap-2 rounded-2xl border border-border/60 bg-card/60 px-3.5 py-2.5"
+        >
+          <span className="flex items-center gap-2 min-w-0">
+            <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/10 text-primary">
+              <Crop className="w-3.5 h-3.5" />
+            </span>
+            <span className="flex flex-col min-w-0 text-left">
+              <span className="text-[11px] uppercase tracking-wider text-muted-foreground">Image settings</span>
+              <span className="text-[12.5px] font-medium text-foreground truncate">{summary}</span>
+            </span>
+          </span>
+          <ChevronDown className={cn('w-4 h-4 text-muted-foreground transition-transform', mobileOpen && 'rotate-180')} />
+        </button>
+        {mobileOpen && (
+          <>
+            <div className="fixed inset-0 z-[140] bg-black/40" onClick={() => setMobileOpen(false)} />
+            <div className="fixed inset-x-0 bottom-0 z-[150] rounded-t-3xl border-t border-border bg-card p-4 pb-6 shadow-2xl max-h-[80vh] overflow-y-auto">
+              <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border" />
+              {Body}
+              <button
+                onClick={() => setMobileOpen(false)}
+                className="mt-4 w-full h-11 rounded-xl bg-primary text-primary-foreground text-sm font-semibold"
+              >
+                Done
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  );
 };
+
 
 
 export default ImagineOptionsPanel;
