@@ -18,13 +18,13 @@ export interface ImageModel {
 export const imageModels: ImageModel[] = [
   {
     id: 'riverflow',
-    displayName: 'Riverflow V2 Fast',
-    shortName: 'Riverflow',
-    modelId: 'sourceful/riverflow-v2-fast-preview',
+    displayName: 'Riverflow V2',
+    shortName: 'Riverflow V2',
+    modelId: 'sourceful/riverflow-v2-standard-preview',
     emoji: '🌊',
     icon: Wand2,
     gradient: 'from-sky-500 to-indigo-500',
-    tagline: 'Fast preview · default',
+    tagline: 'High quality · default',
   },
   {
     id: 'nano-banana',

@@ -202,28 +202,17 @@ const ImagineOptionsPanel: React.FC<Props> = ({
   }));
 
   const formatOptions: DropOpt[] = [
-    { value: 'webp', label: 'WebP', icon: ImageIcon, tag: 'Recommended' },
-    { value: 'png', label: 'PNG', icon: ImageIcon },
+    { value: 'png', label: 'PNG', icon: ImageIcon, tag: 'Recommended' },
+    { value: 'webp', label: 'WebP', icon: ImageIcon },
     { value: 'jpg', label: 'JPG', icon: FileImage },
   ];
 
-  return (
-    <div className="relative w-full rounded-3xl border border-border/50 bg-card/40 backdrop-blur-sm p-3.5 sm:p-5 shadow-[0_8px_30px_-12px_hsl(var(--foreground)/0.08)]">
-      <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-      <div className="space-y-3.5 sm:space-y-4">
-        {/* Row 1: Aspect + Format */}
+  const Body = (
+    <div className="space-y-3.5 sm:space-y-4">
+        {/* Row 1: Output Format (first) + Aspect */}
         <div className="grid grid-cols-2 gap-3 sm:gap-4">
-          <div>
-            <Label>Aspect Ratio</Label>
-            <Dropdown
-              value={aspect}
-              label="Select aspect"
-              options={aspectOptions}
-              leadingIcon={aspectIcon(aspect)}
-              onChange={(v) => onAspectChange(v as AspectRatio)}
-            />
-          </div>
           <div>
             <Label>Output Format</Label>
             <Dropdown
@@ -234,7 +223,18 @@ const ImagineOptionsPanel: React.FC<Props> = ({
               onChange={(v) => onFormatChange(v as OutputFormat)}
             />
           </div>
+          <div>
+            <Label>Aspect Ratio</Label>
+            <Dropdown
+              value={aspect}
+              label="Select aspect"
+              options={aspectOptions}
+              leadingIcon={aspectIcon(aspect)}
+              onChange={(v) => onAspectChange(v as AspectRatio)}
+            />
+          </div>
         </div>
+
 
         {/* Row 2: Resolution */}
         <div>
