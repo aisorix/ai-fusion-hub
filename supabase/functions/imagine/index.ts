@@ -161,23 +161,50 @@ serve(async (req) => {
       });
     }
 
-    let messages: any[];
-    if (imageData && typeof imageData === "string") {
-      messages = [{
-        role: "user",
-        content: [
-          { type: "image_url", image_url: { url: imageData } },
-          { type: "text", text: prompt },
-        ],
-      }];
-    } else {
-      messages = [{ role: "user", content: prompt }];
-    }
+    // Always append user details to the prompt so models honor aspect/format hints.
+    const detailLine = `Aspect ratio: ${aspect}. Resolution: ${resKey}. Output format: ${fmt.toUpperCase()}.`;
+    const finalPrompt = `${prompt.trim()}\n\n${detailLine}`;
 
-    const isFlux = selectedModel.startsWith("black-forest-labs/");
-    const modalities = isFlux ? ["image"] : ["text", "image"];
+    const buildMessages = () => {
+      if (imageData && typeof imageData === "string") {
+        return [{
+          role: "user",
+          content: [
+            { type: "image_url", image_url: { url: imageData } },
+            { type: "text", text: finalPrompt },
+          ],
+        }];
+      }
+      return [{ role: "user", content: finalPrompt }];
+    };
 
-    const generateOnce = async (): Promise<string> => {
+    const FALLBACK_MODEL = "google/gemini-2.5-flash-image";
+
+    const extractImage = (orData: any): string => {
+      const message = orData?.choices?.[0]?.message;
+      if (!message) return "";
+      if (message.images?.length > 0) {
+        const u = message.images[0]?.image_url?.url || message.images[0]?.url;
+        if (u) return u;
+      }
+      if (Array.isArray(message.content)) {
+        for (const part of message.content) {
+          if ((part.type === "image_url" || part.type === "image") && (part.image_url?.url || part.url)) {
+            return part.image_url?.url || part.url;
+          }
+        }
+      }
+      if (typeof message.content === "string") {
+        if (message.content.startsWith("data:image")) return message.content;
+        const md = message.content.match(/!\[[^\]]*\]\((data:image[^)]+|https?:\/\/[^)\s]+\.(?:png|jpg|jpeg|webp))\)/i);
+        if (md) return md[1];
+      }
+      return "";
+    };
+
+    const callModel = async (model: string): Promise<{ url?: string; error?: string; status?: number }> => {
+      const isFlux = model.startsWith("black-forest-labs/");
+      const modalities = isFlux ? ["image"] : ["text", "image"];
       const orResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -186,52 +213,58 @@ serve(async (req) => {
           "HTTP-Referer": "https://sorixai.lovable.app",
           "X-Title": "Sorix Imagine",
         },
-        body: JSON.stringify({ model: selectedModel, messages, modalities }),
+        body: JSON.stringify({ model, messages: buildMessages(), modalities }),
       });
-
+      const raw = await orResponse.text();
       if (!orResponse.ok) {
-        const errBody = await orResponse.text();
-        console.error("OpenRouter error:", orResponse.status, errBody);
-        throw new Error(`Generation failed: ${errBody.substring(0, 200)}`);
+        console.error("OpenRouter error:", model, orResponse.status, raw.slice(0, 300));
+        return { error: raw.slice(0, 200), status: orResponse.status };
       }
-
-      const orData = await orResponse.json();
-      const message = orData.choices?.[0]?.message;
-      let imageUrl = "";
-
-      if (message?.images?.length > 0) {
-        imageUrl = message.images[0]?.image_url?.url || "";
+      let data: any = {};
+      try { data = JSON.parse(raw); } catch { /* */ }
+      const url = extractImage(data);
+      if (!url) {
+        console.error("No image extracted:", model, JSON.stringify(data?.choices?.[0]?.message)?.slice(0, 300));
+        return { error: "No image returned from model", status: 502 };
       }
-      if (!imageUrl && Array.isArray(message?.content)) {
-        for (const part of message.content) {
-          if ((part.type === "image_url" || part.type === "image") && part.image_url?.url) {
-            imageUrl = part.image_url.url; break;
-          }
-        }
-      }
-      if (!imageUrl && typeof message?.content === "string" && message.content.startsWith("data:image")) {
-        imageUrl = message.content;
-      }
-      if (!imageUrl) {
-        console.error("Could not extract image:", JSON.stringify(message)?.substring(0, 400));
-        throw new Error("No image returned from model");
-      }
-      return imageUrl;
+      return { url };
     };
 
-    // Generate N in parallel
-    const settled = await Promise.allSettled(
+    const generateOnce = async (): Promise<{ url?: string; error?: string }> => {
+      let lastErr = "";
+      // Try selected model with up to 3 attempts (initial + 2 retries) on transient errors.
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const r = await callModel(selectedModel);
+        if (r.url) return { url: r.url };
+        lastErr = r.error || "Generation failed";
+        const transient = !r.status || r.status >= 500 || r.status === 429 || r.status === 502;
+        if (!transient) break;
+        await new Promise((res) => setTimeout(res, 600 * (attempt + 1)));
+      }
+      // Auto-fallback to a reliable model
+      if (selectedModel !== FALLBACK_MODEL) {
+        console.warn(`[imagine] falling back to ${FALLBACK_MODEL} after ${selectedModel} failed`);
+        const r = await callModel(FALLBACK_MODEL);
+        if (r.url) return { url: r.url };
+        lastErr = r.error || lastErr;
+      }
+      return { error: lastErr };
+    };
+
+    const settled = await Promise.all(
       Array.from({ length: count }).map(() => generateOnce())
     );
     const imageUrls: string[] = [];
     const ids: string[] = [];
+    let firstError = "";
     for (const s of settled) {
-      if (s.status === "fulfilled") imageUrls.push(s.value);
+      if (s.url) imageUrls.push(s.url);
+      else if (!firstError && s.error) firstError = s.error;
     }
 
     if (imageUrls.length === 0) {
       return new Response(
-        JSON.stringify({ error: "All image generations failed" }),
+        JSON.stringify({ error: firstError || "Image generation failed. Please try again." }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

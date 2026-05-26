@@ -1,9 +1,65 @@
-// Edge function: OpenAI Whisper transcription.
+// Edge function: Speech-to-Text via OpenRouter (google/chirp-3, with fallback).
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { encode as base64Encode } from 'https://deno.land/std@0.224.0/encoding/base64.ts';
 
-const STT_MODEL = Deno.env.get('OPENAI_STT_MODEL') || 'whisper-1';
-const MAX_BYTES = 20 * 1024 * 1024; // 20 MB
+const PRIMARY_MODEL = Deno.env.get('OPENROUTER_STT_MODEL') || 'google/chirp-3';
+const FALLBACK_MODEL = 'openai/whisper-1';
+const MAX_BYTES = 20 * 1024 * 1024;
+
+const guessFormat = (mime: string, filename: string): string => {
+  const m = (mime || '').toLowerCase();
+  if (m.includes('webm')) return 'webm';
+  if (m.includes('mp4') || m.includes('m4a') || m.includes('aac')) return 'mp4';
+  if (m.includes('mpeg') || m.includes('mp3')) return 'mp3';
+  if (m.includes('wav')) return 'wav';
+  if (m.includes('ogg')) return 'ogg';
+  const ext = filename.split('.').pop()?.toLowerCase() || '';
+  if (['webm', 'mp4', 'm4a', 'mp3', 'wav', 'ogg'].includes(ext)) return ext === 'm4a' ? 'mp4' : ext;
+  return 'webm';
+};
+
+async function transcribeViaOpenRouter(model: string, apiKey: string, b64: string, format: string, language?: string) {
+  const sys = `You are a speech-to-text engine. Transcribe the user's audio verbatim. Return ONLY the transcribed words, no commentary, no quotes.${language ? ` Language hint: ${language}.` : ''}`;
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': 'https://sorixai.lovable.app',
+      'X-Title': 'Sorix Voice',
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: sys },
+        {
+          role: 'user',
+          content: [
+            { type: 'input_audio', input_audio: { data: b64, format } },
+            { type: 'text', text: 'Transcribe this audio verbatim.' },
+          ],
+        },
+      ],
+    }),
+  });
+
+  const raw = await res.text();
+  if (!res.ok) {
+    console.error(`[stt] ${model} ${res.status}:`, raw.slice(0, 300));
+    return { ok: false as const, status: res.status, error: raw };
+  }
+  let json: any = {};
+  try { json = JSON.parse(raw); } catch { /* */ }
+  const msg = json?.choices?.[0]?.message;
+  let text = '';
+  if (typeof msg?.content === 'string') text = msg.content;
+  else if (Array.isArray(msg?.content)) {
+    for (const p of msg.content) if (typeof p?.text === 'string') text += p.text;
+  }
+  text = (text || '').trim().replace(/^"|"$/g, '');
+  return { ok: true as const, text };
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
@@ -42,36 +98,36 @@ Deno.serve(async (req) => {
       });
     }
 
-    const apiKey = Deno.env.get('OPENAI_API_KEY');
+    const apiKey = Deno.env.get('OPENROUTER_API_KEY');
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'OPENAI_API_KEY not configured' }), {
+      return new Response(JSON.stringify({ error: 'OPENROUTER_API_KEY not configured' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const upstream = new FormData();
     const filename = (file instanceof File && file.name) || 'audio.webm';
-    upstream.append('file', file, filename);
-    upstream.append('model', STT_MODEL);
-    upstream.append('response_format', 'json');
-    if (language) upstream.append('language', language);
+    const format = guessFormat((file as any).type || '', filename);
+    const buf = new Uint8Array(await file.arrayBuffer());
+    const b64 = base64Encode(buf);
 
-    const openaiRes = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${apiKey}` },
-      body: upstream,
-    });
+    // Try primary model
+    let result = await transcribeViaOpenRouter(PRIMARY_MODEL, apiKey, b64, format, language);
+    let usedModel = PRIMARY_MODEL;
 
-    if (!openaiRes.ok) {
-      const errText = await openaiRes.text();
-      console.error('[stt-transcribe] OpenAI error', openaiRes.status, errText);
-      return new Response(JSON.stringify({ error: 'STT provider error', detail: errText }), {
+    // Fallback on any failure or empty transcript
+    if (!result.ok || !result.text) {
+      console.warn(`[stt] primary "${PRIMARY_MODEL}" failed/empty, falling back to "${FALLBACK_MODEL}"`);
+      const fb = await transcribeViaOpenRouter(FALLBACK_MODEL, apiKey, b64, format, language);
+      if (fb.ok) { result = fb; usedModel = FALLBACK_MODEL; }
+    }
+
+    if (!result.ok) {
+      return new Response(JSON.stringify({ error: 'STT provider error', detail: String(result.error).slice(0, 300) }), {
         status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const json = await openaiRes.json();
-    return new Response(JSON.stringify({ text: json.text ?? '' }), {
+    return new Response(JSON.stringify({ text: result.text || '', model: usedModel }), {
       status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {

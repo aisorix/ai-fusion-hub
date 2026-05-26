@@ -1,11 +1,55 @@
-// Edge function: OpenAI TTS (gpt-4o-mini-tts) — streams MP3 audio.
+// Edge function: Text-to-Speech via OpenRouter (x-ai/grok-voice-tts-1.0, with fallback).
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { decode as base64Decode } from 'https://deno.land/std@0.224.0/encoding/base64.ts';
 
-const TTS_MODEL = Deno.env.get('OPENAI_TTS_MODEL') || 'gpt-4o-mini-tts';
+const PRIMARY_MODEL = Deno.env.get('OPENROUTER_TTS_MODEL') || 'x-ai/grok-voice-tts-1.0';
+const FALLBACK_MODEL = 'openai/gpt-4o-mini-tts';
+
 const ALLOWED_VOICES = new Set([
   'alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'onyx', 'nova', 'sage', 'shimmer', 'verse',
 ]);
+
+async function synthViaOpenRouter(model: string, apiKey: string, text: string, voice: string) {
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': 'https://sorixai.lovable.app',
+      'X-Title': 'Sorix TTS',
+    },
+    body: JSON.stringify({
+      model,
+      modalities: ['text', 'audio'],
+      audio: { voice, format: 'mp3' },
+      messages: [{ role: 'user', content: text }],
+    }),
+  });
+
+  const raw = await res.text();
+  if (!res.ok) {
+    console.error(`[tts] ${model} ${res.status}:`, raw.slice(0, 300));
+    return { ok: false as const, status: res.status, error: raw };
+  }
+  let json: any = {};
+  try { json = JSON.parse(raw); } catch { /* */ }
+  const msg = json?.choices?.[0]?.message;
+  const b64 = msg?.audio?.data
+    || (Array.isArray(msg?.content)
+          ? msg.content.find((p: any) => p?.type === 'audio')?.audio?.data
+          : null);
+  if (!b64) {
+    console.error(`[tts] ${model} no audio payload`, JSON.stringify(msg)?.slice(0, 300));
+    return { ok: false as const, status: 502, error: 'no audio in response' };
+  }
+  try {
+    const bytes = base64Decode(b64);
+    return { ok: true as const, bytes };
+  } catch (e) {
+    return { ok: false as const, status: 502, error: 'invalid base64 audio' };
+  }
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
@@ -44,41 +88,34 @@ Deno.serve(async (req) => {
       });
     }
 
-    const apiKey = Deno.env.get('OPENAI_API_KEY');
+    const apiKey = Deno.env.get('OPENROUTER_API_KEY');
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'OPENAI_API_KEY not configured' }), {
+      return new Response(JSON.stringify({ error: 'OPENROUTER_API_KEY not configured' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const openaiRes = await fetch('https://api.openai.com/v1/audio/speech', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: TTS_MODEL,
-        voice,
-        input: text,
-        response_format: 'mp3',
-      }),
-    });
+    let result = await synthViaOpenRouter(PRIMARY_MODEL, apiKey, text, voice);
+    let usedModel = PRIMARY_MODEL;
+    if (!result.ok) {
+      console.warn(`[tts] primary "${PRIMARY_MODEL}" failed, falling back to "${FALLBACK_MODEL}"`);
+      const fb = await synthViaOpenRouter(FALLBACK_MODEL, apiKey, text, voice);
+      if (fb.ok) { result = fb; usedModel = FALLBACK_MODEL; }
+    }
 
-    if (!openaiRes.ok || !openaiRes.body) {
-      const errText = await openaiRes.text();
-      console.error('[tts-speak] OpenAI error', openaiRes.status, errText);
-      return new Response(JSON.stringify({ error: 'TTS provider error', detail: errText }), {
+    if (!result.ok) {
+      return new Response(JSON.stringify({ error: 'TTS provider error', detail: String(result.error).slice(0, 300) }), {
         status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    return new Response(openaiRes.body, {
+    return new Response(result.bytes, {
       status: 200,
       headers: {
         ...corsHeaders,
         'Content-Type': 'audio/mpeg',
         'Cache-Control': 'no-store',
+        'X-TTS-Model': usedModel,
       },
     });
   } catch (err) {
