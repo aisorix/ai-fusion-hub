@@ -1,68 +1,49 @@
-# Voice + Mobile Polish — Final Plan
+## 1. Voice model swap (STT + TTS)
 
-## 1. Read Aloud (TTS) — fix playback + add word highlight + speed/voice controls
+Replace the OpenAI Whisper / gpt-4o-mini-tts calls with the requested models via OpenRouter (already used by `imagine`/`chat`).
 
-**Hook `src/hooks/useTtsPlayback.ts`** (rewrite)
-- Create the `<audio>` element synchronously in the click handler (before any `await`) to preserve the iOS user-gesture chain.
-- Add `speed` (0.75× / 1× / 1.25× / 1.5× / 2×, persisted), live-applied via `audio.playbackRate`.
-- Add live voice switching (Nova, Alloy, Shimmer, Echo, Fable, Onyx, Sage, Coral). Changing voice mid-read seamlessly restarts the current passage.
-- Compute **word-level timings** heuristically: split text into words, weight each by `chars + 1`, distribute across audio `duration / speed`. On `timeupdate` expose `activeWordIndex`.
-- Clean markdown noise (code fences, links, asterisks) before TTS.
-- All errors surface via Sonner toast.
+**STT — `supabase/functions/stt-transcribe/index.ts`**
+- Switch provider from `api.openai.com/v1/audio/transcriptions` to OpenRouter audio endpoint using `google/chirp-3`.
+- Keep the multipart upload → base64 conversion (OpenRouter accepts audio via `input_audio` content part in chat-completions style). Use chat-completions with `messages: [{ role:'user', content:[{ type:'input_audio', input_audio:{ data, format } }, { type:'text', text:'Transcribe verbatim. Return only the spoken text.' }] }]` and parse `choices[0].message.content`.
+- Preserve the 20 MB size check, auth-claim check, language hint (passed in the user text).
+- Fallback: if Chirp returns an error or empty text, fall back to OpenAI Whisper so dictation never silently dies.
 
-**Floating bar `src/components/aichat/ReadAloudBar.tsx`** (rewrite)
-- Compact pill with Play/Pause, "Reading: …" preview, progress bar, elapsed/duration.
-- New **Speed** popover and **Voice** popover (icons + labels, current selection checkmark).
-- Stop button on the right.
+**TTS — `supabase/functions/tts-speak/index.ts`**
+- Switch to OpenRouter model `x-ai/grok-voice-tts-1.0`. Send `{ model, voice, input, response_format:'mp3' }` to OpenRouter's audio/speech proxy (or chat-completions with `modalities:['audio']` and parse `message.audio.data` base64 → return as `audio/mpeg`).
+- Keep allowed-voice whitelist and the streaming MP3 response shape so `useTtsPlayback` keeps working unchanged.
+- Fallback to `gpt-4o-mini-tts` if Grok returns 4xx/5xx, so Read Aloud always speaks.
 
-**Message `src/components/aichat/MessageBubble.tsx`**
-- When the active TTS target matches this message, render a subtle highlight panel beneath the markdown:
-  - "Reading aloud" kicker.
-  - Each word wrapped in a span; active word gets `bg-primary/20 text-primary font-semibold rounded`, past words dimmed, future words normal.
-  - Active word auto-scrolls into view (`scrollIntoView({block:'nearest'})`).
+No client changes required — both hooks (`useVoiceDictation`, `useTtsPlayback`) talk to these edge functions, so the swap is invisible to the UI.
 
-## 2. Voice-to-Text (Whisper STT) — mobile fixes
+## 2. Imagine — fix "sometimes no image" reliability
 
-**Hook `src/hooks/useVoiceDictation.ts`**
-- Cycle through MediaRecorder MIME candidates including **`audio/mp4`** and **`audio/mp4;codecs=mp4a.40.2`** for iOS Safari.
-- Filename extension follows the chosen MIME (`.m4a` / `.webm` / `.ogg`) so OpenAI Whisper accepts it.
-- Lower drop threshold from 1200 → 600 bytes so short utterances aren't lost.
-- Sonner toasts for `NotAllowedError`, `NotFoundError`, no-MediaRecorder, transcription failures, and an empty transcript hint.
+Root causes in `supabase/functions/imagine/index.ts`:
+- A single OpenRouter call can return text-only / safety-refusal with no `images[]`, throwing "No image returned from model" and (when `count===1`) failing the whole request.
+- Some providers (Riverflow, Flux) intermittently 502 on first try; there is currently no retry.
+- The prompt is sent as bare string — for image-only models we lose the user's "details" (aspect/format hints) unless we encode them in the prompt.
 
-`VoiceDictationButton.tsx` already shows the recording waveform / Transcribing… pill — no change needed.
+Changes:
+- Add a **retry-with-backoff wrapper** around `generateOnce` (up to 2 retries on 5xx, 429, or empty image response, 800 ms then 1600 ms).
+- If after retries on the **selected** model still no image, **automatically fall back** to `google/gemini-2.5-flash-image` (always available) for that slot and tag the response with `fallbackUsed: true` so the client can show a subtle notice.
+- Always forward the **full user prompt verbatim** plus a short directive line appended server-side: `Aspect ratio: <a>. Resolution: <r>. Output format: <fmt>.` — guarantees the model honors the user's details even when they only set them via the panel.
+- Improve image extraction: also check `message.content[].image_url.url` when content is a string containing a markdown `![](data:image/...)`.
+- Better error surfacing: when all slots fail, return the **first upstream error message** instead of the generic "All image generations failed" so the toast tells the user what happened.
 
-## 3. Sorix Imagine — mobile polish + model rename
+No schema or token-accounting changes.
 
-**`src/components/imagine/ImagineModelSelector.tsx`**
-- First entry → `displayName: "Riverflow V2"`, `shortName: "Riverflow V2"`, `modelId: "sourceful/riverflow-v2-standard-preview"`. Stays default.
+## 3. Imagine template preview — mobile fix (image #3)
 
-**`src/components/imagine/ImagineOptionsPanel.tsx`**
-- Row order swap: **Output Format first**, then Aspect, then Resolution, then Number of Outputs.
-- Format options reordered: **PNG (Recommended)**, WebP, JPG.
-- On mobile (`<sm`), the whole panel collapses into a **single tap-to-open trigger** ("Image Settings · WebP · 1:1 · 1K · ×1") that opens a slide-up bottom sheet with the same controls at 48px touch height. Restores the dropdown UX from the previous build.
+`src/components/imagine/ImagineTemplatePreview.tsx` currently renders a centered modal with `max-h-[90vh]` and a vertical stack on mobile. On narrow screens the image takes the top half and the prompt/actions get clipped (matches the screenshot — actions invisible, content not scrollable enough).
 
-**`src/pages/ImaginePage.tsx`**
-- Default `format` changes from `'webp'` → `'png'` to match the new recommended ordering.
+Rework for mobile (≤ md):
+- Convert to a **bottom-sheet** with rounded top corners, draggable handle bar, `h-[92dvh]`, snap-to-top on open.
+- Image becomes a compact 16:9 hero strip (`h-44`) at the top instead of a half-screen square, so the prompt + meta + action buttons are all visible without scrolling.
+- Sticky bottom action bar (`Use Prompt` + `Use as Reference`) pinned with `safe-area-inset-bottom` padding so it never gets cut off.
+- Backdrop tap closes; add a visible close pill and a drag-down-to-dismiss gesture via framer-motion `drag="y"` with `dragConstraints`.
+- Desktop (≥ md) layout is unchanged.
 
-## 4. Sorix Deck — mobile polish + image model picker
-
-**Image-model row** — `src/pages/DeckPage.tsx` + small new component
-- Add `deckImageModel` state defaulting to the Imagine "Riverflow V2".
-- Render an "Image model" row directly under the existing Image Style row (reuses `ImagineModelSelector` UI for consistency).
-- Thread `imageModel.modelId` through `deckApi.generate` → edge function.
-
-**`src/services/deckApi.ts`** — add `imageModel?: string` to `DeckGenerateExtras`.
-
-**`supabase/functions/deck-generate/index.ts`** — accept `imageModel` from the request body; if present, use it instead of the hardcoded `black-forest-labs/flux.2-klein-4b` when calling OpenRouter (default kept as fallback).
-
-**Mobile editor polish**
-- `DeckEditor.tsx`: convert the FAB-style "Slides" pill into a sticky compact top bar on `<md` with `Menu`, "Slide N/M", and a compact "+ New" trigger; sidebar drawer width widens to 78vw with backdrop blur and swipe-to-close.
-- `DeckEditorCanvas.tsx`: padding reduces to `p-2.5` on mobile, layout switcher becomes a 3-icon segmented row with no labels under `sm`, canvas wrapper uses `h-[calc(100dvh-7rem)]` so the slide always fits.
-- `DeckPage.tsx` toolbar (Undo/Redo · Theme · Create New): wraps better on small viewports — "Create New One" collapses to a `+ New` icon-only button on `<sm`, Theme picker moves into a `…` overflow menu on `<sm` so the top bar never overflows.
-
-## Files touched
-
-**Rewrite:** `src/hooks/useTtsPlayback.ts`, `src/hooks/useVoiceDictation.ts`, `src/components/aichat/ReadAloudBar.tsx`
-**Edit:** `src/components/aichat/MessageBubble.tsx`, `src/components/imagine/ImagineModelSelector.tsx`, `src/components/imagine/ImagineOptionsPanel.tsx`, `src/pages/ImaginePage.tsx`, `src/pages/DeckPage.tsx`, `src/services/deckApi.ts`, `src/components/deck/editor/DeckEditor.tsx`, `src/components/deck/editor/DeckEditorCanvas.tsx`, `supabase/functions/deck-generate/index.ts`
-
-No new dependencies. After approval I'll implement in one pass and verify playback, dictation on a mobile viewport, and the Deck/Imagine mobile layouts.
+No new files. Files touched:
+- `supabase/functions/stt-transcribe/index.ts`
+- `supabase/functions/tts-speak/index.ts`
+- `supabase/functions/imagine/index.ts`
+- `src/components/imagine/ImagineTemplatePreview.tsx`
