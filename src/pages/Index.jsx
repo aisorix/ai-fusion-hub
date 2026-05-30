@@ -85,7 +85,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="AI Sorix | Global AI Research Ecosystem & Workspace"
-        description="AI Sorix is the global zero-trust AI workspace. 15+ frontier models, image generation, presentations, health & agriculture AI, and autonomous agents in one place."
+        description="AI Sorix is the global zero-trust AI workspace with 15+ frontier models, image generation, presentations, health & agriculture AI, and autonomous agents."
         path="/"
       />
       {jsonLd.map((data, i) => (

@@ -1,0 +1,46 @@
+# AI Sorix
+
+> AI Sorix is the global zero-trust AI research ecosystem and workspace — 15+ frontier AI models, image generation, presentations, health & agriculture AI, and autonomous agents in one secure place.
+
+AI Sorix gives individuals and teams a single workspace to chat with frontier AI models (GPT-5, Claude, Gemini, DeepSeek, Grok, Llama, Perplexity, Qwen, Mistral and more), generate images and presentations, analyze health and agriculture data, build flow diagrams, and run autonomous agents.
+
+## Pages
+
+- [Home](/): Overview of the AI Sorix workspace, models, and tools.
+- [AI Chat](/chat): Multi-model AI chat with 15+ frontier models.
+- [Tools](/tools): Gallery of specialized Sorix tools.
+- [Sorix Imagine](/imagine): AI image generation and editing.
+- [Sorix Deck](/deck): AI-powered presentation generator.
+- [Sorix FlowBuilder](/flowbuilder): AI flowchart and diagram builder.
+- [Sorix Health](/health): Free AI health analysis assistant.
+- [Sorix Agro](/agro): Free AI agriculture advisor.
+- [Sorix Legends](/legends): Chat with historical legends.
+- [Pricing](/#pricing): Plans from free to premium.
+- [About AI Sorix](/about-us): Mission, team, and story.
+- [About Sorix Lab](/about-sorix-lab): The research lab behind AI Sorix.
+- [Blog](/blog): AI insights, tutorials, and industry news.
+- [Case Studies](/case-studies): How teams use AI Sorix.
+- [Docs](/docs): Product documentation.
+- [Developer API](/developer-api): API for developers.
+- [Solutions — Coding](/solutions/coding): AI for software teams.
+- [Solutions — Customer Support](/solutions/customer-support): AI for support teams.
+- [Solutions — Financial Services](/solutions/financial-services): AI for finance.
+- [Solutions — Healthcare](/solutions/healthcare): AI for healthcare.
+- [Solutions — Government](/solutions/government): AI for the public sector.
+- [Solutions — Life Sciences](/solutions/life-sciences): AI for research.
+- [Solutions — Nonprofits](/solutions/nonprofits): AI for nonprofits.
+- [Solutions — Security](/solutions/security): AI for security teams.
+- [Sorix Security](/sorix-security): Platform security overview.
+- [Security & Compliance](/security-and-compliance): Compliance posture.
+- [Transparency](/transparency): Transparency reports.
+- [Research](/research): AI Sorix research.
+- [Reviews](/reviews): User reviews.
+
+## Optional
+
+- [Privacy Policy](/privacy-policy): How we handle data.
+- [Terms of Service](/terms-of-service): Service terms.
+- [Cookie Policy](/cookie-policy): Cookie usage.
+- [Refund Policy](/refund-policy): Billing and refunds.
+- [Usage Policy](/usage-policy): Acceptable use.
+- [Consumer Health Data Privacy](/consumer-health-data-privacy): Health data notice.
