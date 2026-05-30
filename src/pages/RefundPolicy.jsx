@@ -17,6 +17,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
+import SEOHead from "@/components/SEOHead";
 import logo from "../assets/logo.png";
 
 const RefundPolicy = () => {
@@ -308,6 +309,11 @@ const RefundPolicy = () => {
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
+      <SEOHead
+        title="Refund & Cancellation Policy | AI Sorix"
+        description="Review the AI Sorix refund and cancellation policy for subscriptions, credit top-ups, and billing disputes across our AI services."
+        path="/refund-policy"
+      />
       {/* Professional Header */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">

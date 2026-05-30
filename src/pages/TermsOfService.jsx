@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, FileText, Mail, MapPin, Calendar, AlertTriangle, Home, ChevronRight } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
+import SEOHead from "@/components/SEOHead";
 import logo from "../assets/logo.png";
 
 const TermsOfService = () => {
@@ -170,6 +171,11 @@ const TermsOfService = () => {
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
+      <SEOHead
+        title="Terms of Service | AI Sorix"
+        description="Read the AI Sorix Terms of Service covering subscriptions, acceptable use, billing, and user obligations for our global AI workspace."
+        path="/terms-of-service"
+      />
       {/* Professional Header */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">

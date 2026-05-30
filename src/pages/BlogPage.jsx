@@ -85,8 +85,8 @@ const BlogPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="AI Insights & Blog | AI Sorix - Top AI Platform in Bangladesh"
-        description="Explore AI insights, tutorials, and industry trends from AI Sorix. Learn how AI is transforming education, agriculture, and healthcare across Bangladesh and Asia."
+        title="AI Insights & Blog — Tutorials & News | AI Sorix"
+        description="Explore AI insights, tutorials, and industry trends from AI Sorix. Learn how AI is transforming education, agriculture, and healthcare worldwide."
         path="/blog"
       />
       <Navbar />

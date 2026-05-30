@@ -108,6 +108,10 @@ const Hero = () => {
             <img
               src={logo}
               alt="AI Sorix"
+              width="144"
+              height="144"
+              fetchpriority="high"
+              decoding="async"
               className="relative w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 object-contain drop-shadow-2xl animate-float-slow"
             />
           </div>
