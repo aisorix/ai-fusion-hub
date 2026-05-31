@@ -66,7 +66,8 @@ Deno.serve(async (req) => {
     if (error || !user) return new Response("Unauthorized", { status: 401 });
 
     const clientId = Deno.env.get("GOOGLE_CLIENT_ID");
-    const secret = Deno.env.get("INTERNAL_WEBHOOK_SECRET") || "fallback-secret";
+    const secret = Deno.env.get("INTERNAL_WEBHOOK_SECRET");
+    if (!secret) return new Response("Server misconfiguration: signing secret missing", { status: 500 });
     if (!clientId) return new Response("GOOGLE_CLIENT_ID not configured", { status: 500 });
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -76,8 +77,14 @@ Deno.serve(async (req) => {
     const scopesParam = url.searchParams.get("scopes");
     const scopes = scopesParam ? scopesParam.split(/\s+/).filter(Boolean) : DEFAULT_SCOPES_FOR_SERVICE[service];
 
-    // state = base64({uid, service, ts}).sig
-    const payload = JSON.stringify({ uid: user.id, service, ts: Date.now() });
+    // Capture the opener origin so the callback's postMessage can target it specifically
+    // (avoids leaking OAuth result data to arbitrary windows via "*").
+    const originParam = url.searchParams.get("origin") || req.headers.get("origin") || req.headers.get("referer") || "";
+    let openerOrigin = "";
+    try { if (originParam) openerOrigin = new URL(originParam).origin; } catch { openerOrigin = ""; }
+
+    // state = base64({uid, service, ts, origin}).sig
+    const payload = JSON.stringify({ uid: user.id, service, ts: Date.now(), origin: openerOrigin });
     const payloadB64 = btoa(payload);
     const sig = await signState(payloadB64, secret);
     const state = `${payloadB64}.${sig}`;

@@ -75,6 +75,32 @@ const handler = async (req: Request): Promise<Response> => {
     // Generate unique transaction ID
     const tranId = `SORIX_${planId.toUpperCase()}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
+    // Persist trusted payment intent BEFORE redirecting the user. The IPN handler
+    // will look this up by tran_id and ignore the user-controlled value_a/value_b fields.
+    const admin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+    const normalizedCurrency = currency === "৳" ? "BDT" : currency;
+    const { error: intentErr } = await admin.from('payment_intents').insert({
+      gateway: 'sslcommerz',
+      external_id: tranId,
+      user_id: user.id,
+      plan_id: planId,
+      amount,
+      currency: normalizedCurrency,
+      billing_cycle: billingCycle,
+      status: 'pending',
+      metadata: { plan_name: planName },
+    });
+    if (intentErr) {
+      console.error('Failed to persist SSLCommerz payment intent:', intentErr);
+      return new Response(
+        JSON.stringify({ success: false, error: "Could not initialize payment" }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     // SSLCommerz API endpoint (sandbox for testing)
     const sslcommerzUrl = SSLCOMMERZ_SANDBOX
       ? "https://sandbox.sslcommerz.com/gwprocess/v4/api.php"
@@ -87,14 +113,15 @@ const handler = async (req: Request): Promise<Response> => {
     formData.append("store_id", SSLCOMMERZ_STORE_ID);
     formData.append("store_passwd", SSLCOMMERZ_STORE_PASSWORD);
     formData.append("total_amount", amount.toString());
-    formData.append("currency", currency === "৳" ? "BDT" : currency);
+    formData.append("currency", normalizedCurrency);
     formData.append("tran_id", tranId);
     formData.append("success_url", `${clientOrigin}/payment/success?tran_id=${tranId}&gateway=sslcommerz`);
     formData.append("fail_url", `${clientOrigin}/payment/failed?tran_id=${tranId}&gateway=sslcommerz`);
     formData.append("cancel_url", `${clientOrigin}/payment/cancel?tran_id=${tranId}&gateway=sslcommerz`);
     formData.append("ipn_url", WEBHOOK_URL);
-    
-    // Pass user and plan info via value_a, value_b, value_c, value_d fields for IPN
+
+    // value_a/b/c/d are still passed for SSLCommerz logging convenience, but the webhook
+    // ignores them and trusts only the server-side payment_intents row keyed by tran_id.
     formData.append("value_a", userId);
     formData.append("value_b", planId);
     formData.append("value_c", billingCycle);

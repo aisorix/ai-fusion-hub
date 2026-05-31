@@ -211,8 +211,29 @@ const handler = async (req: Request): Promise<Response> => {
         }
 
         const result = await createPayment(token, amount, planId, planName, billingCycle, userId, origin);
-        
-        if (result.bkashURL) {
+
+        if (result.bkashURL && result.paymentID) {
+          // Persist the trusted plan/amount keyed by bKash paymentID so execute_payment
+          // cannot be tricked into upgrading the user to a different plan.
+          const admin = createClient(
+            Deno.env.get("SUPABASE_URL")!,
+            Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+          );
+          const { error: intentErr } = await admin.from('payment_intents').insert({
+            gateway: 'bkash',
+            external_id: result.paymentID,
+            user_id: user.id,
+            plan_id: planId,
+            amount,
+            currency: 'BDT',
+            billing_cycle: billingCycle,
+            status: 'pending',
+            metadata: { plan_name: planName },
+          });
+          if (intentErr) {
+            console.error('Failed to persist bKash payment intent:', intentErr);
+          }
+
           return new Response(
             JSON.stringify({
               success: true,
@@ -233,10 +254,36 @@ const handler = async (req: Request): Promise<Response> => {
       }
 
       case 'execute_payment': {
-        if (!paymentID || !userId || !planId || !amount || !billingCycle) {
+        if (!paymentID) {
           return new Response(
-            JSON.stringify({ success: false, error: "Missing required fields" }),
+            JSON.stringify({ success: false, error: "Missing paymentID" }),
             { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+          );
+        }
+
+        // Look up the trusted intent created during create_payment. Never trust the
+        // plan_id / amount / billing_cycle the client sends here.
+        const admin = createClient(
+          Deno.env.get("SUPABASE_URL")!,
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+        );
+        const { data: intent, error: intentErr } = await admin
+          .from('payment_intents')
+          .select('user_id, plan_id, amount, billing_cycle, status')
+          .eq('gateway', 'bkash')
+          .eq('external_id', paymentID)
+          .maybeSingle();
+
+        if (intentErr || !intent) {
+          return new Response(
+            JSON.stringify({ success: false, error: "Unknown payment" }),
+            { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+          );
+        }
+        if (intent.user_id !== user.id) {
+          return new Response(
+            JSON.stringify({ success: false, error: "Forbidden" }),
+            { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
           );
         }
 
@@ -249,9 +296,26 @@ const handler = async (req: Request): Promise<Response> => {
         }
 
         const result = await executePayment(token, paymentID);
-        
+
         if (result.transactionStatus === "Completed") {
-          // Call webhook to record payment and update subscription
+          // Cross-check the amount returned by bKash against the stored intent.
+          const paidAmount = parseFloat(result.amount);
+          if (!Number.isFinite(paidAmount) || Math.abs(paidAmount - Number(intent.amount)) > 0.01) {
+            console.error('bKash amount mismatch', { paid: result.amount, expected: intent.amount });
+            return new Response(
+              JSON.stringify({ success: false, error: "Amount mismatch" }),
+              { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+            );
+          }
+
+          // Mark intent as paid (idempotent).
+          await admin
+            .from('payment_intents')
+            .update({ status: 'paid', updated_at: new Date().toISOString() })
+            .eq('gateway', 'bkash')
+            .eq('external_id', paymentID);
+
+          // Trigger webhook with server-trusted values from the intent.
           try {
             await fetch(WEBHOOK_URL, {
               method: "POST",
@@ -262,11 +326,11 @@ const handler = async (req: Request): Promise<Response> => {
                 gateway: 'bkash',
                 status: 'success',
                 tran_id: result.trxID || paymentID,
-                amount: parseFloat(result.amount) || amount,
+                amount: Number(intent.amount),
                 currency: 'BDT',
-                user_id: userId,
-                plan_id: planId,
-                billing_cycle: billingCycle,
+                user_id: intent.user_id,
+                plan_id: intent.plan_id,
+                billing_cycle: intent.billing_cycle,
                 payment_method: 'bkash',
                 _internal_secret: INTERNAL_WEBHOOK_SECRET,
               }),

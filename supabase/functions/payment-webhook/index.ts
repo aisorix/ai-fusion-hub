@@ -158,19 +158,21 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-    
+
     // Parse callback data - support both JSON and form-urlencoded
     let callbackData: PaymentCallback;
     const contentType = req.headers.get("content-type") || "";
-    
+
     if (contentType.includes("application/json")) {
       callbackData = await req.json();
     } else if (contentType.includes("application/x-www-form-urlencoded")) {
-      // Handle SSLCommerz IPN format
+      // Handle SSLCommerz IPN format. The value_a/value_b fields here are user-controlled
+      // through the gateway redirect and MUST NOT be trusted. We only read tran_id and
+      // val_id from the IPN; the real plan_id/user_id/amount come from payment_intents.
       const formData = await req.formData();
       const status = formData.get("status") as string;
       const sslStatus = status === "VALID" || status === "VALIDATED" ? 'success' : 'failed';
-      
+
       callbackData = {
         gateway: 'sslcommerz',
         status: sslStatus,
@@ -178,9 +180,9 @@ const handler = async (req: Request): Promise<Response> => {
         val_id: formData.get("val_id") as string,
         amount: parseFloat(formData.get("amount") as string) || parseFloat(formData.get("value_d") as string) || 0,
         currency: formData.get("currency") as string || 'BDT',
-        user_id: formData.get("value_a") as string,
-        plan_id: formData.get("value_b") as string,
-        billing_cycle: (formData.get("value_c") as 'monthly' | 'yearly') || 'monthly',
+        user_id: '', // populated from payment_intents below
+        plan_id: '', // populated from payment_intents below
+        billing_cycle: 'monthly',
         payment_method: formData.get("card_type") as string || 'sslcommerz',
       };
     } else {
@@ -189,20 +191,26 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Payment webhook received:", JSON.stringify({ ...callbackData, _internal_secret: '[REDACTED]' }));
 
-    // Validate required fields
-    if (!callbackData.tran_id || !callbackData.user_id || !callbackData.plan_id) {
+    if (!callbackData.tran_id) {
       return new Response(
-        JSON.stringify({ success: false, error: "Missing required fields" }),
+        JSON.stringify({ success: false, error: "Missing transaction id" }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
     // === GATEWAY-SPECIFIC VERIFICATION ===
+    // For successful payments we ALWAYS resolve user_id / plan_id / amount / billing_cycle
+    // from a server-side trusted source — never from client- or IPN-supplied fields.
+    let trustedUserId = '';
+    let trustedPlanId = '';
+    let trustedAmount = 0;
+    let trustedCurrency = callbackData.currency || 'BDT';
+    let trustedBillingCycle: 'monthly' | 'yearly' = 'monthly';
+    let intentLookupKey = callbackData.tran_id;
+
     if (callbackData.status === 'success') {
       if (callbackData.gateway === 'sslcommerz') {
-        // Verify SSLCommerz IPN with their validation API
         if (!callbackData.val_id) {
-          console.error("SSLCommerz callback missing val_id");
           return new Response(
             JSON.stringify({ success: false, error: "Missing validation ID" }),
             { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
@@ -210,35 +218,46 @@ const handler = async (req: Request): Promise<Response> => {
         }
         const isValid = await validateSSLCommerz(callbackData.val_id);
         if (!isValid) {
-          console.error("SSLCommerz IPN validation failed for val_id:", callbackData.val_id);
           return new Response(
             JSON.stringify({ success: false, error: "Payment validation failed" }),
             { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
           );
         }
-        console.log("SSLCommerz IPN validated successfully");
+        console.log("SSLCommerz IPN validated");
       } else if (callbackData.gateway === 'stripe') {
-        // Verify Stripe checkout session is actually paid
         if (!callbackData.stripe_session_id) {
-          console.error("Stripe callback missing session_id");
           return new Response(
             JSON.stringify({ success: false, error: "Missing Stripe session ID" }),
             { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
           );
         }
-        const isPaid = await verifyStripeSession(callbackData.stripe_session_id);
-        if (!isPaid) {
-          console.error("Stripe session not paid:", callbackData.stripe_session_id);
+        // Fetch the full Stripe session and read plan_id/user_id/tran_id from
+        // server-side metadata only — never from the client request body.
+        if (!STRIPE_SECRET_KEY) {
+          return new Response(
+            JSON.stringify({ success: false, error: "Stripe not configured" }),
+            { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+          );
+        }
+        const sessionResp = await fetch(
+          `https://api.stripe.com/v1/checkout/sessions/${callbackData.stripe_session_id}`,
+          { headers: { Authorization: `Bearer ${STRIPE_SECRET_KEY}` } },
+        );
+        const session = await sessionResp.json();
+        if (!sessionResp.ok || session.payment_status !== 'paid') {
           return new Response(
             JSON.stringify({ success: false, error: "Payment not completed" }),
             { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
           );
         }
-        console.log("Stripe session verified as paid");
+        const meta = session.metadata || {};
+        // Use server-side metadata for the lookup key; ignore the request body's tran_id.
+        intentLookupKey = meta.tran_id || callbackData.tran_id;
+        callbackData.tran_id = intentLookupKey;
+        console.log("Stripe session verified, tran_id from metadata:", intentLookupKey);
       } else if (callbackData.gateway === 'bkash') {
-        // bKash: require internal webhook secret (service-to-service call)
+        // bKash: require internal webhook secret (service-to-service call from bkash-payment)
         if (!validateInternalSecret(callbackData._internal_secret)) {
-          console.error("bKash callback: invalid internal secret");
           return new Response(
             JSON.stringify({ success: false, error: "Unauthorized" }),
             { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
@@ -246,12 +265,63 @@ const handler = async (req: Request): Promise<Response> => {
         }
         console.log("bKash internal call verified");
       } else {
-        console.error("Unknown gateway:", callbackData.gateway);
         return new Response(
           JSON.stringify({ success: false, error: "Unknown payment gateway" }),
           { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
         );
       }
+
+      // Resolve trusted plan/amount/user from payment_intents (created server-side
+      // when the user initiated checkout). This is what defeats plan-upgrade attacks.
+      const { data: intent, error: intentErr } = await supabase
+        .from('payment_intents')
+        .select('user_id, plan_id, amount, currency, billing_cycle')
+        .eq('gateway', callbackData.gateway)
+        .eq('external_id', intentLookupKey)
+        .maybeSingle();
+
+      if (intentErr || !intent) {
+        console.error("No matching payment intent for", callbackData.gateway, intentLookupKey, intentErr);
+        return new Response(
+          JSON.stringify({ success: false, error: "Unknown payment intent" }),
+          { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+
+      trustedUserId = intent.user_id;
+      trustedPlanId = intent.plan_id;
+      trustedAmount = Number(intent.amount);
+      trustedCurrency = intent.currency || trustedCurrency;
+      trustedBillingCycle = (intent.billing_cycle as 'monthly' | 'yearly') || 'monthly';
+
+      // Replace whatever the client/IPN told us with the trusted values.
+      callbackData.user_id = trustedUserId;
+      callbackData.plan_id = trustedPlanId;
+      callbackData.amount = trustedAmount;
+      callbackData.currency = trustedCurrency;
+      callbackData.billing_cycle = trustedBillingCycle;
+    } else {
+      // Failure paths — still require tran_id; fill user/plan from intent if available.
+      const { data: intent } = await supabase
+        .from('payment_intents')
+        .select('user_id, plan_id, amount, currency, billing_cycle')
+        .eq('gateway', callbackData.gateway)
+        .eq('external_id', callbackData.tran_id)
+        .maybeSingle();
+      if (intent) {
+        callbackData.user_id = intent.user_id;
+        callbackData.plan_id = intent.plan_id;
+        callbackData.amount = Number(intent.amount);
+        callbackData.currency = intent.currency || callbackData.currency;
+        callbackData.billing_cycle = (intent.billing_cycle as 'monthly' | 'yearly') || 'monthly';
+      }
+    }
+
+    if (!callbackData.user_id || !callbackData.plan_id) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Missing required fields" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
     }
 
     // === IDEMPOTENCY CHECK ===
@@ -267,6 +337,15 @@ const handler = async (req: Request): Promise<Response> => {
         JSON.stringify({ success: true, message: "Already processed" }),
         { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
+    }
+
+    // Mark the intent as paid (best effort).
+    if (callbackData.status === 'success') {
+      await supabase
+        .from('payment_intents')
+        .update({ status: 'paid', updated_at: new Date().toISOString() })
+        .eq('gateway', callbackData.gateway)
+        .eq('external_id', intentLookupKey);
     }
 
     const planName = PLAN_NAMES[callbackData.plan_id] || callbackData.plan_id;
