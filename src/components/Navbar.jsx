@@ -288,8 +288,9 @@ const Navbar = () => {
                   to="/chat"
                   className="p-2.5 rounded-xl hover:bg-muted/50 backdrop-blur-sm transition-colors text-muted-foreground hover:text-primary border border-transparent hover:border-border/50"
                   title={t("goToChat")}
+                  aria-label={t("goToChat") || "Go to AI Chat"}
                 >
-                  <MessageSquare className="w-5 h-5" />
+                  <MessageSquare className="w-5 h-5" aria-hidden="true" />
                 </Link>
               )}
 
