@@ -83,6 +83,31 @@ const handler = async (req: Request): Promise<Response> => {
     // Generate unique transaction ID
     const tranId = `SORIX_STRIPE_${planId.toUpperCase()}_${Date.now()}`;
 
+    // Persist trusted intent BEFORE creating the Stripe session. The webhook will
+    // verify the Stripe session and cross-check against this server-side row.
+    const admin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+    const { error: intentErr } = await admin.from('payment_intents').insert({
+      gateway: 'stripe',
+      external_id: tranId,
+      user_id: user.id,
+      plan_id: planId,
+      amount,
+      currency: currencyCode.toUpperCase(),
+      billing_cycle: billingCycle,
+      status: 'pending',
+      metadata: { plan_name: planName },
+    });
+    if (intentErr) {
+      console.error('Failed to persist Stripe payment intent:', intentErr);
+      return new Response(
+        JSON.stringify({ success: false, error: "Could not initialize payment" }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     console.log("Creating Stripe checkout session:", { tranId, planId, amount, currency: currencyCode });
 
     // Create Stripe Checkout Session
