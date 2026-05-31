@@ -7,6 +7,7 @@ import { ModelIcon } from '@/components/aichat/ModelIcons';
 import { cn } from '@/lib/utils';
 import { Send, ArrowLeft, MessageCircle, Loader2, User } from 'lucide-react';
 import sorixLogo from '@/assets/logo.png';
+import SEOHead from '@/components/SEOHead';
 
 interface SharedMessage {
   id: string;
@@ -127,8 +128,12 @@ const SharedChatPage = () => {
     );
   }
 
+  const shareTitle = title && title !== 'Shared Chat' ? `${title} — Shared on AI Sorix` : 'Shared AI Chat — AI Sorix';
+  const shareDesc = `Read this shared AI conversation on AI Sorix${title && title !== 'Shared Chat' ? `: ${title}` : ''}. Explore 15+ frontier AI models in one workspace.`;
+
   return (
     <div className="h-screen flex bg-background">
+      <SEOHead title={shareTitle} description={shareDesc.slice(0, 158)} path={`/shared/${token ?? ''}`} />
       {/* Chat View - Left Side */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}

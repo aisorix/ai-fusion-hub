@@ -80,7 +80,7 @@ export const MistralLogo = ({ className = "w-6 h-6" }) => (
 );
 
 export const SorixLogo = ({ className = "w-6 h-6" }) => (
-  <img src={sorixLogo} alt="Sorix" className={cn(className, 'object-contain')} />
+  <img src={sorixLogo} alt="AI Sorix Logo" className={cn(className, 'object-contain')} />
 );
 
 // Map model names to their logos

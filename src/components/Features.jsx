@@ -213,7 +213,7 @@ const Features = () => {
 
                   {!feature.comingSoon && (
                     <div className="mt-4 sm:mt-6 flex items-center gap-2 text-primary font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300 text-sm">
-                      {language === 'en' ? 'Learn more' : 'আরও জানুন'} 
+                      {language === 'en' ? `View ${feature.title} details` : `${feature.title} বিস্তারিত দেখুন`} 
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
                     </div>
                   )}
