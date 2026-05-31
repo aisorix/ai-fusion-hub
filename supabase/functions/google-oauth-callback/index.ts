@@ -23,7 +23,7 @@ const SERVICE_LABELS: Record<string, string> = {
   google_sheets: "Google Sheets",
 };
 
-async function verifyState(state: string, secret: string): Promise<{ uid: string; ts: number; service?: string } | null> {
+async function verifyState(state: string, secret: string): Promise<{ uid: string; ts: number; service?: string; origin?: string } | null> {
   try {
     const [payloadB64, sig] = state.split(".");
     if (!payloadB64 || !sig) return null;
@@ -38,10 +38,18 @@ async function verifyState(state: string, secret: string): Promise<{ uid: string
   } catch { return null; }
 }
 
-function htmlResult(ok: boolean, data: Record<string, unknown>) {
+function htmlResult(ok: boolean, data: Record<string, unknown>, targetOrigin: string) {
   const payload = JSON.stringify({ type: "google_oauth_result", ok, ...data });
+  // Only post to the captured opener origin. Fall back to closing without a message
+  // if no trusted origin is available — never use "*" which would leak OAuth data.
+  const safeOrigin = JSON.stringify(targetOrigin || "");
   const body = `<!doctype html><html><body><script>
-    try { window.opener && window.opener.postMessage(${payload}, "*"); } catch(e){}
+    try {
+      var target = ${safeOrigin};
+      if (window.opener && target) {
+        window.opener.postMessage(${payload}, target);
+      }
+    } catch(e){}
     document.body.innerText = ${ok ? "'Connected. You can close this window.'" : "'Failed: ' + ${JSON.stringify(String(data.error||''))}"};
     setTimeout(function(){ window.close(); }, 800);
   </script></body></html>`;
@@ -56,12 +64,14 @@ Deno.serve(async (req) => {
     const code = url.searchParams.get("code");
     const state = url.searchParams.get("state");
     const error = url.searchParams.get("error");
-    if (error) return htmlResult(false, { error });
-    if (!code || !state) return htmlResult(false, { error: "missing code/state" });
+    if (error) return htmlResult(false, { error }, "");
+    if (!code || !state) return htmlResult(false, { error: "missing code/state" }, "");
 
-    const secret = Deno.env.get("INTERNAL_WEBHOOK_SECRET") || "fallback-secret";
+    const secret = Deno.env.get("INTERNAL_WEBHOOK_SECRET");
+    if (!secret) return new Response("Server misconfiguration: signing secret missing", { status: 500 });
     const stateData = await verifyState(state, secret);
-    if (!stateData) return htmlResult(false, { error: "invalid state" });
+    if (!stateData) return htmlResult(false, { error: "invalid state" }, "");
+    const openerOrigin = stateData.origin || "";
 
     const service = stateData.service && ALLOWED_SERVICES.has(stateData.service) ? stateData.service : "google_gmail";
 
