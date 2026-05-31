@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
       }),
     });
     const tokenData = await tokenRes.json();
-    if (!tokenRes.ok) return htmlResult(false, { error: tokenData.error_description || tokenData.error || "token exchange failed" });
+    if (!tokenRes.ok) return htmlResult(false, { error: tokenData.error_description || tokenData.error || "token exchange failed" }, openerOrigin);
 
     // Fetch user email
     const meRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
@@ -117,9 +117,9 @@ Deno.serve(async (req) => {
       updated_at: new Date().toISOString(),
     }, { onConflict: "user_id,service" });
 
-    if (upErr) return htmlResult(false, { error: upErr.message });
-    return htmlResult(true, { email, service, label: SERVICE_LABELS[service] || service });
+    if (upErr) return htmlResult(false, { error: upErr.message }, openerOrigin);
+    return htmlResult(true, { email, service, label: SERVICE_LABELS[service] || service }, openerOrigin);
   } catch (e) {
-    return htmlResult(false, { error: (e as Error).message });
+    return htmlResult(false, { error: (e as Error).message }, "");
   }
 });
