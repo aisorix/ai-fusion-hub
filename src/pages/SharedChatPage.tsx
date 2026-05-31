@@ -7,6 +7,7 @@ import { ModelIcon } from '@/components/aichat/ModelIcons';
 import { cn } from '@/lib/utils';
 import { Send, ArrowLeft, MessageCircle, Loader2, User } from 'lucide-react';
 import sorixLogo from '@/assets/logo.png';
+import SEOHead from '@/components/SEOHead';
 
 interface SharedMessage {
   id: string;
