@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, ChevronDown, ChevronRight, Globe, User, LogOut, MessageSquare, Presentation, ImageIcon, Heart, Leaf, Crown, Bot, Workflow, Cpu, GraduationCap, Rocket, FlaskConical, BookOpen, Newspaper, Briefcase, Handshake, Mail, FileText, Users, Code, Sparkles, HelpCircle, Palette, UserCheck, Shield, Chrome, Code2, Headphones, Landmark, Building2, HeartPulse, HandHeart, ShieldCheck, Plug, CalendarDays, Layers, TrendingUp, Eye, Columns3 } from "lucide-react";
+import { Menu, X, ChevronDown, ChevronRight, Globe, User, LogOut, MessageSquare, Presentation, ImageIcon, Heart, Leaf, Crown, Bot, Workflow, Cpu, GraduationCap, Rocket, FlaskConical, BookOpen, Newspaper, Briefcase, Handshake, Mail, FileText, Users, Code, Sparkles, HelpCircle, Palette, UserCheck, Shield, Chrome, Code2, Headphones, Landmark, Building2, HeartPulse, HandHeart, ShieldCheck, Plug, CalendarDays, Layers, TrendingUp, Eye, Columns3, Trophy } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useEmployeeRole } from "../hooks/useEmployeeRole";
@@ -77,7 +77,8 @@ const megaMenus = {
       ],
       [
         { icon: Plug, name: "Connectors", desc: "Integrations to 100+ apps", to: "/connectors" },
-        { icon: GraduationCap, name: "Courses", desc: "AI Sorix Academy", to: "/courses" },
+        { icon: GraduationCap, name: "SorixLab Project", desc: "AI Sorix Academy & courses", to: "/courses" },
+        { icon: Trophy, name: "Competitions", desc: "AI Challenge & Startup Funding", to: "/competitions" },
         { icon: CalendarDays, name: "Events", desc: "Webinars, hackathons & summits", to: "/events" },
         { icon: Code2, name: "Inside Sorix Code", desc: "Deep-dive into our coding tool", to: "/inside-sorix-code" },
         { icon: Layers, name: "Inside Sorix Cowork", desc: "Multi-agent workspace tour", to: "/inside-sorix-cowork" },

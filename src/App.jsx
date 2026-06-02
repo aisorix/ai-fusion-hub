@@ -64,6 +64,9 @@ const SolutionNonprofits = React.lazy(() => import("./pages/solutions/SolutionNo
 const SolutionSecurity = React.lazy(() => import("./pages/solutions/SolutionSecurity"));
 const ConnectorsPage = React.lazy(() => import("./pages/ConnectorsPage"));
 const CoursesPage = React.lazy(() => import("./pages/CoursesPage"));
+const CourseDetailPage = React.lazy(() => import("./pages/CourseDetailPage"));
+const CompetitionsPage = React.lazy(() => import("./pages/CompetitionsPage"));
+const CompetitionDetailPage = React.lazy(() => import("./pages/CompetitionDetailPage"));
 const EventsPage = React.lazy(() => import("./pages/EventsPage"));
 const InsideSorixCodePage = React.lazy(() => import("./pages/InsideSorixCodePage"));
 const InsideSorixCoworkPage = React.lazy(() => import("./pages/InsideSorixCoworkPage"));
@@ -186,6 +189,9 @@ const App = () => (
                 {/* Resources pages */}
                 <Route path="/connectors" element={<ConnectorsPage />} />
                 <Route path="/courses" element={<CoursesPage />} />
+                <Route path="/courses/:slug" element={<CourseDetailPage />} />
+                <Route path="/competitions" element={<CompetitionsPage />} />
+                <Route path="/competitions/:slug" element={<CompetitionDetailPage />} />
                 <Route path="/events" element={<EventsPage />} />
                 <Route path="/inside-sorix-code" element={<InsideSorixCodePage />} />
                 <Route path="/inside-sorix-cowork" element={<InsideSorixCoworkPage />} />
