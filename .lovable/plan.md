@@ -1,49 +1,138 @@
-## 1. Voice model swap (STT + TTS)
+# AI Sorix Academy — Courses Hub Rebuild
 
-Replace the OpenAI Whisper / gpt-4o-mini-tts calls with the requested models via OpenRouter (already used by `imagine`/`chat`).
+Inspired by the reference layout (hero → why-now → what-we-offer 2×2 grid → catalog → footer CTA), but rewritten with original copy, AI Sorix design tokens, and a more polished, modern execution. No regional references, English-first with existing i18n hooks.
 
-**STT — `supabase/functions/stt-transcribe/index.ts`**
-- Switch provider from `api.openai.com/v1/audio/transcriptions` to OpenRouter audio endpoint using `google/chirp-3`.
-- Keep the multipart upload → base64 conversion (OpenRouter accepts audio via `input_audio` content part in chat-completions style). Use chat-completions with `messages: [{ role:'user', content:[{ type:'input_audio', input_audio:{ data, format } }, { type:'text', text:'Transcribe verbatim. Return only the spoken text.' }] }]` and parse `choices[0].message.content`.
-- Preserve the 20 MB size check, auth-claim check, language hint (passed in the user text).
-- Fallback: if Chirp returns an error or empty text, fall back to OpenAI Whisper so dictation never silently dies.
+## Scope
 
-**TTS — `supabase/functions/tts-speak/index.ts`**
-- Switch to OpenRouter model `x-ai/grok-voice-tts-1.0`. Send `{ model, voice, input, response_format:'mp3' }` to OpenRouter's audio/speech proxy (or chat-completions with `modalities:['audio']` and parse `message.audio.data` base64 → return as `audio/mpeg`).
-- Keep allowed-voice whitelist and the streaming MP3 response shape so `useTtsPlayback` keeps working unchanged.
-- Fallback to `gpt-4o-mini-tts` if Grok returns 4xx/5xx, so Read Aloud always speaks.
+**Fully functional pages** (real routes, content, working CTAs):
+1. `/courses` — Academy hub (catalog + 4-pillar overview)
+2. `/courses/:slug` — Course detail (curriculum, outcomes, instructor, enroll form)
+3. `/competitions` — Competitions hub (AI Competition + Startup Funding tracks)
+4. `/competitions/ai-challenge` — AI Competition detail (rules, prize pool, timeline, apply form)
+5. `/competitions/startup-funding` — Startup Funding Competition detail (criteria, pitch deck upload prompt, apply form)
 
-No client changes required — both hooks (`useVoiceDictation`, `useTtsPlayback`) talk to these edge functions, so the swap is invisible to the UI.
+**Surfaced as "Coming soon" cards on the hub** (no dedicated routes yet, per user):
+- Mentorship 1:1
+- eBooks & Resources
+- Live Workshops
 
-## 2. Imagine — fix "sometimes no image" reliability
+**Forms**: all enroll / apply / contact submissions go through a new edge function `academy-contact` that emails `support@aisorix.com` via Lovable Email (no DB tables).
 
-Root causes in `supabase/functions/imagine/index.ts`:
-- A single OpenRouter call can return text-only / safety-refusal with no `images[]`, throwing "No image returned from model" and (when `count===1`) failing the whole request.
-- Some providers (Riverflow, Flux) intermittently 502 on first try; there is currently no retry.
-- The prompt is sent as bare string — for image-only models we lose the user's "details" (aspect/format hints) unless we encode them in the prompt.
+**Payments**: paid courses show price + "Contact to Enroll" / "Coming soon" — no checkout wired.
 
-Changes:
-- Add a **retry-with-backoff wrapper** around `generateOnce` (up to 2 retries on 5xx, 429, or empty image response, 800 ms then 1600 ms).
-- If after retries on the **selected** model still no image, **automatically fall back** to `google/gemini-2.5-flash-image` (always available) for that slot and tag the response with `fallbackUsed: true` so the client can show a subtle notice.
-- Always forward the **full user prompt verbatim** plus a short directive line appended server-side: `Aspect ratio: <a>. Resolution: <r>. Output format: <fmt>.` — guarantees the model honors the user's details even when they only set them via the panel.
-- Improve image extraction: also check `message.content[].image_url.url` when content is a string containing a markdown `![](data:image/...)`.
-- Better error surfacing: when all slots fail, return the **first upstream error message** instead of the generic "All image generations failed" so the toast tells the user what happened.
+## Hero change (landing page)
 
-No schema or token-accounting changes.
+Add a new **SorixLab Project** button to the left of "Start Free Trial" and "View Pricing" in `src/components/Hero.jsx`. Same pill style as the secondary CTA, distinct accent (outline + sparkle icon), routes to `/courses`.
 
-## 3. Imagine template preview — mobile fix (image #3)
+```text
+[ ⚡ SorixLab Project ]  [ ▸ Start Free Trial ]  [ ▶ View Pricing ]
+```
 
-`src/components/imagine/ImagineTemplatePreview.tsx` currently renders a centered modal with `max-h-[90vh]` and a vertical stack on mobile. On narrow screens the image takes the top half and the prompt/actions get clipped (matches the screenshot — actions invisible, content not scrollable enough).
+On mobile, stacks vertically with SorixLab on top.
 
-Rework for mobile (≤ md):
-- Convert to a **bottom-sheet** with rounded top corners, draggable handle bar, `h-[92dvh]`, snap-to-top on open.
-- Image becomes a compact 16:9 hero strip (`h-44`) at the top instead of a half-screen square, so the prompt + meta + action buttons are all visible without scrolling.
-- Sticky bottom action bar (`Use Prompt` + `Use as Reference`) pinned with `safe-area-inset-bottom` padding so it never gets cut off.
-- Backdrop tap closes; add a visible close pill and a drag-down-to-dismiss gesture via framer-motion `drag="y"` with `dragConstraints`.
-- Desktop (≥ md) layout is unchanged.
+## Page architecture (`/courses`)
 
-No new files. Files touched:
-- `supabase/functions/stt-transcribe/index.ts`
-- `supabase/functions/tts-speak/index.ts`
-- `supabase/functions/imagine/index.ts`
-- `src/components/imagine/ImagineTemplatePreview.tsx`
+```text
+┌──────────────────────────────────────────────────┐
+│  HERO                                            │
+│  Eyebrow: "SorixLab Project · AI Sorix Academy"  │
+│  H1:  "Master frontier AI. Build what's next."   │
+│  Sub:  one-sentence value prop                   │
+│  CTAs: [Browse Courses] [Join a Competition]     │
+│  Stat strip: 4 metrics (Learners · Hours ·       │
+│              Projects shipped · Countries)       │
+├──────────────────────────────────────────────────┤
+│  WHY LEARN AI NOW   (two-column comparison)      │
+│  ✗ Falling behind   │   ✓ Compounding advantage  │
+│  4 bullets each, ai-sorix red/green tokens       │
+├──────────────────────────────────────────────────┤
+│  WHAT WE OFFER  (2×2 bento grid)                 │
+│  01 Courses (active)     02 Competitions (active)│
+│  03 Mentorship (soon)    04 eBooks (soon)        │
+│  Each card → link or "Coming soon" badge         │
+├──────────────────────────────────────────────────┤
+│  FEATURED COURSES  (responsive grid)             │
+│  6 course cards (image, level chip, title, desc, │
+│  duration, price, "View course" → /courses/slug) │
+├──────────────────────────────────────────────────┤
+│  COMPETITIONS BANNER  (split-screen)             │
+│  Left: AI Challenge   Right: Startup Funding     │
+│  Each → respective competition detail page       │
+├──────────────────────────────────────────────────┤
+│  INSTRUCTOR-LED PROMISE (3 trust pillars)        │
+├──────────────────────────────────────────────────┤
+│  FINAL CTA — "Start with one course this week"   │
+└──────────────────────────────────────────────────┘
+```
+
+## Course detail (`/courses/:slug`)
+
+- Sticky right rail: price card, duration, level, "Enroll / Contact" button → opens modal with name + email + message
+- Left: hero image, eyebrow, title, overview, **What you'll learn** (8 bullets), **Curriculum** (accordion of modules), **Instructor** (avatar, bio), **Outcomes**, FAQ
+- Bottom: related courses
+
+## Competition detail pages
+
+- Hero with prize amount, deadline countdown chip, eligibility
+- Sections: Tracks, Judging criteria, Timeline (numbered steps), Prizes, Rules, FAQ
+- Bottom: Apply form modal (name, email, project name, short pitch, optional URL) → `academy-contact` with `type: "competition"`
+
+## Data model (in-code, not DB)
+
+`src/data/academy.ts` — typed arrays for `courses`, `competitions`. Easy for the user to edit later. 6 original course entries spanning beginner → advanced (e.g., "Prompt Engineering Foundations", "Build AI Agents with Sorix Agent", "AI for Product Managers", "Computer Vision for Builders", "AI for Researchers & Writers", "LLM Ops & Evaluation").
+
+## Edge function
+
+`supabase/functions/academy-contact/index.ts`
+- POST `{ type: "enroll" | "competition" | "general", payload: {...} }`
+- Validates with Zod, rate-limits per IP (in-memory), sends via Lovable Email queue to `support@aisorix.com`
+- Returns `{ ok: true }`; client toasts via Sonner
+
+Requires email domain check first (`email_domain--check_email_domain_status`); if not configured, surface the domain setup dialog before proceeding.
+
+## Navigation wiring
+
+- `Resources → Courses` in Navbar already points to `/courses` ✔
+- Add `/competitions` to Navbar Resources mega-menu (Competitions · NEW badge)
+- Update `public/sitemap.xml`: add `/courses`, `/courses/:slug` (top 6), `/competitions`, `/competitions/ai-challenge`, `/competitions/startup-funding`
+- Add SEO via existing `SEOHead` on every new page
+
+## Files
+
+**New**
+- `src/pages/CoursesPage.tsx` (full rewrite — replace existing InfoPage stub)
+- `src/pages/CourseDetailPage.tsx`
+- `src/pages/CompetitionsPage.tsx`
+- `src/pages/CompetitionDetailPage.tsx`
+- `src/components/academy/AcademyHero.tsx`
+- `src/components/academy/WhyLearnNow.tsx`
+- `src/components/academy/OfferingsGrid.tsx`
+- `src/components/academy/CourseCard.tsx`
+- `src/components/academy/EnrollModal.tsx`
+- `src/components/academy/CompetitionCard.tsx`
+- `src/components/academy/ApplyModal.tsx`
+- `src/data/academy.ts`
+- `supabase/functions/academy-contact/index.ts`
+
+**Edited**
+- `src/components/Hero.jsx` — add SorixLab Project button
+- `src/App.jsx` — register 4 new routes (lazy)
+- `src/components/Navbar.jsx` — add Competitions entry in Resources
+- `public/sitemap.xml` — new URLs
+
+## Design notes
+
+- Use existing semantic tokens (`bg-card`, `text-foreground`, `text-muted-foreground`, `border-border`, `bg-primary`). No raw colors.
+- Bento `OfferingsGrid` uses subtle gradient borders matching the brand cyan-teal direction already used by Sorix Agent.
+- Course cards: `rounded-2xl`, image 16:9, level chip (`bg-primary/10 text-primary`), price right-aligned, hover lift.
+- Animations via existing `framer-motion` patterns used in `PageHero` (no new deps).
+
+## Copy guidelines
+
+All content original — written professionally for a global audience, no copy/paste from the reference. Bangla translations via existing `t()` keys added to `src/lib/translations.ts` for the new strings so the BN toggle keeps working.
+
+## Out of scope
+
+- Database tables (per user: forms → email only)
+- Payment checkout (per user: Coming soon / Contact)
+- Mentorship and eBook detail pages (per user: not provided yet — shown as "Coming soon" cards on hub)
