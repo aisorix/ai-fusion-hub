@@ -1,138 +1,84 @@
-# AI Sorix Academy — Courses Hub Rebuild
 
-Inspired by the reference layout (hero → why-now → what-we-offer 2×2 grid → catalog → footer CTA), but rewritten with original copy, AI Sorix design tokens, and a more polished, modern execution. No regional references, English-first with existing i18n hooks.
+## Part 1 — Hero CTA Reorder & Restyle
 
-## Scope
+In `src/components/Hero.jsx`:
+- Move the `SorixLab Project` button to the **right** of `View Pricing` (order: Start Free Trial → View Pricing → SorixLab Project).
+- Restyle to match the existing outlined CTA family (same pill, border, padding, height, font weight as `View Pricing`) instead of the current primary-tinted variant. Keep the FlaskConical icon for identity.
 
-**Fully functional pages** (real routes, content, working CTAs):
-1. `/courses` — Academy hub (catalog + 4-pillar overview)
-2. `/courses/:slug` — Course detail (curriculum, outcomes, instructor, enroll form)
-3. `/competitions` — Competitions hub (AI Competition + Startup Funding tracks)
-4. `/competitions/ai-challenge` — AI Competition detail (rules, prize pool, timeline, apply form)
-5. `/competitions/startup-funding` — Startup Funding Competition detail (criteria, pitch deck upload prompt, apply form)
+## Part 2 — New Tool: Sorix Cineshoot (text/image/video → video)
 
-**Surfaced as "Coming soon" cards on the hub** (no dedicated routes yet, per user):
-- Mentorship 1:1
-- eBooks & Resources
-- Live Workshops
+Build a full text/image/video-to-video generator using the **Imagine tool's exact layout, motion, history, templates, and "Your Creations" tabs** — re-skinned for video.
 
-**Forms**: all enroll / apply / contact submissions go through a new edge function `academy-contact` that emails `support@aisorix.com` via Lovable Email (no DB tables).
+### Routes & Navigation
+- New page `/cineshoot` (lazy-loaded in `src/App.jsx`).
+- Add Cineshoot card to `ToolsPage.tsx` and a link in Navbar's Tools menu.
+- Sitemap entry.
 
-**Payments**: paid courses show price + "Contact to Enroll" / "Coming soon" — no checkout wired.
-
-## Hero change (landing page)
-
-Add a new **SorixLab Project** button to the left of "Start Free Trial" and "View Pricing" in `src/components/Hero.jsx`. Same pill style as the secondary CTA, distinct accent (outline + sparkle icon), routes to `/courses`.
-
-```text
-[ ⚡ SorixLab Project ]  [ ▸ Start Free Trial ]  [ ▶ View Pricing ]
+### File Structure (mirrors `src/components/imagine/`)
+```
+src/pages/CineshootPage.tsx
+src/components/cineshoot/
+  CineshootPromptBar.tsx           // textarea + attach image/video + generate
+  CineshootModelSelector.tsx       // 11 models, tier-gated badges
+  CineshootOptionsPanel.tsx        // Aspect Ratio / Duration / Resolution / Sound
+  CineshootCanvas.tsx              // <video> player with loading shimmer
+  CineshootActions.tsx             // Download (MP4) / Share / Copy link
+  CineshootHistoryFeed.tsx         // grid of past clips w/ hover preview
+  CineshootTemplates.tsx           // curated prompts (cinematic, anime, product, etc.)
+  CineshootExplorer.tsx            // Templates | Your Creations tabs
+  index.tsx
+src/services/cineshootApi.ts
+supabase/functions/cineshoot/index.ts
 ```
 
-On mobile, stacks vertically with SorixLab on top.
+### Model Catalog (OpenRouter, existing `OPENROUTER_API_KEY`)
 
-## Page architecture (`/courses`)
+| Model ID | Display | Min tier | Max res | Durations |
+|---|---|---|---|---|
+| `x-ai/grok-imagine-video` | Grok Imagine Video | basic | 720p | 4–10s |
+| `kwaivgi/kling-video-o1` | Kling Video O1 | basic | 1080p | 5,10s |
+| `kwaivgi/kling-v3.0-std` | Kling v3.0 Standard | pro | 1080p | 4–15s |
+| `kwaivgi/kling-v3.0-pro` | Kling v3.0 Pro | premium | 1080p | 4–15s |
+| `bytedance/seedance-2.0-fast` | Seedance 2.0 Fast | basic | 1080p | 4–12s |
+| `bytedance/seedance-2.0` | Seedance 2.0 | basic | 1080p | 4–12s |
+| `bytedance/seedance-1-5-pro` | Seedance 1.5 Pro | pro | 1080p | 4–12s |
+| `google/veo-3.1-lite` | Veo 3.1 Lite | basic | 1080p | 4–8s |
+| `google/veo-3.1-fast` | Veo 3.1 Fast | basic | 1080p | 4–10s |
+| `google/veo-3.1` | Veo 3.1 | pro | 4K | 4–10s |
+| `openai/sora-2-pro` | Sora 2 Pro | pro | 4K | 4–12s |
+| `minimax/hailuo-2.3` | Hailuo 2.3 | basic | 1080p | 4–10s |
 
-```text
-┌──────────────────────────────────────────────────┐
-│  HERO                                            │
-│  Eyebrow: "SorixLab Project · AI Sorix Academy"  │
-│  H1:  "Master frontier AI. Build what's next."   │
-│  Sub:  one-sentence value prop                   │
-│  CTAs: [Browse Courses] [Join a Competition]     │
-│  Stat strip: 4 metrics (Learners · Hours ·       │
-│              Projects shipped · Countries)       │
-├──────────────────────────────────────────────────┤
-│  WHY LEARN AI NOW   (two-column comparison)      │
-│  ✗ Falling behind   │   ✓ Compounding advantage  │
-│  4 bullets each, ai-sorix red/green tokens       │
-├──────────────────────────────────────────────────┤
-│  WHAT WE OFFER  (2×2 bento grid)                 │
-│  01 Courses (active)     02 Competitions (active)│
-│  03 Mentorship (soon)    04 eBooks (soon)        │
-│  Each card → link or "Coming soon" badge         │
-├──────────────────────────────────────────────────┤
-│  FEATURED COURSES  (responsive grid)             │
-│  6 course cards (image, level chip, title, desc, │
-│  duration, price, "View course" → /courses/slug) │
-├──────────────────────────────────────────────────┤
-│  COMPETITIONS BANNER  (split-screen)             │
-│  Left: AI Challenge   Right: Startup Funding     │
-│  Each → respective competition detail page       │
-├──────────────────────────────────────────────────┤
-│  INSTRUCTOR-LED PROMISE (3 trust pillars)        │
-├──────────────────────────────────────────────────┤
-│  FINAL CTA — "Start with one course this week"   │
-└──────────────────────────────────────────────────┘
+OptionsPanel dynamically filters Resolution (720p/1080p/2K/4K) and Duration (4–15s) based on selected model's `caps`. Aspect Ratio: 16:9, 9:16, 1:1 (same UX as Imagine). Include Sound toggle for models that support audio (Veo/Sora/Seedance/Kling).
+
+### Pricing & Token Charge (2× markup)
+Per-second USD base cost lives in a `MODEL_PRICING` map (matches the list above). Charge formula:
 ```
+tokensToCharge = ceil(basePerSecondUSD * durationSec * 2 * TOKEN_PER_USD)
+```
+A live cost chip in the prompt bar shows **"~N tokens"** as user changes model/duration/resolution (same component as Imagine's token estimate). 4K applies 1.5×, 2K 1.25× multiplier. Pro/Premium models stay tier-gated.
 
-## Course detail (`/courses/:slug`)
+### Edge Function `cineshoot/index.ts`
+- JWT-verified, CORS, Zod body validation (`prompt`, `model`, `durationSec`, `aspectRatio`, `resolution`, `sound`, optional `imageDataUrl`, optional `videoUrl`).
+- Server re-validates pricing + tier + token balance; deducts via existing `useSubscription` RPC pattern.
+- Calls OpenRouter video endpoint with the model id; polls job until `completed`, returns final `videoUrl`.
+- Inserts row into new `video_generations` table (mirror of `image_generations` schema) — **DB migration with GRANTs + RLS** (owner-only SELECT/INSERT/DELETE, service_role ALL).
 
-- Sticky right rail: price card, duration, level, "Enroll / Contact" button → opens modal with name + email + message
-- Left: hero image, eyebrow, title, overview, **What you'll learn** (8 bullets), **Curriculum** (accordion of modules), **Instructor** (avatar, bio), **Outcomes**, FAQ
-- Bottom: related courses
+### UI Parity with Imagine
+- Same `framer-motion` stagger entrance, same rounded-2xl glass cards, same explorer tabs, same hover-zoom history grid (but `<video muted loop>` on hover).
+- Mobile: same `h-[100dvh]`, fixed z-index, horizontal scroll for model chips.
+- Auto-focus via `useAutoFocusInput`. Sonner toasts suppressed for routine info per project rules.
+- Empty state, skeleton loaders, and error states all mirror Imagine.
 
-## Competition detail pages
+### Templates (10 seed entries)
+"Cinematic product shot", "Anime fight scene", "Drone over mountains", "Slow-mo coffee pour", "Cyberpunk street", "Studio Ghibli forest", "Lo-fi study room", "Sci-fi spaceship interior", "Vintage VHS commercial", "Macro nature shot" — each with default model/aspect/duration/resolution.
 
-- Hero with prize amount, deadline countdown chip, eligibility
-- Sections: Tracks, Judging criteria, Timeline (numbered steps), Prizes, Rules, FAQ
-- Bottom: Apply form modal (name, email, project name, short pitch, optional URL) → `academy-contact` with `type: "competition"`
+### Out of Scope
+- No translations beyond reusing existing keys / inline EN/BN ternaries for primary labels.
+- No payment changes (uses existing token deduction).
+- No realtime job streaming UI beyond the polling spinner already used in Imagine for slow generations.
 
-## Data model (in-code, not DB)
+### Files Created
+12 new files (page, 9 components, service, edge function) + 1 migration + asset thumbnails for templates.
 
-`src/data/academy.ts` — typed arrays for `courses`, `competitions`. Easy for the user to edit later. 6 original course entries spanning beginner → advanced (e.g., "Prompt Engineering Foundations", "Build AI Agents with Sorix Agent", "AI for Product Managers", "Computer Vision for Builders", "AI for Researchers & Writers", "LLM Ops & Evaluation").
-
-## Edge function
-
-`supabase/functions/academy-contact/index.ts`
-- POST `{ type: "enroll" | "competition" | "general", payload: {...} }`
-- Validates with Zod, rate-limits per IP (in-memory), sends via Lovable Email queue to `support@aisorix.com`
-- Returns `{ ok: true }`; client toasts via Sonner
-
-Requires email domain check first (`email_domain--check_email_domain_status`); if not configured, surface the domain setup dialog before proceeding.
-
-## Navigation wiring
-
-- `Resources → Courses` in Navbar already points to `/courses` ✔
-- Add `/competitions` to Navbar Resources mega-menu (Competitions · NEW badge)
-- Update `public/sitemap.xml`: add `/courses`, `/courses/:slug` (top 6), `/competitions`, `/competitions/ai-challenge`, `/competitions/startup-funding`
-- Add SEO via existing `SEOHead` on every new page
-
-## Files
-
-**New**
-- `src/pages/CoursesPage.tsx` (full rewrite — replace existing InfoPage stub)
-- `src/pages/CourseDetailPage.tsx`
-- `src/pages/CompetitionsPage.tsx`
-- `src/pages/CompetitionDetailPage.tsx`
-- `src/components/academy/AcademyHero.tsx`
-- `src/components/academy/WhyLearnNow.tsx`
-- `src/components/academy/OfferingsGrid.tsx`
-- `src/components/academy/CourseCard.tsx`
-- `src/components/academy/EnrollModal.tsx`
-- `src/components/academy/CompetitionCard.tsx`
-- `src/components/academy/ApplyModal.tsx`
-- `src/data/academy.ts`
-- `supabase/functions/academy-contact/index.ts`
-
-**Edited**
-- `src/components/Hero.jsx` — add SorixLab Project button
-- `src/App.jsx` — register 4 new routes (lazy)
-- `src/components/Navbar.jsx` — add Competitions entry in Resources
-- `public/sitemap.xml` — new URLs
-
-## Design notes
-
-- Use existing semantic tokens (`bg-card`, `text-foreground`, `text-muted-foreground`, `border-border`, `bg-primary`). No raw colors.
-- Bento `OfferingsGrid` uses subtle gradient borders matching the brand cyan-teal direction already used by Sorix Agent.
-- Course cards: `rounded-2xl`, image 16:9, level chip (`bg-primary/10 text-primary`), price right-aligned, hover lift.
-- Animations via existing `framer-motion` patterns used in `PageHero` (no new deps).
-
-## Copy guidelines
-
-All content original — written professionally for a global audience, no copy/paste from the reference. Bangla translations via existing `t()` keys added to `src/lib/translations.ts` for the new strings so the BN toggle keeps working.
-
-## Out of scope
-
-- Database tables (per user: forms → email only)
-- Payment checkout (per user: Coming soon / Contact)
-- Mentorship and eBook detail pages (per user: not provided yet — shown as "Coming soon" cards on hub)
+### Files Edited
+`src/components/Hero.jsx`, `src/App.jsx`, `src/components/Navbar.jsx`, `src/pages/ToolsPage.tsx`, `public/sitemap.xml`.

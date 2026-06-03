@@ -1116,6 +1116,54 @@ export type Database = {
         }
         Relationships: []
       }
+      video_generations: {
+        Row: {
+          aspect_ratio: string
+          created_at: string
+          duration_sec: number
+          id: string
+          model: string | null
+          prompt: string
+          resolution: string
+          sound: boolean
+          source_type: string
+          thumbnail_url: string | null
+          tokens_used: number
+          user_id: string
+          video_url: string
+        }
+        Insert: {
+          aspect_ratio?: string
+          created_at?: string
+          duration_sec?: number
+          id?: string
+          model?: string | null
+          prompt: string
+          resolution?: string
+          sound?: boolean
+          source_type?: string
+          thumbnail_url?: string | null
+          tokens_used?: number
+          user_id: string
+          video_url: string
+        }
+        Update: {
+          aspect_ratio?: string
+          created_at?: string
+          duration_sec?: number
+          id?: string
+          model?: string | null
+          prompt?: string
+          resolution?: string
+          sound?: boolean
+          source_type?: string
+          thumbnail_url?: string | null
+          tokens_used?: number
+          user_id?: string
+          video_url?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       reviews_public: {
