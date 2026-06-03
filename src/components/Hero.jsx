@@ -139,13 +139,6 @@ const Hero = () => {
         {/* CTA Buttons */}
         <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4">
           <a
-            href="/courses"
-            className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 sm:px-10 py-4 sm:py-5 rounded-2xl font-semibold text-base sm:text-lg border-2 border-primary/40 bg-primary/5 hover:bg-primary/10 hover:border-primary/60 transition-all duration-500 text-foreground hover-lift"
-          >
-            <FlaskConical className="w-4 h-4 text-primary group-hover:rotate-12 transition-transform" />
-            {language === "en" ? "SorixLab Project" : "সরিক্সল্যাব প্রজেক্ট"}
-          </a>
-          <a
             href="/login"
             className="group relative w-full sm:w-auto inline-flex items-center justify-center gap-2 sm:gap-3 gradient-primary text-foreground px-8 sm:px-10 py-4 sm:py-5 rounded-2xl font-bold text-base sm:text-lg shadow-glow hover:shadow-glow-lg transform hover:scale-105 hover:-translate-y-1 transition-all duration-500 overflow-hidden"
           >
@@ -160,7 +153,15 @@ const Hero = () => {
             <Play className="w-4 h-4 text-primary" />
             {t("viewPricing")}
           </a>
+          <a
+            href="/courses"
+            className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 sm:px-10 py-4 sm:py-5 rounded-2xl font-semibold text-base sm:text-lg glass-card hover:border-primary/30 transition-all duration-500 text-foreground hover-lift"
+          >
+            <FlaskConical className="w-4 h-4 text-primary group-hover:rotate-12 transition-transform" />
+            {language === "en" ? "SorixLab Project" : "সরিক্সল্যাব প্রজেক্ট"}
+          </a>
         </div>
+
 
         {/* Trust Indicators with Glass Effect */}
         <div className="mt-8 sm:mt-12 flex flex-wrap justify-center items-center gap-3 sm:gap-4 md:gap-6 px-4">
