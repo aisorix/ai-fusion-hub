@@ -9,6 +9,7 @@ import {
   Presentation,
   Workflow,
   Bot,
+  Clapperboard,
   ArrowRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
