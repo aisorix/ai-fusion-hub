@@ -1,5 +1,5 @@
 import React from 'react';
-import { Gem, Crown, Stethoscope, Leaf, Search, Sparkles, Brain, Zap, Heart, Shield, Globe, ArrowRight, Plus, Palette, Presentation, Workflow, Bot } from 'lucide-react';
+import { Gem, Crown, Stethoscope, Leaf, Search, Sparkles, Brain, Zap, Heart, Shield, Globe, ArrowRight, Plus, Palette, Presentation, Workflow, Bot, Clapperboard } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const Features = () => {
@@ -44,6 +44,16 @@ const Features = () => {
         : 'AI চালিত প্রেজেন্টেশন বিল্ডার — একটি প্রম্পট থেকে অটো-জেনারেটেড ভিজ্যুয়াল সহ চমৎকার স্লাইড ডেক তৈরি করুন।',
       gradient: "from-cyan-500 to-blue-600",
       bgGradient: "from-cyan-500/10 to-blue-600/10",
+      comingSoon: false
+    },
+    {
+      icon: Clapperboard,
+      title: language === 'en' ? 'Sorix Cineshoot' : 'সোরিক্স সিনেশুট',
+      desc: language === 'en'
+        ? 'Generate cinematic videos from text, images, or reference clips with 11+ frontier video models — Grok, Kling, Veo, Sora, and more.'
+        : 'টেক্সট, ইমেজ বা রেফারেন্স ক্লিপ থেকে সিনেমাটিক ভিডিও তৈরি করুন — Grok, Kling, Veo, Sora সহ ১১+ ফ্রন্টিয়ার ভিডিও মডেল দিয়ে।',
+      gradient: "from-fuchsia-500 to-pink-500",
+      bgGradient: "from-fuchsia-500/10 to-pink-500/10",
       comingSoon: false
     },
     {

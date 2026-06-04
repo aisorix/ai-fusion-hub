@@ -33,6 +33,7 @@ const PaymentSuccess = React.lazy(() => import("./pages/PaymentSuccess"));
 const PaymentFailed = React.lazy(() => import("./pages/PaymentFailed"));
 const PaymentCancel = React.lazy(() => import("./pages/PaymentCancel"));
 const LegendsPage = React.lazy(() => import("./pages/LegendsPage"));
+const CineshootPage = React.lazy(() => import("./pages/CineshootPage"));
 const ImaginePage = React.lazy(() => import("./pages/ImaginePage"));
 const SharedChatPage = React.lazy(() => import("./pages/SharedChatPage"));
 const DeckPage = React.lazy(() => import("./pages/DeckPage"));
@@ -120,6 +121,11 @@ const App = () => (
                 <Route path="/legends" element={
                   <ProtectedRoute>
                     <LegendsPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/cineshoot" element={
+                  <ProtectedRoute>
+                    <CineshootPage />
                   </ProtectedRoute>
                 } />
                 <Route path="/imagine" element={
