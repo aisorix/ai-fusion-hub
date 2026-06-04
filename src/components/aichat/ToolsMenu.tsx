@@ -28,6 +28,7 @@ const ToolsMenu = ({ open, onClose, direction = 'up' }: ToolsMenuProps) => {
 
   const tools = [
     { id: 'agent', name: 'Sorix Agent', nameBn: 'সরিক্স এজেন্ট', desc: 'Autonomous task executor', descBn: 'স্বয়ংক্রিয় কাজ সম্পাদনকারী', icon: Bot, route: '/agent', gradient: 'from-cyan-500 to-teal-500', free: false },
+    { id: 'cineshoot', name: 'Sorix Cineshoot', nameBn: 'সরিক্স সিনেশুট', desc: 'AI video generation', descBn: 'এআই ভিডিও জেনারেশন', icon: Clapperboard, route: '/cineshoot', gradient: 'from-fuchsia-500 to-pink-500', free: false },
     { id: 'imagine', name: 'Sorix Imagine', nameBn: 'সরিক্স ইমাজিন', desc: 'Generate & edit images', descBn: 'ছবি তৈরি ও সম্পাদনা', icon: Palette, route: '/imagine', gradient: 'from-cyan-500 to-blue-500', free: false },
     { id: 'health', name: 'Sorix Health', nameBn: 'সরিক্স হেলথ', desc: 'AI health analysis', descBn: 'এআই স্বাস্থ্য বিশ্লেষণ', icon: Stethoscope, route: '/health', gradient: 'from-emerald-500 to-teal-500', free: true },
     { id: 'agro', name: 'Sorix Agro', nameBn: 'সরিক্স এগ্রো', desc: 'AI agriculture advisor', descBn: 'এআই কৃষি পরামর্শদাতা', icon: Leaf, route: '/agro', gradient: 'from-green-500 to-lime-500', free: true },
