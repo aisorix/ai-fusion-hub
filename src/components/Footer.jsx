@@ -21,6 +21,7 @@ import {
   Shield,
   Chrome,
   Sparkles,
+  Clapperboard,
 } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import logo from "../assets/logo.png";
@@ -121,6 +122,14 @@ const Footer = () => {
                   className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
                 >
                   <Presentation className="w-3.5 h-3.5" /> Sorix Deck
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/cineshoot"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+                >
+                  <Clapperboard className="w-3.5 h-3.5" /> Sorix Cineshoot
                 </Link>
               </li>
               <li>
