@@ -125,6 +125,17 @@ const ImagineActions: React.FC<Props> = ({ imageUrl, prompt, onGenerateVideo }) 
         {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
         {copied ? 'Copied' : 'Copy'}
       </Button>
+
+      {onGenerateVideo && (
+        <Button
+          size="sm"
+          onClick={onGenerateVideo}
+          className="gap-1.5 rounded-xl bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white hover:opacity-90 border-0 shadow-md shadow-fuchsia-500/30"
+        >
+          <Clapperboard className="w-3.5 h-3.5" />
+          Generate Video
+        </Button>
+      )}
     </div>
   );
 };
