@@ -230,8 +230,14 @@ serve(async (req) => {
         console.error('Cineshoot upload error', upErr);
         return json({ error: 'Failed to store video' }, 500);
       }
-      const { data: pub } = supabaseAdmin.storage.from('cineshoot-videos').getPublicUrl(path);
-      videoUrl = pub.publicUrl;
+      const { data: signed, error: signErr } = await supabaseAdmin.storage
+        .from('cineshoot-videos')
+        .createSignedUrl(path, 60 * 60 * 24 * 365 * 5); // 5-year signed URL
+      if (signErr || !signed?.signedUrl) {
+        console.error('Cineshoot sign error', signErr);
+        return json({ error: 'Failed to sign video URL' }, 500);
+      }
+      videoUrl = signed.signedUrl;
     } catch (e) {
       console.error('Cineshoot persist error', e);
       return json({ error: 'Failed to persist video' }, 500);
