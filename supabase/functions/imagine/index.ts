@@ -131,9 +131,12 @@ serve(async (req) => {
     const limit = planLimits[planId] ?? 15000;
     const isProPlus = planId === "pro" || planId === "premium";
 
-    if (PRO_ONLY_MODELS.includes(selectedModel) && !isProPlus) {
+    const modelTier = MODEL_TIER[selectedModel] ?? 'basic';
+    const perImageCost = TIER_COST[modelTier];
+
+    if ((PLAN_RANK[planId] ?? 0) < (TIER_RANK[modelTier] ?? 1)) {
       return new Response(
-        JSON.stringify({ error: "This model requires a Pro or Premium plan" }),
+        JSON.stringify({ error: `This model requires a ${modelTier} plan or above` }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -150,7 +153,7 @@ serve(async (req) => {
       );
     }
 
-    const totalCost = TOKENS_PER_IMAGE * count * mult;
+    const totalCost = perImageCost * count * mult;
     if (currentUsed + totalCost > limit) {
       return new Response(
         JSON.stringify({ error: "insufficient_tokens", tokensUsed: currentUsed, tokensLimit: limit }),
