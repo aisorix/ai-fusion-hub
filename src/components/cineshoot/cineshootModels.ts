@@ -223,7 +223,7 @@ export const cineshootModels: CineshootModel[] = [
 ];
 
 export const TOKENS_PER_USD = 30000; // matches Imagine pricing scale
-export const MARKUP = 2; // 2× real cost
+export const MARKUP = 14; // 7× higher than previous 2× markup — keep in sync with backend
 
 const RES_MULT: Record<VideoResolution, number> = { '720p': 1, '1080p': 1, '2K': 1.25, '4K': 1.5 };
 

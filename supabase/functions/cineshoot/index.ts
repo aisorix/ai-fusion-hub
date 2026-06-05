@@ -55,6 +55,10 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_ANON_KEY")!,
       { global: { headers: { Authorization: authHeader } } }
     );
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
 
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) return json({ error: "Unauthorized" }, 401);
@@ -171,6 +175,7 @@ serve(async (req) => {
     let lastStatus = 'pending';
     let pollErr: string | null = null;
 
+    let sourceUrl = '';
     while (Date.now() < deadline) {
       await new Promise(r => setTimeout(r, 5000));
       const pRes = await fetch(pollingUrl, { headers: orHeaders });
@@ -185,15 +190,15 @@ serve(async (req) => {
 
       if (lastStatus === 'completed') {
         const urls = pData?.signed_urls || pData?.unsigned_urls || [];
-        videoUrl = Array.isArray(urls) ? urls[0] : '';
-        if (!videoUrl && Array.isArray(pData?.outputs)) {
+        sourceUrl = Array.isArray(urls) ? urls[0] : '';
+        if (!sourceUrl && Array.isArray(pData?.outputs)) {
           for (const o of pData.outputs) {
-            if (o?.url) { videoUrl = o.url; break; }
-            if (o?.video_url?.url) { videoUrl = o.video_url.url; break; }
+            if (o?.url) { sourceUrl = o.url; break; }
+            if (o?.video_url?.url) { sourceUrl = o.video_url.url; break; }
           }
         }
-        if (!videoUrl && jobId) {
-          videoUrl = `https://openrouter.ai/api/v1/videos/${jobId}/content`;
+        if (!sourceUrl && jobId) {
+          sourceUrl = `https://openrouter.ai/api/v1/videos/${jobId}/content`;
         }
         break;
       }
@@ -204,8 +209,32 @@ serve(async (req) => {
     }
 
     if (pollErr) return json({ error: pollErr }, 502);
-    if (!videoUrl) {
+    if (!sourceUrl) {
       return json({ error: 'Video is still rendering. Please try again in a moment.' }, 504);
+    }
+
+    // Download the rendered video server-side (needs OpenRouter auth) and upload
+    // to public storage so the browser <video> tag can play it.
+    try {
+      const dlRes = await fetch(sourceUrl, { headers: orHeaders });
+      if (!dlRes.ok) {
+        console.error('Cineshoot download error', dlRes.status);
+        return json({ error: 'Failed to retrieve rendered video' }, 502);
+      }
+      const videoBytes = new Uint8Array(await dlRes.arrayBuffer());
+      const path = `${userId}/${crypto.randomUUID()}.mp4`;
+      const { error: upErr } = await supabaseAdmin.storage
+        .from('cineshoot-videos')
+        .upload(path, videoBytes, { contentType: 'video/mp4', upsert: false });
+      if (upErr) {
+        console.error('Cineshoot upload error', upErr);
+        return json({ error: 'Failed to store video' }, 500);
+      }
+      const { data: pub } = supabaseAdmin.storage.from('cineshoot-videos').getPublicUrl(path);
+      videoUrl = pub.publicUrl;
+    } catch (e) {
+      console.error('Cineshoot persist error', e);
+      return json({ error: 'Failed to persist video' }, 500);
     }
 
     // Persist
