@@ -74,8 +74,11 @@ export const useChatSync = (userId: string | null) => {
           user_id: userId,
           title: chat.title,
           messages: cleanMessagesForDB(chat.messages) as any,
+          is_starred: !!chat.isStarred,
+          project_id: chat.projectId ?? null,
+          title_manually_set: !!chat.titleManuallySet,
           updated_at: new Date().toISOString(),
-        },
+        } as any,
         { onConflict: 'id' }
       );
       setTimeout(() => localChangeIds.delete(chat.id), 3000);
