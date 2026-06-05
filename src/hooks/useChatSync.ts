@@ -170,6 +170,9 @@ export const useChatSync = (userId: string | null) => {
           messages: (c.messages as any[]) || [],
           createdAt: c.created_at,
           updatedAt: c.updated_at,
+          isStarred: !!c.is_starred,
+          projectId: c.project_id ?? null,
+          titleManuallySet: !!c.title_manually_set,
         }));
         const dbChatIds = new Set(chats.map((c) => c.id));
         const localOnlyChats = store.chats.filter((c) => !dbChatIds.has(c.id));
