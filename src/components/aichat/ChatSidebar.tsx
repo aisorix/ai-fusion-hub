@@ -33,6 +33,8 @@ import {
   X,
   Bot,
   Clapperboard,
+  Star,
+  StarOff,
 } from "lucide-react";
 import { useChatStore } from "@/stores/chatStore";
 import { useTranslation } from "@/lib/translations";
