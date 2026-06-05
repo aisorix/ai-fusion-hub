@@ -158,7 +158,7 @@ const MobileChatItem = ({
 const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   const navigate = useNavigate();
   const { signOut, user: authUser } = useAuth();
-  const { theme, toggleTheme, chats, activeChatId, setActiveChat, deleteChat, updateChatTitle, viewMode, setViewMode, user, setProjectsModalOpen, historyCollapsed, language } =
+  const { theme, toggleTheme, chats, activeChatId, setActiveChat, deleteChat, updateChatTitle, toggleStarChat, viewMode, setViewMode, user, setProjectsModalOpen, historyCollapsed, language } =
     useChatStore();
   const { avatarUrl, fullName } = useUserProfile();
   const { t } = useTranslation(language as 'en' | 'bn');
