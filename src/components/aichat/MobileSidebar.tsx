@@ -27,6 +27,8 @@ import {
   Check,
   X,
   Bot,
+  Star,
+  StarOff,
 } from "lucide-react";
 import { useChatStore } from "@/stores/chatStore";
 import { cn } from "@/lib/utils";
@@ -62,12 +64,14 @@ const MobileChatItem = ({
   onSelect,
   onDelete,
   onRename,
+  onToggleStar,
 }: {
-  chat: { id: string; title: string };
+  chat: { id: string; title: string; isStarred?: boolean };
   isActive: boolean;
   onSelect: () => void;
   onDelete: (id: string) => void;
   onRename: (id: string, title: string) => void;
+  onToggleStar: (id: string) => void;
 }) => {
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState(chat.title);
@@ -116,11 +120,21 @@ const MobileChatItem = ({
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="p-1 rounded shrink-0 hover:bg-muted/80">
-            <MoreHorizontal className="w-3.5 h-3.5 text-muted-foreground" />
+          <button
+            onClick={(e) => e.stopPropagation()}
+            className="p-1 rounded shrink-0 hover:bg-muted/80 text-muted-foreground"
+          >
+            <MoreHorizontal className="w-3.5 h-3.5" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-36 bg-popover border border-border shadow-lg z-50">
+        <DropdownMenuContent align="end" className="w-40 bg-popover border border-border shadow-lg z-50">
+          <DropdownMenuItem onClick={() => onToggleStar(chat.id)}>
+            {chat.isStarred ? (
+              <><StarOff className="w-3.5 h-3.5 mr-2" />Unstar</>
+            ) : (
+              <><Star className="w-3.5 h-3.5 mr-2" />Star</>
+            )}
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
               setRenameValue(chat.title);
@@ -144,7 +158,7 @@ const MobileChatItem = ({
 const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   const navigate = useNavigate();
   const { signOut, user: authUser } = useAuth();
-  const { theme, toggleTheme, chats, activeChatId, setActiveChat, deleteChat, updateChatTitle, viewMode, setViewMode, user, setProjectsModalOpen, historyCollapsed, language } =
+  const { theme, toggleTheme, chats, activeChatId, setActiveChat, deleteChat, updateChatTitle, toggleStarChat, viewMode, setViewMode, user, setProjectsModalOpen, historyCollapsed, language } =
     useChatStore();
   const { avatarUrl, fullName } = useUserProfile();
   const { t } = useTranslation(language as 'en' | 'bn');
@@ -177,6 +191,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
     return d < today && d >= weekAgo;
   });
   const olderChats = filteredChats.filter((c) => new Date(c.createdAt) < weekAgo);
+  const starredChats = filteredChats.filter((c) => c.isStarred);
 
   const moreTools = [
     { id: "agro", name: t('sorixAgro'), desc: t('sorixAgroDesc'), icon: Leaf, gradient: "bg-gradient-to-br from-green-500 to-lime-500", free: true },
@@ -203,6 +218,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
         onSelect={() => handleSelectChat(chat.id)}
         onDelete={deleteChat}
         onRename={updateChatTitle}
+        onToggleStar={toggleStarChat}
       />
     ));
 
@@ -346,6 +362,15 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
           <ScrollArea className="flex-1 mt-1">
             {!historyCollapsed && (
             <div className="px-3 space-y-3 pb-4">
+              {starredChats.length > 0 && (
+                <div>
+                  <h3 className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest px-3 mb-1.5 flex items-center gap-1">
+                    <Star className="w-3 h-3 fill-current" />
+                    Starred
+                  </h3>
+                  <div className="space-y-0.5">{renderChatList(starredChats)}</div>
+                </div>
+              )}
               {todayChats.length > 0 && (
                 <div>
                   <h3 className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest px-3 mb-1.5">{t('today')}</h3>
