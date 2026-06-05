@@ -41,7 +41,7 @@ const downloadVideo = async (url: string) => {
   }
 };
 
-const CineshootCanvas: React.FC<Props> = ({ videoUrl, isGenerating, prompt, aspect }) => {
+const CineshootCanvas: React.FC<Props> = ({ videoUrl, isGenerating, prompt, aspect, onGenerateImage }) => {
   const cls = aspectToClass(aspect);
   const [copied, setCopied] = React.useState(false);
 
