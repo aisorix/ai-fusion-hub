@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import SEOHead from '@/components/SEOHead';
-import { ArrowLeft, Clapperboard } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Clapperboard, Film } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useChatStore, type Attachment } from '@/stores/chatStore';
 import { cineshootApi, type VideoGeneration } from '@/services/cineshootApi';
@@ -14,9 +14,11 @@ import {
   type CineshootModel, type VideoAspect, type VideoResolution,
 } from '@/components/cineshoot/cineshootModels';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
+import TokenCostChip from '@/components/shared/TokenCostChip';
 
 const CineshootPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, setUser } = useChatStore();
 
   const [selectedModel, setSelectedModel] = useState<CineshootModel>(cineshootModels[0]);
@@ -31,7 +33,20 @@ const CineshootPage: React.FC = () => {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [refreshHistory, setRefreshHistory] = useState(0);
   const [injectPrompt, setInjectPrompt] = useState<string | undefined>();
+  const [injectAttachmentUrl, setInjectAttachmentUrl] = useState<string | undefined>();
   const [injectKey, setInjectKey] = useState(0);
+  const [refineEnabled, setRefineEnabled] = useState(true);
+
+  useEffect(() => {
+    const state = location.state as { prompt?: string; imageUrl?: string } | null;
+    if (state?.prompt || state?.imageUrl) {
+      if (state.prompt) setInjectPrompt(state.prompt);
+      if (state.imageUrl) setInjectAttachmentUrl(state.imageUrl);
+      setInjectKey(k => k + 1);
+      navigate(location.pathname, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const canvasRef = useRef<HTMLDivElement>(null);
   const isProPlus = user.plan === 'pro' || user.plan === 'premium';
@@ -61,9 +76,17 @@ const CineshootPage: React.FC = () => {
 
   const handleGenerate = async (prompt: string, attachments?: Attachment[]) => {
     if (tokensRemaining < costEstimate) { setShowUpgrade(true); return; }
+
+    // Refine: if a video is already on screen and user submits with no attachment,
+    // combine previous prompt as context for the new instruction.
+    const isRefining = refineEnabled && !!videoUrl && !attachments?.length;
+    const finalPrompt = isRefining && currentPrompt
+      ? `Previous video: ${currentPrompt}\nChanges requested: ${prompt}`
+      : prompt;
+
     setCurrentPrompt(prompt);
     setIsGenerating(true);
-    setVideoUrl(null);
+    if (!isRefining) setVideoUrl(null);
 
     let imageData: string | undefined;
     if (attachments?.length) {
@@ -73,7 +96,7 @@ const CineshootPage: React.FC = () => {
 
     try {
       const result = await cineshootApi.generateVideo({
-        prompt,
+        prompt: finalPrompt,
         model: selectedModel.modelId,
         aspectRatio: aspect,
         resolution,
@@ -144,17 +167,29 @@ const CineshootPage: React.FC = () => {
               userPlan={user.plan}
               onUpgrade={() => setShowUpgrade(true)}
               injectPrompt={injectPrompt}
+              injectAttachmentUrl={injectAttachmentUrl}
               injectKey={injectKey}
             />
           </div>
 
-          <div className="flex justify-center -mt-1">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-card/60 px-2.5 py-1 text-[10.5px] text-muted-foreground">
-              <span className="w-1 h-1 rounded-full bg-primary/70" />
-              <span className="tabular-nums">{tokensRemaining.toLocaleString()}</span> tokens left
-              <span className="text-muted-foreground/40">·</span>
-              <span className="tabular-nums">{costEstimate.toLocaleString()}</span> per render
-            </span>
+          <div className="flex flex-col items-center gap-2 -mt-1">
+            <TokenCostChip
+              cost={costEstimate}
+              remaining={tokensRemaining}
+              label={`per render · ${selectedModel.shortName}`}
+              hint="Cost depends on model, duration, and resolution."
+            />
+            {videoUrl && refineEnabled && (
+              <button
+                onClick={() => setRefineEnabled(false)}
+                className="inline-flex items-center gap-1.5 text-[10.5px] text-muted-foreground hover:text-foreground transition-colors"
+                title="Stop refining the previous video"
+              >
+                <Film className="w-3 h-3 text-primary" />
+                <span>Refining previous video</span>
+                <span className="text-primary underline">· Clear</span>
+              </button>
+            )}
           </div>
 
           <CineshootOptionsPanel
@@ -177,6 +212,7 @@ const CineshootPage: React.FC = () => {
               isGenerating={isGenerating}
               prompt={currentPrompt}
               aspect={aspect}
+              onGenerateImage={(p) => navigate('/imagine', { state: { prompt: p } })}
             />
           </div>
 

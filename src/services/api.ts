@@ -1,14 +1,20 @@
 import { supabase } from '@/integrations/supabase/client';
+import { getGuestId } from '@/hooks/useGuestSession';
 
-const getAuthHeaders = async () => {
+const getAuthHeaders = async (): Promise<Record<string, string>> => {
   const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.access_token) {
-    throw new Error('Authentication required');
-  }
-  return {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${session.access_token}`,
+    'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
   };
+  if (session?.access_token) {
+    headers['Authorization'] = `Bearer ${session.access_token}`;
+  } else {
+    // Guest path — backend uses x-guest-id for rate limiting
+    headers['x-guest-id'] = getGuestId();
+    headers['Authorization'] = `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`;
+  }
+  return headers;
 };
 
 type Message = { role: 'user' | 'assistant' | 'system'; content: string };

@@ -3,16 +3,16 @@
 
 import { useAuth as useAuthContext } from '@/contexts/AuthContext';
 import { useChatStore } from '@/stores/chatStore';
+import { GUEST_TOKEN_LIMIT, getGuestTokensUsed } from '@/hooks/useGuestSession';
 import { useEffect } from 'react';
 
 export const useAuth = () => {
   const authContext = useAuthContext();
   const { setUser, user: storeUser } = useChatStore();
-  
-  // Sync auth user with chat store user
+
+  // Sync auth user with chat store user — or hydrate as guest
   useEffect(() => {
     if (authContext.user) {
-      // Update store user with auth info
       setUser({
         ...storeUser,
         id: authContext.user.id,
@@ -20,9 +20,19 @@ export const useAuth = () => {
         name: authContext.user.user_metadata?.full_name || storeUser.name,
         avatar: authContext.user.user_metadata?.avatar_url || storeUser.avatar,
       });
+    } else if (!authContext.loading) {
+      setUser({
+        ...storeUser,
+        id: 'guest',
+        name: 'Guest',
+        email: '',
+        plan: 'free',
+        tokensUsed: getGuestTokensUsed(),
+        tokensLimit: GUEST_TOKEN_LIMIT,
+      });
     }
-  }, [authContext.user]);
-  
+  }, [authContext.user, authContext.loading]);
+
   return {
     user: authContext.user,
     loading: authContext.loading,

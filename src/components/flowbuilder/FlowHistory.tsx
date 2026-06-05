@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Trash2, Loader2 } from 'lucide-react';
 import { flowbuilderApi, type FlowHistoryItem } from '@/services/flowbuilderApi';
 import { toast } from 'sonner';
+import { useAuth } from '@/hooks/useAuth';
+import { useRealtimeHistory } from '@/hooks/useRealtimeHistory';
 
 interface FlowHistoryProps {
   onSelect: (item: FlowHistoryItem) => void;
@@ -11,6 +13,7 @@ interface FlowHistoryProps {
 const FlowHistory: React.FC<FlowHistoryProps> = ({ onSelect, refreshTrigger }) => {
   const [items, setItems] = useState<FlowHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   const fetchHistory = async () => {
     try {
@@ -25,6 +28,13 @@ const FlowHistory: React.FC<FlowHistoryProps> = ({ onSelect, refreshTrigger }) =
   };
 
   useEffect(() => { fetchHistory(); }, [refreshTrigger]);
+
+  useRealtimeHistory({
+    table: 'analysis_history',
+    userId: user?.id,
+    filter: { tool: 'flowbuilder' },
+    onChange: fetchHistory,
+  });
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
