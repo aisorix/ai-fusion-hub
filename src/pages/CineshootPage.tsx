@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import SEOHead from '@/components/SEOHead';
-import { ArrowLeft, Film } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useChatStore, type Attachment } from '@/stores/chatStore';
@@ -121,14 +121,9 @@ const CineshootPage: React.FC = () => {
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shrink-0">
-                <Film className="w-4 h-4 text-white" />
-              </div>
-              <div className="min-w-0">
-                <h1 className="text-sm font-bold text-foreground truncate">Sorix Cineshoot</h1>
-                <p className="hidden sm:block text-[10px] text-muted-foreground">AI Video Generation</p>
-              </div>
+            <div className="min-w-0">
+              <h1 className="text-sm font-bold text-foreground truncate">Sorix Cineshoot</h1>
+              <p className="hidden sm:block text-[10px] text-muted-foreground">AI Video Generation</p>
             </div>
           </div>
         </div>

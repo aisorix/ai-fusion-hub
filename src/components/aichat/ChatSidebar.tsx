@@ -32,6 +32,7 @@ import {
   Check,
   X,
   Bot,
+  Clapperboard,
 } from "lucide-react";
 import { useChatStore } from "@/stores/chatStore";
 import { useTranslation } from "@/lib/translations";
@@ -454,6 +455,14 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
           >
             <Bot className="w-4 h-4" />
             <span>Sorix Agent</span>
+          </button>
+
+          <button
+            onClick={() => navigate("/cineshoot")}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
+          >
+            <Clapperboard className="w-4 h-4" />
+            <span>Sorix Cineshoot</span>
           </button>
 
           <div>
