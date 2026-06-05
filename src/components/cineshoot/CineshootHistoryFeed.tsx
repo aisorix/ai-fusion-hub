@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { Trash2, Film } from 'lucide-react';
 import { cineshootApi, type VideoGeneration } from '@/services/cineshootApi';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/hooks/useAuth';
+import { useRealtimeHistory } from '@/hooks/useRealtimeHistory';
 
 interface Props {
   onSelect: (gen: VideoGeneration) => void;
