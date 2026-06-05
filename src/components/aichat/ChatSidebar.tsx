@@ -129,7 +129,14 @@ const ChatItem = ({
             <MoreHorizontal className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-36 bg-popover border border-border shadow-lg z-50">
+        <DropdownMenuContent align="end" className="w-40 bg-popover border border-border shadow-lg z-50">
+          <DropdownMenuItem onClick={() => onToggleStar(chat.id)}>
+            {chat.isStarred ? (
+              <><StarOff className="w-3.5 h-3.5 mr-2" />Unstar</>
+            ) : (
+              <><Star className="w-3.5 h-3.5 mr-2" />Star</>
+            )}
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
               setRenameValue(chat.title);
