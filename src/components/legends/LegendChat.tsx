@@ -314,6 +314,13 @@ const LegendChat: React.FC<LegendChatProps> = ({ persona, onBack, initialMessage
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
+              onPaste={async (e) => {
+                const files = Array.from(e.clipboardData?.items || [])
+                  .filter((it) => it.kind === 'file')
+                  .map((it) => it.getAsFile())
+                  .filter((f): f is File => !!f);
+                if (files.length) { e.preventDefault(); await processFiles(files); }
+              }}
               placeholder={`Ask ${persona.name.split(' ').pop()}...`}
               disabled={isStreaming}
               minRows={1}
