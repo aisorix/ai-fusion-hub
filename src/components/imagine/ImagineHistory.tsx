@@ -15,6 +15,7 @@ interface Props {
 const ImagineHistory: React.FC<Props> = ({ onSelect, refreshTrigger }) => {
   const [history, setHistory] = useState<ImageGeneration[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   const fetchHistory = async () => {
     try {
@@ -31,6 +32,13 @@ const ImagineHistory: React.FC<Props> = ({ onSelect, refreshTrigger }) => {
   useEffect(() => {
     fetchHistory();
   }, [refreshTrigger]);
+
+  useRealtimeHistory({
+    table: 'image_generations',
+    userId: user?.id,
+    onChange: fetchHistory,
+  });
+
 
   const handleDelete = async (id: string) => {
     try {
