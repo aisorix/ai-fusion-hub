@@ -141,7 +141,11 @@ const ImagineCanvas: React.FC<Props> = ({ imageUrls, isGenerating, prompt, aspec
         ))}
       </div>
       <div className="mt-4">
-        <ImagineActions imageUrl={imageUrls[0]} prompt={prompt} />
+        <ImagineActions
+          imageUrl={imageUrls[0]}
+          prompt={prompt}
+          onGenerateVideo={onGenerateVideo ? () => onGenerateVideo(imageUrls[0], prompt) : undefined}
+        />
       </div>
     </div>
   );
