@@ -68,12 +68,14 @@ const ChatItem = ({
   onSelect,
   onDelete,
   onRename,
+  onToggleStar,
 }: {
-  chat: { id: string; title: string };
+  chat: { id: string; title: string; isStarred?: boolean };
   isActive: boolean;
   onSelect: () => void;
   onDelete: (id: string) => void;
   onRename: (id: string, title: string) => void;
+  onToggleStar: (id: string) => void;
 }) => {
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState(chat.title);
