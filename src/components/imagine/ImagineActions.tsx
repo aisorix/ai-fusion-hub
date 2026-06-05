@@ -55,7 +55,7 @@ const downloadImage = async (imageUrl: string, format: string, prompt: string) =
   }
 };
 
-const ImagineActions: React.FC<Props> = ({ imageUrl, prompt }) => {
+const ImagineActions: React.FC<Props> = ({ imageUrl, prompt, onGenerateVideo }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
