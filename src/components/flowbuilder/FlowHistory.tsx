@@ -13,6 +13,7 @@ interface FlowHistoryProps {
 const FlowHistory: React.FC<FlowHistoryProps> = ({ onSelect, refreshTrigger }) => {
   const [items, setItems] = useState<FlowHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   const fetchHistory = async () => {
     try {
@@ -28,8 +29,13 @@ const FlowHistory: React.FC<FlowHistoryProps> = ({ onSelect, refreshTrigger }) =
 
   useEffect(() => { fetchHistory(); }, [refreshTrigger]);
 
-  const handleDelete = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
+  useRealtimeHistory({
+    table: 'analysis_history',
+    userId: user?.id,
+    filter: { tool: 'flowbuilder' },
+    onChange: fetchHistory,
+  });
+
     try {
       await flowbuilderApi.deleteHistory(id);
       setItems(prev => prev.filter(i => i.id !== id));
