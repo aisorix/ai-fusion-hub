@@ -232,7 +232,7 @@ export const useChatSync = (userId: string | null) => {
       );
       for (const chat of deletedChats) deleteChatFromDB(chat.id);
 
-      // Active chat changed → debounced save
+      // Active chat changed → debounced save for content, immediate for structural
       const activeChat = state.chats.find((c) => c.id === state.activeChatId);
       const prevActiveChat = prevState.chats.find((c) => c.id === prevState.activeChatId);
       if (
@@ -241,10 +241,30 @@ export const useChatSync = (userId: string | null) => {
         activeChat.id === prevActiveChat.id &&
         (activeChat.messages.length !== prevActiveChat.messages.length ||
           activeChat.title !== prevActiveChat.title ||
+          activeChat.isStarred !== prevActiveChat.isStarred ||
+          activeChat.projectId !== prevActiveChat.projectId ||
           activeChat.updatedAt !== prevActiveChat.updatedAt)
       ) {
-        if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
-        syncTimeoutRef.current = setTimeout(() => saveChatToDB(activeChat), SYNC_DEBOUNCE_MS);
+        const structural =
+          activeChat.title !== prevActiveChat.title ||
+          activeChat.isStarred !== prevActiveChat.isStarred ||
+          activeChat.projectId !== prevActiveChat.projectId;
+        if (structural) {
+          if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
+          saveChatToDB(activeChat);
+        } else {
+          if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
+          syncTimeoutRef.current = setTimeout(() => saveChatToDB(activeChat), SYNC_DEBOUNCE_MS);
+        }
+      }
+
+      // Star/project changes for non-active chats → immediate save
+      for (const c of state.chats) {
+        const prev = prevState.chats.find((pc) => pc.id === c.id);
+        if (!prev || c.id === state.activeChatId) continue;
+        if (c.isStarred !== prev.isStarred || c.projectId !== prev.projectId || c.title !== prev.title) {
+          saveChatToDB(c);
+        }
       }
 
       // Tokens
