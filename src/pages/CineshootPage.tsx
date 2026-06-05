@@ -96,7 +96,7 @@ const CineshootPage: React.FC = () => {
 
     try {
       const result = await cineshootApi.generateVideo({
-        prompt,
+        prompt: finalPrompt,
         model: selectedModel.modelId,
         aspectRatio: aspect,
         resolution,
@@ -167,17 +167,29 @@ const CineshootPage: React.FC = () => {
               userPlan={user.plan}
               onUpgrade={() => setShowUpgrade(true)}
               injectPrompt={injectPrompt}
+              injectAttachmentUrl={injectAttachmentUrl}
               injectKey={injectKey}
             />
           </div>
 
-          <div className="flex justify-center -mt-1">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-card/60 px-2.5 py-1 text-[10.5px] text-muted-foreground">
-              <span className="w-1 h-1 rounded-full bg-primary/70" />
-              <span className="tabular-nums">{tokensRemaining.toLocaleString()}</span> tokens left
-              <span className="text-muted-foreground/40">·</span>
-              <span className="tabular-nums">{costEstimate.toLocaleString()}</span> per render
-            </span>
+          <div className="flex flex-col items-center gap-2 -mt-1">
+            <TokenCostChip
+              cost={costEstimate}
+              remaining={tokensRemaining}
+              label={`per render · ${selectedModel.shortName}`}
+              hint="Cost depends on model, duration, and resolution."
+            />
+            {videoUrl && refineEnabled && (
+              <button
+                onClick={() => setRefineEnabled(false)}
+                className="inline-flex items-center gap-1.5 text-[10.5px] text-muted-foreground hover:text-foreground transition-colors"
+                title="Stop refining the previous video"
+              >
+                <Film className="w-3 h-3 text-primary" />
+                <span>Refining previous video</span>
+                <span className="text-primary underline">· Clear</span>
+              </button>
+            )}
           </div>
 
           <CineshootOptionsPanel
@@ -200,6 +212,7 @@ const CineshootPage: React.FC = () => {
               isGenerating={isGenerating}
               prompt={currentPrompt}
               aspect={aspect}
+              onGenerateImage={(p) => navigate('/imagine', { state: { prompt: p } })}
             />
           </div>
 
