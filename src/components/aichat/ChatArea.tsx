@@ -105,6 +105,8 @@ const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
       {/* Upgrade Plan Modal - shown when token limit reached */}
       <UpgradePlanModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
+      {/* Guest Limit Modal - shown when guest exhausts free trial */}
+      <GuestLimitModal isOpen={showGuestModal} onClose={() => setShowGuestModal(false)} />
     </div>
   );
 };
