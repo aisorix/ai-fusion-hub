@@ -288,7 +288,7 @@ serve(async (req) => {
           image_url: url,
           width,
           height,
-          tokens_used: TOKENS_PER_IMAGE * mult,
+          tokens_used: perImageCost * mult,
           model: selectedModel,
         })
         .select("id")
@@ -296,7 +296,7 @@ serve(async (req) => {
       if (row?.id) ids.push(row.id);
     }
 
-    const actualCost = TOKENS_PER_IMAGE * imageUrls.length * mult;
+    const actualCost = perImageCost * imageUrls.length * mult;
     if (sub) {
       await supabase
         .from("subscriptions")
