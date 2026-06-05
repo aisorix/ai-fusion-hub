@@ -530,14 +530,30 @@ export const useChatStore = create<ChatState>()(
       addMessage: (message) => set((state) => {
         const activeChat = state.chats.find(c => c.id === state.activeChatId);
         const isFirstUserMessage = activeChat?.messages.length === 0 && message.role === 'user';
+        const smartTitle = (raw: string) => {
+          const cleaned = raw
+            .replace(/```[\s\S]*?```/g, ' ')
+            .replace(/`[^`]*`/g, ' ')
+            .replace(/https?:\/\/\S+/g, ' ')
+            .replace(/[#*_>~\[\]()]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+          if (!cleaned) return 'New Chat';
+          const words = cleaned.split(' ').slice(0, 6).join(' ');
+          const titled = words
+            .split(' ')
+            .map(w => w.length > 2 ? w.charAt(0).toUpperCase() + w.slice(1) : w)
+            .join(' ');
+          return titled.length > 40 ? titled.slice(0, 40).trim() + '…' : titled;
+        };
         return {
           chats: state.chats.map(c =>
             c.id === state.activeChatId
               ? {
                   ...c,
                   messages: [...c.messages, message],
-                  title: isFirstUserMessage 
-                    ? message.content.slice(0, 50) + (message.content.length > 50 ? '...' : '')
+                  title: isFirstUserMessage && !c.titleManuallySet
+                    ? smartTitle(message.content)
                     : c.title,
                   updatedAt: new Date().toISOString()
                 }
