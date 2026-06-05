@@ -1,75 +1,64 @@
 
-## 1. Imagine — model pricing by tier
+## Why it's broken today
 
-Replace the flat 12k/image cost with tier-based pricing. Each model gets a `tier: 'basic' | 'pro' | 'premium'` field; cost per image = 25k / 35k / 45k tokens (multiplied by resolution: 1× / 2× / 4× for 1K/2K/4K, multiplied by `count`).
+Cineshoot already syncs cross-device because **all generations live in Supabase** (`video_generations`, `cineshoot-videos` bucket) and the canvas auto-loads from the DB. The other tools have two real gaps:
 
-Tier assignment:
-- **Basic (25k)**: Riverflow V2, Nano Banana, Nano Banana 2, GPT-5 Image, Grok Imagine, Seedream-like fallbacks
-- **Pro (35k)**: GPT Image 2, ByteDance Seedream 4.5
-- **Premium (45k)**: Nano Banana Pro, FLUX.2 Max, FLUX.2 Pro
+1. **The "current creation" on the canvas is only in `localStorage`** (zustand persist) for Imagine, Deck, FlowBuilder, Legends, and Health. The DB history exists, but a new device shows an empty canvas until the user manually opens History. That makes it *feel* like nothing synced.
+2. **Main AI Chat sync is lossy and Multi-Window is not synced at all.**
+   - `useChatSync.cleanMessagesForDB` strips image attachment URLs to `''` and drops parsed file content → images/files vanish on other devices.
+   - `chatWindows` (multi-window state) is only in zustand persist; never written to Supabase.
 
-Updated in both `src/components/imagine/ImagineModelSelector.tsx` (front-end estimate + lock display) and `supabase/functions/imagine/index.ts` (server-truth charge + plan gate). Pro models require pro+ plan; Premium require premium plan.
+Imagine / Deck / Flow / Legends history components already call `*.getHistory()` from Supabase, so RLS + DB is fine — we just need to surface the latest creation automatically and stop dropping data in the chat sync.
 
-## 2. Imagine — model order
+## What to change
 
-Move `grok-imagine` directly **after** `riverflow` in the `imageModels` array so it appears as the 2nd option in the dropdown.
+### 1. Auto-restore last creation on every tool (cross-device)
+For each of these pages, on mount (after auth) fetch the most recent row for the user and hydrate the canvas if local state is empty:
 
-## 3. Imagine → Cineshoot handoff
+- `ImaginePage` → `imagineApi.getHistory()[0]` → load image + prompt + model into canvas.
+- `DeckPage` → most recent `presentations` row → load slides/theme.
+- `FlowBuilderPage` → latest `analysis_history` row with `tool='flowbuilder'` → load mermaid code.
+- `LegendsPage` → latest `analysis_history` row with `tool='legends'` → restore conversation.
+- `HealthPage` / `AgroPage` → latest analysis row → restore result.
 
-In `ImagineCanvas.tsx`, add a 4th action button next to Download / Share / Copy:
-**"Generate Video"** (Clapperboard icon, gradient style matching Cineshoot brand).
+Add a small "Resumed your last creation on this device" toast suppressed silently (per the project's silent-UI rule, just skip the toast).
 
-On click → `navigate('/cineshoot', { state: { prompt, imageUrl } })`. `CineshootPage` reads `location.state` on mount and feeds both into the prompt bar via the existing `injectPrompt` + a new `injectAttachmentUrl` prop on `CineshootPromptBar` (already supported via prop; wire it up). Textarea is left empty/with prompt seed so the user can adjust before submitting.
+### 2. Fix Main Chat sync (no more lost images/files)
+In `src/hooks/useChatSync.ts`:
 
-## 4. Cineshoot → Imagine handoff
+- Remove `cleanMessagesForDB`'s URL stripping. Instead:
+  - If `att.type === 'image'` and `url` is a `data:` / `blob:` URL, upload the bytes to a new public `chat-attachments` bucket (path `${userId}/${chatId}/${msgId}-${i}.png`) and store the returned public URL.
+  - If `att.type === 'file'` and small (<2 MB), upload to the same bucket; otherwise persist metadata only (name/size/type) and mark `unavailableOnOtherDevices: true` so UI can show a hint.
+  - Always keep `http(s)` URLs as-is.
+- Migration: create `chat-attachments` bucket (public read), with RLS allowing inserts only where path prefix matches `auth.uid()`.
 
-In `CineshootCanvas.tsx`, add a button **"Generate Image"** (ImageIcon, purple-pink gradient).
-On click → `navigate('/imagine', { state: { prompt } })`. `ImaginePage` already supports `injectPrompt`; wire `location.state` to call `setInjectPrompt`.
+### 3. Sync Multi-Window Chat across devices
+- Add table `public.user_chat_windows` (`user_id uuid pk`, `windows jsonb`, `updated_at timestamptz`) with RLS `auth.uid() = user_id` and the standard GRANTs.
+- In `useChatSync`, also subscribe to `state.chatWindows` changes (debounced 2 s) → upsert. On initial load, hydrate `chatWindows` from the row if it exists.
+- Strip the same attachment-URL issue here too (reuse the helper from step 2).
 
-## 5. Cineshoot — fix Download MP4
+### 4. Cineshoot video access on other devices
+`cineshoot-videos` is a private bucket. Verify `cineshootApi.getHistory()` returns playable URLs on a new device. If the stored `video_url` is a path (not a signed URL), update `supabase/functions/cineshoot/index.ts` history responses and `CineshootCanvas` to request a signed URL (`storage.from('cineshoot-videos').createSignedUrl(path, 3600)`) at load time. (No-op if already signed.)
 
-Current `downloadVideo` uses `fetch(url).blob()` on a Supabase signed URL. When the server doesn't return CORS or the blob conversion fails silently on some browsers, the fallback `<a download>` is cross-origin and ignored by Chrome.
+### 5. Small UX consistency
+- Show "Last creation restored" as a subtle inline chip on the canvas (not a toast) with a "Start new" button to clear it.
+- On every History panel, after deleting the currently-displayed item, clear the canvas too.
 
-Fix: try fetch → blob → object-URL download (works for signed URLs that allow GET). If fetch throws, open the URL in a new tab with `?download=1` and use `window.open(url, '_blank')` so user can right-click save, plus show a toast guiding them. Also add `crossOrigin="anonymous"` on the video tag isn't needed for download — just ensure the bucket signed URL is fetchable (it already is).
+## Technical details
 
-## 6. Refine / edit existing generation with same context
+**Files to edit**
+- `src/hooks/useChatSync.ts` — remove stripping, add upload helper, sync `chatWindows`.
+- `src/stores/chatStore.ts` — expose hydrate action for `chatWindows`; keep `stripAttachmentsForPersistence` for localStorage size cap only (DB keeps full URLs).
+- `src/pages/ImaginePage.tsx`, `DeckPage.tsx`, `FlowBuilderPage.tsx`, `LegendsPage.tsx`, `HealthPage.tsx`, `AgroPage.tsx` — auto-restore latest row on mount when canvas is empty.
+- `src/components/cineshoot/CineshootCanvas.tsx` + `supabase/functions/cineshoot/index.ts` — ensure signed URLs.
+- New: `src/lib/chatAttachmentUpload.ts` helper.
 
-**Imagine**: when an image is currently displayed (`imageUrls[0]` exists) and the user submits another prompt with no new attachment, the page auto-passes the previous image as `imageData` to the edge function so the model edits it in place. A small chip appears above the prompt bar: *"Editing previous image · Clear"* with a clear (×) button to start fresh.
+**Migrations**
+- `public.user_chat_windows` table + RLS + GRANTs.
+- New storage bucket `chat-attachments` (public read) with insert policy `bucket_id='chat-attachments' AND (storage.foldername(name))[1] = auth.uid()::text`.
 
-**Cineshoot**: when a video is currently displayed and the user submits a new prompt with no attachment, the page reuses the same model + the previous prompt as conditioning context ("Previous: …\nChanges: <new prompt>"). Chip: *"Refining previous video · Clear"*. (Server change minimal — just sends a combined prompt string.)
+**Out of scope**
+- Token costs / pricing (already done last turn).
+- UI redesigns beyond the small "last creation restored" chip.
 
-## 7. Prominent token-cost highlight for Imagine / Cineshoot / Deck / FlowBuilder
-
-Replace the tiny grey "X tokens left · Y per run" line with a polished **TokenCostChip** component (new shared file `src/components/shared/TokenCostChip.tsx`):
-
-- Pill shape with gradient border matching the tool's accent
-- Left: ⚡ icon + `Y` highlighted (bold, primary color) + small "tokens / run" label
-- Right: subtle "balance: X" with amber warning style when `Y > remaining`
-- Tooltip on hover explaining what affects the cost (model, resolution, duration, slides, etc.)
-
-Wired into:
-- `ImaginePage.tsx`
-- `CineshootPage.tsx`
-- `DeckPage.tsx` (uses existing slide-cost calc)
-- `FlowBuilderPage.tsx` (flat per-render cost)
-
-## Technical notes
-
-- No DB migrations needed — token costs computed server-side per request.
-- Edge fn `imagine` gets a `MODEL_TIER: Record<string,'basic'|'pro'|'premium'>` map; per-image base = `{basic:25000, pro:35000, premium:45000}[tier]`. Plan-gate adjusted: tier ≤ user plan (free can only use basic; basic plan can use basic; pro can use basic+pro; premium can use all).
-- `ImagineCanvas` Action row becomes 4 buttons; on mobile they wrap to 2×2.
-- `CineshootPromptBar` already accepts `injectAttachmentUrl` via the existing useEffect on `injectKey` — extend the prop type and the page-level state setter.
-- "Refine previous" mode is purely client-side state in each page (`refineMode: boolean` driven by presence of displayed result + no new attachment).
-
-## Files touched
-
-- `src/components/imagine/ImagineModelSelector.tsx` (tier field, reorder)
-- `src/components/imagine/ImagineCanvas.tsx` (Generate Video button)
-- `src/components/imagine/ImagineActions.tsx` (extend with new action)
-- `src/pages/ImaginePage.tsx` (location.state, refine chip, token chip, auto-pass prev image)
-- `src/components/cineshoot/CineshootCanvas.tsx` (Generate Image button, download fix)
-- `src/components/cineshoot/CineshootPromptBar.tsx` (accept injectAttachmentUrl)
-- `src/pages/CineshootPage.tsx` (location.state, refine chip, token chip)
-- `src/pages/DeckPage.tsx` + `src/pages/FlowBuilderPage.tsx` (token chip)
-- `src/components/shared/TokenCostChip.tsx` (new)
-- `supabase/functions/imagine/index.ts` (tier-based cost + plan gate)
+Approve and I'll implement it.
