@@ -191,6 +191,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
     return d < today && d >= weekAgo;
   });
   const olderChats = filteredChats.filter((c) => new Date(c.createdAt) < weekAgo);
+  const starredChats = filteredChats.filter((c) => c.isStarred);
 
   const moreTools = [
     { id: "agro", name: t('sorixAgro'), desc: t('sorixAgroDesc'), icon: Leaf, gradient: "bg-gradient-to-br from-green-500 to-lime-500", free: true },
@@ -217,6 +218,7 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
         onSelect={() => handleSelectChat(chat.id)}
         onDelete={deleteChat}
         onRename={updateChatTitle}
+        onToggleStar={toggleStarChat}
       />
     ));
 
