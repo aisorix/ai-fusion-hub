@@ -29,6 +29,9 @@ export interface Chat {
   messages: Message[];
   createdAt: string;
   updatedAt: string;
+  isStarred?: boolean;
+  projectId?: string | null;
+  titleManuallySet?: boolean;
 }
 
 export type ModelCategory = 'chat' | 'code' | 'search' | 'system';
