@@ -121,8 +121,8 @@ const CineshootPage: React.FC = () => {
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center shrink-0 shadow-md shadow-rose-500/20">
-              <Film className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-fuchsia-500 to-pink-500 flex items-center justify-center shrink-0 shadow-md shadow-fuchsia-500/30">
+              <Clapperboard className="w-4 h-4 text-white" />
             </div>
             <div className="min-w-0">
               <h1 className="text-sm font-bold text-foreground truncate">Sorix Cineshoot</h1>
