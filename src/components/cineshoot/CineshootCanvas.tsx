@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Film, Download, Share2, Copy, Check } from 'lucide-react';
+import { Film, Download, Share2, Copy, Check, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -12,24 +12,32 @@ interface Props {
   isGenerating: boolean;
   prompt: string;
   aspect: VideoAspect;
+  onGenerateImage?: (prompt: string) => void;
 }
 
 const aspectToClass = (a: VideoAspect) =>
   a === '1:1' ? 'aspect-square' : a === '9:16' ? 'aspect-[9/16] max-w-sm mx-auto' : 'aspect-[16/9]';
 
 const downloadVideo = async (url: string) => {
+  // Try blob-based download first (works when CORS allows)
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, { mode: 'cors' });
+    if (!res.ok) throw new Error('fetch failed');
     const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
+    a.href = objectUrl;
     a.download = `sorix-cineshoot-${Date.now()}.mp4`;
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(a.href);
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
     toast.success('Downloaded');
+    return;
   } catch {
-    const a = document.createElement('a');
-    a.href = url; a.download = `sorix-cineshoot-${Date.now()}.mp4`; a.click();
+    // Fallback: open in new tab so the browser handles save
+    window.open(url, '_blank', 'noopener,noreferrer');
+    toast.info('Opening video in a new tab — right-click to save');
   }
 };
 
