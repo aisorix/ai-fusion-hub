@@ -197,13 +197,24 @@ const ImaginePage: React.FC = () => {
             />
           </div>
 
-          <div className="flex justify-center -mt-1">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-card/60 px-2.5 py-1 text-[10.5px] text-muted-foreground">
-              <span className="w-1 h-1 rounded-full bg-primary/70" />
-              <span className="tabular-nums">{tokensRemaining.toLocaleString()}</span> tokens left
-              <span className="text-muted-foreground/40">·</span>
-              <span className="tabular-nums">{costEstimate.toLocaleString()}</span> per run
-            </span>
+          <div className="flex flex-col items-center gap-2 -mt-1">
+            <TokenCostChip
+              cost={costEstimate}
+              remaining={tokensRemaining}
+              label={`per image · ${selectedModel.shortName}`}
+              hint="Cost depends on model tier, resolution, and number of images."
+            />
+            {imageUrls.length > 0 && refineEnabled && (
+              <button
+                onClick={() => setRefineEnabled(false)}
+                className="inline-flex items-center gap-1.5 text-[10.5px] text-muted-foreground hover:text-foreground transition-colors"
+                title="Stop refining the previous image"
+              >
+                <Wand2 className="w-3 h-3 text-primary" />
+                <span>Refining previous image</span>
+                <span className="text-primary underline">· Clear</span>
+              </button>
+            )}
           </div>
 
 
@@ -229,6 +240,7 @@ const ImaginePage: React.FC = () => {
               prompt={currentPrompt}
               aspect={aspect}
               count={count}
+              onGenerateVideo={(url, p) => navigate('/cineshoot', { state: { prompt: p, imageUrl: url } })}
             />
           </div>
 
