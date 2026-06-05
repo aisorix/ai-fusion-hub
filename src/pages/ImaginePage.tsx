@@ -22,6 +22,7 @@ import TokenCostChip from '@/components/shared/TokenCostChip';
 
 const ImaginePage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, setUser } = useChatStore();
 
   const [selectedModel, setSelectedModel] = useState<ImageModel>(imageModels[0]);
@@ -39,6 +40,28 @@ const ImaginePage: React.FC = () => {
   const [injectPrompt, setInjectPrompt] = useState<string | undefined>();
   const [injectAttachmentUrl, setInjectAttachmentUrl] = useState<string | undefined>();
   const [injectKey, setInjectKey] = useState(0);
+  // When user submits a follow-up prompt with no new attachment, refine the
+  // currently-displayed image instead of starting fresh.
+  const [refineEnabled, setRefineEnabled] = useState(true);
+
+  const tokensRemaining = user.tokensLimit - user.tokensUsed;
+  const isProPlus = user.plan === 'pro' || user.plan === 'premium';
+
+  const resMultiplier = resolution === '4K' ? 4 : resolution === '2K' ? 2 : 1;
+  const costEstimate = getImageModelCost(selectedModel) * count * resMultiplier;
+
+  // Handoff from Cineshoot: inject prompt
+  useEffect(() => {
+    const state = location.state as { prompt?: string; imageUrl?: string } | null;
+    if (state?.prompt || state?.imageUrl) {
+      if (state.prompt) setInjectPrompt(state.prompt);
+      if (state.imageUrl) setInjectAttachmentUrl(state.imageUrl);
+      setInjectKey(k => k + 1);
+      // clear navigation state so refresh doesn't re-inject
+      navigate(location.pathname, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleUseTemplate = (prompt: string, asp?: AspectRatio, res?: Resolution, sampleUrl?: string) => {
     setInjectPrompt(prompt);
@@ -57,12 +80,6 @@ const ImaginePage: React.FC = () => {
     });
   };
 
-  const tokensRemaining = user.tokensLimit - user.tokensUsed;
-  const isProPlus = user.plan === 'pro' || user.plan === 'premium';
-
-  const resMultiplier = resolution === '4K' ? 4 : resolution === '2K' ? 2 : 1;
-  const costEstimate = 12000 * count * resMultiplier;
-
   const handleGenerate = async (prompt: string, attachments?: Attachment[]) => {
     if (tokensRemaining < costEstimate) {
       setShowUpgrade(true);
@@ -71,13 +88,17 @@ const ImaginePage: React.FC = () => {
 
     setCurrentPrompt(prompt);
     setIsGenerating(true);
-    setImageUrls([]);
 
     let imageData: string | undefined;
     if (attachments?.length) {
       const imgAtt = attachments.find((a) => a.type === 'image' && a.url);
       if (imgAtt) imageData = imgAtt.url;
     }
+    // Auto-refine: if no new attachment but we have a previously displayed image, use it as context
+    if (!imageData && refineEnabled && imageUrls[0]) {
+      imageData = imageUrls[0];
+    }
+    if (!imageData) setImageUrls([]);
 
     try {
       const result = await imagineApi.generateImage({
