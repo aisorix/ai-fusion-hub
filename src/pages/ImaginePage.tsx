@@ -1,13 +1,13 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEOHead from '@/components/SEOHead';
-import { ArrowLeft, ImageIcon, History, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, ImageIcon, History, X, Wand2 } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useChatStore, type Attachment } from '@/stores/chatStore';
 import { imagineApi, type ImageGeneration } from '@/services/imagineApi';
 import ImaginePromptBar from '@/components/imagine/ImaginePromptBar';
-import { imageModels, type ImageModel } from '@/components/imagine/ImagineModelSelector';
+import { imageModels, getImageModelCost, type ImageModel } from '@/components/imagine/ImagineModelSelector';
 import ImagineOptionsPanel, {
   type AspectRatio,
   type Resolution,
@@ -18,6 +18,7 @@ import ImagineCanvas from '@/components/imagine/ImagineCanvas';
 import ImagineHistory from '@/components/imagine/ImagineHistory';
 import ImagineExplorer from '@/components/imagine/ImagineExplorer';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
+import TokenCostChip from '@/components/shared/TokenCostChip';
 
 const ImaginePage: React.FC = () => {
   const navigate = useNavigate();
