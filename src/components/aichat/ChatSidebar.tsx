@@ -125,8 +125,11 @@ const ChatItem = ({
       {/* Three-dot menu on hover */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-muted/80 transition-opacity shrink-0">
-            <MoreHorizontal className="w-3.5 h-3.5 text-muted-foreground" />
+          <button
+            onClick={(e) => e.stopPropagation()}
+            className="p-1 rounded hover:bg-muted/80 transition-colors shrink-0 text-muted-foreground"
+          >
+            <MoreHorizontal className="w-3.5 h-3.5" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-40 bg-popover border border-border shadow-lg z-50">
