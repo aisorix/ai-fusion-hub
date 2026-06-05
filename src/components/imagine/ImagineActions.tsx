@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, Share2, Copy, Check } from 'lucide-react';
+import { Download, Share2, Copy, Check, Clapperboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 interface Props {
   imageUrl: string;
   prompt: string;
+  onGenerateVideo?: () => void;
 }
 
 const downloadImage = async (imageUrl: string, format: string, prompt: string) => {
