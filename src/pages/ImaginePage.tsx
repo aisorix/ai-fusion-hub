@@ -63,6 +63,27 @@ const ImaginePage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Cross-device restore: on mount, if canvas is empty, hydrate from latest DB row
+  useEffect(() => {
+    if (imageUrls.length > 0 || currentPrompt) return;
+    let cancelled = false;
+    imagineApi
+      .getHistory()
+      .then((items) => {
+        if (cancelled || !items || items.length === 0) return;
+        const latest = items[0];
+        setImageUrls([latest.image_url]);
+        setCurrentPrompt(latest.prompt);
+        if (latest.model) {
+          const m = imageModels.find((im) => im.modelId === latest.model);
+          if (m) setSelectedModel(m);
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleUseTemplate = (prompt: string, asp?: AspectRatio, res?: Resolution, sampleUrl?: string) => {
     setInjectPrompt(prompt);
     setInjectAttachmentUrl(sampleUrl);

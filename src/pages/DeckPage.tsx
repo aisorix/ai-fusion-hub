@@ -129,10 +129,22 @@ const DeckPage: React.FC = () => {
   }, [undo, redo]);
 
   useEffect(() => {
-    deckApi.getHistory().then(items => {
+    deckApi.getHistory().then(async items => {
       setHistoryItems(items);
       setHistoryLoading(false);
+      // Cross-device restore: hydrate latest deck if canvas is empty
+      if (items.length > 0 && slides.length === 0) {
+        try {
+          const full = await deckApi.getPresentation(items[0].id);
+          if (full?.result_data?.slides?.length) {
+            const loadedTheme = (full.input_data?.theme as DeckTheme) || selectedTheme;
+            resetHistory({ slides: full.result_data.slides, theme: loadedTheme });
+            setTitle(full.title);
+          }
+        } catch { /* ignore */ }
+      }
     }).catch(() => setHistoryLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const effectiveSlideCount = showCustomInput && customSlideCount
