@@ -500,9 +500,19 @@ export const useChatStore = create<ChatState>()(
           ? (state.chats.find(c => c.id !== chatId)?.id || null)
           : state.activeChatId
       })),
-      updateChatTitle: (chatId, title) => set((state) => ({
-        chats: state.chats.map(c => 
-          c.id === chatId ? { ...c, title, updatedAt: new Date().toISOString() } : c
+      updateChatTitle: (chatId, title, manual = true) => set((state) => ({
+        chats: state.chats.map(c =>
+          c.id === chatId ? { ...c, title, titleManuallySet: manual ? true : c.titleManuallySet, updatedAt: new Date().toISOString() } : c
+        )
+      })),
+      toggleStarChat: (chatId) => set((state) => ({
+        chats: state.chats.map(c =>
+          c.id === chatId ? { ...c, isStarred: !c.isStarred, updatedAt: new Date().toISOString() } : c
+        )
+      })),
+      addChatToProject: (chatId, projectId) => set((state) => ({
+        chats: state.chats.map(c =>
+          c.id === chatId ? { ...c, projectId, updatedAt: new Date().toISOString() } : c
         )
       })),
       
