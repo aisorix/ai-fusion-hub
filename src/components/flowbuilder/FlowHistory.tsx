@@ -36,6 +36,8 @@ const FlowHistory: React.FC<FlowHistoryProps> = ({ onSelect, refreshTrigger }) =
     onChange: fetchHistory,
   });
 
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
     try {
       await flowbuilderApi.deleteHistory(id);
       setItems(prev => prev.filter(i => i.id !== id));
