@@ -4,6 +4,8 @@ import { Trash2, Clock } from 'lucide-react';
 import { imagineApi, type ImageGeneration } from '@/services/imagineApi';
 import { Skeleton } from '@/components/ui/skeleton';
 import ImagineActions from './ImagineActions';
+import { useAuth } from '@/hooks/useAuth';
+import { useRealtimeHistory } from '@/hooks/useRealtimeHistory';
 
 interface Props {
   onSelect: (gen: ImageGeneration) => void;
