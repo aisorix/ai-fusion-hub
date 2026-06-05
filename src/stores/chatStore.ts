@@ -129,7 +129,9 @@ interface ChatState {
   createNewChat: () => Chat;
   setActiveChat: (chatId: string | null) => void;
   deleteChat: (chatId: string) => void;
-  updateChatTitle: (chatId: string, title: string) => void;
+  updateChatTitle: (chatId: string, title: string, manual?: boolean) => void;
+  toggleStarChat: (chatId: string) => void;
+  addChatToProject: (chatId: string, projectId: string | null) => void;
   
   // Messages (derived from active chat)
   messages: Message[];
