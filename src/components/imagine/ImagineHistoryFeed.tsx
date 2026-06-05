@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { Trash2, Image as ImageIcon, Sparkles } from 'lucide-react';
 import { imagineApi, type ImageGeneration } from '@/services/imagineApi';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/hooks/useAuth';
+import { useRealtimeHistory } from '@/hooks/useRealtimeHistory';
 
 interface Props {
   onSelect: (gen: ImageGeneration) => void;
