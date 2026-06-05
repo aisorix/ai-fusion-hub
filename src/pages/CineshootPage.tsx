@@ -76,9 +76,17 @@ const CineshootPage: React.FC = () => {
 
   const handleGenerate = async (prompt: string, attachments?: Attachment[]) => {
     if (tokensRemaining < costEstimate) { setShowUpgrade(true); return; }
+
+    // Refine: if a video is already on screen and user submits with no attachment,
+    // combine previous prompt as context for the new instruction.
+    const isRefining = refineEnabled && !!videoUrl && !attachments?.length;
+    const finalPrompt = isRefining && currentPrompt
+      ? `Previous video: ${currentPrompt}\nChanges requested: ${prompt}`
+      : prompt;
+
     setCurrentPrompt(prompt);
     setIsGenerating(true);
-    setVideoUrl(null);
+    if (!isRefining) setVideoUrl(null);
 
     let imageData: string | undefined;
     if (attachments?.length) {
