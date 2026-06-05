@@ -6,8 +6,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useChatStore, type Chat, type ChatWindow } from '@/stores/chatStore';
 import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
-const SYNC_DEBOUNCE_MS = 2000;
-const WINDOWS_DEBOUNCE_MS = 2500;
+const SYNC_DEBOUNCE_MS = 300;
+const WINDOWS_DEBOUNCE_MS = 400;
 
 // Track which changes originated from this device to avoid echo
 const localChangeIds = new Set<string>();
