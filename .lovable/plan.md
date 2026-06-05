@@ -1,33 +1,44 @@
-# Wire Sorix Cineshoot Across the Site
+## What's wrong
 
-Position Cineshoot **immediately before Sorix Imagine** in every tool list/menu.
+1. **404 on every model.** The Cineshoot edge function calls OpenRouter's `/chat/completions` with `modalities: ['text','video']`. OpenRouter returns `"No endpoints found that support the requested output modalities: text, video"` for all video models. OpenRouter video models are NOT served via chat completions — they have a dedicated async API at `POST /api/v1/videos`.
 
-## 1. Routing — `src/App.jsx`
-- Add lazy import: `const CineshootPage = lazy(() => import("./pages/CineshootPage"))`
-- Add protected route `/cineshoot` placed right before the `/imagine` route, mirroring the Imagine route's `ProtectedRoute` wrapper and Suspense fallback.
+2. **Duplicate Film icon in the Cineshoot header.** The page shows the rose→violet gradient square + Film icon next to the title, which feels redundant.
 
-## 2. Tools Gallery — `src/pages/ToolsPage.tsx`
-- Insert a new entry in the `tools` array directly before the Imagine entry:
-  - id: `cineshoot`, name: `Sorix Cineshoot`, desc: `AI video generation from text, image & video`, icon: `Clapperboard` (lucide), route: `/cineshoot`, gradient: `from-fuchsia-500 to-pink-500`, free: false.
-- Update the JSON-LD `ItemList` automatically (it maps over `tools`).
+3. **Sidebar missing the Cineshoot entry** under "Sorix Agent".
 
-## 3. Navbar — `src/components/Navbar.jsx`
-- In the Tools dropdown/menu (desktop + mobile), insert a Cineshoot link right before the Imagine link, using the same styling, label, and icon convention already used for Imagine.
+## Plan
 
-## 4. Landing page surfaces
-- **`src/components/Features.jsx`**: Add a Cineshoot feature card before the Imagine card (same card pattern, gradient, icon `Clapperboard`, copy: "Generate cinematic videos from text, images, or reference clips with 11+ frontier models.").
-- **`src/components/Hero.jsx`** "Choose a tool" / quick-launch tool chips section (if present): add Cineshoot chip before Imagine chip, linking to `/cineshoot`. If Hero has no such tool grid, skip — do not add another CTA button.
-- **`src/components/Footer.jsx`**: In the Tools/Products column, add `Sorix Cineshoot → /cineshoot` link before the Imagine link.
+### 1. Rewrite `supabase/functions/cineshoot/index.ts` to use OpenRouter's async Video API
 
-## 5. SEO — `public/sitemap.xml`
-- Add `<url><loc>https://www.aisorix.com/cineshoot</loc><lastmod>2026-06-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>` immediately before the existing `/imagine` entry.
+Keep auth, pricing, token-deduction, plan-tier checks, and DB persistence exactly as-is. Replace only the OpenRouter call with the correct flow:
 
-## Out of scope
-- No copy or styling changes to existing Imagine/other tool entries.
-- No backend, pricing, or model changes (already implemented in prior step).
-- No new translations beyond the English/Bangla strings already used in surrounding tool entries.
+- **Submit job:** `POST https://openrouter.ai/api/v1/videos`
+  - Body: `{ model, prompt, duration, resolution, aspect_ratio, generate_audio, frame_images? }`
+  - For image-to-video, pass the uploaded image as:
+    ```
+    frame_images: [{ type: 'image_url', image_url: { url: imageData }, frame_type: 'first_frame' }]
+    ```
+- **Poll** the returned `polling_url` every 5s, up to ~140s (well under Supabase edge timeout). Statuses: `pending` / `in_progress` / `completed` / `failed`.
+- On `completed`, take `unsigned_urls[0]` (or `signed_urls[0]` if present) as `videoUrl` and continue with existing persistence + token logic.
+- On `failed` or timeout, return a clear error and **do not** deduct tokens.
+- Keep the existing model whitelist (`x-ai/grok-imagine-video`, `kwaivgi/kling-*`, `bytedance/seedance-*`, `google/veo-3.1*`, `openai/sora-2-pro`, `minimax/hailuo-2.3`).
+- Drop `modalities` and the chat-style `messages` array entirely.
 
-## Technical notes
-- Icon choice: `Clapperboard` from `lucide-react` (fallback `Film` if unavailable).
-- Keep insertion strictly "before Imagine" everywhere for consistent ordering.
-- All edits are presentation-layer only; no schema or types changes required.
+Note: the OpenRouter video API may not list every model the user wants today (e.g. `x-ai/grok-imagine-video` may not be in `/api/v1/videos/models`). For any model OpenRouter rejects, surface the actual error message back to the UI instead of a generic 404 — this lets you see which models are live without further code changes.
+
+### 2. Clean up `src/pages/CineshootPage.tsx` header
+
+Remove the small rose→violet gradient square with the `Film` icon next to the title; keep only the back arrow + "Sorix Cineshoot" / "AI Video Generation" text (matches the cleaner pattern the user wants).
+
+### 3. Add Sorix Cineshoot to the chat sidebar
+
+In `src/components/aichat/ChatSidebar.tsx`, add a new entry directly below the existing **Sorix Agent** row (around line 456) using the same row styling/spacing as Agent and More Tools. Use the `Clapperboard` lucide icon, label "Sorix Cineshoot", and route to `/cineshoot`. Mirror the same change in `src/components/aichat/MobileSidebar.tsx` if it has the matching list, so mobile parity holds.
+
+### Files touched
+
+- `supabase/functions/cineshoot/index.ts` — switch to async `/api/v1/videos` + polling
+- `src/pages/CineshootPage.tsx` — remove duplicate Film icon from header
+- `src/components/aichat/ChatSidebar.tsx` — add "Sorix Cineshoot" row under Sorix Agent
+- `src/components/aichat/MobileSidebar.tsx` — same row for mobile (only if list exists there)
+
+No DB migration, no new secrets — the existing `OPENROUTER_API_KEY` is reused.
