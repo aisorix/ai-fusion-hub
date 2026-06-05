@@ -25,16 +25,12 @@ import {
   Presentation,
   PanelLeftClose,
   PanelLeft,
-  MoreHorizontal,
   Home,
-  Pencil,
-  Trash2,
   Check,
   X,
   Bot,
   Clapperboard,
   Star,
-  StarOff,
 } from "lucide-react";
 import { useChatStore } from "@/stores/chatStore";
 import { useTranslation } from "@/lib/translations";
@@ -182,14 +178,15 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
     now.setHours(0, 0, 0, 0);
     const weekAgo = new Date(now);
     weekAgo.setDate(weekAgo.getDate() - 7);
+    const unstarredChats = filteredChats.filter((c) => !c.isStarred);
 
     return {
-      todayChats: filteredChats.filter((c) => new Date(c.createdAt) >= now),
-      thisWeekChats: filteredChats.filter((c) => {
+      todayChats: unstarredChats.filter((c) => new Date(c.createdAt) >= now),
+      thisWeekChats: unstarredChats.filter((c) => {
         const d = new Date(c.createdAt);
         return d < now && d >= weekAgo;
       }),
-      olderChats: filteredChats.filter((c) => new Date(c.createdAt) < weekAgo),
+      olderChats: unstarredChats.filter((c) => new Date(c.createdAt) < weekAgo),
     };
   }, [filteredChats]);
 

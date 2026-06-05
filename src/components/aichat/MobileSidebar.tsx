@@ -21,14 +21,10 @@ import {
   Presentation,
   Home,
   PanelLeftClose,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
   Check,
   X,
   Bot,
   Star,
-  StarOff,
 } from "lucide-react";
 import { useChatStore } from "@/stores/chatStore";
 import { cn } from "@/lib/utils";
@@ -41,13 +37,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import ChatHistoryActions from "./ChatHistoryActions";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import SettingsModal from "./SettingsModal";
 import UpgradePlanModal from "./UpgradePlanModal";
 import { PlanBadge, type PlanType } from "./PlanIcons";
@@ -162,13 +152,14 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   today.setHours(0, 0, 0, 0);
   const weekAgo = new Date(today);
   weekAgo.setDate(weekAgo.getDate() - 7);
+  const unstarredChats = filteredChats.filter((c) => !c.isStarred);
 
-  const todayChats = filteredChats.filter((c) => new Date(c.createdAt) >= today);
-  const thisWeekChats = filteredChats.filter((c) => {
+  const todayChats = unstarredChats.filter((c) => new Date(c.createdAt) >= today);
+  const thisWeekChats = unstarredChats.filter((c) => {
     const d = new Date(c.createdAt);
     return d < today && d >= weekAgo;
   });
-  const olderChats = filteredChats.filter((c) => new Date(c.createdAt) < weekAgo);
+  const olderChats = unstarredChats.filter((c) => new Date(c.createdAt) < weekAgo);
   const starredChats = filteredChats.filter((c) => c.isStarred);
 
   const moreTools = [
