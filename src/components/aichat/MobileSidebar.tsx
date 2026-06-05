@@ -27,6 +27,8 @@ import {
   Check,
   X,
   Bot,
+  Star,
+  StarOff,
 } from "lucide-react";
 import { useChatStore } from "@/stores/chatStore";
 import { cn } from "@/lib/utils";
