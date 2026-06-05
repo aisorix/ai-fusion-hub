@@ -64,12 +64,14 @@ const MobileChatItem = ({
   onSelect,
   onDelete,
   onRename,
+  onToggleStar,
 }: {
-  chat: { id: string; title: string };
+  chat: { id: string; title: string; isStarred?: boolean };
   isActive: boolean;
   onSelect: () => void;
   onDelete: (id: string) => void;
   onRename: (id: string, title: string) => void;
+  onToggleStar: (id: string) => void;
 }) => {
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState(chat.title);
@@ -118,11 +120,21 @@ const MobileChatItem = ({
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="p-1 rounded shrink-0 hover:bg-muted/80">
-            <MoreHorizontal className="w-3.5 h-3.5 text-muted-foreground" />
+          <button
+            onClick={(e) => e.stopPropagation()}
+            className="p-1 rounded shrink-0 hover:bg-muted/80 text-muted-foreground"
+          >
+            <MoreHorizontal className="w-3.5 h-3.5" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-36 bg-popover border border-border shadow-lg z-50">
+        <DropdownMenuContent align="end" className="w-40 bg-popover border border-border shadow-lg z-50">
+          <DropdownMenuItem onClick={() => onToggleStar(chat.id)}>
+            {chat.isStarred ? (
+              <><StarOff className="w-3.5 h-3.5 mr-2" />Unstar</>
+            ) : (
+              <><Star className="w-3.5 h-3.5 mr-2" />Star</>
+            )}
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
               setRenameValue(chat.title);
