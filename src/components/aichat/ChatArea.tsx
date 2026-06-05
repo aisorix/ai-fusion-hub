@@ -7,10 +7,12 @@ import ModelSelector from "./ModelSelector";
 import EmptyState from "./EmptyState";
 import SettingsModal from "./SettingsModal";
 import UpgradePlanModal from "./UpgradePlanModal";
+import GuestLimitModal from "@/components/auth/GuestLimitModal";
+import { useGuestSession } from "@/hooks/useGuestSession";
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { Settings, LogOut, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { ModelIcon } from "./ModelIcons";
 interface ChatAreaProps {
@@ -20,17 +22,23 @@ interface ChatAreaProps {
 const ChatArea = ({ onOpenVoiceMode }: ChatAreaProps) => {
   const { activeChatId, chats, user, selectedModel, models } = useChatStore();
   const { sendMessage, isStreaming, error, stopStreaming } = useAIChat();
-  const { signOut } = useAuth();
+  const { user: authUser, signOut } = useAuth();
+  const { isGuest, isGuestLimitReached } = useGuestSession(!!authUser);
   const navigate = useNavigate();
   const [showSettings, setShowSettings] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showGuestModal, setShowGuestModal] = useState(false);
   // Derive messages from active chat
   const messages = chats.find((c) => c.id === activeChatId)?.messages || [];
   const isPaidUser = user.plan !== "free";
   const currentModel = models.find((m) => m.id === selectedModel) || models[0];
   const handleSend = async (content: string) => {
+    if (isGuest && isGuestLimitReached) {
+      setShowGuestModal(true);
+      return;
+    }
     // Check token limit before sending
-    if (user.tokensUsed >= user.tokensLimit && user.tokensLimit > 0) {
+    if (!isGuest && user.tokensUsed >= user.tokensLimit && user.tokensLimit > 0) {
       setShowUpgradeModal(true);
       return;
     }
