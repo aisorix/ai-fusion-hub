@@ -984,6 +984,24 @@ export type Database = {
         }
         Relationships: []
       }
+      user_chat_windows: {
+        Row: {
+          updated_at: string
+          user_id: string
+          windows: Json
+        }
+        Insert: {
+          updated_at?: string
+          user_id: string
+          windows?: Json
+        }
+        Update: {
+          updated_at?: string
+          user_id?: string
+          windows?: Json
+        }
+        Relationships: []
+      }
       user_chats: {
         Row: {
           created_at: string
