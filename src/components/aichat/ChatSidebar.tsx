@@ -25,6 +25,7 @@ import {
   Presentation,
   PanelLeftClose,
   PanelLeft,
+  MoreHorizontal,
   Home,
   Check,
   X,
