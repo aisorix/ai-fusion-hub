@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import SEOHead from '@/components/SEOHead';
-import { ArrowLeft, Film } from 'lucide-react';
+import { ArrowLeft, Clapperboard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useChatStore, type Attachment } from '@/stores/chatStore';
