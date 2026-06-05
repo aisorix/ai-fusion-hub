@@ -69,7 +69,6 @@ serve(async (req) => {
       durationSec = 5,
       sound = false,
       imageData,
-      videoUrl: refVideoUrl,
     } = body || {};
 
     if (!prompt || typeof prompt !== 'string' || prompt.trim().length < 2) {
@@ -82,11 +81,7 @@ serve(async (req) => {
 
     const aspect = ['16:9', '9:16', '1:1'].includes(aspectRatio) ? aspectRatio : '16:9';
     const dur = Math.max(cfg.durs[0], Math.min(cfg.durs[cfg.durs.length - 1], Number(durationSec) || 5));
-    if (!cfg.durs.includes(dur)) {
-      // snap to nearest allowed
-    }
 
-    // resolution validation
     const resReqIdx = RES_ORDER.indexOf(resolution);
     const resMaxIdx = RES_ORDER.indexOf(cfg.maxRes);
     if (resReqIdx < 0) return json({ error: 'Invalid resolution' }, 400);
@@ -119,61 +114,98 @@ serve(async (req) => {
     const openrouterKey = Deno.env.get('OPENROUTER_API_KEY');
     if (!openrouterKey) return json({ error: 'Video generation not configured' }, 500);
 
-    // Build OpenRouter video request
-    const content: any[] = [{ type: 'text', text: prompt.trim() }];
+    // Build OpenRouter async video request
+    const payload: any = {
+      model,
+      prompt: prompt.trim(),
+      duration: dur,
+      resolution: resolved,
+      aspect_ratio: aspect,
+      generate_audio: !!sound,
+    };
     if (imageData && typeof imageData === 'string') {
-      content.unshift({ type: 'image_url', image_url: { url: imageData } });
-    }
-    if (refVideoUrl && typeof refVideoUrl === 'string') {
-      content.unshift({ type: 'video_url', video_url: { url: refVideoUrl } });
+      payload.frame_images = [{
+        type: 'image_url',
+        image_url: { url: imageData },
+        frame_type: 'first_frame',
+      }];
     }
 
-    const orRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const orHeaders = {
+      Authorization: `Bearer ${openrouterKey}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': 'https://aisorix.com',
+      'X-Title': 'Sorix Cineshoot',
+    };
+
+    const submitRes = await fetch('https://openrouter.ai/api/v1/videos', {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${openrouterKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://aisorix.com',
-        'X-Title': 'Sorix Cineshoot',
-      },
-      body: JSON.stringify({
-        model,
-        messages: [{ role: 'user', content: content.length === 1 ? prompt.trim() : content }],
-        modalities: ['text', 'video'],
-        video: {
-          aspect_ratio: aspect,
-          duration: dur,
-          resolution: resolved,
-          audio: !!sound,
-        },
-      }),
+      headers: orHeaders,
+      body: JSON.stringify(payload),
     });
 
-    const raw = await orRes.text();
-    if (!orRes.ok) {
-      console.error('Cineshoot OpenRouter error', orRes.status, raw.slice(0, 400));
-      return json({ error: `Video model failed (${orRes.status}). Try a different model or try again.` }, 502);
+    const submitRaw = await submitRes.text();
+    if (!submitRes.ok) {
+      console.error('Cineshoot submit error', submitRes.status, submitRaw.slice(0, 600));
+      let msg = `Video model failed (${submitRes.status}).`;
+      try {
+        const j = JSON.parse(submitRaw);
+        if (j?.error?.message) msg = j.error.message;
+      } catch {}
+      return json({ error: msg }, 502);
     }
 
-    let data: any = {};
-    try { data = JSON.parse(raw); } catch {}
-    const msg = data?.choices?.[0]?.message;
+    let submitData: any = {};
+    try { submitData = JSON.parse(submitRaw); } catch {}
+    const jobId = submitData?.id;
+    const pollingUrl = submitData?.polling_url ||
+      (jobId ? `https://openrouter.ai/api/v1/videos/${jobId}` : null);
+    if (!pollingUrl) {
+      console.error('Cineshoot: no polling_url', submitRaw.slice(0, 400));
+      return json({ error: 'Failed to start video job' }, 502);
+    }
+
+    // Poll until done or timeout (~140s budget)
+    const deadline = Date.now() + 140_000;
     let videoUrl = '';
-    if (msg?.videos?.length) videoUrl = msg.videos[0]?.video_url?.url || msg.videos[0]?.url || '';
-    if (!videoUrl && Array.isArray(msg?.content)) {
-      for (const p of msg.content) {
-        if ((p.type === 'video_url' || p.type === 'video') && (p.video_url?.url || p.url)) {
-          videoUrl = p.video_url?.url || p.url; break;
+    let lastStatus = 'pending';
+    let pollErr: string | null = null;
+
+    while (Date.now() < deadline) {
+      await new Promise(r => setTimeout(r, 5000));
+      const pRes = await fetch(pollingUrl, { headers: orHeaders });
+      const pRaw = await pRes.text();
+      if (!pRes.ok) {
+        console.error('Cineshoot poll error', pRes.status, pRaw.slice(0, 400));
+        continue;
+      }
+      let pData: any = {};
+      try { pData = JSON.parse(pRaw); } catch {}
+      lastStatus = pData?.status || lastStatus;
+
+      if (lastStatus === 'completed') {
+        const urls = pData?.signed_urls || pData?.unsigned_urls || [];
+        videoUrl = Array.isArray(urls) ? urls[0] : '';
+        if (!videoUrl && Array.isArray(pData?.outputs)) {
+          for (const o of pData.outputs) {
+            if (o?.url) { videoUrl = o.url; break; }
+            if (o?.video_url?.url) { videoUrl = o.video_url.url; break; }
+          }
         }
+        if (!videoUrl && jobId) {
+          videoUrl = `https://openrouter.ai/api/v1/videos/${jobId}/content`;
+        }
+        break;
+      }
+      if (lastStatus === 'failed') {
+        pollErr = pData?.error?.message || pData?.error || 'Video generation failed';
+        break;
       }
     }
-    if (!videoUrl && typeof msg?.content === 'string') {
-      const m = msg.content.match(/(https?:\/\/[^\s)]+\.(?:mp4|webm|mov))/i);
-      if (m) videoUrl = m[1];
-    }
+
+    if (pollErr) return json({ error: pollErr }, 502);
     if (!videoUrl) {
-      console.error('Cineshoot: no video extracted', JSON.stringify(data).slice(0, 400));
-      return json({ error: 'No video returned from model' }, 502);
+      return json({ error: 'Video is still rendering. Please try again in a moment.' }, 504);
     }
 
     // Persist
@@ -188,7 +220,7 @@ serve(async (req) => {
         resolution: resolved,
         duration_sec: dur,
         sound: !!sound,
-        source_type: imageData ? 'image' : refVideoUrl ? 'video' : 'text',
+        source_type: imageData ? 'image' : 'text',
         tokens_used: tokensCost,
       })
       .select('id')
