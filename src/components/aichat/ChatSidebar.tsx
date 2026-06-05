@@ -45,6 +45,7 @@ import sorixLogo from "@/assets/logo.png";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import ChatHistoryActions from "./ChatHistoryActions";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -122,40 +123,16 @@ const ChatItem = ({
         <span className="truncate">{chat.title}</span>
       </button>
 
-      {/* Three-dot menu on hover */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="p-1 rounded hover:bg-muted/80 transition-colors shrink-0 text-muted-foreground"
-          >
-            <MoreHorizontal className="w-3.5 h-3.5" />
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-40 bg-popover border border-border shadow-lg z-50">
-          <DropdownMenuItem onClick={() => onToggleStar(chat.id)}>
-            {chat.isStarred ? (
-              <><StarOff className="w-3.5 h-3.5 mr-2" />Unstar</>
-            ) : (
-              <><Star className="w-3.5 h-3.5 mr-2" />Star</>
-            )}
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => {
-              setRenameValue(chat.title);
-              setIsRenaming(true);
-            }}
-          >
-            <Pencil className="w-3.5 h-3.5 mr-2" />
-            Rename
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => onDelete(chat.id)} className="text-destructive focus:text-destructive">
-            <Trash2 className="w-3.5 h-3.5 mr-2" />
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <ChatHistoryActions
+        chatId={chat.id}
+        isStarred={chat.isStarred}
+        onDelete={onDelete}
+        onRenameRequest={() => {
+          setRenameValue(chat.title);
+          setIsRenaming(true);
+        }}
+        onToggleStar={onToggleStar}
+      />
     </div>
   );
 };
