@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import SEOHead from '@/components/SEOHead';
-import { ArrowLeft, Clapperboard } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Clapperboard, Film } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useChatStore, type Attachment } from '@/stores/chatStore';
 import { cineshootApi, type VideoGeneration } from '@/services/cineshootApi';
@@ -14,6 +14,7 @@ import {
   type CineshootModel, type VideoAspect, type VideoResolution,
 } from '@/components/cineshoot/cineshootModels';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
+import TokenCostChip from '@/components/shared/TokenCostChip';
 
 const CineshootPage: React.FC = () => {
   const navigate = useNavigate();
