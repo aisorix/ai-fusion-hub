@@ -3,6 +3,14 @@ import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
 import { ChevronDown, Lock, Sparkles, Zap, Star, Cpu, Wand2, Image as ImageIcon, Flame } from 'lucide-react';
 
+export type ImageTier = 'basic' | 'pro' | 'premium';
+
+export const IMAGE_TIER_COST: Record<ImageTier, number> = {
+  basic: 25000,
+  pro: 35000,
+  premium: 45000,
+};
+
 export interface ImageModel {
   id: string;
   displayName: string;
@@ -11,6 +19,7 @@ export interface ImageModel {
   emoji: string;
   icon: React.ElementType;
   gradient: string;
+  tier: ImageTier;
   proOnly?: boolean;
   tagline?: string;
 }
@@ -24,54 +33,8 @@ export const imageModels: ImageModel[] = [
     emoji: '🌊',
     icon: Wand2,
     gradient: 'from-sky-500 to-indigo-500',
+    tier: 'basic',
     tagline: 'High quality · default',
-  },
-  {
-    id: 'nano-banana',
-    displayName: 'Nano Banana',
-    shortName: 'Nano Banana',
-    modelId: 'google/gemini-2.5-flash-image',
-    emoji: '🍌',
-    icon: Sparkles,
-    gradient: 'from-yellow-400 to-orange-500',
-  },
-  {
-    id: 'nano-banana-2',
-    displayName: 'Nano Banana 2',
-    shortName: 'Nano 2',
-    modelId: 'google/gemini-3.1-flash-image-preview',
-    emoji: '🍌',
-    icon: Star,
-    gradient: 'from-amber-400 to-yellow-500',
-  },
-  {
-    id: 'nano-banana-pro',
-    displayName: 'Nano Banana Pro',
-    shortName: 'Nano Pro',
-    modelId: 'google/gemini-3-pro-image-preview',
-    emoji: '🍌',
-    icon: Star,
-    gradient: 'from-purple-500 to-pink-500',
-    proOnly: true,
-  },
-  {
-    id: 'gpt5-image',
-    displayName: 'GPT-5 Image',
-    shortName: 'GPT-5',
-    modelId: 'openai/gpt-5-image-mini',
-    emoji: '🤖',
-    icon: Cpu,
-    gradient: 'from-emerald-500 to-teal-600',
-  },
-  {
-    id: 'gpt-image-2',
-    displayName: 'GPT Image 2',
-    shortName: 'GPT Image 2',
-    modelId: 'openai/gpt-5.4-image-2',
-    emoji: '🤖',
-    icon: Cpu,
-    gradient: 'from-emerald-600 to-cyan-600',
-    proOnly: true,
   },
   {
     id: 'grok-imagine',
@@ -81,6 +44,48 @@ export const imageModels: ImageModel[] = [
     emoji: '⚡',
     icon: Zap,
     gradient: 'from-slate-500 to-zinc-700',
+    tier: 'basic',
+  },
+  {
+    id: 'nano-banana',
+    displayName: 'Nano Banana',
+    shortName: 'Nano Banana',
+    modelId: 'google/gemini-2.5-flash-image',
+    emoji: '🍌',
+    icon: Sparkles,
+    gradient: 'from-yellow-400 to-orange-500',
+    tier: 'basic',
+  },
+  {
+    id: 'nano-banana-2',
+    displayName: 'Nano Banana 2',
+    shortName: 'Nano 2',
+    modelId: 'google/gemini-3.1-flash-image-preview',
+    emoji: '🍌',
+    icon: Star,
+    gradient: 'from-amber-400 to-yellow-500',
+    tier: 'basic',
+  },
+  {
+    id: 'gpt5-image',
+    displayName: 'GPT-5 Image',
+    shortName: 'GPT-5',
+    modelId: 'openai/gpt-5-image-mini',
+    emoji: '🤖',
+    icon: Cpu,
+    gradient: 'from-emerald-500 to-teal-600',
+    tier: 'basic',
+  },
+  {
+    id: 'gpt-image-2',
+    displayName: 'GPT Image 2',
+    shortName: 'GPT Image 2',
+    modelId: 'openai/gpt-5.4-image-2',
+    emoji: '🤖',
+    icon: Cpu,
+    gradient: 'from-emerald-600 to-cyan-600',
+    tier: 'pro',
+    proOnly: true,
   },
   {
     id: 'seedream',
@@ -90,6 +95,19 @@ export const imageModels: ImageModel[] = [
     emoji: '🌱',
     icon: ImageIcon,
     gradient: 'from-lime-500 to-green-600',
+    tier: 'pro',
+    proOnly: true,
+  },
+  {
+    id: 'nano-banana-pro',
+    displayName: 'Nano Banana Pro',
+    shortName: 'Nano Pro',
+    modelId: 'google/gemini-3-pro-image-preview',
+    emoji: '🍌',
+    icon: Star,
+    gradient: 'from-purple-500 to-pink-500',
+    tier: 'premium',
+    proOnly: true,
   },
   {
     id: 'flux-max',
@@ -99,6 +117,7 @@ export const imageModels: ImageModel[] = [
     emoji: '🔥',
     icon: Flame,
     gradient: 'from-orange-500 to-red-600',
+    tier: 'premium',
     proOnly: true,
   },
   {
@@ -109,9 +128,12 @@ export const imageModels: ImageModel[] = [
     emoji: '🔥',
     icon: Flame,
     gradient: 'from-rose-500 to-fuchsia-600',
+    tier: 'premium',
     proOnly: true,
   },
 ];
+
+export const getImageModelCost = (model: ImageModel): number => IMAGE_TIER_COST[model.tier];
 
 interface Props {
   selectedModelId: string;

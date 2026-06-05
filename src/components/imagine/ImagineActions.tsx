@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, Share2, Copy, Check } from 'lucide-react';
+import { Download, Share2, Copy, Check, Clapperboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 interface Props {
   imageUrl: string;
   prompt: string;
+  onGenerateVideo?: () => void;
 }
 
 const downloadImage = async (imageUrl: string, format: string, prompt: string) => {
@@ -54,7 +55,7 @@ const downloadImage = async (imageUrl: string, format: string, prompt: string) =
   }
 };
 
-const ImagineActions: React.FC<Props> = ({ imageUrl, prompt }) => {
+const ImagineActions: React.FC<Props> = ({ imageUrl, prompt, onGenerateVideo }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -124,6 +125,17 @@ const ImagineActions: React.FC<Props> = ({ imageUrl, prompt }) => {
         {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
         {copied ? 'Copied' : 'Copy'}
       </Button>
+
+      {onGenerateVideo && (
+        <Button
+          size="sm"
+          onClick={onGenerateVideo}
+          className="gap-1.5 rounded-xl bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white hover:opacity-90 border-0 shadow-md shadow-fuchsia-500/30"
+        >
+          <Clapperboard className="w-3.5 h-3.5" />
+          Generate Video
+        </Button>
+      )}
     </div>
   );
 };

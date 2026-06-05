@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Film, Download, Share2, Copy, Check } from 'lucide-react';
+import { Film, Download, Share2, Copy, Check, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -12,28 +12,36 @@ interface Props {
   isGenerating: boolean;
   prompt: string;
   aspect: VideoAspect;
+  onGenerateImage?: (prompt: string) => void;
 }
 
 const aspectToClass = (a: VideoAspect) =>
   a === '1:1' ? 'aspect-square' : a === '9:16' ? 'aspect-[9/16] max-w-sm mx-auto' : 'aspect-[16/9]';
 
 const downloadVideo = async (url: string) => {
+  // Try blob-based download first (works when CORS allows)
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, { mode: 'cors' });
+    if (!res.ok) throw new Error('fetch failed');
     const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
+    a.href = objectUrl;
     a.download = `sorix-cineshoot-${Date.now()}.mp4`;
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(a.href);
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
     toast.success('Downloaded');
+    return;
   } catch {
-    const a = document.createElement('a');
-    a.href = url; a.download = `sorix-cineshoot-${Date.now()}.mp4`; a.click();
+    // Fallback: open in new tab so the browser handles save
+    window.open(url, '_blank', 'noopener,noreferrer');
+    toast.info('Opening video in a new tab — right-click to save');
   }
 };
 
-const CineshootCanvas: React.FC<Props> = ({ videoUrl, isGenerating, prompt, aspect }) => {
+const CineshootCanvas: React.FC<Props> = ({ videoUrl, isGenerating, prompt, aspect, onGenerateImage }) => {
   const cls = aspectToClass(aspect);
   const [copied, setCopied] = React.useState(false);
 
@@ -123,7 +131,7 @@ const CineshootCanvas: React.FC<Props> = ({ videoUrl, isGenerating, prompt, aspe
           />
         </div>
       </motion.div>
-      <div className="flex items-center justify-center gap-2 mt-4">
+      <div className="flex items-center justify-center gap-2 mt-4 flex-wrap">
         <Button variant="outline" size="sm" className="gap-1.5 rounded-xl" onClick={() => downloadVideo(videoUrl)}>
           <Download className="w-3.5 h-3.5" /> Download MP4
         </Button>
@@ -140,6 +148,16 @@ const CineshootCanvas: React.FC<Props> = ({ videoUrl, isGenerating, prompt, aspe
           {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
           {copied ? 'Copied' : 'Copy'}
         </Button>
+        {onGenerateImage && (
+          <Button
+            size="sm"
+            onClick={() => onGenerateImage(prompt)}
+            className="gap-1.5 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 text-white hover:opacity-90 border-0 shadow-md shadow-purple-500/30"
+          >
+            <ImageIcon className="w-3.5 h-3.5" />
+            Generate Image
+          </Button>
+        )}
       </div>
     </div>
   );
