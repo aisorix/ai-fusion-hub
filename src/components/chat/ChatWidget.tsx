@@ -25,8 +25,30 @@ export const ChatWidget = forwardRef<ChatWidgetRef>((_, ref) => {
     loading,
     sending,
     sendMessage,
-    markAsRead
+    markAsRead,
+    isGuest,
+    guestReady,
+    startGuestConversation,
   } = useChat();
+
+  const [guestName, setGuestName] = useState('');
+  const [guestEmail, setGuestEmail] = useState('');
+  const [guestSubmitting, setGuestSubmitting] = useState(false);
+  const [guestError, setGuestError] = useState<string | null>(null);
+  const needsGuestInfo = isGuest && !guestReady;
+
+  const handleStartGuest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setGuestError(null);
+    const name = guestName.trim();
+    const email = guestEmail.trim();
+    if (!name) { setGuestError('Please enter your name.'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setGuestError('Please enter a valid email.'); return; }
+    setGuestSubmitting(true);
+    const conv = await startGuestConversation(name, email);
+    setGuestSubmitting(false);
+    if (!conv) setGuestError('Could not start chat. Please try again.');
+  };
 
   // Count unread messages from employees
   const unreadCount = messages.filter(
