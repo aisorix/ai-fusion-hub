@@ -1,44 +1,30 @@
-## What's wrong
-
-1. **404 on every model.** The Cineshoot edge function calls OpenRouter's `/chat/completions` with `modalities: ['text','video']`. OpenRouter returns `"No endpoints found that support the requested output modalities: text, video"` for all video models. OpenRouter video models are NOT served via chat completions — they have a dedicated async API at `POST /api/v1/videos`.
-
-2. **Duplicate Film icon in the Cineshoot header.** The page shows the rose→violet gradient square + Film icon next to the title, which feels redundant.
-
-3. **Sidebar missing the Cineshoot entry** under "Sorix Agent".
-
 ## Plan
 
-### 1. Rewrite `supabase/functions/cineshoot/index.ts` to use OpenRouter's async Video API
+### 1. Fix video playback (the black player)
+The Cineshoot edge function currently returns the raw OpenRouter video URL, which requires auth headers — the browser `<video>` tag cannot play it (loads forever, no controls work).
 
-Keep auth, pricing, token-deduction, plan-tier checks, and DB persistence exactly as-is. Replace only the OpenRouter call with the correct flow:
+**Fix:** After OpenRouter finishes rendering, the edge function will:
+- Download the finished video server-side (with the OpenRouter auth header).
+- Upload it to a public `cineshoot-videos` storage bucket.
+- Return that public, browser-playable URL instead.
 
-- **Submit job:** `POST https://openrouter.ai/api/v1/videos`
-  - Body: `{ model, prompt, duration, resolution, aspect_ratio, generate_audio, frame_images? }`
-  - For image-to-video, pass the uploaded image as:
-    ```
-    frame_images: [{ type: 'image_url', image_url: { url: imageData }, frame_type: 'first_frame' }]
-    ```
-- **Poll** the returned `polling_url` every 5s, up to ~140s (well under Supabase edge timeout). Statuses: `pending` / `in_progress` / `completed` / `failed`.
-- On `completed`, take `unsigned_urls[0]` (or `signed_urls[0]` if present) as `videoUrl` and continue with existing persistence + token logic.
-- On `failed` or timeout, return a clear error and **do not** deduct tokens.
-- Keep the existing model whitelist (`x-ai/grok-imagine-video`, `kwaivgi/kling-*`, `bytedance/seedance-*`, `google/veo-3.1*`, `openai/sora-2-pro`, `minimax/hailuo-2.3`).
-- Drop `modalities` and the chat-style `messages` array entirely.
+Videos will play instantly, support Download/Share/Copy, and stay available in history.
 
-Note: the OpenRouter video API may not list every model the user wants today (e.g. `x-ai/grok-imagine-video` may not be in `/api/v1/videos/models`). For any model OpenRouter rejects, surface the actual error message back to the UI instead of a generic 404 — this lets you see which models are live without further code changes.
+### 2. Restore the Cineshoot icon in the page header
+Re-add the gradient Film icon badge to `CineshootPage.tsx` header (next to "Sorix Cineshoot / AI Video Generation"), matching the visual style of other tool pages (Sorix Imagine, Sorix Deck, etc.).
 
-### 2. Clean up `src/pages/CineshootPage.tsx` header
+### 3. Apply the 7x token pricing (UI display + actual user charge)
+Right now the UI shows ~16,800 per render but the backend charges a higher amount — they're out of sync. Both will be aligned to the new 7x pricing so the user is charged exactly what they see.
 
-Remove the small rose→violet gradient square with the `Film` icon next to the title; keep only the back arrow + "Sorix Cineshoot" / "AI Video Generation" text (matches the cleaner pattern the user wants).
+- **Frontend (`cineshootModels.ts`)**: change `MARKUP` from `2` → `14` so "per render" displays 117,600 for Grok Imagine 4s/720p and scales the same way for every other model (Veo, Sora, Kling, Seedance, Hailuo).
+- **Backend (`cineshoot/index.ts`)**: keep `MARKUP = 14` (already set) — this is what actually deducts tokens from the user's subscription balance.
 
-### 3. Add Sorix Cineshoot to the chat sidebar
+Result: every model's per-render cost displayed in the UI = exactly what's cut from the user's tokens.
 
-In `src/components/aichat/ChatSidebar.tsx`, add a new entry directly below the existing **Sorix Agent** row (around line 456) using the same row styling/spacing as Agent and More Tools. Use the `Clapperboard` lucide icon, label "Sorix Cineshoot", and route to `/cineshoot`. Mirror the same change in `src/components/aichat/MobileSidebar.tsx` if it has the matching list, so mobile parity holds.
+### Files to edit
+- `supabase/functions/cineshoot/index.ts` — download + upload video to storage bucket, return public URL
+- `src/components/cineshoot/cineshootModels.ts` — MARKUP 2 → 14 (display)
+- `src/pages/CineshootPage.tsx` — re-add Film icon badge in header
+- Storage: ensure `cineshoot-videos` public bucket exists (already created earlier; verify)
 
-### Files touched
-
-- `supabase/functions/cineshoot/index.ts` — switch to async `/api/v1/videos` + polling
-- `src/pages/CineshootPage.tsx` — remove duplicate Film icon from header
-- `src/components/aichat/ChatSidebar.tsx` — add "Sorix Cineshoot" row under Sorix Agent
-- `src/components/aichat/MobileSidebar.tsx` — same row for mobile (only if list exists there)
-
-No DB migration, no new secrets — the existing `OPENROUTER_API_KEY` is reused.
+No new secrets needed. Uses existing `OPENROUTER_API_KEY` and `SUPABASE_SERVICE_ROLE_KEY`.
