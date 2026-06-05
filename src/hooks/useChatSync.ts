@@ -6,8 +6,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useChatStore, type Chat, type ChatWindow } from '@/stores/chatStore';
 import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
-const SYNC_DEBOUNCE_MS = 2000;
-const WINDOWS_DEBOUNCE_MS = 2500;
+const SYNC_DEBOUNCE_MS = 300;
+const WINDOWS_DEBOUNCE_MS = 400;
 
 // Track which changes originated from this device to avoid echo
 const localChangeIds = new Set<string>();
@@ -74,8 +74,11 @@ export const useChatSync = (userId: string | null) => {
           user_id: userId,
           title: chat.title,
           messages: cleanMessagesForDB(chat.messages) as any,
+          is_starred: !!chat.isStarred,
+          project_id: chat.projectId ?? null,
+          title_manually_set: !!chat.titleManuallySet,
           updated_at: new Date().toISOString(),
-        },
+        } as any,
         { onConflict: 'id' }
       );
       setTimeout(() => localChangeIds.delete(chat.id), 3000);
@@ -167,6 +170,9 @@ export const useChatSync = (userId: string | null) => {
           messages: (c.messages as any[]) || [],
           createdAt: c.created_at,
           updatedAt: c.updated_at,
+          isStarred: !!c.is_starred,
+          projectId: c.project_id ?? null,
+          titleManuallySet: !!c.title_manually_set,
         }));
         const dbChatIds = new Set(chats.map((c) => c.id));
         const localOnlyChats = store.chats.filter((c) => !dbChatIds.has(c.id));
@@ -226,7 +232,7 @@ export const useChatSync = (userId: string | null) => {
       );
       for (const chat of deletedChats) deleteChatFromDB(chat.id);
 
-      // Active chat changed → debounced save
+      // Active chat changed → debounced save for content, immediate for structural
       const activeChat = state.chats.find((c) => c.id === state.activeChatId);
       const prevActiveChat = prevState.chats.find((c) => c.id === prevState.activeChatId);
       if (
@@ -235,10 +241,30 @@ export const useChatSync = (userId: string | null) => {
         activeChat.id === prevActiveChat.id &&
         (activeChat.messages.length !== prevActiveChat.messages.length ||
           activeChat.title !== prevActiveChat.title ||
+          activeChat.isStarred !== prevActiveChat.isStarred ||
+          activeChat.projectId !== prevActiveChat.projectId ||
           activeChat.updatedAt !== prevActiveChat.updatedAt)
       ) {
-        if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
-        syncTimeoutRef.current = setTimeout(() => saveChatToDB(activeChat), SYNC_DEBOUNCE_MS);
+        const structural =
+          activeChat.title !== prevActiveChat.title ||
+          activeChat.isStarred !== prevActiveChat.isStarred ||
+          activeChat.projectId !== prevActiveChat.projectId;
+        if (structural) {
+          if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
+          saveChatToDB(activeChat);
+        } else {
+          if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
+          syncTimeoutRef.current = setTimeout(() => saveChatToDB(activeChat), SYNC_DEBOUNCE_MS);
+        }
+      }
+
+      // Star/project changes for non-active chats → immediate save
+      for (const c of state.chats) {
+        const prev = prevState.chats.find((pc) => pc.id === c.id);
+        if (!prev || c.id === state.activeChatId) continue;
+        if (c.isStarred !== prev.isStarred || c.projectId !== prev.projectId || c.title !== prev.title) {
+          saveChatToDB(c);
+        }
       }
 
       // Tokens
@@ -289,6 +315,9 @@ export const useChatSync = (userId: string | null) => {
                 messages: record.messages || [],
                 createdAt: record.created_at,
                 updatedAt: record.updated_at,
+                isStarred: !!record.is_starred,
+                projectId: record.project_id ?? null,
+                titleManuallySet: !!record.title_manually_set,
               };
               useChatStore.setState({ chats: [newChat, ...store.chats] });
             }
@@ -299,6 +328,9 @@ export const useChatSync = (userId: string | null) => {
               messages: record.messages || [],
               createdAt: record.created_at,
               updatedAt: record.updated_at,
+              isStarred: !!record.is_starred,
+              projectId: record.project_id ?? null,
+              titleManuallySet: !!record.title_manually_set,
             };
             useChatStore.setState({
               chats: store.chats.map((c) => (c.id === record.id ? updatedChat : c)),

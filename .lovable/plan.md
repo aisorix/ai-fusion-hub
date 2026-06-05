@@ -1,64 +1,125 @@
 
-## Why it's broken today
+## Goals
 
-Cineshoot already syncs cross-device because **all generations live in Supabase** (`video_generations`, `cineshoot-videos` bucket) and the canvas auto-loads from the DB. The other tools have two real gaps:
+1. **New 3-dot menu** on each chat history item: Star/Unstar, Rename, Add to project, Delete (matches image 1).
+2. **Starred section** pinned above Recents in the sidebar (matches image 3).
+3. **Smart chat titles** auto-generated from the user's prompt topic (3–6 words, cleaned), not just sliced first 50 chars.
+4. **Instant realtime sync (zero delay)** for all chat history and tool creations across every logged-in device — Main chat, Multi-window, Imagine, Deck, FlowBuilder, Cineshoot, Legends, Health, Agro.
 
-1. **The "current creation" on the canvas is only in `localStorage`** (zustand persist) for Imagine, Deck, FlowBuilder, Legends, and Health. The DB history exists, but a new device shows an empty canvas until the user manually opens History. That makes it *feel* like nothing synced.
-2. **Main AI Chat sync is lossy and Multi-Window is not synced at all.**
-   - `useChatSync.cleanMessagesForDB` strips image attachment URLs to `''` and drops parsed file content → images/files vanish on other devices.
-   - `chatWindows` (multi-window state) is only in zustand persist; never written to Supabase.
+---
 
-Imagine / Deck / Flow / Legends history components already call `*.getHistory()` from Supabase, so RLS + DB is fine — we just need to surface the latest creation automatically and stop dropping data in the chat sync.
+## 1. Starred chats + new menu
 
-## What to change
+**`src/stores/chatStore.ts`**
+- Extend `Chat` interface with `isStarred?: boolean`, `projectId?: string | null`, `titleManuallySet?: boolean`.
+- Add actions: `toggleStarChat(id)`, `addChatToProject(chatId, projectId)`.
 
-### 1. Auto-restore last creation on every tool (cross-device)
-For each of these pages, on mount (after auth) fetch the most recent row for the user and hydrate the canvas if local state is empty:
+**`src/components/aichat/ChatSidebar.tsx`**
+- `ChatItem` dropdown → 4 items: **Star/Unstar** (Star icon, label flips), **Rename** (Pencil), **Add to project** (FolderPlus → submenu of existing projects + "New project"), **Delete** (Trash, destructive).
+- Above the History section add **Starred** — renders `chats.filter(c => c.isStarred)` sorted by `updatedAt`. Hidden when empty.
+- Final section order: Starred → History (Today / This Week / Older).
 
-- `ImaginePage` → `imagineApi.getHistory()[0]` → load image + prompt + model into canvas.
-- `DeckPage` → most recent `presentations` row → load slides/theme.
-- `FlowBuilderPage` → latest `analysis_history` row with `tool='flowbuilder'` → load mermaid code.
-- `LegendsPage` → latest `analysis_history` row with `tool='legends'` → restore conversation.
-- `HealthPage` / `AgroPage` → latest analysis row → restore result.
+**`src/components/aichat/MobileSidebar.tsx`** — same menu + Starred section.
 
-Add a small "Resumed your last creation on this device" toast suppressed silently (per the project's silent-UI rule, just skip the toast).
+---
 
-### 2. Fix Main Chat sync (no more lost images/files)
-In `src/hooks/useChatSync.ts`:
+## 2. Topic-based chat titles
 
-- Remove `cleanMessagesForDB`'s URL stripping. Instead:
-  - If `att.type === 'image'` and `url` is a `data:` / `blob:` URL, upload the bytes to a new public `chat-attachments` bucket (path `${userId}/${chatId}/${msgId}-${i}.png`) and store the returned public URL.
-  - If `att.type === 'file'` and small (<2 MB), upload to the same bucket; otherwise persist metadata only (name/size/type) and mark `unavailableOnOtherDevices: true` so UI can show a hint.
-  - Always keep `http(s)` URLs as-is.
-- Migration: create `chat-attachments` bucket (public read), with RLS allowing inserts only where path prefix matches `auth.uid()`.
+Replace the current "first 50 chars" slice in `addMessage`:
 
-### 3. Sync Multi-Window Chat across devices
-- Add table `public.user_chat_windows` (`user_id uuid pk`, `windows jsonb`, `updated_at timestamptz`) with RLS `auth.uid() = user_id` and the standard GRANTs.
-- In `useChatSync`, also subscribe to `state.chatWindows` changes (debounced 2 s) → upsert. On initial load, hydrate `chatWindows` from the row if it exists.
-- Strip the same attachment-URL issue here too (reuse the helper from step 2).
+- **Instant heuristic** (client-side, zero latency): strip code blocks / URLs / markdown, collapse whitespace, take first 6 meaningful words, Title Case, max ~40 chars.
+- **Optional AI polish** (non-blocking, fire-and-forget) after the first assistant reply finishes: ask the existing `chat` edge function for a 3–6 word topic; if it returns, call `updateChatTitle` (already synced via Realtime).
+- Skip AI polish when `titleManuallySet === true`. Rename action sets that flag.
 
-### 4. Cineshoot video access on other devices
-`cineshoot-videos` is a private bucket. Verify `cineshootApi.getHistory()` returns playable URLs on a new device. If the stored `video_url` is a path (not a signed URL), update `supabase/functions/cineshoot/index.ts` history responses and `CineshootCanvas` to request a signed URL (`storage.from('cineshoot-videos').createSignedUrl(path, 3600)`) at load time. (No-op if already signed.)
+---
 
-### 5. Small UX consistency
-- Show "Last creation restored" as a subtle inline chip on the canvas (not a toast) with a "Start new" button to clear it.
-- On every History panel, after deleting the currently-displayed item, clear the canvas too.
+## 3. Instant realtime sync — zero delay everywhere
+
+Make every persisted surface push-and-receive in realtime with **no debounce on structural events** and **immediate optimistic writes**.
+
+### Write side — kill the delay
+In `useChatSync.ts`:
+- **No debounce** for: chat create, delete, rename, star toggle, add-to-project, new message append. These flush instantly (`await upsert` fired immediately in the store subscriber).
+- **Debounce kept only for streaming token-by-token content** (300 ms, down from 2 s) so the in-flight assistant reply still coalesces but feels live on other devices.
+- Multi-window save debounce dropped from 2.5 s → 400 ms.
+
+### Read side — universal realtime
+Add a generic hook **`src/hooks/useRealtimeHistory.ts`**:
+```ts
+useRealtimeHistory({ table, userId, filter?, onChange })
+```
+Opens a Supabase channel filtered by `user_id=eq.${uid}` (plus optional `tool=eq.flowbuilder` etc.), triggers `onChange()` on INSERT/UPDATE/DELETE so the list refetches immediately.
+
+Plug it into every history surface:
+
+| Surface | Table | Component |
+|---|---|---|
+| Main chats | `user_chats` | already wired in `useChatSync` (kept) |
+| Multi-window | `user_chat_windows` | already wired (kept) |
+| Imagine | `image_generations` (fallback `analysis_history` tool=imagine) | `ImagineHistory.tsx`, `ImagineHistoryFeed.tsx`, also re-hydrate canvas on INSERT |
+| Deck | `presentations` | `DeckHistory.tsx`, `DeckHistoryFeed.tsx` |
+| FlowBuilder | `analysis_history` (tool=flowbuilder) | `FlowHistory.tsx` |
+| Cineshoot | `video_generations` | `CineshootHistoryFeed.tsx` + `CineshootCanvas.tsx` |
+| Legends | `legend_conversations` | `LegendHistory.tsx` |
+| Health | `analysis_history` (tool=health) | `HealthHistory.tsx` |
+| Agro | `analysis_history` (tool=agro) | `AgroHistory.tsx` |
+
+Each component:
+1. Subscribes on mount via `useRealtimeHistory`.
+2. On any change → refetch latest page (cheap, paginated).
+3. If the user is currently on the matching tool page and the canvas is empty, auto-hydrate with the newest row (already done for some tools).
+4. Cleans up channel on unmount.
+
+### Database — enable realtime on every tool table
+One migration sets `REPLICA IDENTITY FULL` and adds each table to the `supabase_realtime` publication (guarded with `DO $$ ... EXCEPTION WHEN duplicate_object ...` so reruns are safe).
+
+---
 
 ## Technical details
 
-**Files to edit**
-- `src/hooks/useChatSync.ts` — remove stripping, add upload helper, sync `chatWindows`.
-- `src/stores/chatStore.ts` — expose hydrate action for `chatWindows`; keep `stripAttachmentsForPersistence` for localStorage size cap only (DB keeps full URLs).
-- `src/pages/ImaginePage.tsx`, `DeckPage.tsx`, `FlowBuilderPage.tsx`, `LegendsPage.tsx`, `HealthPage.tsx`, `AgroPage.tsx` — auto-restore latest row on mount when canvas is empty.
-- `src/components/cineshoot/CineshootCanvas.tsx` + `supabase/functions/cineshoot/index.ts` — ensure signed URLs.
-- New: `src/lib/chatAttachmentUpload.ts` helper.
+### Migration
 
-**Migrations**
-- `public.user_chat_windows` table + RLS + GRANTs.
-- New storage bucket `chat-attachments` (public read) with insert policy `bucket_id='chat-attachments' AND (storage.foldername(name))[1] = auth.uid()::text`.
+```sql
+-- Sidebar features
+ALTER TABLE public.user_chats
+  ADD COLUMN IF NOT EXISTS is_starred boolean NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS project_id uuid NULL REFERENCES public.projects(id) ON DELETE SET NULL,
+  ADD COLUMN IF NOT EXISTS title_manually_set boolean NOT NULL DEFAULT false;
 
-**Out of scope**
-- Token costs / pricing (already done last turn).
-- UI redesigns beyond the small "last creation restored" chip.
+-- Realtime on every tool table
+ALTER TABLE public.image_generations    REPLICA IDENTITY FULL;
+ALTER TABLE public.presentations        REPLICA IDENTITY FULL;
+ALTER TABLE public.video_generations    REPLICA IDENTITY FULL;
+ALTER TABLE public.legend_conversations REPLICA IDENTITY FULL;
+ALTER TABLE public.analysis_history     REPLICA IDENTITY FULL;
 
-Approve and I'll implement it.
+DO $$ BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE public.image_generations;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+-- repeat block for presentations, video_generations, legend_conversations, analysis_history
+```
+
+### Files to edit / create
+
+- `supabase/migrations/<new>.sql` *(schema + realtime)*
+- `src/stores/chatStore.ts` *(star/project/title-flag + smart title)*
+- `src/components/aichat/ChatSidebar.tsx` *(menu + Starred section)*
+- `src/components/aichat/MobileSidebar.tsx`
+- `src/hooks/useChatSync.ts` *(remove structural debounce, shrink streaming debounce, persist new columns)*
+- `src/hooks/useRealtimeHistory.ts` *(new, generic)*
+- `src/components/imagine/ImagineHistory.tsx`, `ImagineHistoryFeed.tsx`
+- `src/components/deck/DeckHistory.tsx`, `DeckHistoryFeed.tsx`
+- `src/components/flowbuilder/FlowHistory.tsx`
+- `src/components/cineshoot/CineshootHistoryFeed.tsx`, `CineshootCanvas.tsx`
+- `src/components/legends/LegendHistory.tsx`
+- `src/components/health/HealthHistory.tsx`
+- `src/components/agro/AgroHistory.tsx`
+
+No edge-function changes needed.
+
+---
+
+## Out of scope
+
+- Reordering inside Starred (kept as `updated_at desc`).
+- Full Projects UI overhaul — only the "Add to project" picker reuses the existing `projects` table.
