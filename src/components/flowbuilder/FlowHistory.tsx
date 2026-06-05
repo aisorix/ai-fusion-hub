@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Trash2, Loader2 } from 'lucide-react';
 import { flowbuilderApi, type FlowHistoryItem } from '@/services/flowbuilderApi';
 import { toast } from 'sonner';
+import { useAuth } from '@/hooks/useAuth';
+import { useRealtimeHistory } from '@/hooks/useRealtimeHistory';
 
 interface FlowHistoryProps {
   onSelect: (item: FlowHistoryItem) => void;
