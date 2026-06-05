@@ -562,6 +562,15 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
         <ScrollArea className="flex-1 mt-1">
           {!historyCollapsed && (
             <div className="px-3 space-y-4">
+              {starredChats.length > 0 && (
+                <div>
+                  <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1 flex items-center gap-1">
+                    <Star className="w-3 h-3 fill-current" />
+                    Starred
+                  </h3>
+                  <div className="space-y-0.5">{renderChatList(starredChats)}</div>
+                </div>
+              )}
               {todayChats.length > 0 && (
                 <div>
                   <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">
