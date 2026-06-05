@@ -18,6 +18,7 @@ import TokenCostChip from '@/components/shared/TokenCostChip';
 
 const CineshootPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, setUser } = useChatStore();
 
   const [selectedModel, setSelectedModel] = useState<CineshootModel>(cineshootModels[0]);
@@ -32,7 +33,20 @@ const CineshootPage: React.FC = () => {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [refreshHistory, setRefreshHistory] = useState(0);
   const [injectPrompt, setInjectPrompt] = useState<string | undefined>();
+  const [injectAttachmentUrl, setInjectAttachmentUrl] = useState<string | undefined>();
   const [injectKey, setInjectKey] = useState(0);
+  const [refineEnabled, setRefineEnabled] = useState(true);
+
+  useEffect(() => {
+    const state = location.state as { prompt?: string; imageUrl?: string } | null;
+    if (state?.prompt || state?.imageUrl) {
+      if (state.prompt) setInjectPrompt(state.prompt);
+      if (state.imageUrl) setInjectAttachmentUrl(state.imageUrl);
+      setInjectKey(k => k + 1);
+      navigate(location.pathname, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const canvasRef = useRef<HTMLDivElement>(null);
   const isProPlus = user.plan === 'pro' || user.plan === 'premium';
