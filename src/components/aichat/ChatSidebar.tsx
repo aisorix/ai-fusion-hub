@@ -170,6 +170,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
     setActiveChat,
     deleteChat,
     updateChatTitle,
+    toggleStarChat,
     viewMode,
     setViewMode,
     user,
