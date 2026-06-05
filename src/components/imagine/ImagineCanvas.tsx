@@ -12,6 +12,7 @@ interface Props {
   prompt: string;
   aspect: AspectRatio;
   count: number;
+  onGenerateVideo?: (url: string, prompt: string) => void;
 }
 
 const aspectToClass = (a: AspectRatio): string => {
