@@ -131,7 +131,7 @@ const CineshootCanvas: React.FC<Props> = ({ videoUrl, isGenerating, prompt, aspe
           />
         </div>
       </motion.div>
-      <div className="flex items-center justify-center gap-2 mt-4">
+      <div className="flex items-center justify-center gap-2 mt-4 flex-wrap">
         <Button variant="outline" size="sm" className="gap-1.5 rounded-xl" onClick={() => downloadVideo(videoUrl)}>
           <Download className="w-3.5 h-3.5" /> Download MP4
         </Button>
@@ -148,6 +148,16 @@ const CineshootCanvas: React.FC<Props> = ({ videoUrl, isGenerating, prompt, aspe
           {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
           {copied ? 'Copied' : 'Copy'}
         </Button>
+        {onGenerateImage && (
+          <Button
+            size="sm"
+            onClick={() => onGenerateImage(prompt)}
+            className="gap-1.5 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 text-white hover:opacity-90 border-0 shadow-md shadow-purple-500/30"
+          >
+            <ImageIcon className="w-3.5 h-3.5" />
+            Generate Image
+          </Button>
+        )}
       </div>
     </div>
   );
