@@ -30,7 +30,7 @@ function range(a: number, b: number): number[] {
 const RES_MULT: Record<string, number> = { '720p': 1, '1080p': 1, '2K': 1.25, '4K': 1.5 };
 const RES_ORDER = ['720p', '1080p', '2K', '4K'];
 const TOKENS_PER_USD = 30000;
-const MARKUP = 2;
+const MARKUP = 14; // 7x previous markup of 2
 const PLAN_RANK: Record<string, number> = { free: 0, basic: 1, pro: 2, premium: 3 };
 const TIER_RANK: Record<string, number> = { basic: 1, pro: 2, premium: 3 };
 
