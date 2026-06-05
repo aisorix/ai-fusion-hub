@@ -25,8 +25,30 @@ export const ChatWidget = forwardRef<ChatWidgetRef>((_, ref) => {
     loading,
     sending,
     sendMessage,
-    markAsRead
+    markAsRead,
+    isGuest,
+    guestReady,
+    startGuestConversation,
   } = useChat();
+
+  const [guestName, setGuestName] = useState('');
+  const [guestEmail, setGuestEmail] = useState('');
+  const [guestSubmitting, setGuestSubmitting] = useState(false);
+  const [guestError, setGuestError] = useState<string | null>(null);
+  const needsGuestInfo = isGuest && !guestReady;
+
+  const handleStartGuest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setGuestError(null);
+    const name = guestName.trim();
+    const email = guestEmail.trim();
+    if (!name) { setGuestError('Please enter your name.'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setGuestError('Please enter a valid email.'); return; }
+    setGuestSubmitting(true);
+    const conv = await startGuestConversation(name, email);
+    setGuestSubmitting(false);
+    if (!conv) setGuestError('Could not start chat. Please try again.');
+  };
 
   // Count unread messages from employees
   const unreadCount = messages.filter(
@@ -119,6 +141,48 @@ export const ChatWidget = forwardRef<ChatWidgetRef>((_, ref) => {
             <div className="flex items-center justify-center h-full">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
             </div>
+          ) : needsGuestInfo ? (
+            <form onSubmit={handleStartGuest} className="flex flex-col gap-3 p-2">
+              <div className="text-center mb-1">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
+                  <MessageCircle className="h-6 w-6 text-primary" />
+                </div>
+                <h4 className="font-medium text-foreground text-sm">Start a chat with us</h4>
+                <p className="text-xs text-muted-foreground mt-1">Tell us who you are so we can follow up.</p>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-muted-foreground">Your name</label>
+                <input
+                  type="text"
+                  required
+                  maxLength={100}
+                  value={guestName}
+                  onChange={(e) => setGuestName(e.target.value)}
+                  className="w-full px-3 py-2 text-sm rounded-md border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Jane Doe"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-muted-foreground">Email</label>
+                <input
+                  type="email"
+                  required
+                  value={guestEmail}
+                  onChange={(e) => setGuestEmail(e.target.value)}
+                  className="w-full px-3 py-2 text-sm rounded-md border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="you@example.com"
+                />
+              </div>
+              {guestError && (
+                <p className="text-xs text-destructive">{guestError}</p>
+              )}
+              <Button type="submit" className="w-full" disabled={guestSubmitting}>
+                {guestSubmitting ? 'Starting…' : 'Start chat'}
+              </Button>
+              <p className="text-[10px] text-muted-foreground text-center">
+                By starting a chat you agree to be contacted at this email.
+              </p>
+            </form>
           ) : messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center p-4">
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
@@ -147,10 +211,10 @@ export const ChatWidget = forwardRef<ChatWidgetRef>((_, ref) => {
         </ScrollArea>
 
         {/* Input */}
-        <ChatInput 
-          onSend={sendMessage} 
-          disabled={sending}
-          placeholder="Type your message..."
+        <ChatInput
+          onSend={sendMessage}
+          disabled={sending || needsGuestInfo}
+          placeholder={needsGuestInfo ? 'Enter your details above to start…' : 'Type your message...'}
         />
       </div>
 
