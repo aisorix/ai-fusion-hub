@@ -276,6 +276,11 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
   const userEmail = authUser?.email || user.email;
   const isPaidUser = user.plan !== "free";
 
+  const starredChats = useMemo(
+    () => filteredChats.filter((c) => c.isStarred),
+    [filteredChats]
+  );
+
   const renderChatList = (chatList: typeof chats) =>
     chatList.map((chat) => (
       <ChatItem
@@ -285,6 +290,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
         onSelect={() => setActiveChat(chat.id)}
         onDelete={deleteChat}
         onRename={updateChatTitle}
+        onToggleStar={toggleStarChat}
       />
     ));
 
