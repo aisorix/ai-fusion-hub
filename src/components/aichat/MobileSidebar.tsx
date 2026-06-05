@@ -21,14 +21,10 @@ import {
   Presentation,
   Home,
   PanelLeftClose,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
   Check,
   X,
   Bot,
   Star,
-  StarOff,
 } from "lucide-react";
 import { useChatStore } from "@/stores/chatStore";
 import { cn } from "@/lib/utils";
@@ -40,13 +36,8 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import ChatHistoryActions from "./ChatHistoryActions";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import SettingsModal from "./SettingsModal";
 import UpgradePlanModal from "./UpgradePlanModal";
 import { PlanBadge, type PlanType } from "./PlanIcons";
@@ -118,39 +109,16 @@ const MobileChatItem = ({
         <span className="truncate">{chat.title}</span>
       </button>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="p-1 rounded shrink-0 hover:bg-muted/80 text-muted-foreground"
-          >
-            <MoreHorizontal className="w-3.5 h-3.5" />
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-40 bg-popover border border-border shadow-lg z-50">
-          <DropdownMenuItem onClick={() => onToggleStar(chat.id)}>
-            {chat.isStarred ? (
-              <><StarOff className="w-3.5 h-3.5 mr-2" />Unstar</>
-            ) : (
-              <><Star className="w-3.5 h-3.5 mr-2" />Star</>
-            )}
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => {
-              setRenameValue(chat.title);
-              setIsRenaming(true);
-            }}
-          >
-            <Pencil className="w-3.5 h-3.5 mr-2" />
-            Rename
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => onDelete(chat.id)} className="text-destructive focus:text-destructive">
-            <Trash2 className="w-3.5 h-3.5 mr-2" />
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <ChatHistoryActions
+        chatId={chat.id}
+        isStarred={chat.isStarred}
+        onDelete={onDelete}
+        onRenameRequest={() => {
+          setRenameValue(chat.title);
+          setIsRenaming(true);
+        }}
+        onToggleStar={onToggleStar}
+      />
     </div>
   );
 };
@@ -184,13 +152,14 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
   today.setHours(0, 0, 0, 0);
   const weekAgo = new Date(today);
   weekAgo.setDate(weekAgo.getDate() - 7);
+  const unstarredChats = filteredChats.filter((c) => !c.isStarred);
 
-  const todayChats = filteredChats.filter((c) => new Date(c.createdAt) >= today);
-  const thisWeekChats = filteredChats.filter((c) => {
+  const todayChats = unstarredChats.filter((c) => new Date(c.createdAt) >= today);
+  const thisWeekChats = unstarredChats.filter((c) => {
     const d = new Date(c.createdAt);
     return d < today && d >= weekAgo;
   });
-  const olderChats = filteredChats.filter((c) => new Date(c.createdAt) < weekAgo);
+  const olderChats = unstarredChats.filter((c) => new Date(c.createdAt) < weekAgo);
   const starredChats = filteredChats.filter((c) => c.isStarred);
 
   const moreTools = [
