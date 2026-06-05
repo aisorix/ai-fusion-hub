@@ -7,10 +7,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 interface ChatHistoryActionsProps {
   chatId: string;
   isStarred?: boolean;
+  isActive?: boolean;
   onDelete: (id: string) => void;
   onRenameRequest: () => void;
   onToggleStar: (id: string) => void;
@@ -19,6 +21,7 @@ interface ChatHistoryActionsProps {
 const ChatHistoryActions = ({
   chatId,
   isStarred = false,
+  isActive = false,
   onDelete,
   onRenameRequest,
   onToggleStar,
@@ -30,12 +33,16 @@ const ChatHistoryActions = ({
           type="button"
           aria-label="Chat actions"
           onClick={(event) => event.stopPropagation()}
-          className="p-1 rounded-md shrink-0 hover:bg-muted/80 transition-colors text-muted-foreground"
+          className={cn(
+            "h-7 w-7 inline-flex items-center justify-center rounded-md shrink-0 transition-colors",
+            "hover:bg-muted/80 active:bg-muted",
+            isActive ? "text-primary/80 hover:text-primary" : "text-muted-foreground hover:text-foreground"
+          )}
         >
-          <MoreHorizontal className="w-3.5 h-3.5" />
+          <MoreHorizontal className="w-4 h-4" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" sideOffset={6} className="w-44 bg-popover border border-border shadow-lg z-50">
+      <DropdownMenuContent align="end" sideOffset={6} className="w-44 bg-popover border border-border shadow-lg z-[100]">
         <DropdownMenuItem onSelect={() => onToggleStar(chatId)}>
           {isStarred ? (
             <>
