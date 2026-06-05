@@ -145,6 +145,13 @@ const FlowPromptBar: React.FC<FlowPromptBarProps> = ({ onGenerate, isGenerating 
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={handleKeyDown}
+          onPaste={async (e) => {
+            const files = Array.from(e.clipboardData?.items || [])
+              .filter((it) => it.kind === 'file')
+              .map((it) => it.getAsFile())
+              .filter((f): f is File => !!f);
+            if (files.length) { e.preventDefault(); await processFiles(files); }
+          }}
           placeholder="Describe your diagram... e.g. 'User authentication flowchart'"
           disabled={isGenerating}
           minRows={1}
