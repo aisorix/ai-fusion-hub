@@ -9,8 +9,6 @@ import { toast } from 'sonner';
 import { formatFileForPrompt } from '@/lib/fileParser';
 import { shouldApplySmartRouting, getWorkerModelForPlan, resolveSmartAutoModel } from '@/lib/smartRouting';
 import { generateCacheKey, getCachedResponse, setCachedResponse, simulateCachedStreaming } from '@/lib/responseCache';
-import { addGuestTokensRaw } from '@/hooks/useGuestSession';
-import { supabase } from '@/integrations/supabase/client';
 
 // Estimate tokens: ~4 characters per token (rough approximation)
 const estimateTokens = (text: string): number => {
@@ -66,26 +64,20 @@ export const useAIChat = () => {
     const newUsage = Math.min(user.tokensUsed + totalTokens, user.tokensLimit);
     const prevPercent = user.tokensLimit > 0 ? (user.tokensUsed / user.tokensLimit) * 100 : 0;
     const newPercent = user.tokensLimit > 0 ? (newUsage / user.tokensLimit) * 100 : 0;
-
+    
     if (prevPercent < 80 && newPercent >= 80 && newPercent < 100) {
       toast.warning("⚠️ Token Usage Warning", {
         description: "You've used 80% of your monthly tokens. Consider upgrading your plan.",
       });
     }
-
+    
     if (prevPercent < 100 && newPercent >= 100) {
       toast.error("🚫 Token Limit Reached", {
         description: "You've used all your monthly tokens. Upgrade to continue chatting.",
       });
     }
-
+    
     setUser({ ...user, tokensUsed: newUsage });
-
-    // Persist usage for guest visitors so the limit survives reloads
-    supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) addGuestTokensRaw(totalTokens);
-    });
-
     console.log(`Token usage: +${totalTokens} (base: ${baseTokens}, multiplier: ${multiplier}x), total: ${newUsage}/${user.tokensLimit} (${newPercent.toFixed(1)}%)`);
   }, [user, setUser]);
 

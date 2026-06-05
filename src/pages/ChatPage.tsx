@@ -34,19 +34,28 @@ const ChatPage = () => {
     document.documentElement.classList.remove('light', 'dark');
     document.documentElement.classList.add(theme);
   }, [theme]);
+  
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, loading, navigate]);
 
   const handleNewChat = () => {
     createNewChat();
   };
-
-  // Guests can use the chat without an account — login is prompted
-  // only when they exhaust their free trial token budget.
+  
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
+  }
+  
+  if (!isAuthenticated) {
+    return null;
   }
   
   return (

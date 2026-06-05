@@ -27,11 +27,12 @@ import {
   PanelLeft,
   MoreHorizontal,
   Home,
+  Pencil,
+  Trash2,
   Check,
   X,
   Bot,
   Clapperboard,
-  Star,
 } from "lucide-react";
 import { useChatStore } from "@/stores/chatStore";
 import { useTranslation } from "@/lib/translations";
@@ -42,7 +43,6 @@ import sorixLogo from "@/assets/logo.png";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import ChatHistoryActions from "./ChatHistoryActions";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,14 +66,12 @@ const ChatItem = ({
   onSelect,
   onDelete,
   onRename,
-  onToggleStar,
 }: {
-  chat: { id: string; title: string; isStarred?: boolean };
+  chat: { id: string; title: string };
   isActive: boolean;
   onSelect: () => void;
   onDelete: (id: string) => void;
   onRename: (id: string, title: string) => void;
-  onToggleStar: (id: string) => void;
 }) => {
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState(chat.title);
@@ -120,16 +118,30 @@ const ChatItem = ({
         <span className="truncate">{chat.title}</span>
       </button>
 
-      <ChatHistoryActions
-        chatId={chat.id}
-        isStarred={chat.isStarred}
-        onDelete={onDelete}
-        onRenameRequest={() => {
-          setRenameValue(chat.title);
-          setIsRenaming(true);
-        }}
-        onToggleStar={onToggleStar}
-      />
+      {/* Three-dot menu on hover */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-muted/80 transition-opacity shrink-0">
+            <MoreHorizontal className="w-3.5 h-3.5 text-muted-foreground" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-36 bg-popover border border-border shadow-lg z-50">
+          <DropdownMenuItem
+            onClick={() => {
+              setRenameValue(chat.title);
+              setIsRenaming(true);
+            }}
+          >
+            <Pencil className="w-3.5 h-3.5 mr-2" />
+            Rename
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => onDelete(chat.id)} className="text-destructive focus:text-destructive">
+            <Trash2 className="w-3.5 h-3.5 mr-2" />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };
@@ -147,7 +159,6 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
     setActiveChat,
     deleteChat,
     updateChatTitle,
-    toggleStarChat,
     viewMode,
     setViewMode,
     user,
@@ -179,15 +190,14 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
     now.setHours(0, 0, 0, 0);
     const weekAgo = new Date(now);
     weekAgo.setDate(weekAgo.getDate() - 7);
-    const unstarredChats = filteredChats.filter((c) => !c.isStarred);
 
     return {
-      todayChats: unstarredChats.filter((c) => new Date(c.createdAt) >= now),
-      thisWeekChats: unstarredChats.filter((c) => {
+      todayChats: filteredChats.filter((c) => new Date(c.createdAt) >= now),
+      thisWeekChats: filteredChats.filter((c) => {
         const d = new Date(c.createdAt);
         return d < now && d >= weekAgo;
       }),
-      olderChats: unstarredChats.filter((c) => new Date(c.createdAt) < weekAgo),
+      olderChats: filteredChats.filter((c) => new Date(c.createdAt) < weekAgo),
     };
   }, [filteredChats]);
 
@@ -254,11 +264,6 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
   const userEmail = authUser?.email || user.email;
   const isPaidUser = user.plan !== "free";
 
-  const starredChats = useMemo(
-    () => filteredChats.filter((c) => c.isStarred),
-    [filteredChats]
-  );
-
   const renderChatList = (chatList: typeof chats) =>
     chatList.map((chat) => (
       <ChatItem
@@ -268,7 +273,6 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
         onSelect={() => setActiveChat(chat.id)}
         onDelete={deleteChat}
         onRename={updateChatTitle}
-        onToggleStar={toggleStarChat}
       />
     ));
 
@@ -540,15 +544,6 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
         <ScrollArea className="flex-1 mt-1">
           {!historyCollapsed && (
             <div className="px-3 space-y-4">
-              {starredChats.length > 0 && (
-                <div>
-                  <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1 flex items-center gap-1">
-                    <Star className="w-3 h-3 fill-current" />
-                    Starred
-                  </h3>
-                  <div className="space-y-0.5">{renderChatList(starredChats)}</div>
-                </div>
-              )}
               {todayChats.length > 0 && (
                 <div>
                   <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-1">

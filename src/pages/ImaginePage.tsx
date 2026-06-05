@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEOHead from '@/components/SEOHead';
-import { ArrowLeft, ImageIcon, History, X, Wand2 } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { ArrowLeft, ImageIcon, History, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useChatStore, type Attachment } from '@/stores/chatStore';
 import { imagineApi, type ImageGeneration } from '@/services/imagineApi';
 import ImaginePromptBar from '@/components/imagine/ImaginePromptBar';
-import { imageModels, getImageModelCost, type ImageModel } from '@/components/imagine/ImagineModelSelector';
+import { imageModels, type ImageModel } from '@/components/imagine/ImagineModelSelector';
 import ImagineOptionsPanel, {
   type AspectRatio,
   type Resolution,
@@ -18,11 +18,9 @@ import ImagineCanvas from '@/components/imagine/ImagineCanvas';
 import ImagineHistory from '@/components/imagine/ImagineHistory';
 import ImagineExplorer from '@/components/imagine/ImagineExplorer';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
-import TokenCostChip from '@/components/shared/TokenCostChip';
 
 const ImaginePage: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { user, setUser } = useChatStore();
 
   const [selectedModel, setSelectedModel] = useState<ImageModel>(imageModels[0]);
@@ -40,49 +38,6 @@ const ImaginePage: React.FC = () => {
   const [injectPrompt, setInjectPrompt] = useState<string | undefined>();
   const [injectAttachmentUrl, setInjectAttachmentUrl] = useState<string | undefined>();
   const [injectKey, setInjectKey] = useState(0);
-  // When user submits a follow-up prompt with no new attachment, refine the
-  // currently-displayed image instead of starting fresh.
-  const [refineEnabled, setRefineEnabled] = useState(true);
-
-  const tokensRemaining = user.tokensLimit - user.tokensUsed;
-  const isProPlus = user.plan === 'pro' || user.plan === 'premium';
-
-  const resMultiplier = resolution === '4K' ? 4 : resolution === '2K' ? 2 : 1;
-  const costEstimate = getImageModelCost(selectedModel) * count * resMultiplier;
-
-  // Handoff from Cineshoot: inject prompt
-  useEffect(() => {
-    const state = location.state as { prompt?: string; imageUrl?: string } | null;
-    if (state?.prompt || state?.imageUrl) {
-      if (state.prompt) setInjectPrompt(state.prompt);
-      if (state.imageUrl) setInjectAttachmentUrl(state.imageUrl);
-      setInjectKey(k => k + 1);
-      // clear navigation state so refresh doesn't re-inject
-      navigate(location.pathname, { replace: true });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Cross-device restore: on mount, if canvas is empty, hydrate from latest DB row
-  useEffect(() => {
-    if (imageUrls.length > 0 || currentPrompt) return;
-    let cancelled = false;
-    imagineApi
-      .getHistory()
-      .then((items) => {
-        if (cancelled || !items || items.length === 0) return;
-        const latest = items[0];
-        setImageUrls([latest.image_url]);
-        setCurrentPrompt(latest.prompt);
-        if (latest.model) {
-          const m = imageModels.find((im) => im.modelId === latest.model);
-          if (m) setSelectedModel(m);
-        }
-      })
-      .catch(() => {});
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const handleUseTemplate = (prompt: string, asp?: AspectRatio, res?: Resolution, sampleUrl?: string) => {
     setInjectPrompt(prompt);
@@ -101,6 +56,12 @@ const ImaginePage: React.FC = () => {
     });
   };
 
+  const tokensRemaining = user.tokensLimit - user.tokensUsed;
+  const isProPlus = user.plan === 'pro' || user.plan === 'premium';
+
+  const resMultiplier = resolution === '4K' ? 4 : resolution === '2K' ? 2 : 1;
+  const costEstimate = 12000 * count * resMultiplier;
+
   const handleGenerate = async (prompt: string, attachments?: Attachment[]) => {
     if (tokensRemaining < costEstimate) {
       setShowUpgrade(true);
@@ -109,17 +70,13 @@ const ImaginePage: React.FC = () => {
 
     setCurrentPrompt(prompt);
     setIsGenerating(true);
+    setImageUrls([]);
 
     let imageData: string | undefined;
     if (attachments?.length) {
       const imgAtt = attachments.find((a) => a.type === 'image' && a.url);
       if (imgAtt) imageData = imgAtt.url;
     }
-    // Auto-refine: if no new attachment but we have a previously displayed image, use it as context
-    if (!imageData && refineEnabled && imageUrls[0]) {
-      imageData = imageUrls[0];
-    }
-    if (!imageData) setImageUrls([]);
 
     try {
       const result = await imagineApi.generateImage({
@@ -218,24 +175,13 @@ const ImaginePage: React.FC = () => {
             />
           </div>
 
-          <div className="flex flex-col items-center gap-2 -mt-1">
-            <TokenCostChip
-              cost={costEstimate}
-              remaining={tokensRemaining}
-              label={`per image · ${selectedModel.shortName}`}
-              hint="Cost depends on model tier, resolution, and number of images."
-            />
-            {imageUrls.length > 0 && refineEnabled && (
-              <button
-                onClick={() => setRefineEnabled(false)}
-                className="inline-flex items-center gap-1.5 text-[10.5px] text-muted-foreground hover:text-foreground transition-colors"
-                title="Stop refining the previous image"
-              >
-                <Wand2 className="w-3 h-3 text-primary" />
-                <span>Refining previous image</span>
-                <span className="text-primary underline">· Clear</span>
-              </button>
-            )}
+          <div className="flex justify-center -mt-1">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-card/60 px-2.5 py-1 text-[10.5px] text-muted-foreground">
+              <span className="w-1 h-1 rounded-full bg-primary/70" />
+              <span className="tabular-nums">{tokensRemaining.toLocaleString()}</span> tokens left
+              <span className="text-muted-foreground/40">·</span>
+              <span className="tabular-nums">{costEstimate.toLocaleString()}</span> per run
+            </span>
           </div>
 
 
@@ -261,7 +207,6 @@ const ImaginePage: React.FC = () => {
               prompt={currentPrompt}
               aspect={aspect}
               count={count}
-              onGenerateVideo={(url, p) => navigate('/cineshoot', { state: { prompt: p, imageUrl: url } })}
             />
           </div>
 

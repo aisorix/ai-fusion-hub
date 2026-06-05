@@ -138,36 +138,29 @@ serve(async (req) => {
   }
 
   try {
-    // Authenticate user OR allow guest with x-guest-id header
+    // Authenticate user
     const authHeader = req.headers.get('Authorization');
-    const guestId = req.headers.get('x-guest-id');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Missing authorization' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_ANON_KEY')!,
-      authHeader ? { global: { headers: { Authorization: authHeader } } } : undefined
+      { global: { headers: { Authorization: authHeader } } }
     );
-
-    let user: { id: string; email?: string } | null = null;
-    let isGuest = false;
-
-    if (authHeader?.startsWith('Bearer ')) {
-      const token = authHeader.replace('Bearer ', '');
-      const { data: claimsData, error: authError } = await supabaseClient.auth.getClaims(token);
-      if (!authError && claimsData?.claims?.sub) {
-        user = { id: claimsData.claims.sub, email: claimsData.claims.email };
-      }
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: authError } = await supabaseClient.auth.getClaims(token);
+    if (authError || !claimsData?.claims?.sub) {
+      console.error('chat auth failed', authError?.message);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
-
-    if (!user) {
-      if (!guestId || guestId.length < 8 || guestId.length > 64) {
-        return new Response(
-          JSON.stringify({ error: 'Unauthorized' }),
-          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      isGuest = true;
-      user = { id: `guest:${guestId}` };
-    }
+    const user = { id: claimsData.claims.sub, email: claimsData.claims.email } as { id: string; email?: string };
 
     const { messages, model, stream = true, userPlan, modelName } = await req.json();
     

@@ -3,8 +3,6 @@ import { motion } from 'framer-motion';
 import { Trash2, Film } from 'lucide-react';
 import { cineshootApi, type VideoGeneration } from '@/services/cineshootApi';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useAuth } from '@/hooks/useAuth';
-import { useRealtimeHistory } from '@/hooks/useRealtimeHistory';
 
 interface Props {
   onSelect: (gen: VideoGeneration) => void;
@@ -14,7 +12,6 @@ interface Props {
 const CineshootHistoryFeed: React.FC<Props> = ({ onSelect, refreshTrigger }) => {
   const [history, setHistory] = useState<VideoGeneration[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
 
   const fetchHistory = async () => {
     try {
@@ -29,13 +26,6 @@ const CineshootHistoryFeed: React.FC<Props> = ({ onSelect, refreshTrigger }) => 
   };
 
   useEffect(() => { fetchHistory(); }, [refreshTrigger]);
-
-  useRealtimeHistory({
-    table: 'video_generations',
-    userId: user?.id,
-    onChange: fetchHistory,
-  });
-
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();

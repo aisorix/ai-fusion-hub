@@ -12,7 +12,6 @@ interface Props {
   prompt: string;
   aspect: AspectRatio;
   count: number;
-  onGenerateVideo?: (url: string, prompt: string) => void;
 }
 
 const aspectToClass = (a: AspectRatio): string => {
@@ -83,7 +82,7 @@ const Skeleton: React.FC<{ aspectClass: string; index: number }> = ({ aspectClas
   </motion.div>
 );
 
-const ImagineCanvas: React.FC<Props> = ({ imageUrls, isGenerating, prompt, aspect, count, onGenerateVideo }) => {
+const ImagineCanvas: React.FC<Props> = ({ imageUrls, isGenerating, prompt, aspect, count }) => {
   const aspectClass = aspectToClass(aspect);
   const gridCols = count === 1 ? 'grid-cols-1' : count === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-2';
 
@@ -141,11 +140,7 @@ const ImagineCanvas: React.FC<Props> = ({ imageUrls, isGenerating, prompt, aspec
         ))}
       </div>
       <div className="mt-4">
-        <ImagineActions
-          imageUrl={imageUrls[0]}
-          prompt={prompt}
-          onGenerateVideo={onGenerateVideo ? () => onGenerateVideo(imageUrls[0], prompt) : undefined}
-        />
+        <ImagineActions imageUrl={imageUrls[0]} prompt={prompt} />
       </div>
     </div>
   );

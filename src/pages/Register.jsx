@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, User, Loader2, Check, X } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,8 +14,6 @@ import logo from "../assets/logo.png";
 
 const Register = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/chat";
   const { user, loading: authLoading } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -30,12 +28,12 @@ const Register = () => {
     confirmPassword: "",
   });
 
-  // Redirect if already logged in
+  // Redirect if already logged in - redirect to /chat
   useEffect(() => {
     if (user && !authLoading) {
-      navigate(redirectTo);
+      navigate("/chat");
     }
-  }, [user, authLoading, navigate, redirectTo]);
+  }, [user, authLoading, navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

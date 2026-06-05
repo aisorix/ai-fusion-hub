@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEOHead from '@/components/SEOHead';
 import { ArrowLeft, Workflow, History, X, FilePlus } from 'lucide-react';
@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useChatStore } from '@/stores/chatStore';
 import { flowbuilderApi, type FlowHistoryItem } from '@/services/flowbuilderApi';
-import { supabase } from '@/integrations/supabase/client';
 import FlowPromptBar from '@/components/flowbuilder/FlowPromptBar';
 import FlowCanvas from '@/components/flowbuilder/FlowCanvas';
 import FlowStylePanel, { colorThemes } from '@/components/flowbuilder/FlowStylePanel';
@@ -27,28 +26,6 @@ const FlowBuilderPage: React.FC = () => {
   const [refreshHistory, setRefreshHistory] = useState(0);
 
   const tokensRemaining = user.tokensLimit - user.tokensUsed;
-
-  // Cross-device restore: hydrate code from most recent flowbuilder history if empty
-  useEffect(() => {
-    if (code.trim()) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const { data } = await supabase
-          .from('analysis_history')
-          .select('result_data')
-          .eq('tool', 'flowbuilder')
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        if (cancelled) return;
-        const raw = (data as any)?.result_data?.mermaidCode;
-        if (raw) setCode(sanitizeMermaid(raw));
-      } catch { /* ignore */ }
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const handleGenerate = async (prompt: string, attachments?: any[]) => {
     let finalPrompt = prompt;

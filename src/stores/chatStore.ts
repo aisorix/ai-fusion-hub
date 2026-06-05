@@ -29,9 +29,6 @@ export interface Chat {
   messages: Message[];
   createdAt: string;
   updatedAt: string;
-  isStarred?: boolean;
-  projectId?: string | null;
-  titleManuallySet?: boolean;
 }
 
 export type ModelCategory = 'chat' | 'code' | 'search' | 'system';
@@ -129,9 +126,7 @@ interface ChatState {
   createNewChat: () => Chat;
   setActiveChat: (chatId: string | null) => void;
   deleteChat: (chatId: string) => void;
-  updateChatTitle: (chatId: string, title: string, manual?: boolean) => void;
-  toggleStarChat: (chatId: string) => void;
-  addChatToProject: (chatId: string, projectId: string | null) => void;
+  updateChatTitle: (chatId: string, title: string) => void;
   
   // Messages (derived from active chat)
   messages: Message[];
@@ -500,19 +495,9 @@ export const useChatStore = create<ChatState>()(
           ? (state.chats.find(c => c.id !== chatId)?.id || null)
           : state.activeChatId
       })),
-      updateChatTitle: (chatId, title, manual = true) => set((state) => ({
-        chats: state.chats.map(c =>
-          c.id === chatId ? { ...c, title, titleManuallySet: manual ? true : c.titleManuallySet, updatedAt: new Date().toISOString() } : c
-        )
-      })),
-      toggleStarChat: (chatId) => set((state) => ({
-        chats: state.chats.map(c =>
-          c.id === chatId ? { ...c, isStarred: !c.isStarred, updatedAt: new Date().toISOString() } : c
-        )
-      })),
-      addChatToProject: (chatId, projectId) => set((state) => ({
-        chats: state.chats.map(c =>
-          c.id === chatId ? { ...c, projectId, updatedAt: new Date().toISOString() } : c
+      updateChatTitle: (chatId, title) => set((state) => ({
+        chats: state.chats.map(c => 
+          c.id === chatId ? { ...c, title, updatedAt: new Date().toISOString() } : c
         )
       })),
       
@@ -530,30 +515,14 @@ export const useChatStore = create<ChatState>()(
       addMessage: (message) => set((state) => {
         const activeChat = state.chats.find(c => c.id === state.activeChatId);
         const isFirstUserMessage = activeChat?.messages.length === 0 && message.role === 'user';
-        const smartTitle = (raw: string) => {
-          const cleaned = raw
-            .replace(/```[\s\S]*?```/g, ' ')
-            .replace(/`[^`]*`/g, ' ')
-            .replace(/https?:\/\/\S+/g, ' ')
-            .replace(/[#*_>~\[\]()]/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim();
-          if (!cleaned) return 'New Chat';
-          const words = cleaned.split(' ').slice(0, 6).join(' ');
-          const titled = words
-            .split(' ')
-            .map(w => w.length > 2 ? w.charAt(0).toUpperCase() + w.slice(1) : w)
-            .join(' ');
-          return titled.length > 40 ? titled.slice(0, 40).trim() + '…' : titled;
-        };
         return {
           chats: state.chats.map(c =>
             c.id === state.activeChatId
               ? {
                   ...c,
                   messages: [...c.messages, message],
-                  title: isFirstUserMessage && !c.titleManuallySet
-                    ? smartTitle(message.content)
+                  title: isFirstUserMessage 
+                    ? message.content.slice(0, 50) + (message.content.length > 50 ? '...' : '')
                     : c.title,
                   updatedAt: new Date().toISOString()
                 }

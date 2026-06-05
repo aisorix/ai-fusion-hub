@@ -122,7 +122,6 @@ export type Database = {
           created_at: string | null
           guest_email: string | null
           guest_name: string | null
-          guest_token: string | null
           id: string
           last_message_at: string | null
           status: string | null
@@ -134,7 +133,6 @@ export type Database = {
           created_at?: string | null
           guest_email?: string | null
           guest_name?: string | null
-          guest_token?: string | null
           id?: string
           last_message_at?: string | null
           status?: string | null
@@ -146,7 +144,6 @@ export type Database = {
           created_at?: string | null
           guest_email?: string | null
           guest_name?: string | null
-          guest_token?: string | null
           id?: string
           last_message_at?: string | null
           status?: string | null
@@ -987,67 +984,32 @@ export type Database = {
         }
         Relationships: []
       }
-      user_chat_windows: {
-        Row: {
-          updated_at: string
-          user_id: string
-          windows: Json
-        }
-        Insert: {
-          updated_at?: string
-          user_id: string
-          windows?: Json
-        }
-        Update: {
-          updated_at?: string
-          user_id?: string
-          windows?: Json
-        }
-        Relationships: []
-      }
       user_chats: {
         Row: {
           created_at: string
           id: string
-          is_starred: boolean
           messages: Json
-          project_id: string | null
           title: string
-          title_manually_set: boolean
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
-          is_starred?: boolean
           messages?: Json
-          project_id?: string | null
           title?: string
-          title_manually_set?: boolean
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
-          is_starred?: boolean
           messages?: Json
-          project_id?: string | null
           title?: string
-          title_manually_set?: boolean
           updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_chats_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       user_connections: {
         Row: {
@@ -1250,45 +1212,6 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
-      get_guest_conversation: {
-        Args: { _token: string }
-        Returns: {
-          assigned_employee_id: string | null
-          created_at: string | null
-          guest_email: string | null
-          guest_name: string | null
-          guest_token: string | null
-          id: string
-          last_message_at: string | null
-          status: string | null
-          updated_at: string | null
-          user_id: string | null
-        }[]
-        SetofOptions: {
-          from: "*"
-          to: "chat_conversations"
-          isOneToOne: false
-          isSetofReturn: true
-        }
-      }
-      get_guest_messages: {
-        Args: { _token: string }
-        Returns: {
-          content: string
-          conversation_id: string
-          created_at: string | null
-          id: string
-          is_read: boolean | null
-          sender_id: string | null
-          sender_type: string
-        }[]
-        SetofOptions: {
-          from: "*"
-          to: "chat_messages"
-          isOneToOne: false
-          isSetofReturn: true
-        }
-      }
       get_shared_chat_by_token: {
         Args: { _token: string }
         Returns: {
@@ -1324,24 +1247,6 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
-      }
-      send_guest_message: {
-        Args: { _content: string; _sender_type?: string; _token: string }
-        Returns: {
-          content: string
-          conversation_id: string
-          created_at: string | null
-          id: string
-          is_read: boolean | null
-          sender_id: string | null
-          sender_type: string
-        }
-        SetofOptions: {
-          from: "*"
-          to: "chat_messages"
-          isOneToOne: true
-          isSetofReturn: false
-        }
       }
     }
     Enums: {

@@ -103,21 +103,61 @@ const App = () => (
                     <Dashboard />
                   </ProtectedRoute>
                 } />
-                <Route path="/chat" element={<ChatPage />} />
-                <Route path="/health" element={<HealthPage />} />
-                <Route path="/agro" element={<AgroPage />} />
-                <Route path="/legends" element={<LegendsPage />} />
-                <Route path="/cineshoot" element={<CineshootPage />} />
-                <Route path="/imagine" element={<ImaginePage />} />
-                <Route path="/deck" element={<DeckPage />} />
-                <Route path="/agent" element={<CoWorkPage />} />
+                <Route path="/chat" element={
+                  <ProtectedRoute>
+                    <ChatPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/health" element={
+                  <ProtectedRoute>
+                    <HealthPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/agro" element={
+                  <ProtectedRoute>
+                    <AgroPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/legends" element={
+                  <ProtectedRoute>
+                    <LegendsPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/cineshoot" element={
+                  <ProtectedRoute>
+                    <CineshootPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/imagine" element={
+                  <ProtectedRoute>
+                    <ImaginePage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/deck" element={
+                  <ProtectedRoute>
+                    <DeckPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/agent" element={
+                  <ProtectedRoute>
+                    <CoWorkPage />
+                  </ProtectedRoute>
+                } />
                 <Route path="/agent/connections" element={
                   <ProtectedRoute>
                     <ConnectionsPage />
                   </ProtectedRoute>
                 } />
-                <Route path="/flowbuilder" element={<FlowBuilderPage />} />
-                <Route path="/tools" element={<ToolsPage />} />
+                <Route path="/flowbuilder" element={
+                  <ProtectedRoute>
+                    <FlowBuilderPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/tools" element={
+                  <ProtectedRoute>
+                    <ToolsPage />
+                  </ProtectedRoute>
+                } />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/verify-email" element={<VerifyEmail />} />

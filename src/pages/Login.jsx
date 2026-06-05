@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,8 +12,6 @@ import logo from "../assets/logo.png";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/chat";
   const { user, signIn, loading: authLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -21,12 +19,12 @@ const Login = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
 
-  // Redirect if already logged in
+  // Redirect if already logged in - redirect to /chat
   useEffect(() => {
     if (user && !authLoading) {
-      navigate(redirectTo);
+      navigate("/chat");
     }
-  }, [user, authLoading, navigate, redirectTo]);
+  }, [user, authLoading, navigate]);
 
   const validateForm = () => {
     const newErrors = {};

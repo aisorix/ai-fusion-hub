@@ -24,8 +24,7 @@ export interface ChatConversation {
   last_message_at: string;
 }
 
-const GUEST_TOKEN_KEY = 'sorix_guest_chat_token';
-const GUEST_CONV_KEY = 'sorix_guest_chat_conv_id';
+const GUEST_STORAGE_KEY = 'sorix_guest_chat';
 
 const buildLocalMsg = (
   content: string,
@@ -41,41 +40,25 @@ const buildLocalMsg = (
   created_at: new Date().toISOString(),
 });
 
-const generateGuestToken = () => {
-  const arr = new Uint8Array(24);
-  crypto.getRandomValues(arr);
-  return Array.from(arr, (b) => b.toString(16).padStart(2, '0')).join('');
-};
-
 export const useChat = () => {
   const { user } = useAuth();
   const [conversation, setConversation] = useState<ChatConversation | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
-  const [guestToken, setGuestToken] = useState<string | null>(
-    () => (typeof window !== 'undefined' ? localStorage.getItem(GUEST_TOKEN_KEY) : null)
-  );
   const aiInFlight = useRef(false);
 
-  const isGuest = !user;
-  const guestReady = isGuest && !!conversation; // guest info already submitted
-
-  // ---------- LOAD ----------
+  // ---------- AUTHENTICATED LOAD ----------
   const loadConversation = useCallback(async () => {
     if (!user) {
-      // Guest: rehydrate from token if present
-      const token = localStorage.getItem(GUEST_TOKEN_KEY);
-      if (!token) return;
-      setLoading(true);
+      // Guest: load from localStorage
       try {
-        const { data, error } = await supabase.rpc('get_guest_conversation', { _token: token });
-        if (error) { console.error(error); return; }
-        const row = Array.isArray(data) ? data[0] : data;
-        if (row) setConversation(row as ChatConversation);
-      } finally {
-        setLoading(false);
-      }
+        const raw = localStorage.getItem(GUEST_STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw) as ChatMessage[];
+          if (Array.isArray(parsed)) setMessages(parsed);
+        }
+      } catch {/* ignore */}
       return;
     }
 
@@ -90,8 +73,13 @@ export const useChat = () => {
         .limit(1)
         .single();
 
-      if (error && error.code !== 'PGRST116') console.error(error);
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error loading conversation:', error);
+      }
+
       if (data) setConversation(data as ChatConversation);
+    } catch (err) {
+      console.error('Error:', err);
     } finally {
       setLoading(false);
     }
@@ -100,21 +88,21 @@ export const useChat = () => {
   const loadMessages = useCallback(async () => {
     if (!conversation) return;
     try {
-      if (isGuest && guestToken) {
-        const { data, error } = await supabase.rpc('get_guest_messages', { _token: guestToken });
-        if (error) { console.error(error); return; }
-        setMessages((data || []) as ChatMessage[]);
-        return;
-      }
       const { data, error } = await supabase
         .from('chat_messages')
         .select('*')
         .eq('conversation_id', conversation.id)
         .order('created_at', { ascending: true });
-      if (error) { console.error(error); return; }
+
+      if (error) {
+        console.error('Error loading messages:', error);
+        return;
+      }
       setMessages((data || []) as ChatMessage[]);
-    } catch (err) { console.error(err); }
-  }, [conversation, isGuest, guestToken]);
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  }, [conversation]);
 
   const createConversation = useCallback(async () => {
     if (!user) return null;
@@ -125,46 +113,20 @@ export const useChat = () => {
         .insert({ user_id: user.id, status: 'active' })
         .select()
         .single();
-      if (error) { console.error(error); return null; }
+
+      if (error) {
+        console.error('Error creating conversation:', error);
+        return null;
+      }
       setConversation(data as ChatConversation);
       return data as ChatConversation;
+    } catch (err) {
+      console.error('Error:', err);
+      return null;
     } finally {
       setLoading(false);
     }
   }, [user]);
-
-  // ---------- GUEST: start conversation with name + email ----------
-  const startGuestConversation = useCallback(
-    async (name: string, email: string): Promise<ChatConversation | null> => {
-      const trimmedName = name.trim();
-      const trimmedEmail = email.trim();
-      if (!trimmedName || !trimmedEmail) return null;
-      setLoading(true);
-      try {
-        const token = generateGuestToken();
-        const { data, error } = await supabase
-          .from('chat_conversations')
-          .insert({
-            user_id: null,
-            guest_name: trimmedName,
-            guest_email: trimmedEmail,
-            guest_token: token,
-            status: 'waiting',
-          } as any)
-          .select()
-          .single();
-        if (error) { console.error('Guest conversation error:', error); return null; }
-        localStorage.setItem(GUEST_TOKEN_KEY, token);
-        localStorage.setItem(GUEST_CONV_KEY, (data as any).id);
-        setGuestToken(token);
-        setConversation(data as ChatConversation);
-        return data as ChatConversation;
-      } finally {
-        setLoading(false);
-      }
-    },
-    []
-  );
 
   // ---------- AI REPLY ----------
   const fetchAIReply = useCallback(
@@ -187,22 +149,8 @@ export const useChat = () => {
 
         if (error) console.warn('support-chat invoke warning:', error);
 
-        if (isGuest && guestToken) {
-          const { data: inserted, error: insErr } = await supabase.rpc('send_guest_message', {
-            _token: guestToken,
-            _content: reply,
-            _sender_type: 'employee',
-          });
-          if (insErr) console.error(insErr);
-          const msg = Array.isArray(inserted) ? inserted[0] : inserted;
-          if (msg) {
-            setMessages((prev) =>
-              prev.some((m) => m.id === (msg as any).id) ? prev : [...prev, msg as ChatMessage]
-            );
-          } else {
-            setMessages((prev) => [...prev, buildLocalMsg(reply, 'employee', conversation?.id || 'guest')]);
-          }
-        } else if (user && conversation) {
+        if (user && conversation) {
+          // Persist AI reply as 'employee' sender so existing UI works
           const { data: inserted } = await supabase
             .from('chat_messages')
             .insert({
@@ -214,6 +162,7 @@ export const useChat = () => {
             })
             .select()
             .single();
+
           if (inserted) {
             setMessages((prev) =>
               prev.some((m) => m.id === inserted.id) ? prev : [...prev, inserted as ChatMessage]
@@ -221,6 +170,13 @@ export const useChat = () => {
           } else {
             setMessages((prev) => [...prev, buildLocalMsg(reply, 'employee', conversation.id)]);
           }
+        } else {
+          // Guest: append locally + persist to localStorage
+          setMessages((prev) => {
+            const next = [...prev, buildLocalMsg(reply, 'employee')];
+            try { localStorage.setItem(GUEST_STORAGE_KEY, JSON.stringify(next)); } catch {/* ignore */}
+            return next;
+          });
         }
       } catch (err) {
         console.error('AI reply error:', err);
@@ -234,7 +190,7 @@ export const useChat = () => {
         aiInFlight.current = false;
       }
     },
-    [user, conversation, isGuest, guestToken]
+    [user, conversation]
   );
 
   // ---------- SEND MESSAGE ----------
@@ -246,29 +202,16 @@ export const useChat = () => {
       setSending(true);
       try {
         // ===== GUEST FLOW =====
-        if (isGuest) {
-          if (!conversation || !guestToken) {
-            console.warn('Guest tried to send before submitting name/email');
-            return;
-          }
-          const { data: inserted, error } = await supabase.rpc('send_guest_message', {
-            _token: guestToken,
-            _content: trimmed,
-            _sender_type: 'user',
-          });
-          if (error) { console.error('Guest send error:', error); return; }
-          const msg = Array.isArray(inserted) ? inserted[0] : inserted;
+        if (!user) {
+          const userMsg = buildLocalMsg(trimmed, 'user');
           let nextHistory: ChatMessage[] = [];
           setMessages((prev) => {
-            if (msg && prev.some((m) => m.id === (msg as any).id)) {
-              nextHistory = prev;
-              return prev;
-            }
-            nextHistory = msg
-              ? [...prev, msg as ChatMessage]
-              : [...prev, buildLocalMsg(trimmed, 'user', conversation.id)];
+            nextHistory = [...prev, userMsg];
+            try { localStorage.setItem(GUEST_STORAGE_KEY, JSON.stringify(nextHistory)); } catch {/* ignore */}
             return nextHistory;
           });
+          // Wait microtask so state has settled, then call AI with full history
+          await new Promise((r) => setTimeout(r, 0));
           await fetchAIReply(nextHistory);
           return;
         }
@@ -284,41 +227,52 @@ export const useChat = () => {
           .from('chat_messages')
           .insert({
             conversation_id: currentConversation.id,
-            sender_id: user!.id,
+            sender_id: user.id,
             sender_type: 'user',
             content: trimmed,
           })
           .select()
           .single();
 
-        if (error) { console.error(error); return; }
+        if (error) {
+          console.error('Error sending message:', error);
+          return;
+        }
 
         const insertedMsg = inserted as ChatMessage;
         let nextHistory: ChatMessage[] = [];
         setMessages((prev) => {
-          if (prev.some((m) => m.id === insertedMsg.id)) { nextHistory = prev; return prev; }
+          if (prev.some((m) => m.id === insertedMsg.id)) {
+            nextHistory = prev;
+            return prev;
+          }
           nextHistory = [...prev, insertedMsg];
           return nextHistory;
         });
+
+        // Trigger AI reply (non-blocking for UI but awaited so spinner works)
         await fetchAIReply(nextHistory);
+      } catch (err) {
+        console.error('Error:', err);
       } finally {
         setSending(false);
       }
     },
-    [conversation, user, isGuest, guestToken, createConversation, fetchAIReply]
+    [conversation, user, createConversation, fetchAIReply]
   );
 
+  // Mark messages as read
   const markAsRead = useCallback(async () => {
-    if (!conversation || isGuest) return;
+    if (!conversation) return;
     await supabase
       .from('chat_messages')
       .update({ is_read: true })
       .eq('conversation_id', conversation.id)
       .eq('sender_type', 'employee')
       .eq('is_read', false);
-  }, [conversation, isGuest]);
+  }, [conversation]);
 
-  // Realtime updates (works for both authed and guest since channel is by conversation id)
+  // Realtime updates (admin handoff still works)
   useEffect(() => {
     if (!conversation) return;
     const channel = supabase
@@ -367,9 +321,5 @@ export const useChat = () => {
     sendMessage,
     markAsRead,
     createConversation,
-    // guest extras
-    isGuest,
-    guestReady,
-    startGuestConversation,
   };
 };
