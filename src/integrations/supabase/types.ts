@@ -1006,28 +1006,45 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          is_starred: boolean
           messages: Json
+          project_id: string | null
           title: string
+          title_manually_set: boolean
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
+          is_starred?: boolean
           messages?: Json
+          project_id?: string | null
           title?: string
+          title_manually_set?: boolean
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
+          is_starred?: boolean
           messages?: Json
+          project_id?: string | null
           title?: string
+          title_manually_set?: boolean
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_chats_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_connections: {
         Row: {
