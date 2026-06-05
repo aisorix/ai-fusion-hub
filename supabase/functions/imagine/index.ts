@@ -7,28 +7,33 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const TOKENS_PER_IMAGE = 12000;
 const DEFAULT_MODEL = "sourceful/riverflow-v2-fast-preview";
 
-const ALLOWED_MODELS = [
-  "sourceful/riverflow-v2-fast-preview",
-  "google/gemini-2.5-flash-image",
-  "google/gemini-3.1-flash-image-preview",
-  "google/gemini-3-pro-image-preview",
-  "openai/gpt-5-image-mini",
-  "openai/gpt-5.4-image-2",
-  "x-ai/grok-imagine-image-quality",
-  "bytedance-seed/seedream-4.5",
-  "black-forest-labs/flux.2-max",
-  "black-forest-labs/flux.2-pro",
-];
+// Tier-based per-image cost (at 1K resolution, single image).
+const TIER_COST: Record<string, number> = {
+  basic: 25000,
+  pro: 35000,
+  premium: 45000,
+};
 
-const PRO_ONLY_MODELS = [
-  "google/gemini-3-pro-image-preview",
-  "openai/gpt-5.4-image-2",
-  "black-forest-labs/flux.2-max",
-  "black-forest-labs/flux.2-pro",
-];
+const MODEL_TIER: Record<string, 'basic' | 'pro' | 'premium'> = {
+  "sourceful/riverflow-v2-fast-preview": 'basic',
+  "sourceful/riverflow-v2-standard-preview": 'basic',
+  "x-ai/grok-imagine-image-quality": 'basic',
+  "google/gemini-2.5-flash-image": 'basic',
+  "google/gemini-3.1-flash-image-preview": 'basic',
+  "openai/gpt-5-image-mini": 'basic',
+  "openai/gpt-5.4-image-2": 'pro',
+  "bytedance-seed/seedream-4.5": 'pro',
+  "google/gemini-3-pro-image-preview": 'premium',
+  "black-forest-labs/flux.2-max": 'premium',
+  "black-forest-labs/flux.2-pro": 'premium',
+};
+
+const ALLOWED_MODELS = Object.keys(MODEL_TIER);
+
+const PLAN_RANK: Record<string, number> = { free: 0, basic: 1, pro: 2, premium: 3 };
+const TIER_RANK: Record<string, number> = { basic: 1, pro: 2, premium: 3 };
 
 const ASPECT_DIMENSIONS: Record<string, [number, number]> = {
   "1:1": [1024, 1024],
