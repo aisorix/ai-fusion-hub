@@ -315,6 +315,9 @@ export const useChatSync = (userId: string | null) => {
                 messages: record.messages || [],
                 createdAt: record.created_at,
                 updatedAt: record.updated_at,
+                isStarred: !!record.is_starred,
+                projectId: record.project_id ?? null,
+                titleManuallySet: !!record.title_manually_set,
               };
               useChatStore.setState({ chats: [newChat, ...store.chats] });
             }
@@ -325,6 +328,9 @@ export const useChatSync = (userId: string | null) => {
               messages: record.messages || [],
               createdAt: record.created_at,
               updatedAt: record.updated_at,
+              isStarred: !!record.is_starred,
+              projectId: record.project_id ?? null,
+              titleManuallySet: !!record.title_manually_set,
             };
             useChatStore.setState({
               chats: store.chats.map((c) => (c.id === record.id ? updatedChat : c)),
