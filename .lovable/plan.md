@@ -1,82 +1,84 @@
-## Goals
+## Goal
 
-1. Let unauthenticated visitors open `/chat` and all tool pages (Agent, Cineshoot, Imagine, Deck, Health, Agro, Legends, FlowBuilder, Tools) and actually chat / use tools, capped by a free guest token budget.
-2. When the guest budget is exhausted, block further sends with a "Sign in to continue" modal that routes to `/login` (then back to where they were).
-3. Keep the paid funnel unchanged: Pricing → Login/Register → Payment method → Pay → Chat.
-4. Keep pages SEO-crawlable (no redirect on first paint, no auth blocking on SSR-visible content).
-5. Fix the 3-dot action menu in chat history so it's visible and works on desktop + mobile.
+Introduce two new paid tiers (**Sorix Premium Plus** — ৳3,999/mo, **Sorix Max** — ৳9,999/mo) and an **Enterprise** card across the entire pricing surface, with full enforcement (UI + edge functions + payments).
 
-## 1. Routing — remove `ProtectedRoute` from tool pages
+## New plan matrix
 
-In `src/App.jsx`, unwrap `<ProtectedRoute>` for: `/chat`, `/health`, `/agro`, `/legends`, `/cineshoot`, `/imagine`, `/deck`, `/agent`, `/flowbuilder`, `/tools`. Keep `/dashboard`, `/agent/connections`, payment success/failed pages protected.
 
-Pricing → login flow is unaffected (PaymentModal already requires `supabase.auth.getUser()`).
+| Plan ID        | Display name           | Price (BDT/mo) | Tokens/mo      | Exclusive unlocks                                             |
+| -------------- | ---------------------- | -------------- | -------------- | ------------------------------------------------------------- |
+| `free`         | Free                   | 0              | 15,000         | —                                                             |
+| `basic`        | Sorix Basic            | 499            | 800,000        | —                                                             |
+| `pro`          | Sorix Pro              | 999            | 1,500,000      | —                                                             |
+| `premium`      | Sorix Premium          | 1,999          | 3,000,000      | + Sorix Agent                                                 |
+| `premium_plus` | **Sorix Premium Plus** | **3,999**      | **7,000,000**  | + Sorix Cineshoot, more memory                                |
+| `max`          | **Sorix Max**          | **9,999**      | **17,000,000** | + extra Cineshoot/Imagine/Agent capacity, max memory          |
+| `enterprise`   | Enterprise             | Custom         | Pooled         | Book demo → [support@aisorix.com](mailto:support@aisorix.com) |
 
-## 2. Guest session layer
 
-New file `src/hooks/useGuestSession.ts`:
-- Generates a stable `guest_id` (uuid) + `guest_token` in `localStorage` on first visit.
-- Exposes `{ guestId, isGuest, guestTokensUsed, guestTokensLimit, addGuestTokens, resetGuest }`.
-- Default `guestTokensLimit = 5000` (one-time free pool, persisted in localStorage; resets only on explicit reset/login).
+Tool-tier rules per your spec:
 
-In `src/pages/ChatPage.tsx`:
-- Remove the `if (!isAuthenticated) navigate('/login')` redirect.
-- Render the full chat UI for guests, using guest identity for the chat store user (name = "Guest", plan = "free", tokensLimit = guest pool).
+- **Sorix Agent** → `premium`, `premium_plus`, `max`
+- **Sorix Cineshoot** → `premium_plus`, `max`
+- Image/agent/memory quantity is bounded only by the user's token budget (no extra hard caps).
 
-In `src/hooks/useAIChatAuth.ts` / `chatStore`:
-- When no auth user, hydrate store user from guest session instead of forcing login.
-- Token accounting for guests writes back through `addGuestTokens` (still surfaced as `tokensUsed/tokensLimit` to UI).
+## Files to update
 
-## 3. Free-limit gate → Login modal
+### 1. Plan type and limits (single source of truth)
 
-New component `src/components/auth/GuestLimitModal.tsx`:
-- Triggered from `ChatArea.handleSend` and each tool's submit handler when `isGuest && tokensUsed >= tokensLimit`.
-- Title: "You've used your free messages". CTAs: **Sign in** (`/login?redirect=<current>`) and **Create account** (`/register?redirect=<current>`).
-- Login/Register pages already exist; add `redirect` query handling to send users back after auth.
+- `src/stores/chatStore.ts`
+  - Extend `UserPlan` union to include `'premium_plus' | 'max'` (and `'enterprise'` for display only).
+  - Extend `PLAN_TOKEN_LIMITS` with `premium_plus: 7_000_000`, `max: 17_000_000`.
+  - Update `PLAN_RANK` ordering used by model gating helpers.
+  - Add `premium_plus` / `max` to every model `plans` array that currently lists `premium` so paid users don't lose access to existing models when they upgrade.
 
-Apply the same gate in: Health intake/chat submit, Agro submit, Imagine prompt bar, Deck prompt bar, FlowBuilder prompt bar, Legends chat, Cineshoot prompt bar, Agent command center, Tools page tool launches that hit backend.
+### 2. Backend gates (edge functions)
 
-For paid features that should never run for guests (image gen costs real money, video gen, deck, flowbuilder), block at first send with the same modal regardless of remaining tokens — text chat + Health + Agro stay free for guests.
+Update plan limits + tier checks in:
 
-## 4. Edge functions — accept guest calls
+- `supabase/functions/cineshoot/index.ts` — reject anything below `premium_plus` ("Cineshoot requires Premium Plus or above"); add new tokens to `PLAN_LIMITS`; widen `PLAN_RANK`.
+- `supabase/functions/cowork-agent/index.ts` and `supabase/functions/agent-router/index.ts` — require `premium` or higher (current rule already restricts paid; tighten to reject `free/basic/pro`).
+- `supabase/functions/flowbuilder-generate/index.ts`, `deck-generate/index.ts`, `imagine/index.ts`, `health-analysis/index.ts`, `agro-analysis/index.ts`, `legends-chat/index.ts`, `chat/index.ts`, `project-ai/index.ts` — add `premium_plus` & `max` to their `planLimits` / `PLAN_LIMITS` maps so token quota is honored.
 
-Currently `chat`, `imagine`, `health-analysis`, `agro-analysis`, `legends-chat`, `flowbuilder-generate`, `deck-generate`, `cineshoot`, `cowork-agent` rely on `Authorization` header for the supabase client. Update each:
-- If `Authorization` present → existing authed path.
-- If absent → read `x-guest-id` header, treat request as guest, skip per-user RLS-only writes (don't persist history to user-owned tables; return ephemeral result only).
-- Enforce per-guest rate limit (server-side, in a new `guest_usage` table keyed by guest_id) to prevent abuse beyond the client-side cap.
+### 3. Pricing UI
 
-For tools that must remain authed-only (Deck, FlowBuilder, Cineshoot, Imagine, Agent), return `401 GUEST_NOT_ALLOWED` so the client opens the login modal immediately.
+- `src/components/Pricing.jsx` — add three new cards rendered **below** the existing 4-card row (Premium Plus, Max, Enterprise) as a second row (3-column on desktop, snap-scroll on mobile per existing pattern). Use new badges:
+  - Premium Plus → "Power" badge (purple/violet gradient)
+  - Max → "Ultimate" badge (gold/orange gradient)
+  - Enterprise → small mailto card matching the screenshot (icon + "Flexible pooled usage" + "Custom plan — book a demo" + `mailto:support@aisorix.com` CTA)
+- Feature lists per the brief, including footnotes like "Sorix Cineshoot (Premium Plus & above)" / "Sorix Agent (Premium & above)".
 
-A migration creates `public.guest_usage(guest_id text primary key, tokens_used int, updated_at timestamptz)` with `service_role` writes only.
+### 4. Other pricing surfaces
 
-`supabase/config.toml`: ensure the guest-enabled functions have `verify_jwt = false` (chat, health-analysis, agro-analysis already do; verify and add for others touched).
+- `src/components/aichat/settings/PlansTokensTab.tsx` — render all six tiers in the upgrade list; show current plan + upgrade buttons for `premium_plus` and `max`.
+- `src/components/aichat/UpgradePlanModal.tsx` — add new tier options.
+- `src/components/aichat/PlanIcons.tsx` — add icons/colors for `premium_plus` (Crown+) and `max` (Zap/Diamond).
+- `src/components/PaymentModal.tsx` — map new `plan_id`s to BDT amounts (3999 / 9999) for SSLCommerz, bKash, Stripe.
+- `supabase/functions/sslcommerz-payment/index.ts`, `bkash-payment/index.ts`, `stripe-payment/index.ts`, `payment-webhook/index.ts`, `subscription-email/index.ts` — accept new `plan_id` values, persist correct amount, send proper emails.
+- `src/pages/PaymentSuccess.tsx` — friendly names for new tiers.
 
-## 5. SEO
+### 5. Tool gating UX (lock + upgrade prompts)
 
-- Pages no longer redirect on first paint → Googlebot sees the full marketing/chat shell.
-- Keep existing `SEOHead` titles/descriptions on `/chat`, `/tools`, each tool page.
-- Add a `<noscript>` fallback hero on `/chat` describing the product (helps crawlers without JS).
+- `src/pages/CineshootPage.tsx` / `src/components/cineshoot/*ModelSelector.tsx` — if `currentPlan` rank < `premium_plus`, show lock screen with "Upgrade to Premium Plus" CTA opening `UpgradePlanModal` pre-selected to `premium_plus`.
+- Same pattern for Sorix Agent (`src/pages/CoWorkPage.tsx`) requiring `premium`+.
+- Tools gallery `src/pages/ToolsPage.tsx` — add tier badges on Cineshoot and Agent cards.
 
-## 6. Fix 3-dot menu in chat history
+### 6. Translations
 
-Symptoms in screenshot: the menu trigger is invisible next to chat titles.
+- `src/lib/translations.ts` — add English + Bangla strings for new tier names, the "requires Premium Plus" copy, and Enterprise CTA. Apply Bangla wider-text utilities (truncate / whitespace-nowrap).
 
-Changes in `src/components/aichat/ChatHistoryActions.tsx` and `ChatSidebar.tsx` / `MobileSidebar.tsx`:
-- Bump trigger to `w-7 h-7` with `MoreHorizontal w-4 h-4`, always-visible `text-muted-foreground/70 hover:text-foreground hover:bg-muted` (drop any leftover `opacity-0 group-hover:opacity-100`).
-- Ensure parent row uses `min-w-0` on the title and `shrink-0` on the trigger so truncation doesn't eat the button.
-- Set `DropdownMenuContent` to `z-[100]` (above sidebar) and `side="right"` on desktop, `side="bottom"` on mobile.
-- Verify on the active/highlighted chat row — current `bg-primary/10` may visually merge the icon; use `text-primary/70` when row is active.
+### 7. Database / no schema changes
 
-After the fix the menu shows: **Star/Unstar**, **Rename**, **Delete** on every chat row, on both sidebars.
+The `subscriptions.plan_id` column is free-form `text`, so no migration is needed; new IDs (`premium_plus`, `max`, `enterprise`) are accepted as-is. Enterprise customers stay on a `free` row until manually upgraded by support.
+
+## Technical notes (for reviewers)
+
+- Single rank order used everywhere: `free=0, basic=1, pro=2, premium=3, premium_plus=4, max=5`. Update `PLAN_RANK` constants in `chatStore.ts` and every edge function in lockstep so model/tool tier checks pass.
+- All payment edge functions verify amount server-side before creating the `payment_intents` row, so new prices must be added in **both** `PaymentModal.tsx` (display) and the matching payment edge function (validation) to avoid mismatch errors.
+- Cineshoot/Agent lock screens reuse existing `UpgradePlanModal` — pass `initialPlan="premium_plus"` / `"premium"` prop (added in this change) so the modal highlights the right card.
+- Enterprise card is informational: no checkout flow — only a `mailto:support@aisorix.com?subject=Enterprise%20Demo%20Request` link, matching the reference screenshot.
 
 ## Out of scope
 
-- Migrating existing guest chat history into the user account post-login (can be a follow-up).
-- Changing pricing/payment flow.
-
-## Technical summary
-
-- Files edited: `src/App.jsx`, `src/pages/ChatPage.tsx`, all tool page entry files (remove guards), `src/hooks/useAIChatAuth.ts`, `src/stores/chatStore.ts`, each tool's submit hook, `src/components/aichat/ChatArea.tsx`, sidebar files, `ChatHistoryActions.tsx`, `Login.jsx`/`Register.jsx` (redirect param).
-- Files created: `src/hooks/useGuestSession.ts`, `src/components/auth/GuestLimitModal.tsx`.
-- Edge functions: branch on Authorization header; new `guest_usage` table + migration.
-- No changes to pricing, payment modal, or auth providers.
+- Yearly billing discount changes for the new tiers (will inherit existing 20% yearly logic automatically).
+- Admin tooling to manually upgrade Enterprise customers (existing service-role pattern still applies).
