@@ -216,6 +216,8 @@ const Pricing = () => {
     },
   ];
 
+  const allPricingPlans = [...plans, ...advancedPlans];
+
   const formatPrice = (price) => {
     if (language === 'bn') {
       return `৳${price.toLocaleString('bn-BD')}`;
