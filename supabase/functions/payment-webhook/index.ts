@@ -20,6 +20,9 @@ const PLAN_NAMES: Record<string, string> = {
   basic: 'Sorix Basic',
   pro: 'Sorix Pro',
   premium: 'Sorix Premium',
+  premium_plus: 'Sorix Premium Plus',
+  max: 'Sorix Max',
+  enterprise: 'Enterprise',
 };
 
 interface PaymentCallback {

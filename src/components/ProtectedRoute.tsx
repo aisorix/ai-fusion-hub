@@ -43,6 +43,9 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         basic: 800000,
         pro: 1500000,
         premium: 3000000,
+        premium_plus: 7000000,
+        max: 17000000,
+        enterprise: 50000000,
       };
 
       setUser({

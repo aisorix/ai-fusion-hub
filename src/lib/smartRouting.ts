@@ -9,6 +9,9 @@ const WORKER_MODELS: Record<UserPlan, string> = {
   basic: 'openai/gpt-5-nano',
   pro: 'openai/gpt-5-nano',
   premium: 'openai/gpt-5-nano',
+  premium_plus: 'openai/gpt-5-nano',
+  max: 'openai/gpt-5-nano',
+  enterprise: 'openai/gpt-5-nano',
 };
 
 // For backward compatibility

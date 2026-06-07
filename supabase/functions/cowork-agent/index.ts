@@ -44,6 +44,24 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    // Sorix Agent is gated to Premium, Premium Plus, Max and Enterprise plans.
+    const AGENT_ALLOWED = new Set(["premium", "premium_plus", "max", "enterprise"]);
+    const { data: sub } = await supabase
+      .from("subscriptions")
+      .select("plan_id")
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const planId = sub?.plan_id || "free";
+    if (!AGENT_ALLOWED.has(planId)) {
+      return new Response(
+        JSON.stringify({ error: "Sorix Agent is available on Premium and above plans." }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const { messages, model } = await req.json();
 
     const encoder = new TextEncoder();

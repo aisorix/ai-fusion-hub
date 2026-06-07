@@ -31,7 +31,7 @@ const RES_MULT: Record<string, number> = { '720p': 1, '1080p': 1, '2K': 1.25, '4
 const RES_ORDER = ['720p', '1080p', '2K', '4K'];
 const TOKENS_PER_USD = 30000;
 const MARKUP = 14; // 7x previous markup of 2
-const PLAN_RANK: Record<string, number> = { free: 0, basic: 1, pro: 2, premium: 3 };
+const PLAN_RANK: Record<string, number> = { free: 0, basic: 1, pro: 2, premium: 3, premium_plus: 4, max: 5, enterprise: 6 };
 const TIER_RANK: Record<string, number> = { basic: 1, pro: 2, premium: 3 };
 
 const PLAN_LIMITS: Record<string, number> = {
@@ -39,7 +39,13 @@ const PLAN_LIMITS: Record<string, number> = {
   basic: 800000,
   pro: 1500000,
   premium: 3000000,
+  premium_plus: 7000000,
+  max: 17000000,
+  enterprise: 50000000,
 };
+
+// Cineshoot is exclusive to Premium Plus and above.
+const CINESHOOT_MIN_RANK = 4;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -105,6 +111,10 @@ serve(async (req) => {
     const currentUsed = sub?.tokens_used ?? 0;
     const limit = PLAN_LIMITS[planId] ?? 15000;
 
+    // Cineshoot is gated to Premium Plus and above for all models.
+    if ((PLAN_RANK[planId] ?? 0) < CINESHOOT_MIN_RANK) {
+      return json({ error: 'Sorix Cineshoot is available on Premium Plus and Max plans.' }, 403);
+    }
     if ((PLAN_RANK[planId] ?? 0) < TIER_RANK[cfg.tier]) {
       return json({ error: `This model requires ${cfg.tier} plan or above` }, 403);
     }

@@ -22,6 +22,9 @@ const planLimits: Record<string, number> = {
   basic: 800000,
   pro: 1500000,
   premium: 3000000,
+  premium_plus: 7000000,
+  max: 17000000,
+  enterprise: 50000000,
 };
 
 const SYSTEM_PROMPT = `You are an expert diagram and flowchart generator. You ONLY output valid Mermaid.js code. Do NOT include any explanation, markdown fences, or commentary — just raw Mermaid syntax.
