@@ -26,7 +26,25 @@ const planFeatures: Record<UserPlan, { name: string; models: number; tokens: str
     name: "Sorix Premium",
     models: 10,
     tokens: "3M",
-    features: ["10 AI Models", "Premium Search", "All Models", "Priority Support"],
+    features: ["10 AI Models", "Premium Search", "Sorix Agent", "Priority Support"],
+  },
+  premium_plus: {
+    name: "Sorix Premium Plus",
+    models: 10,
+    tokens: "7M",
+    features: ["10 AI Models", "Sorix Cineshoot", "Sorix Agent", "More Memory"],
+  },
+  max: {
+    name: "Sorix Max",
+    models: 10,
+    tokens: "17M",
+    features: ["Everything in Premium Plus", "Extra Cineshoot", "More Image Gen", "Max Memory"],
+  },
+  enterprise: {
+    name: "Enterprise",
+    models: 10,
+    tokens: "Custom",
+    features: ["Pooled usage", "Custom limits", "Priority support", "SLAs"],
   },
 };
 

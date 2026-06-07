@@ -36,6 +36,9 @@ const PLAN_PROJECT_LIMITS: Record<UserPlan, number> = {
   basic: 2,
   pro: 5,
   premium: 10,
+  premium_plus: 25,
+  max: 100,
+  enterprise: 999,
 };
 
 const MODEL_MULTIPLIERS: Record<ProjectModel, number> = {

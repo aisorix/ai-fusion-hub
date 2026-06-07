@@ -70,7 +70,7 @@ const PaymentSuccess = () => {
           .maybeSingle();
 
         if (subscription && subscription.plan_id) {
-          const validPlans: UserPlan[] = ['free', 'basic', 'pro', 'premium'];
+          const validPlans: UserPlan[] = ['free', 'basic', 'pro', 'premium', 'premium_plus', 'max', 'enterprise'];
           const planId = subscription.plan_id as UserPlan;
           
           if (validPlans.includes(planId)) {
@@ -108,6 +108,9 @@ const PaymentSuccess = () => {
       basic: 'Sorix Basic',
       pro: 'Sorix Pro',
       premium: 'Sorix Premium',
+      premium_plus: 'Sorix Premium Plus',
+      max: 'Sorix Max',
+      enterprise: 'Enterprise',
     };
     return names[planId] || planId;
   };
