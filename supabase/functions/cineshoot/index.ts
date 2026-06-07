@@ -111,6 +111,10 @@ serve(async (req) => {
     const currentUsed = sub?.tokens_used ?? 0;
     const limit = PLAN_LIMITS[planId] ?? 15000;
 
+    // Cineshoot is gated to Premium Plus and above for all models.
+    if ((PLAN_RANK[planId] ?? 0) < CINESHOOT_MIN_RANK) {
+      return json({ error: 'Sorix Cineshoot is available on Premium Plus and Max plans.' }, 403);
+    }
     if ((PLAN_RANK[planId] ?? 0) < TIER_RANK[cfg.tier]) {
       return json({ error: `This model requires ${cfg.tier} plan or above` }, 403);
     }
