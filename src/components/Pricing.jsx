@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Check, X, Sparkles, Gift, Zap, Crown, ArrowRight, Star, ShieldCheck, CreditCard } from 'lucide-react';
+import { Check, X, Sparkles, Gift, Zap, Crown, ArrowRight, Star, ShieldCheck, CreditCard, Diamond, Rocket, Building2, Mail } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -149,16 +149,70 @@ const Pricing = () => {
         { text: sorixAgroLabel, included: true },
         { text: sorixLegendsLabel, included: true },
         { text: 'Sorix Deck', included: true },
+        { text: 'Sorix Agent', included: true },
         { text: t('webSearchPremium'), included: true },
         { text: t('voiceAIUnlimited'), included: true },
         { text: t('fileUpload') + ': PDF/DOC', subtext: t('maxSize') + ' 15MB', included: true },
         { text: t('imageGen'), included: true },
         { text: t('memoryUltra'), included: true },
         { text: `10 ${t('projects')}`, included: true },
-        { text: t('teamAccess'), subtext: t('upToMembers'), included: true },
       ],
       buttonText: t('goPremium'),
       buttonStyle: 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-lg hover:shadow-xl',
+    },
+  ];
+
+  // Power-tier plans rendered in a second row below the core 4
+  const advancedPlans = [
+    {
+      name: 'premium_plus',
+      displayName: language === 'en' ? 'Sorix Premium Plus' : 'সোরিক্স প্রিমিয়াম প্লাস',
+      price: 3999,
+      yearlyPrice: Math.round(3999 * 12 * 0.8),
+      icon: Diamond,
+      gradient: 'from-violet-500 to-fuchsia-600',
+      cardStyle: 'futuristic-card',
+      badge: language === 'en' ? 'Power' : 'পাওয়ার',
+      models: ['ChatGPT', 'Claude', 'DeepSeek', 'Gemini', 'Grok', 'Qwen', 'Llama', 'Sorix', 'Mistral', 'Perplexity'],
+      tokens: '7M',
+      features: [
+        { text: language === 'en' ? 'Everything in Premium' : 'প্রিমিয়ামের সবকিছু', included: true },
+        { text: '7M Tokens', subtext: '/month', included: true },
+        { text: 'Sorix Cineshoot', subtext: language === 'en' ? 'Premium Plus & above' : 'প্রিমিয়াম প্লাস ও তদূর্ধ্ব', included: true },
+        { text: 'Sorix Agent', included: true },
+        { text: language === 'en' ? 'More Image Generation' : 'আরও ইমেজ জেনারেশন', included: true },
+        { text: language === 'en' ? 'More Memory' : 'আরও মেমোরি', included: true },
+        { text: t('voiceAIUnlimited'), included: true },
+        { text: t('fileUpload') + ': PDF/DOC', subtext: t('maxSize') + ' 25MB', included: true },
+        { text: `25 ${t('projects')}`, included: true },
+      ],
+      buttonText: language === 'en' ? 'Go Premium Plus' : 'প্রিমিয়াম প্লাস নিন',
+      buttonStyle: 'bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white shadow-lg hover:shadow-xl',
+    },
+    {
+      name: 'max',
+      displayName: language === 'en' ? 'Sorix Max' : 'সোরিক্স ম্যাক্স',
+      price: 9999,
+      yearlyPrice: Math.round(9999 * 12 * 0.8),
+      icon: Rocket,
+      gradient: 'from-amber-400 via-orange-500 to-red-500',
+      cardStyle: 'futuristic-card neon-border',
+      badge: language === 'en' ? 'Ultimate' : 'আলটিমেট',
+      models: ['ChatGPT', 'Claude', 'DeepSeek', 'Gemini', 'Grok', 'Qwen', 'Llama', 'Sorix', 'Mistral', 'Perplexity'],
+      tokens: '17M',
+      features: [
+        { text: language === 'en' ? 'Everything in Premium Plus' : 'প্রিমিয়াম প্লাসের সবকিছু', included: true },
+        { text: '17M Tokens', subtext: '/month', included: true },
+        { text: language === 'en' ? 'Extra Cineshoot video generation' : 'অতিরিক্ত সিনেশুট ভিডিও জেনারেশন', included: true },
+        { text: language === 'en' ? 'More Image Generation' : 'আরও ইমেজ জেনারেশন', included: true },
+        { text: language === 'en' ? 'More Agentic work' : 'আরও এজেন্টিক কাজ', included: true },
+        { text: language === 'en' ? 'Max Memory' : 'ম্যাক্স মেমোরি', included: true },
+        { text: t('voiceAIUnlimited'), included: true },
+        { text: t('fileUpload') + ': PDF/DOC', subtext: t('maxSize') + ' 50MB', included: true },
+        { text: `100 ${t('projects')}`, included: true },
+      ],
+      buttonText: language === 'en' ? 'Go Max' : 'ম্যাক্স নিন',
+      buttonStyle: 'bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white shadow-lg hover:shadow-xl',
     },
   ];
 
