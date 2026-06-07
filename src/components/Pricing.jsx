@@ -581,6 +581,133 @@ const Pricing = () => {
           )})}
         </div>
 
+        {/* Advanced Tier Row (Desktop only) — Premium Plus + Max + Enterprise */}
+        <div className="hidden md:grid md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6 mt-6 lg:mt-8">
+          {advancedPlans.map((plan, planIndex) => {
+            const isCurrentUserPlan = currentPlan === plan.name;
+            return (
+              <div
+                key={plan.name}
+                className={`relative ${plan.cardStyle} rounded-3xl ${isCurrentUserPlan ? 'ring-2 ring-primary/50' : ''} overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl group`}
+              >
+                {plan.badge && !isCurrentUserPlan && (
+                  <div className="absolute top-0 left-0 right-0">
+                    <div className={`bg-gradient-to-r ${plan.gradient} text-center py-2.5 text-sm font-bold text-white flex items-center justify-center gap-2`}>
+                      <Sparkles className="w-4 h-4" />
+                      {plan.badge}
+                    </div>
+                  </div>
+                )}
+                {isCurrentUserPlan && (
+                  <div className="absolute top-0 left-0 right-0">
+                    <div className="bg-muted text-center py-2.5 text-sm font-medium text-muted-foreground flex items-center justify-center gap-2 border-b border-border">
+                      {t('yourCurrentPlan')}
+                    </div>
+                  </div>
+                )}
+                <div className={`p-5 lg:p-8 ${(plan.badge || isCurrentUserPlan) ? 'pt-12 lg:pt-14' : ''}`}>
+                  <div className="flex items-center gap-3 mb-5 lg:mb-6">
+                    <div className={`w-12 h-12 lg:w-14 lg:h-14 rounded-2xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-500`}>
+                      <plan.icon className="w-6 h-6 lg:w-7 lg:h-7 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg lg:text-xl font-bold text-foreground">{plan.displayName}</h3>
+                    </div>
+                  </div>
+                  <div className="mb-5 lg:mb-6">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-4xl lg:text-5xl font-black text-foreground">
+                        {formatPrice(isYearly ? Math.round((plan.yearlyPrice || plan.price * 12 * 0.8) / 12) : plan.price)}
+                      </span>
+                      <span className="text-muted-foreground text-sm">{t('perMonth')}</span>
+                    </div>
+                    {isYearly && plan.price > 0 && (
+                      <p className="text-xs text-green-600 dark:text-green-400 mt-1 font-medium">{t('billedYearly')}</p>
+                    )}
+                  </div>
+                  <div className="space-y-3 mb-6 lg:mb-8">
+                    {plan.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-start gap-2.5">
+                        <div className="w-5 h-5 rounded-full bg-green-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-sm text-foreground">{feature.text}</span>
+                          {feature.subtext && (
+                            <span className="text-xs text-muted-foreground ml-1">({feature.subtext})</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => handlePlanSelect(plan)}
+                    disabled={currentPlan === plan.name}
+                    className={`w-full py-3.5 lg:py-4 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-500 ${
+                      currentPlan === plan.name ? 'bg-muted text-muted-foreground cursor-not-allowed' : plan.buttonStyle
+                    }`}
+                  >
+                    {currentPlan === plan.name ? (language === 'en' ? 'Current Plan' : 'বর্তমান প্ল্যান') : plan.buttonText}
+                    {currentPlan !== plan.name && <ArrowRight className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Enterprise Card */}
+          <div className="relative futuristic-card rounded-3xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl group">
+            <div className="p-5 lg:p-8">
+              <div className="flex items-center gap-3 mb-5 lg:mb-6">
+                <div className="w-12 h-12 lg:w-14 lg:h-14 rounded-2xl bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-500">
+                  <Building2 className="w-6 h-6 lg:w-7 lg:h-7 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg lg:text-xl font-bold text-foreground">
+                    {language === 'en' ? 'Enterprise' : 'এন্টারপ্রাইজ'}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    {language === 'en' ? 'Flexible pooled usage' : 'নমনীয় পুলড ব্যবহার'}
+                  </p>
+                </div>
+              </div>
+              <div className="mb-5 lg:mb-6 p-4 rounded-xl bg-muted/40 border border-border/50">
+                <p className="text-sm font-semibold text-foreground mb-1">
+                  {language === 'en' ? 'Custom plan' : 'কাস্টম প্ল্যান'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {language === 'en'
+                    ? 'Seat price + usage at API rates. Pooled limits, SSO, SLAs and dedicated support.'
+                    : 'সিট মূল্য + API রেটে ব্যবহার। পুলড সীমা, SSO, SLA এবং ডেডিকেটেড সাপোর্ট।'}
+                </p>
+              </div>
+              <div className="space-y-3 mb-6 lg:mb-8">
+                {[
+                  language === 'en' ? 'Everything in Sorix Max' : 'সোরিক্স ম্যাক্সের সবকিছু',
+                  language === 'en' ? 'Pooled team-wide token usage' : 'পুরো টিমের পুলড টোকেন ব্যবহার',
+                  language === 'en' ? 'SSO, audit logs, custom retention' : 'SSO, অডিট লগ, কাস্টম রিটেনশন',
+                  language === 'en' ? 'Dedicated success manager + SLA' : 'ডেডিকেটেড সাকসেস ম্যানেজার + SLA',
+                ].map((text, idx) => (
+                  <div key={idx} className="flex items-start gap-2.5">
+                    <div className="w-5 h-5 rounded-full bg-green-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
+                    </div>
+                    <span className="text-sm text-foreground">{text}</span>
+                  </div>
+                ))}
+              </div>
+              <a
+                href="mailto:support@aisorix.com?subject=Enterprise%20Demo%20Request"
+                className="w-full py-3.5 lg:py-4 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 bg-gradient-to-r from-slate-700 to-slate-900 text-white shadow-lg hover:shadow-xl transition-all duration-500"
+              >
+                <Mail className="w-4 h-4" />
+                {language === 'en' ? 'Book a Demo' : 'ডেমো বুক করুন'}
+              </a>
+            </div>
+          </div>
+        </div>
+
+
         {/* Footer Note */}
         <div className="mt-16 sm:mt-20 text-center">
           <p className="text-sm text-muted-foreground mb-8">
