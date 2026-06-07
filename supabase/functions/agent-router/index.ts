@@ -135,6 +135,19 @@ Deno.serve(async (req) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
+    // Sorix Agent is gated to Premium, Premium Plus, Max and Enterprise plans.
+    const AGENT_ALLOWED = new Set(["premium", "premium_plus", "max", "enterprise"]);
+    const { data: agentSub } = await admin
+      .from("subscriptions").select("plan_id").eq("user_id", user.id).eq("status", "active")
+      .order("created_at", { ascending: false }).limit(1).maybeSingle();
+    const agentPlan = (agentSub?.plan_id as string) || "free";
+    if (!AGENT_ALLOWED.has(agentPlan)) {
+      return new Response(
+        JSON.stringify({ error: "Sorix Agent is available on Premium and above plans." }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const { messages = [], model } = await req.json();
 
     // Connected via legacy OAuth (user_connections)
