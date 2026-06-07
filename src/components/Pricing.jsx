@@ -312,10 +312,10 @@ const Pricing = () => {
               const scrollLeft = container.scrollLeft;
               const cardWidth = 280 + 16; // card width + gap
               const newIndex = Math.round(scrollLeft / cardWidth);
-              setActiveCardIndex(Math.min(Math.max(newIndex, 0), 3));
+              setActiveCardIndex(Math.min(Math.max(newIndex, 0), allPricingPlans.length - 1));
             }}
           >
-          {plans.map((plan, planIndex) => {
+          {allPricingPlans.map((plan, planIndex) => {
             const isCurrentUserPlan = currentPlan === plan.name;
             return (
             <div
@@ -435,7 +435,7 @@ const Pricing = () => {
           
           {/* Scroll Position Indicator Dots */}
           <div className="flex justify-center gap-2 mt-4">
-            {plans.map((plan, index) => (
+            {allPricingPlans.map((plan, index) => (
               <button
                 key={plan.name}
                 onClick={() => {
