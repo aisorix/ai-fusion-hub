@@ -35,7 +35,7 @@ export interface Chat {
 }
 
 export type ModelCategory = 'chat' | 'code' | 'search' | 'system';
-export type UserPlan = 'free' | 'basic' | 'pro' | 'premium';
+export type UserPlan = 'free' | 'basic' | 'pro' | 'premium' | 'premium_plus' | 'max' | 'enterprise';
 
 export interface Model {
   id: string;
@@ -239,13 +239,13 @@ const proModels: Model[] = [
 
 // 👑 PREMIUM TIER MODELS
 const premiumModels: Model[] = [
-  { id: 'claude-sonnet-45', name: 'Claude Sonnet 4.5', backendId: 'anthropic/claude-sonnet-4.5', description: 'Anthropic Sonnet', category: 'chat', plans: ['premium'], multiplier: 6, dailyLimit: { premium: 20 } },
-  { id: 'claude-opus-45', name: 'Claude Opus 4.5', backendId: 'anthropic/claude-opus-4.5', description: 'Anthropic Opus', category: 'chat', plans: ['premium'], multiplier: 10, dailyLimit: { premium: 10 } },
-  { id: 'gpt5-2', name: 'GPT-5.2', backendId: 'openai/gpt-5.2', description: 'Flagship reasoning', category: 'chat', plans: ['premium'], multiplier: 6.5, dailyLimit: { premium: 30 } },
-  { id: 'gemini-25-pro', name: 'Gemini 2.5 Pro', backendId: 'google/gemini-2.5-pro', description: 'Professional Gemini', category: 'chat', plans: ['premium'], multiplier: 4, dailyLimit: { premium: 20 } },
-  
-  { id: 'kimi-k25', name: 'Kimi-K2.5', backendId: 'moonshotai/kimi-k2.5', description: 'Advanced Moonshot', category: 'chat', plans: ['premium'], multiplier: 1 },
-  { id: 'mistral-large-3', name: 'Mistral Large 3', backendId: 'mistralai/mistral-large-2512', description: 'Mistral flagship', category: 'chat', plans: ['premium'], multiplier: 1 },
+  { id: 'claude-sonnet-45', name: 'Claude Sonnet 4.5', backendId: 'anthropic/claude-sonnet-4.5', description: 'Anthropic Sonnet', category: 'chat', plans: ['premium', 'premium_plus', 'max'], multiplier: 6, dailyLimit: { premium: 20, premium_plus: 40, max: 80 } },
+  { id: 'claude-opus-45', name: 'Claude Opus 4.5', backendId: 'anthropic/claude-opus-4.5', description: 'Anthropic Opus', category: 'chat', plans: ['premium', 'premium_plus', 'max'], multiplier: 10, dailyLimit: { premium: 10, premium_plus: 25, max: 50 } },
+  { id: 'gpt5-2', name: 'GPT-5.2', backendId: 'openai/gpt-5.2', description: 'Flagship reasoning', category: 'chat', plans: ['premium', 'premium_plus', 'max'], multiplier: 6.5, dailyLimit: { premium: 30, premium_plus: 60, max: 120 } },
+  { id: 'gemini-25-pro', name: 'Gemini 2.5 Pro', backendId: 'google/gemini-2.5-pro', description: 'Professional Gemini', category: 'chat', plans: ['premium', 'premium_plus', 'max'], multiplier: 4, dailyLimit: { premium: 20, premium_plus: 40, max: 80 } },
+
+  { id: 'kimi-k25', name: 'Kimi-K2.5', backendId: 'moonshotai/kimi-k2.5', description: 'Advanced Moonshot', category: 'chat', plans: ['premium', 'premium_plus', 'max'], multiplier: 1 },
+  { id: 'mistral-large-3', name: 'Mistral Large 3', backendId: 'mistralai/mistral-large-2512', description: 'Mistral flagship', category: 'chat', plans: ['premium', 'premium_plus', 'max'], multiplier: 1 },
 ];
 
 const allModels: Model[] = [
@@ -261,6 +261,9 @@ const planTokenLimits: Record<UserPlan, number> = {
   basic: 800000,
   pro: 1500000,
   premium: 3000000,
+  premium_plus: 7000000,
+  max: 17000000,
+  enterprise: 50000000,
 };
 
 const defaultUser: User = {
@@ -310,6 +313,9 @@ const defaultModelByPlan: Record<UserPlan, string> = {
   basic: 'smart-auto',
   pro: 'smart-auto',
   premium: 'smart-auto',
+  premium_plus: 'smart-auto',
+  max: 'smart-auto',
+  enterprise: 'smart-auto',
 };
 
 // Maximum chats to persist in localStorage

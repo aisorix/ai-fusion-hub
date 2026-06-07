@@ -1,9 +1,9 @@
-// Plan Icons Component - Displays plan-specific icons (Basic, Pro, Premium)
+// Plan Icons Component - Displays plan-specific icons (Basic, Pro, Premium, Premium Plus, Max)
 import React from 'react';
-import { Zap, Sparkles, Crown } from 'lucide-react';
+import { Zap, Sparkles, Crown, Diamond, Rocket, Building2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type PlanType = 'free' | 'basic' | 'pro' | 'premium';
+export type PlanType = 'free' | 'basic' | 'pro' | 'premium' | 'premium_plus' | 'max' | 'enterprise';
 
 interface PlanIconProps {
   plan: PlanType;
@@ -50,6 +50,24 @@ export const PlanIcon = ({ plan, size = 'md', className, showLabel = false }: Pl
           icon: Crown,
           bgClass: 'bg-gradient-to-br from-pink-400 to-rose-500',
           label: 'Sorix Premium',
+        };
+      case 'premium_plus':
+        return {
+          icon: Diamond,
+          bgClass: 'bg-gradient-to-br from-violet-500 to-fuchsia-600',
+          label: 'Sorix Premium Plus',
+        };
+      case 'max':
+        return {
+          icon: Rocket,
+          bgClass: 'bg-gradient-to-br from-amber-400 via-orange-500 to-red-500',
+          label: 'Sorix Max',
+        };
+      case 'enterprise':
+        return {
+          icon: Building2,
+          bgClass: 'bg-gradient-to-br from-slate-600 to-slate-800',
+          label: 'Enterprise',
         };
       default:
         return {
@@ -111,6 +129,21 @@ export const PlanBadge = ({ plan, className }: { plan: PlanType; className?: str
         return {
           icon: Crown,
           bgClass: 'bg-gradient-to-r from-pink-400 to-rose-500',
+        };
+      case 'premium_plus':
+        return {
+          icon: Diamond,
+          bgClass: 'bg-gradient-to-r from-violet-500 to-fuchsia-600',
+        };
+      case 'max':
+        return {
+          icon: Rocket,
+          bgClass: 'bg-gradient-to-r from-amber-400 via-orange-500 to-red-500',
+        };
+      case 'enterprise':
+        return {
+          icon: Building2,
+          bgClass: 'bg-gradient-to-r from-slate-600 to-slate-800',
         };
       default:
         return null;
