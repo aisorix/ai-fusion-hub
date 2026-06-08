@@ -1202,6 +1202,75 @@ export type Database = {
         }
         Relationships: []
       }
+      video_jobs: {
+        Row: {
+          aspect_ratio: string
+          attempts: number
+          created_at: string
+          duration_sec: number
+          error: string | null
+          id: string
+          image_data_url: string | null
+          model: string
+          prompt: string
+          provider_job_id: string | null
+          provider_polling_url: string | null
+          resolution: string
+          sound: boolean
+          source_type: string
+          status: string
+          tokens_charged: number | null
+          tokens_estimated: number
+          updated_at: string
+          user_id: string
+          video_url: string | null
+        }
+        Insert: {
+          aspect_ratio?: string
+          attempts?: number
+          created_at?: string
+          duration_sec?: number
+          error?: string | null
+          id?: string
+          image_data_url?: string | null
+          model: string
+          prompt: string
+          provider_job_id?: string | null
+          provider_polling_url?: string | null
+          resolution?: string
+          sound?: boolean
+          source_type?: string
+          status?: string
+          tokens_charged?: number | null
+          tokens_estimated?: number
+          updated_at?: string
+          user_id: string
+          video_url?: string | null
+        }
+        Update: {
+          aspect_ratio?: string
+          attempts?: number
+          created_at?: string
+          duration_sec?: number
+          error?: string | null
+          id?: string
+          image_data_url?: string | null
+          model?: string
+          prompt?: string
+          provider_job_id?: string | null
+          provider_polling_url?: string | null
+          resolution?: string
+          sound?: boolean
+          source_type?: string
+          status?: string
+          tokens_charged?: number | null
+          tokens_estimated?: number
+          updated_at?: string
+          user_id?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       reviews_public: {
