@@ -1,84 +1,165 @@
-## Goal
+## Goals
 
-Introduce two new paid tiers (**Sorix Premium Plus** — ৳3,999/mo, **Sorix Max** — ৳9,999/mo) and an **Enterprise** card across the entire pricing surface, with full enforcement (UI + edge functions + payments).
+1. Friendly full-page lock screen on `/cineshoot` (requires `premium_plus`+) and `/agent` (requires `premium`+) for under-tier users.
+2. Premium Plus, Max, and Enterprise everywhere upgrade plans are shown (chat Settings → Plans & Tokens, UpgradePlanModal, PaymentModal flow).
+3. Cineshoot generation is rock-solid: any model, any duration, always returns a video or a true failure — and tokens are only deducted on real success.
 
-## New plan matrix
+---
 
+## 1. Tier lock screens (full-page unlock UX)
 
-| Plan ID        | Display name           | Price (BDT/mo) | Tokens/mo      | Exclusive unlocks                                             |
-| -------------- | ---------------------- | -------------- | -------------- | ------------------------------------------------------------- |
-| `free`         | Free                   | 0              | 15,000         | —                                                             |
-| `basic`        | Sorix Basic            | 499            | 800,000        | —                                                             |
-| `pro`          | Sorix Pro              | 999            | 1,500,000      | —                                                             |
-| `premium`      | Sorix Premium          | 1,999          | 3,000,000      | + Sorix Agent                                                 |
-| `premium_plus` | **Sorix Premium Plus** | **3,999**      | **7,000,000**  | + Sorix Cineshoot, more memory                                |
-| `max`          | **Sorix Max**          | **9,999**      | **17,000,000** | + extra Cineshoot/Imagine/Agent capacity, max memory          |
-| `enterprise`   | Enterprise             | Custom         | Pooled         | Book demo → [support@aisorix.com](mailto:support@aisorix.com) |
+New shared component `src/components/shared/PlanLockScreen.tsx`:
 
+- Props: `toolName`, `tagline`, `requiredPlan` (`'premium' | 'premium_plus'`), `accentGradient`, `icon`, `features[]`, `onBack`.
+- Layout: centered card with the tool icon in a gradient halo, headline like “Sorix Cineshoot is a Premium Plus tool”, 4–5 feature bullets, “Required plan” badge, two CTAs: **Upgrade plan** (opens `UpgradePlanModal`) and **Back** (navigates `-1`).
+- Pure presentation, no business logic. Uses semantic tokens (`bg-card`, `text-foreground`, `text-muted-foreground`, `border-border`).
 
-Tool-tier rules per your spec:
+Gating helper `src/lib/planAccess.ts`:
 
-- **Sorix Agent** → `premium`, `premium_plus`, `max`
-- **Sorix Cineshoot** → `premium_plus`, `max`
-- Image/agent/memory quantity is bounded only by the user's token budget (no extra hard caps).
+```ts
+export const PLAN_RANK = { free:0, basic:1, pro:2, premium:3, premium_plus:4, max:5, enterprise:6 } as const;
+export const meetsPlan = (plan: UserPlan, required: keyof typeof PLAN_RANK) =>
+  (PLAN_RANK[plan] ?? 0) >= PLAN_RANK[required];
+```
 
-## Files to update
+Wire-up:
 
-### 1. Plan type and limits (single source of truth)
+- `src/pages/CineshootPage.tsx`: read `currentPlan` from `useSubscription`; if `!meetsPlan(currentPlan, 'premium_plus')`, render `<PlanLockScreen toolName="Sorix Cineshoot" requiredPlan="premium_plus" .../>` instead of the workspace. Keep `SEOHead` so the route still has metadata.
+- `src/pages/CoWorkPage.tsx`: same pattern, `requiredPlan="premium"`, gradient cyan→teal, icon `Bot`.
+- Server-side gating already exists in `cineshoot` and `cowork-agent` edge functions — UI lock is purely cosmetic on top.
 
-- `src/stores/chatStore.ts`
-  - Extend `UserPlan` union to include `'premium_plus' | 'max'` (and `'enterprise'` for display only).
-  - Extend `PLAN_TOKEN_LIMITS` with `premium_plus: 7_000_000`, `max: 17_000_000`.
-  - Update `PLAN_RANK` ordering used by model gating helpers.
-  - Add `premium_plus` / `max` to every model `plans` array that currently lists `premium` so paid users don't lose access to existing models when they upgrade.
+---
 
-### 2. Backend gates (edge functions)
+## 2. Upgrade surfaces — add Premium Plus, Max, Enterprise
 
-Update plan limits + tier checks in:
+### 2a. `src/components/aichat/UpgradePlanModal.tsx`
 
-- `supabase/functions/cineshoot/index.ts` — reject anything below `premium_plus` ("Cineshoot requires Premium Plus or above"); add new tokens to `PLAN_LIMITS`; widen `PLAN_RANK`.
-- `supabase/functions/cowork-agent/index.ts` and `supabase/functions/agent-router/index.ts` — require `premium` or higher (current rule already restricts paid; tighten to reject `free/basic/pro`).
-- `supabase/functions/flowbuilder-generate/index.ts`, `deck-generate/index.ts`, `imagine/index.ts`, `health-analysis/index.ts`, `agro-analysis/index.ts`, `legends-chat/index.ts`, `chat/index.ts`, `project-ai/index.ts` — add `premium_plus` & `max` to their `planLimits` / `PLAN_LIMITS` maps so token quota is honored.
+- Extend the `plans` array with three new entries that mirror `Pricing.jsx`:
+  - `premium_plus` (৳3,999/mo, 7M tokens, icon `Diamond`, gradient `from-violet-500 to-fuchsia-600`, badge “Power”).
+  - `max` (৳9,999/mo, 17M tokens, icon `Rocket`, gradient `from-amber-500 via-orange-500 to-red-500`, badge “Ultimate”).
+  - `enterprise` (price `null`, icon `Building2`, gradient `from-slate-600 to-slate-800`, `buttonText: 'Book a Demo'`, opens `mailto:support@aisorix.com?subject=AI Sorix Enterprise Demo Request`, no PaymentModal).
+- Feature lists copied from `Pricing.jsx` (Cineshoot only on Premium Plus+, Agent on Premium+).
+- Grid: desktop becomes `xl:grid-cols-4` with two rows (4 core + 3 advanced wrapping to a second row). Mobile horizontal-scroll already iterates `plans.map` — works as is.
+- Enterprise card uses a dedicated handler (`window.location.href = mailto:...`) instead of `setSelectedPlan`.
 
-### 3. Pricing UI
+### 2b. `src/components/aichat/settings/PlansTokensTab.tsx`
 
-- `src/components/Pricing.jsx` — add three new cards rendered **below** the existing 4-card row (Premium Plus, Max, Enterprise) as a second row (3-column on desktop, snap-scroll on mobile per existing pattern). Use new badges:
-  - Premium Plus → "Power" badge (purple/violet gradient)
-  - Max → "Ultimate" badge (gold/orange gradient)
-  - Enterprise → small mailto card matching the screenshot (icon + "Flexible pooled usage" + "Custom plan — book a demo" + `mailto:support@aisorix.com` CTA)
-- Feature lists per the brief, including footnotes like "Sorix Cineshoot (Premium Plus & above)" / "Sorix Agent (Premium & above)".
+- Already maps all 7 plans in `planFeatures`. Update CTA: button label becomes “Manage Plan” only for `max`/`enterprise`, “Upgrade” otherwise.
+- Add small badge below plan name when `user.plan === 'premium_plus' | 'max'` highlighting Cineshoot/Agent access.
+- Append “Sorix Cineshoot” entry to the tools list with a “Premium Plus+” pill (color reused from existing Free/Included badges).
 
-### 4. Other pricing surfaces
+### 2c. `src/components/PaymentModal.tsx`
 
-- `src/components/aichat/settings/PlansTokensTab.tsx` — render all six tiers in the upgrade list; show current plan + upgrade buttons for `premium_plus` and `max`.
-- `src/components/aichat/UpgradePlanModal.tsx` — add new tier options.
-- `src/components/aichat/PlanIcons.tsx` — add icons/colors for `premium_plus` (Crown+) and `max` (Zap/Diamond).
-- `src/components/PaymentModal.tsx` — map new `plan_id`s to BDT amounts (3999 / 9999) for SSLCommerz, bKash, Stripe.
-- `supabase/functions/sslcommerz-payment/index.ts`, `bkash-payment/index.ts`, `stripe-payment/index.ts`, `payment-webhook/index.ts`, `subscription-email/index.ts` — accept new `plan_id` values, persist correct amount, send proper emails.
-- `src/pages/PaymentSuccess.tsx` — friendly names for new tiers.
+- No new gateways needed. Just confirm it can accept the new plan objects (`premium_plus`, `max`) — current code uses `plan.name`/`plan.price` from the caller, so it already works.
+- Add a defensive guard: if `plan.price <= 0`, hide gateways and show “Contact sales” copy (covers Enterprise if ever passed in).
 
-### 5. Tool gating UX (lock + upgrade prompts)
+### 2d. Backend price validation
 
-- `src/pages/CineshootPage.tsx` / `src/components/cineshoot/*ModelSelector.tsx` — if `currentPlan` rank < `premium_plus`, show lock screen with "Upgrade to Premium Plus" CTA opening `UpgradePlanModal` pre-selected to `premium_plus`.
-- Same pattern for Sorix Agent (`src/pages/CoWorkPage.tsx`) requiring `premium`+.
-- Tools gallery `src/pages/ToolsPage.tsx` — add tier badges on Cineshoot and Agent cards.
+- `supabase/functions/sslcommerz-payment/index.ts`, `bkash-payment/index.ts`, `stripe-payment/index.ts`: extend the allowed `(planId, amount)` map to include `premium_plus → 3999` and `max → 9999` (monthly) plus the 20% yearly equivalents. Reject Enterprise.
+- `supabase/functions/payment-webhook/index.ts`: already contains `PLAN_NAMES` with the new tiers per the last loop summary — re-verify after edits.
 
-### 6. Translations
+---
 
-- `src/lib/translations.ts` — add English + Bangla strings for new tier names, the "requires Premium Plus" copy, and Enterprise CTA. Apply Bangla wider-text utilities (truncate / whitespace-nowrap).
+## 3. Cineshoot: professional async pipeline
 
-### 7. Database / no schema changes
+### Problem
 
-The `subscriptions.plan_id` column is free-form `text`, so no migration is needed; new IDs (`premium_plus`, `max`, `enterprise`) are accepted as-is. Enterprise customers stay on a `free` row until manually upgraded by support.
+Current `cineshoot/index.ts` opens the OpenRouter video job and polls inline for up to ~140s. Edge Function execution can be killed at the platform timeout, but OpenRouter still finishes the render and charges credits. The client then shows “Failed to generate.” The user’s OpenRouter spend is real but the user sees a failure.
 
-## Technical notes (for reviewers)
+### New flow (Async + client polling)
 
-- Single rank order used everywhere: `free=0, basic=1, pro=2, premium=3, premium_plus=4, max=5`. Update `PLAN_RANK` constants in `chatStore.ts` and every edge function in lockstep so model/tool tier checks pass.
-- All payment edge functions verify amount server-side before creating the `payment_intents` row, so new prices must be added in **both** `PaymentModal.tsx` (display) and the matching payment edge function (validation) to avoid mismatch errors.
-- Cineshoot/Agent lock screens reuse existing `UpgradePlanModal` — pass `initialPlan="premium_plus"` / `"premium"` prop (added in this change) so the modal highlights the right card.
-- Enterprise card is informational: no checkout flow — only a `mailto:support@aisorix.com?subject=Enterprise%20Demo%20Request` link, matching the reference screenshot.
+Database migration `video_jobs`:
 
-## Out of scope
+```sql
+CREATE TABLE public.video_jobs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  status text NOT NULL DEFAULT 'queued',  -- queued | rendering | uploading | completed | failed
+  provider_job_id text,
+  provider_polling_url text,
+  model text NOT NULL,
+  prompt text NOT NULL,
+  aspect_ratio text NOT NULL,
+  resolution text NOT NULL,
+  duration_sec int NOT NULL,
+  sound boolean NOT NULL DEFAULT false,
+  source_type text NOT NULL DEFAULT 'text',
+  image_data_url text,
+  tokens_estimated int NOT NULL,
+  tokens_charged int,           -- only set when status='completed'
+  video_url text,
+  error text,
+  attempts int NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+GRANT SELECT, INSERT, UPDATE ON public.video_jobs TO authenticated;
+GRANT ALL ON public.video_jobs TO service_role;
+ALTER TABLE public.video_jobs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "user reads own jobs" ON public.video_jobs FOR SELECT TO authenticated USING (user_id = auth.uid());
+-- writes only via service_role through edge functions
+```
 
-- Yearly billing discount changes for the new tiers (will inherit existing 20% yearly logic automatically).
-- Admin tooling to manually upgrade Enterprise customers (existing service-role pattern still applies).
+Three edge functions:
+
+1. **`cineshoot-start`** — validates plan, tier, prompt, computes `tokensCost`, calls OpenRouter `POST /videos`, stores `video_jobs` row (`status='rendering'`, `provider_job_id`, `provider_polling_url`, `tokens_estimated`), reserves no tokens yet, returns `{ jobId }`. Fast (<5s).
+2. **`cineshoot-status`** — input `{ jobId }`; loads the row (RLS); on each call:
+   - If `status` is terminal (`completed` / `failed`), return current row.
+   - Otherwise hits `provider_polling_url` once. If provider returns `completed`, downloads, uploads to `cineshoot-videos` bucket, signs URL, sets `status='completed'`, sets `video_url` and `tokens_charged`, then **inside the same row update** increments `subscriptions.tokens_used` by `tokens_estimated` (atomic per job — `tokens_charged` doubles as an idempotency flag, so retries are safe).
+   - If provider returns `failed`, sets `status='failed'`, stores `error`, never charges tokens.
+   - If still rendering, increments `attempts` and returns `status='rendering'`. Returns within ~6s max so the client can poll every 4–6s.
+3. **`cineshoot-recover` (scheduled, optional v2)** — sweeps jobs older than 10 min still in `rendering`, force-checks provider, fails them out so they don’t hang forever. Out of scope for this PR but the schema supports it.
+
+The existing `video_generations` table is still written, but only as a **history view**: on successful completion `cineshoot-status` also inserts the historical row (so the existing Explorer/history components keep working unchanged).
+
+### Client (`src/services/cineshootApi.ts` + `src/pages/CineshootPage.tsx`)
+
+- Replace `cineshootApi.generateVideo` with `startJob(params): { jobId }` and `getJobStatus(jobId): Job`.
+- `useCineshootJob(jobId)` hook polls `cineshoot-status` every 5s with exponential back-off cap of 8s; stops on `completed`/`failed`; surfaces structured states `{ phase: 'rendering' | 'uploading' | 'completed' | 'failed', videoUrl?, error? }`.
+- `CineshootCanvas` already shows a generating state; extend it to display the elapsed timer + phase label ("Rendering… 00:42", "Finalizing…").
+- On `completed` → set videoUrl, refresh history, update `tokensUsed` from the returned `totalTokensUsed`.
+- On `failed` → toast `error`, never deduct tokens locally.
+- Polling continues across tab focus changes; if the user navigates away mid-render, the job stays in DB and the explorer picks it up on return (history pulls latest `video_jobs` for `status in ('rendering','completed')`).
+
+### Why this fixes the bug
+
+- Tokens are only deducted when the row actually flips to `completed` with a stored `tokens_charged` value — so a UI failure never charges the user.
+- The Edge Function never blocks 140s, so platform timeouts can no longer cause false failures.
+- If OpenRouter renders successfully but the client closes, the next page visit polls the same `jobId` and resumes — no lost renders.
+
+---
+
+## 4. File touch list
+
+```text
+NEW
+  src/components/shared/PlanLockScreen.tsx
+  src/lib/planAccess.ts
+  src/hooks/useCineshootJob.ts
+  supabase/functions/cineshoot-start/index.ts
+  supabase/functions/cineshoot-status/index.ts
+  supabase migration: create video_jobs + grants + RLS
+
+EDIT
+  src/pages/CineshootPage.tsx           -- lock screen + async hook
+  src/pages/CoWorkPage.tsx              -- lock screen
+  src/components/aichat/UpgradePlanModal.tsx  -- add 3 plans + enterprise CTA
+  src/components/aichat/settings/PlansTokensTab.tsx -- Cineshoot row + manage label
+  src/components/PaymentModal.tsx       -- price=0 guard
+  src/services/cineshootApi.ts          -- startJob/getJobStatus
+  supabase/functions/sslcommerz-payment/index.ts -- new price map entries
+  supabase/functions/bkash-payment/index.ts      -- new price map entries
+  supabase/functions/stripe-payment/index.ts     -- new price map entries
+
+KEEP / DEPRECATE
+  supabase/functions/cineshoot/index.ts -- kept temporarily; CineshootPage no longer calls it. Remove in a follow-up loop once history confirms no in-flight callers.
+```
+
+## 5. QA checklist
+
+- Free / Basic / Pro user → `/cineshoot` shows lock screen with “Premium Plus required”; clicking Upgrade opens `UpgradePlanModal` with all 7 tiers visible.
+- Free / Basic / Pro user → `/agent` shows lock screen with “Premium required”.
+- Premium user → `/agent` works, `/cineshoot` still locked.
+- Premium Plus user → both work; Cineshoot 6s and 10s renders across Veo, Sora, Kling, Seedance all return playable URLs; tokens deducted only after success.
+- Enterprise card opens default mail client to `support@aisorix.com`.
+- Settings → Plans & Tokens lists Cineshoot with “Premium Plus+” pill; buying Premium Plus or Max via PaymentModal completes end-to-end (SSLCommerz / bKash / Stripe).

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, Sparkles, Zap, Crown, Gift, ArrowRight } from 'lucide-react';
+import { X, Check, Sparkles, Zap, Crown, Gift, ArrowRight, Diamond, Rocket, Building2, Mail } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useChatStore, type UserPlan } from '@/stores/chatStore';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -28,7 +28,7 @@ const modelColors: Record<string, string> = {
 };
 
 interface PlanData {
-  id: UserPlan;
+  id: UserPlan | 'enterprise';
   name: string;
   price: number;
   yearlyPrice: number;
@@ -37,6 +37,8 @@ interface PlanData {
   models: string[];
   features: { text: string; subtext?: string; included: boolean }[];
   popular?: boolean;
+  badge?: string;
+  isEnterprise?: boolean;
   icon: typeof Gift;
   iconGradient: string;
   buttonText: string;
@@ -150,6 +152,79 @@ const plans: PlanData[] = [
     buttonText: 'Go Premium',
     buttonStyle: 'bg-gradient-to-r from-rose-500 to-pink-500 text-white hover:opacity-90',
   },
+  {
+    id: 'premium_plus',
+    name: 'Sorix Premium Plus',
+    price: 3999,
+    yearlyPrice: Math.round(3999 * 12 * 0.8),
+    tokens: '7M',
+    modelCount: 10,
+    models: ['ChatGPT', 'Claude', 'DeepSeek', 'Gemini', 'Grok', 'Qwen', 'Llama', 'Sorix', 'Mistral', 'Perplexity'],
+    features: [
+      { text: 'Everything in Premium', included: true },
+      { text: '7M Tokens', subtext: '/month', included: true },
+      { text: 'Sorix Cineshoot', subtext: 'Premium Plus & above', included: true },
+      { text: 'Sorix Agent', included: true },
+      { text: 'More Image Generation', included: true },
+      { text: 'More Memory', included: true },
+      { text: 'Voice AI Unlimited', included: true },
+      { text: 'File Upload: PDF/DOC', subtext: 'Max 25mb', included: true },
+      { text: '25 Projects', included: true },
+    ],
+    badge: 'Power',
+    icon: Diamond,
+    iconGradient: 'from-violet-500 to-fuchsia-600',
+    buttonText: 'Go Premium Plus',
+    buttonStyle: 'bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white hover:opacity-90',
+  },
+  {
+    id: 'max',
+    name: 'Sorix Max',
+    price: 9999,
+    yearlyPrice: Math.round(9999 * 12 * 0.8),
+    tokens: '17M',
+    modelCount: 10,
+    models: ['ChatGPT', 'Claude', 'DeepSeek', 'Gemini', 'Grok', 'Qwen', 'Llama', 'Sorix', 'Mistral', 'Perplexity'],
+    features: [
+      { text: 'Everything in Premium Plus', included: true },
+      { text: '17M Tokens', subtext: '/month', included: true },
+      { text: 'Extra Cineshoot video generation', included: true },
+      { text: 'More Image Generation', included: true },
+      { text: 'More Agentic work', included: true },
+      { text: 'Max Memory', included: true },
+      { text: 'Voice AI Unlimited', included: true },
+      { text: 'File Upload: PDF/DOC', subtext: 'Max 50mb', included: true },
+      { text: '100 Projects', included: true },
+    ],
+    badge: 'Ultimate',
+    icon: Rocket,
+    iconGradient: 'from-amber-400 via-orange-500 to-red-500',
+    buttonText: 'Go Max',
+    buttonStyle: 'bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white hover:opacity-90',
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    price: 0,
+    yearlyPrice: 0,
+    tokens: 'Custom',
+    modelCount: 10,
+    models: ['ChatGPT', 'Claude', 'DeepSeek', 'Gemini', 'Grok', 'Qwen', 'Llama', 'Sorix', 'Mistral', 'Perplexity'],
+    features: [
+      { text: 'Flexible pooled usage', included: true },
+      { text: 'Custom token limits', included: true },
+      { text: 'Dedicated onboarding', included: true },
+      { text: 'Priority support & SLAs', included: true },
+      { text: 'SSO & advanced security', included: true },
+      { text: 'Custom integrations', included: true },
+    ],
+    badge: 'Custom',
+    isEnterprise: true,
+    icon: Building2,
+    iconGradient: 'from-slate-600 to-slate-800',
+    buttonText: 'Book a Demo',
+    buttonStyle: 'bg-foreground text-background hover:opacity-90',
+  },
 ];
 
 const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) => {
@@ -161,13 +236,16 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) 
   const [selectedPlan, setSelectedPlan] = useState<PlanData | null>(null);
 
   const handleSelectPlan = (plan: PlanData) => {
-    // Free plan doesn't need payment
+    if (plan.isEnterprise) {
+      window.location.href =
+        'mailto:support@aisorix.com?subject=AI%20Sorix%20Enterprise%20Demo%20Request';
+      return;
+    }
     if (plan.id === 'free') {
-      setUserPlan(plan.id);
+      setUserPlan(plan.id as UserPlan);
       onClose();
       return;
     }
-    
     // For paid plans, open payment modal
     setSelectedPlan(plan);
     setPaymentModalOpen(true);
@@ -307,8 +385,14 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) 
                       {/* Price */}
                       <div className="mb-3">
                         <div className="flex items-baseline gap-0.5">
-                          <span className="text-2xl font-black text-foreground">৳{displayPrice}</span>
-                          <span className="text-muted-foreground text-xs">/mo</span>
+                          {plan.isEnterprise ? (
+                            <span className="text-xl font-black text-foreground">Custom</span>
+                          ) : (
+                            <>
+                              <span className="text-2xl font-black text-foreground">৳{displayPrice}</span>
+                              <span className="text-muted-foreground text-xs">/mo</span>
+                            </>
+                          )}
                         </div>
                       </div>
 
@@ -375,7 +459,7 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) 
             </div>
 
             {/* Tablet & Desktop: Grid layout */}
-            <div className="hidden sm:grid sm:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
+            <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
               {plans.map((plan) => {
                 const isCurrentPlan = currentPlan === plan.id;
                 const Icon = plan.icon;
@@ -430,8 +514,14 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) 
                       {/* Price */}
                       <div className="mb-4">
                         <div className="flex items-baseline gap-0.5">
-                          <span className="text-3xl md:text-4xl font-black text-foreground">৳{displayPrice}</span>
-                          <span className="text-muted-foreground text-sm">/mo</span>
+                          {plan.isEnterprise ? (
+                            <span className="text-2xl md:text-3xl font-black text-foreground">Custom</span>
+                          ) : (
+                            <>
+                              <span className="text-3xl md:text-4xl font-black text-foreground">৳{displayPrice}</span>
+                              <span className="text-muted-foreground text-sm">/mo</span>
+                            </>
+                          )}
                         </div>
                       </div>
 

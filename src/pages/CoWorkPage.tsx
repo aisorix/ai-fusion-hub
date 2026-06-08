@@ -1,12 +1,17 @@
 import React from "react";
+import { Bot } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import CoWorkLayout from "@/components/cowork/CoWorkLayout";
+import PlanLockScreen from "@/components/shared/PlanLockScreen";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSubscription } from "@/hooks/useSubscription";
+import { meetsPlan } from "@/lib/planAccess";
 
 const CoWorkPage: React.FC = () => {
   const { language } = useLanguage();
+  const { currentPlan, isLoading } = useSubscription();
 
-  return (
+  const seo = (
     <>
       <SEOHead
         title="Sorix Agent | AI Agent Workspace | AI Sorix"
@@ -18,24 +23,49 @@ const CoWorkPage: React.FC = () => {
         "@type": "SoftwareApplication",
         "name": "Sorix Agent",
         "url": "https://www.aisorix.com/agent",
-        "image": "https://storage.googleapis.com/gpt-engineer-file-uploads/TW4KYntEtgdPvf4urbHFts3hfl32/uploads/1770273544597-logo_(2).png",
         "applicationCategory": "BusinessApplication",
-        "applicationSubCategory": "Autonomous AI Agent",
         "operatingSystem": "Web",
-        "description": "Autonomous AI agent that executes multi-step tasks: web search, document generation, scheduling, clipboard automation, and integrations with Google, Facebook, LinkedIn, WhatsApp, and Telegram.",
-        "featureList": ["Autonomous Task Execution", "Web Search", "Document Generation", "Real-Time Progress", "Google / FB / LinkedIn / WhatsApp / Telegram Integrations", "Multi-Model Support", "Smart Clipboard"],
-        "isPartOf": { "@type": "WebSite", "name": "AI Sorix", "url": "https://www.aisorix.com" },
-        "publisher": { "@type": "Organization", "name": "AI Sorix", "url": "https://www.aisorix.com" },
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Included in AI Sorix plans" }
       }) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.aisorix.com/" },
-          { "@type": "ListItem", "position": 2, "name": "Sorix Agent", "item": "https://www.aisorix.com/agent" }
-        ]
-      }) }} />
+    </>
+  );
+
+  if (isLoading) {
+    return (
+      <>
+        {seo}
+        <div className="min-h-[100dvh] flex items-center justify-center bg-background">
+          <div className="w-8 h-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+        </div>
+      </>
+    );
+  }
+
+  if (!meetsPlan(currentPlan, "premium")) {
+    return (
+      <>
+        {seo}
+        <PlanLockScreen
+          toolName="Sorix Agent"
+          tagline="Your Tasks, Handled by Intelligence."
+          description="Sorix Agent autonomously plans and executes multi-step work — research, writing, scheduling, integrations and more. Available on Premium and above."
+          requiredPlan="premium"
+          accentGradient="from-cyan-500 to-teal-500"
+          icon={Bot}
+          features={[
+            "Autonomous multi-step task execution",
+            "Web research and document generation",
+            "Google, LinkedIn, WhatsApp, Telegram integrations",
+            "Real-time task monitor and approvals",
+            "Multi-model support with smart routing",
+          ]}
+        />
+      </>
+    );
+  }
+
+  return (
+    <>
+      {seo}
       <CoWorkLayout language={language} />
     </>
   );

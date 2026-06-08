@@ -25,7 +25,7 @@ export interface VideoGeneration {
   created_at: string;
 }
 
-export interface GenerateVideoParams {
+export interface StartJobParams {
   prompt: string;
   model: string;
   aspectRatio: string;
@@ -33,25 +33,52 @@ export interface GenerateVideoParams {
   durationSec: number;
   sound: boolean;
   imageData?: string;
-  videoUrl?: string;
 }
 
-export interface GenerateVideoResult {
-  videoUrl: string;
-  id: string;
-  tokensUsed: number;
-  totalTokensUsed: number;
+export interface StartJobResult {
+  jobId: string;
 }
+
+export type CineshootJobStatus = 'queued' | 'rendering' | 'uploading' | 'completed' | 'failed';
+
+export interface CineshootJob {
+  id: string;
+  status: CineshootJobStatus;
+  videoUrl: string | null;
+  error: string | null;
+  tokensCharged: number | null;
+  totalTokensUsed?: number;
+  prompt: string;
+  model: string;
+}
+
+const fnUrl = (path: string) =>
+  `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${path}`;
 
 export const cineshootApi = {
-  generateVideo: async (params: GenerateVideoParams): Promise<GenerateVideoResult> => {
+  // Start an async render job. Returns quickly with a jobId.
+  startJob: async (params: StartJobParams): Promise<StartJobResult> => {
     const headers = await getAuthHeaders();
-    const response = await fetch(
-      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/cineshoot`,
-      { method: 'POST', headers, body: JSON.stringify(params) }
-    );
+    const response = await fetch(fnUrl('cineshoot-start'), {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(params),
+    });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error || 'Video generation failed');
+    if (!response.ok) throw new Error(data.error || 'Failed to start video job');
+    return data;
+  },
+
+  // Poll job status. Returns the latest snapshot.
+  getJobStatus: async (jobId: string): Promise<CineshootJob> => {
+    const headers = await getAuthHeaders();
+    const response = await fetch(fnUrl('cineshoot-status'), {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ jobId }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Failed to fetch job status');
     return data;
   },
 
