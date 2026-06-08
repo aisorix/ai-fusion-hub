@@ -236,13 +236,16 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) 
   const [selectedPlan, setSelectedPlan] = useState<PlanData | null>(null);
 
   const handleSelectPlan = (plan: PlanData) => {
-    // Free plan doesn't need payment
+    if (plan.isEnterprise) {
+      window.location.href =
+        'mailto:support@aisorix.com?subject=AI%20Sorix%20Enterprise%20Demo%20Request';
+      return;
+    }
     if (plan.id === 'free') {
-      setUserPlan(plan.id);
+      setUserPlan(plan.id as UserPlan);
       onClose();
       return;
     }
-    
     // For paid plans, open payment modal
     setSelectedPlan(plan);
     setPaymentModalOpen(true);
