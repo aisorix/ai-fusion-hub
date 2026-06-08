@@ -28,7 +28,7 @@ const modelColors: Record<string, string> = {
 };
 
 interface PlanData {
-  id: UserPlan;
+  id: UserPlan | 'enterprise';
   name: string;
   price: number;
   yearlyPrice: number;
@@ -37,6 +37,8 @@ interface PlanData {
   models: string[];
   features: { text: string; subtext?: string; included: boolean }[];
   popular?: boolean;
+  badge?: string;
+  isEnterprise?: boolean;
   icon: typeof Gift;
   iconGradient: string;
   buttonText: string;
