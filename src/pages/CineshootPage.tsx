@@ -5,21 +5,26 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useChatStore, type Attachment } from '@/stores/chatStore';
 import { cineshootApi, type VideoGeneration } from '@/services/cineshootApi';
+import { useCineshootJob } from '@/hooks/useCineshootJob';
 import CineshootPromptBar from '@/components/cineshoot/CineshootPromptBar';
 import CineshootOptionsPanel from '@/components/cineshoot/CineshootOptionsPanel';
 import CineshootCanvas from '@/components/cineshoot/CineshootCanvas';
 import CineshootExplorer from '@/components/cineshoot/CineshootExplorer';
+import PlanLockScreen from '@/components/shared/PlanLockScreen';
 import {
   cineshootModels, estimateTokens, resolutionOptions,
   type CineshootModel, type VideoAspect, type VideoResolution,
 } from '@/components/cineshoot/cineshootModels';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 import TokenCostChip from '@/components/shared/TokenCostChip';
+import { useSubscription } from '@/hooks/useSubscription';
+import { meetsPlan } from '@/lib/planAccess';
 
 const CineshootPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, setUser } = useChatStore();
+  const { currentPlan, isLoading: planLoading } = useSubscription();
 
   const [selectedModel, setSelectedModel] = useState<CineshootModel>(cineshootModels[0]);
   const [aspect, setAspect] = useState<VideoAspect>('16:9');
@@ -29,7 +34,7 @@ const CineshootPage: React.FC = () => {
 
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [currentPrompt, setCurrentPrompt] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [refreshHistory, setRefreshHistory] = useState(0);
   const [injectPrompt, setInjectPrompt] = useState<string | undefined>();
@@ -37,22 +42,37 @@ const CineshootPage: React.FC = () => {
   const [injectKey, setInjectKey] = useState(0);
   const [refineEnabled, setRefineEnabled] = useState(true);
 
+  // Async job polling
+  const { job, isPolling } = useCineshootJob(activeJobId, (final) => {
+    if (final.status === 'completed' && final.videoUrl) {
+      setVideoUrl(final.videoUrl);
+      setRefreshHistory((p) => p + 1);
+      if (typeof final.totalTokensUsed === 'number') {
+        setUser({ ...user, tokensUsed: final.totalTokensUsed });
+      }
+    } else if (final.status === 'failed') {
+      toast.error(final.error || 'Video generation failed. No tokens were charged.');
+    }
+    setActiveJobId(null);
+  });
+
+  const isGenerating = !!activeJobId || isPolling;
+
   useEffect(() => {
     const state = location.state as { prompt?: string; imageUrl?: string } | null;
     if (state?.prompt || state?.imageUrl) {
       if (state.prompt) setInjectPrompt(state.prompt);
       if (state.imageUrl) setInjectAttachmentUrl(state.imageUrl);
-      setInjectKey(k => k + 1);
+      setInjectKey((k) => k + 1);
       navigate(location.pathname, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const canvasRef = useRef<HTMLDivElement>(null);
-  const isProPlus = user.plan === 'pro' || user.plan === 'premium';
+  const isProPlus = meetsPlan(currentPlan, 'pro');
   const tokensRemaining = user.tokensLimit - user.tokensUsed;
 
-  // Keep settings consistent with model caps
   useEffect(() => {
     const allowed = resolutionOptions(selectedModel);
     if (!allowed.includes(resolution)) setResolution(allowed[allowed.length - 1]);
@@ -68,7 +88,7 @@ const CineshootPage: React.FC = () => {
 
   const handleUseTemplate = (t: { prompt: string; aspect: VideoAspect; duration: number }) => {
     setInjectPrompt(t.prompt);
-    setInjectKey(k => k + 1);
+    setInjectKey((k) => k + 1);
     setAspect(t.aspect);
     if (selectedModel.durations.includes(t.duration)) setDuration(t.duration);
     requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
@@ -76,26 +96,24 @@ const CineshootPage: React.FC = () => {
 
   const handleGenerate = async (prompt: string, attachments?: Attachment[]) => {
     if (tokensRemaining < costEstimate) { setShowUpgrade(true); return; }
+    if (activeJobId) return;
 
-    // Refine: if a video is already on screen and user submits with no attachment,
-    // combine previous prompt as context for the new instruction.
     const isRefining = refineEnabled && !!videoUrl && !attachments?.length;
     const finalPrompt = isRefining && currentPrompt
       ? `Previous video: ${currentPrompt}\nChanges requested: ${prompt}`
       : prompt;
 
     setCurrentPrompt(prompt);
-    setIsGenerating(true);
     if (!isRefining) setVideoUrl(null);
 
     let imageData: string | undefined;
     if (attachments?.length) {
-      const img = attachments.find(a => a.type === 'image' && a.url);
+      const img = attachments.find((a) => a.type === 'image' && a.url);
       if (img) imageData = img.url;
     }
 
     try {
-      const result = await cineshootApi.generateVideo({
+      const { jobId } = await cineshootApi.startJob({
         prompt: finalPrompt,
         model: selectedModel.modelId,
         aspectRatio: aspect,
@@ -104,14 +122,10 @@ const CineshootPage: React.FC = () => {
         sound,
         imageData,
       });
-      setVideoUrl(result.videoUrl);
-      setRefreshHistory(p => p + 1);
-      setUser({ ...user, tokensUsed: result.totalTokensUsed });
+      setActiveJobId(jobId);
     } catch (err: any) {
-      if (err.message === 'insufficient_tokens') setShowUpgrade(true);
-      else toast.error(err.message || 'Failed to generate video');
-    } finally {
-      setIsGenerating(false);
+      if (err?.message === 'insufficient_tokens') setShowUpgrade(true);
+      else toast.error(err?.message || 'Failed to start video generation');
     }
   };
 
@@ -122,19 +136,57 @@ const CineshootPage: React.FC = () => {
       setAspect(gen.aspect_ratio);
     }
     if (gen.model) {
-      const m = cineshootModels.find(cm => cm.modelId === gen.model);
+      const m = cineshootModels.find((cm) => cm.modelId === gen.model);
       if (m) setSelectedModel(m);
     }
     requestAnimationFrame(() => canvasRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
   };
 
+  const seo = (
+    <SEOHead
+      title="Sorix Cineshoot | AI Video Generation | AI Sorix"
+      description="Generate cinematic AI videos from text, images, or videos. Multiple frontier video models including Veo 3.1, Sora 2 Pro, Kling, and Seedance."
+      path="/cineshoot"
+    />
+  );
+
+  if (planLoading) {
+    return (
+      <>
+        {seo}
+        <div className="min-h-[100dvh] flex items-center justify-center bg-background">
+          <div className="w-8 h-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+        </div>
+      </>
+    );
+  }
+
+  if (!meetsPlan(currentPlan, 'premium_plus')) {
+    return (
+      <>
+        {seo}
+        <PlanLockScreen
+          toolName="Sorix Cineshoot"
+          tagline="AI Video Generation"
+          description="Sorix Cineshoot turns prompts and images into cinematic video using frontier models like Veo 3.1, Sora 2 Pro, Kling and Seedance. Available on Premium Plus and Max."
+          requiredPlan="premium_plus"
+          accentGradient="from-fuchsia-500 to-pink-500"
+          icon={Clapperboard}
+          features={[
+            "Frontier models: Veo 3.1, Sora 2 Pro, Kling, Seedance",
+            "Text-to-video and image-to-video",
+            "Up to 4K, customizable aspect ratio and duration",
+            "Refine the previous render with a single prompt",
+            "Tokens only deducted on a successful render",
+          ]}
+        />
+      </>
+    );
+  }
+
   return (
     <div className="h-[100dvh] flex flex-col bg-background overflow-hidden">
-      <SEOHead
-        title="Sorix Cineshoot | AI Video Generation | AI Sorix"
-        description="Generate cinematic AI videos from text, images, or videos. Multiple frontier video models including Veo 3.1, Sora 2 Pro, Kling, and Seedance."
-        path="/cineshoot"
-      />
+      {seo}
       <header className="shrink-0 bg-card/80 backdrop-blur-xl relative">
         <div className="flex items-center justify-between px-3 sm:px-4 md:px-6 h-12 sm:h-14">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -152,6 +204,12 @@ const CineshootPage: React.FC = () => {
               <p className="hidden sm:block text-[10px] text-muted-foreground">AI Video Generation</p>
             </div>
           </div>
+          {job?.status === 'rendering' || job?.status === 'uploading' ? (
+            <div className="hidden sm:flex items-center gap-1.5 text-[10.5px] text-muted-foreground">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              {job?.status === 'uploading' ? 'Finalizing…' : 'Rendering…'}
+            </div>
+          ) : null}
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
       </header>
@@ -177,9 +235,9 @@ const CineshootPage: React.FC = () => {
               cost={costEstimate}
               remaining={tokensRemaining}
               label={`per render · ${selectedModel.shortName}`}
-              hint="Cost depends on model, duration, and resolution."
+              hint="Tokens are only deducted after a successful render."
             />
-            {videoUrl && refineEnabled && (
+            {videoUrl && refineEnabled && !isGenerating && (
               <button
                 onClick={() => setRefineEnabled(false)}
                 className="inline-flex items-center gap-1.5 text-[10.5px] text-muted-foreground hover:text-foreground transition-colors"

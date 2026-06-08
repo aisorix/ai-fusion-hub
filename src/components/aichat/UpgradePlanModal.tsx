@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, Sparkles, Zap, Crown, Gift, ArrowRight } from 'lucide-react';
+import { X, Check, Sparkles, Zap, Crown, Gift, ArrowRight, Diamond, Rocket, Building2, Mail } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useChatStore, type UserPlan } from '@/stores/chatStore';
 import { useLanguage } from '@/contexts/LanguageContext';
