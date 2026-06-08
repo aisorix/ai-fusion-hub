@@ -385,8 +385,14 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) 
                       {/* Price */}
                       <div className="mb-3">
                         <div className="flex items-baseline gap-0.5">
-                          <span className="text-2xl font-black text-foreground">৳{displayPrice}</span>
-                          <span className="text-muted-foreground text-xs">/mo</span>
+                          {plan.isEnterprise ? (
+                            <span className="text-xl font-black text-foreground">Custom</span>
+                          ) : (
+                            <>
+                              <span className="text-2xl font-black text-foreground">৳{displayPrice}</span>
+                              <span className="text-muted-foreground text-xs">/mo</span>
+                            </>
+                          )}
                         </div>
                       </div>
 
@@ -453,7 +459,7 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) 
             </div>
 
             {/* Tablet & Desktop: Grid layout */}
-            <div className="hidden sm:grid sm:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
+            <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
               {plans.map((plan) => {
                 const isCurrentPlan = currentPlan === plan.id;
                 const Icon = plan.icon;
@@ -508,8 +514,14 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ isOpen, onClose }) 
                       {/* Price */}
                       <div className="mb-4">
                         <div className="flex items-baseline gap-0.5">
-                          <span className="text-3xl md:text-4xl font-black text-foreground">৳{displayPrice}</span>
-                          <span className="text-muted-foreground text-sm">/mo</span>
+                          {plan.isEnterprise ? (
+                            <span className="text-2xl md:text-3xl font-black text-foreground">Custom</span>
+                          ) : (
+                            <>
+                              <span className="text-3xl md:text-4xl font-black text-foreground">৳{displayPrice}</span>
+                              <span className="text-muted-foreground text-sm">/mo</span>
+                            </>
+                          )}
                         </div>
                       </div>
 
