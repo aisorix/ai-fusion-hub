@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
 interface Props {
-  children: (ctx: { roles: AdminRole[] }) => React.ReactNode;
+  children: React.ReactNode;
 }
 
 export default function AdminGuard({ children }: Props) {
@@ -53,5 +53,5 @@ export default function AdminGuard({ children }: Props) {
     );
   }
 
-  return <>{children({ roles: roles ?? [] })}</>;
+  return <>{children}</>;
 }

@@ -40,6 +40,17 @@ const DeckPage = React.lazy(() => import("./pages/DeckPage"));
 const CoWorkPage = React.lazy(() => import("./pages/CoWorkPage"));
 const ConnectionsPage = React.lazy(() => import("./pages/ConnectionsPage"));
 
+// Admin dashboard
+const AdminGuard = React.lazy(() => import("./admin/guards/AdminGuard"));
+const AdminLayout = React.lazy(() => import("./admin/layout/AdminLayout"));
+const AdminLogin = React.lazy(() => import("./admin/pages/AdminLogin"));
+const AdminDashboard = React.lazy(() => import("./admin/pages/AdminDashboard"));
+const AdminUsers = React.lazy(() => import("./admin/pages/AdminUsers"));
+const AdminUserProfile = React.lazy(() => import("./admin/pages/AdminUserProfile"));
+const AdminPlaceholder = React.lazy(() => import("./admin/pages/AdminPlaceholder"));
+
+
+
 const FlowBuilderPage = React.lazy(() => import("./pages/FlowBuilderPage"));
 const ToolsPage = React.lazy(() => import("./pages/ToolsPage"));
 const BlogPage = React.lazy(() => import("./pages/BlogPage"));
@@ -130,7 +141,24 @@ const App = () => (
                 <Route path="/about-us" element={<AboutUsPage />} />
                 <Route path="/about-sorix-lab" element={<AboutSorixLab />} />
                 <Route path="/reviews" element={<Reviews />} />
-                <Route path="/admin/chat" element={<ChatDashboard />} />
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="dashboard" element={<AdminDashboard />} />
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="users/:id" element={<AdminUserProfile />} />
+                  <Route path="chat" element={<ChatDashboard />} />
+                  <Route path="ai/usage" element={<AdminPlaceholder title="AI Feature Usage" week={3} />} />
+                  <Route path="ai/tokens" element={<AdminPlaceholder title="Token Usage" week={3} />} />
+                  <Route path="revenue" element={<AdminPlaceholder title="Revenue Dashboard" week={3} />} />
+                  <Route path="revenue/subscriptions" element={<AdminPlaceholder title="Subscriptions" week={3} />} />
+                  <Route path="content/flags" element={<AdminPlaceholder title="Feature Flags" week={4} />} />
+                  <Route path="content/announcements" element={<AdminPlaceholder title="Announcements" week={4} />} />
+                  <Route path="support/tickets" element={<AdminPlaceholder title="Support Tickets" week={4} />} />
+                  <Route path="system/health" element={<AdminPlaceholder title="System Health" week={5} />} />
+                  <Route path="audit" element={<AdminPlaceholder title="Audit Log" week={5} />} />
+                  <Route path="settings" element={<AdminPlaceholder title="Global Settings" week={5} />} />
+                </Route>
                 <Route path="/blog" element={<BlogPage />} />
                 <Route path="/case-studies" element={<CaseStudiesPage />} />
                 <Route path="/docs" element={<DocsPage />} />
