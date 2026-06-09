@@ -116,6 +116,51 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_logs: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          created_at: string
+          id: string
+          ip: string | null
+          new_value: Json | null
+          previous_value: Json | null
+          resource: string
+          resource_id: string | null
+          severity: string
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          ip?: string | null
+          new_value?: Json | null
+          previous_value?: Json | null
+          resource: string
+          resource_id?: string | null
+          severity?: string
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          ip?: string | null
+          new_value?: Json | null
+          previous_value?: Json | null
+          resource?: string
+          resource_id?: string | null
+          severity?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       chat_conversations: {
         Row: {
           assigned_employee_id: string | null
@@ -1377,6 +1422,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin_user: { Args: { _user_id: string }; Returns: boolean }
       move_to_dlq: {
         Args: {
           dlq_name: string
@@ -1414,7 +1460,13 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "employee" | "user"
+      app_role:
+        | "admin"
+        | "employee"
+        | "user"
+        | "admin_super"
+        | "admin_manager"
+        | "admin_viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1542,7 +1594,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "employee", "user"],
+      app_role: [
+        "admin",
+        "employee",
+        "user",
+        "admin_super",
+        "admin_manager",
+        "admin_viewer",
+      ],
     },
   },
 } as const

@@ -1,165 +1,164 @@
-## Goals
 
-1. Friendly full-page lock screen on `/cineshoot` (requires `premium_plus`+) and `/agent` (requires `premium`+) for under-tier users.
-2. Premium Plus, Max, and Enterprise everywhere upgrade plans are shown (chat Settings → Plans & Tokens, UpgradePlanModal, PaymentModal flow).
-3. Cineshoot generation is rock-solid: any model, any duration, always returns a video or a true failure — and tokens are only deducted on real success.
+# AI Sorix Admin Dashboard — Weeks 1–2 (Lovable Cloud build)
+
+Stack adapted from your spec (Node/Mongo/Redis/Socket.io) to the actual project stack:
+React 18 + Vite + TailwindCSS + shadcn + **Lovable Cloud (Supabase Postgres + Edge Functions + Realtime)**. All "Redis cache / Socket.io" features become Supabase Realtime + edge-cached views. All "Mongo collections" become Postgres tables with RLS.
+
+We'll ship Weeks 1–2 this loop and leave a `.lovable/admin-progress.md` tracker so Weeks 3–5 resume cleanly next loop.
 
 ---
 
-## 1. Tier lock screens (full-page unlock UX)
+## Week 1 — Foundation, Auth, RBAC, Layout
 
-New shared component `src/components/shared/PlanLockScreen.tsx`:
+### 1.1 Owner account auto-seed (your requirement)
+New edge function `admin-bootstrap` (public, no JWT):
+- Uses service role to check if `support@aisorix.com` exists in `auth.users`.
+- If missing, creates it via Admin API with the password you gave and `email_confirm: true`.
+- Inserts `user_roles (user_id, role='admin_super')`.
+- Called once from the `/admin/login` page on first mount (idempotent — exits early if seed already done; protected by `INTERNAL_WEBHOOK_SECRET` to block public abuse).
 
-- Props: `toolName`, `tagline`, `requiredPlan` (`'premium' | 'premium_plus'`), `accentGradient`, `icon`, `features[]`, `onBack`.
-- Layout: centered card with the tool icon in a gradient halo, headline like “Sorix Cineshoot is a Premium Plus tool”, 4–5 feature bullets, “Required plan” badge, two CTAs: **Upgrade plan** (opens `UpgradePlanModal`) and **Back** (navigates `-1`).
-- Pure presentation, no business logic. Uses semantic tokens (`bg-card`, `text-foreground`, `text-muted-foreground`, `border-border`).
+### 1.2 Admin-only email gating
+- `/admin/*` routes wrapped in `<AdminGuard>`:
+  - Requires authenticated session.
+  - Requires `user.email.endsWith('@aisorix.com')`.
+  - Requires a row in `admin_users` (active = true) with one of `SUPER_ADMIN | MANAGER | VIEWER`.
+- Non-admin emails see a friendly "Admin portal — restricted access" screen with a Back-to-app link.
+- Public app login/signup at `/login` `/register` is untouched.
 
-Gating helper `src/lib/planAccess.ts`:
+### 1.3 RBAC schema (migration)
+New tables (all with GRANTs + RLS):
+- `admin_users` — `user_id uuid PK → auth.users`, `role admin_role`, `is_active`, `last_login_at`, `last_login_ip`.
+- `audit_logs` — `actor_id`, `action`, `resource`, `resource_id`, `previous_value jsonb`, `new_value jsonb`, `ip`, `user_agent`, `created_at`.
+- `announcements` — title, body, type, is_active, start_at, end_at.
+- `feature_flags` — key (unique), name, description, enabled, enabled_for_plans text[], enabled_for_user_ids uuid[].
+- `support_tickets` (if not already present — confirm existing `chat_conversations` covers it; if yes, reuse).
+- New enum `admin_role` = `SUPER_ADMIN | MANAGER | VIEWER`.
+- New SECURITY DEFINER function `public.is_admin(_user_id uuid)` + `public.admin_has_permission(_user_id, _perm text)`.
+- RLS: all admin tables restricted to `is_admin(auth.uid())`; `audit_logs` insert-only from edge functions (service role).
 
-```ts
-export const PLAN_RANK = { free:0, basic:1, pro:2, premium:3, premium_plus:4, max:5, enterprise:6 } as const;
-export const meetsPlan = (plan: UserPlan, required: keyof typeof PLAN_RANK) =>
-  (PLAN_RANK[plan] ?? 0) >= PLAN_RANK[required];
+Existing `user_roles` table already enforces the separate-roles-table rule — we extend the enum.
+
+### 1.4 Design system & layout shell
+- `src/admin/` folder isolates the dashboard from the main app.
+- Brand tokens added to `src/index.css` under `[data-admin-theme]` scope so the marketing site is unaffected:
+  navy `#0A1628`, blue `#1A6FD8`, cyan `#00B4D8`, surface `#F8FAFC`, etc. (all HSL).
+- `AdminLayout` = collapsible sidebar (240↔64px, persisted) + topbar (page title, Cmd+K spotlight stub, notifications bell, admin avatar menu).
+- Sidebar groups: Overview · Users · AI Monitor · Revenue · Content · Support · System.
+- shadcn primitives already cover Button/Input/Modal/Badge/Table/Card/Avatar/Tooltip/Dropdown/Toast/Skeleton — we wrap them with admin-themed variants instead of duplicating.
+
+### 1.5 Routes (lazy-loaded)
 ```
-
-Wire-up:
-
-- `src/pages/CineshootPage.tsx`: read `currentPlan` from `useSubscription`; if `!meetsPlan(currentPlan, 'premium_plus')`, render `<PlanLockScreen toolName="Sorix Cineshoot" requiredPlan="premium_plus" .../>` instead of the workspace. Keep `SEOHead` so the route still has metadata.
-- `src/pages/CoWorkPage.tsx`: same pattern, `requiredPlan="premium"`, gradient cyan→teal, icon `Bot`.
-- Server-side gating already exists in `cineshoot` and `cowork-agent` edge functions — UI lock is purely cosmetic on top.
-
----
-
-## 2. Upgrade surfaces — add Premium Plus, Max, Enterprise
-
-### 2a. `src/components/aichat/UpgradePlanModal.tsx`
-
-- Extend the `plans` array with three new entries that mirror `Pricing.jsx`:
-  - `premium_plus` (৳3,999/mo, 7M tokens, icon `Diamond`, gradient `from-violet-500 to-fuchsia-600`, badge “Power”).
-  - `max` (৳9,999/mo, 17M tokens, icon `Rocket`, gradient `from-amber-500 via-orange-500 to-red-500`, badge “Ultimate”).
-  - `enterprise` (price `null`, icon `Building2`, gradient `from-slate-600 to-slate-800`, `buttonText: 'Book a Demo'`, opens `mailto:support@aisorix.com?subject=AI Sorix Enterprise Demo Request`, no PaymentModal).
-- Feature lists copied from `Pricing.jsx` (Cineshoot only on Premium Plus+, Agent on Premium+).
-- Grid: desktop becomes `xl:grid-cols-4` with two rows (4 core + 3 advanced wrapping to a second row). Mobile horizontal-scroll already iterates `plans.map` — works as is.
-- Enterprise card uses a dedicated handler (`window.location.href = mailto:...`) instead of `setSelectedPlan`.
-
-### 2b. `src/components/aichat/settings/PlansTokensTab.tsx`
-
-- Already maps all 7 plans in `planFeatures`. Update CTA: button label becomes “Manage Plan” only for `max`/`enterprise`, “Upgrade” otherwise.
-- Add small badge below plan name when `user.plan === 'premium_plus' | 'max'` highlighting Cineshoot/Agent access.
-- Append “Sorix Cineshoot” entry to the tools list with a “Premium Plus+” pill (color reused from existing Free/Included badges).
-
-### 2c. `src/components/PaymentModal.tsx`
-
-- No new gateways needed. Just confirm it can accept the new plan objects (`premium_plus`, `max`) — current code uses `plan.name`/`plan.price` from the caller, so it already works.
-- Add a defensive guard: if `plan.price <= 0`, hide gateways and show “Contact sales” copy (covers Enterprise if ever passed in).
-
-### 2d. Backend price validation
-
-- `supabase/functions/sslcommerz-payment/index.ts`, `bkash-payment/index.ts`, `stripe-payment/index.ts`: extend the allowed `(planId, amount)` map to include `premium_plus → 3999` and `max → 9999` (monthly) plus the 20% yearly equivalents. Reject Enterprise.
-- `supabase/functions/payment-webhook/index.ts`: already contains `PLAN_NAMES` with the new tiers per the last loop summary — re-verify after edits.
-
----
-
-## 3. Cineshoot: professional async pipeline
-
-### Problem
-
-Current `cineshoot/index.ts` opens the OpenRouter video job and polls inline for up to ~140s. Edge Function execution can be killed at the platform timeout, but OpenRouter still finishes the render and charges credits. The client then shows “Failed to generate.” The user’s OpenRouter spend is real but the user sees a failure.
-
-### New flow (Async + client polling)
-
-Database migration `video_jobs`:
-
-```sql
-CREATE TABLE public.video_jobs (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  status text NOT NULL DEFAULT 'queued',  -- queued | rendering | uploading | completed | failed
-  provider_job_id text,
-  provider_polling_url text,
-  model text NOT NULL,
-  prompt text NOT NULL,
-  aspect_ratio text NOT NULL,
-  resolution text NOT NULL,
-  duration_sec int NOT NULL,
-  sound boolean NOT NULL DEFAULT false,
-  source_type text NOT NULL DEFAULT 'text',
-  image_data_url text,
-  tokens_estimated int NOT NULL,
-  tokens_charged int,           -- only set when status='completed'
-  video_url text,
-  error text,
-  attempts int NOT NULL DEFAULT 0,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
-);
-GRANT SELECT, INSERT, UPDATE ON public.video_jobs TO authenticated;
-GRANT ALL ON public.video_jobs TO service_role;
-ALTER TABLE public.video_jobs ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "user reads own jobs" ON public.video_jobs FOR SELECT TO authenticated USING (user_id = auth.uid());
--- writes only via service_role through edge functions
+/admin/login           AdminLogin (calls admin-bootstrap on mount)
+/admin                 → /admin/dashboard
+/admin/dashboard       Week 2
+/admin/users           Week 2
+/admin/users/:id       Week 2
+/admin/ai/*            Week 3 (placeholder)
+/admin/revenue/*       Week 3 (placeholder)
+/admin/content/*       Week 4 (placeholder)
+/admin/support/*       Week 4 (placeholder — reuse existing /admin/chat)
+/admin/system/*        Week 5 (placeholder)
+/admin/audit           Week 5 (placeholder)
+/admin/settings        Week 5 (placeholder)
 ```
-
-Three edge functions:
-
-1. **`cineshoot-start`** — validates plan, tier, prompt, computes `tokensCost`, calls OpenRouter `POST /videos`, stores `video_jobs` row (`status='rendering'`, `provider_job_id`, `provider_polling_url`, `tokens_estimated`), reserves no tokens yet, returns `{ jobId }`. Fast (<5s).
-2. **`cineshoot-status`** — input `{ jobId }`; loads the row (RLS); on each call:
-   - If `status` is terminal (`completed` / `failed`), return current row.
-   - Otherwise hits `provider_polling_url` once. If provider returns `completed`, downloads, uploads to `cineshoot-videos` bucket, signs URL, sets `status='completed'`, sets `video_url` and `tokens_charged`, then **inside the same row update** increments `subscriptions.tokens_used` by `tokens_estimated` (atomic per job — `tokens_charged` doubles as an idempotency flag, so retries are safe).
-   - If provider returns `failed`, sets `status='failed'`, stores `error`, never charges tokens.
-   - If still rendering, increments `attempts` and returns `status='rendering'`. Returns within ~6s max so the client can poll every 4–6s.
-3. **`cineshoot-recover` (scheduled, optional v2)** — sweeps jobs older than 10 min still in `rendering`, force-checks provider, fails them out so they don’t hang forever. Out of scope for this PR but the schema supports it.
-
-The existing `video_generations` table is still written, but only as a **history view**: on successful completion `cineshoot-status` also inserts the historical row (so the existing Explorer/history components keep working unchanged).
-
-### Client (`src/services/cineshootApi.ts` + `src/pages/CineshootPage.tsx`)
-
-- Replace `cineshootApi.generateVideo` with `startJob(params): { jobId }` and `getJobStatus(jobId): Job`.
-- `useCineshootJob(jobId)` hook polls `cineshoot-status` every 5s with exponential back-off cap of 8s; stops on `completed`/`failed`; surfaces structured states `{ phase: 'rendering' | 'uploading' | 'completed' | 'failed', videoUrl?, error? }`.
-- `CineshootCanvas` already shows a generating state; extend it to display the elapsed timer + phase label ("Rendering… 00:42", "Finalizing…").
-- On `completed` → set videoUrl, refresh history, update `tokensUsed` from the returned `totalTokensUsed`.
-- On `failed` → toast `error`, never deduct tokens locally.
-- Polling continues across tab focus changes; if the user navigates away mid-render, the job stays in DB and the explorer picks it up on return (history pulls latest `video_jobs` for `status in ('rendering','completed')`).
-
-### Why this fixes the bug
-
-- Tokens are only deducted when the row actually flips to `completed` with a stored `tokens_charged` value — so a UI failure never charges the user.
-- The Edge Function never blocks 140s, so platform timeouts can no longer cause false failures.
-- If OpenRouter renders successfully but the client closes, the next page visit polls the same `jobId` and resumes — no lost renders.
+Placeholders render a "Coming in Week N" card so navigation works end-to-end immediately.
 
 ---
 
-## 4. File touch list
+## Week 2 — Dashboard Overview + User Management
 
-```text
-NEW
-  src/components/shared/PlanLockScreen.tsx
-  src/lib/planAccess.ts
-  src/hooks/useCineshootJob.ts
-  supabase/functions/cineshoot-start/index.ts
-  supabase/functions/cineshoot-status/index.ts
-  supabase migration: create video_jobs + grants + RLS
+### 2.1 Dashboard Overview (`/admin/dashboard`)
+KPI row (6 cards): Total Users · Active Today · MRR (BDT) · Total Tokens Used (this month) · Open Tickets · New Signups Today.
+Charts (Recharts, already installed):
+- User Growth line (30d) — `profiles.created_at` aggregation.
+- Plan Distribution donut — from `subscriptions`.
+- Top AI Features bar — from existing tool tables (`image_generations`, `presentations`, `video_jobs`, `analysis_history`, `cowork_tasks`, `agent_runs`).
+- AI Model usage pie — from same.
+Recent Signups (10) + Recent Tickets (10) tables.
+Alerts panel: Supabase Realtime subscription on `audit_logs` for `severity='high'` events.
 
-EDIT
-  src/pages/CineshootPage.tsx           -- lock screen + async hook
-  src/pages/CoWorkPage.tsx              -- lock screen
-  src/components/aichat/UpgradePlanModal.tsx  -- add 3 plans + enterprise CTA
-  src/components/aichat/settings/PlansTokensTab.tsx -- Cineshoot row + manage label
-  src/components/PaymentModal.tsx       -- price=0 guard
-  src/services/cineshootApi.ts          -- startJob/getJobStatus
-  supabase/functions/sslcommerz-payment/index.ts -- new price map entries
-  supabase/functions/bkash-payment/index.ts      -- new price map entries
-  supabase/functions/stripe-payment/index.ts     -- new price map entries
+Data via one edge function `admin-dashboard-overview` returning a single payload (cached 30s in-memory per instance).
 
-KEEP / DEPRECATE
-  supabase/functions/cineshoot/index.ts -- kept temporarily; CineshootPage no longer calls it. Remove in a follow-up loop once history confirms no in-flight callers.
+### 2.2 User Management
+**List** `/admin/users`:
+- Server-side paginated query (edge function `admin-users-list`) supporting `search, plan, status, sortBy, sortOrder, country, page, limit`.
+- Filters + stats strip + bulk selection.
+- Bulk Email / Bulk Suspend / Bulk Export CSV.
+- Row actions: View Profile · Edit Plan · Send Email · Suspend · Ban · Delete (soft).
+
+**Profile** `/admin/users/:id` — 5 tabs:
+- **Overview**: profile card, plan card with "Change Plan" modal (calls `admin-user-update` → writes to `subscriptions` + audit).
+- **AI Usage**: 30-day bar (from existing usage tables) + per-feature donut + paginated log.
+- **Billing**: subscription card + invoices from `payment_history` + "Issue Refund" stub (Week 3 wires Stripe).
+- **Tickets**: list from `chat_conversations` filtered by `user_id`.
+- **Activity Log**: logins + admin actions from `audit_logs` where `resource_id = user_id`.
+
+All write actions go through edge functions that:
+1. Verify caller is admin via `getClaims()` + `is_admin()`.
+2. Check permission for the action.
+3. Perform mutation with service role.
+4. Insert into `audit_logs`.
+
+### 2.3 CSV export
+- `admin-users-export` edge function streams CSV with applied filters; respects `MANAGER`+ permission.
+
+---
+
+## Edge functions added this loop
 ```
+admin-bootstrap            seed support@aisorix.com once
+admin-dashboard-overview   single-payload KPIs + charts data
+admin-users-list           paginated list + filters
+admin-user-get             full profile + tabs payload
+admin-user-update          plan/status/token edits, audit
+admin-user-action          ban/unban/suspend/delete/email, audit
+admin-users-export         CSV export
+```
+All set `verify_jwt = false` per project convention and validate via `getClaims()` + RLS-aware service-role queries.
 
-## 5. QA checklist
+---
 
-- Free / Basic / Pro user → `/cineshoot` shows lock screen with “Premium Plus required”; clicking Upgrade opens `UpgradePlanModal` with all 7 tiers visible.
-- Free / Basic / Pro user → `/agent` shows lock screen with “Premium required”.
-- Premium user → `/agent` works, `/cineshoot` still locked.
-- Premium Plus user → both work; Cineshoot 6s and 10s renders across Veo, Sora, Kling, Seedance all return playable URLs; tokens deducted only after success.
-- Enterprise card opens default mail client to `support@aisorix.com`.
-- Settings → Plans & Tokens lists Cineshoot with “Premium Plus+” pill; buying Premium Plus or Max via PaymentModal completes end-to-end (SSLCommerz / bKash / Stripe).
+## Progress tracker
+Create `.lovable/admin-progress.md`:
+```
+Week 1: ✅ shipped
+Week 2: ✅ shipped
+Week 3: ⏳ AI monitor, revenue, subscriptions, invoices, coupons
+Week 4: ⏳ feature flags UI, announcements UI, prompt editor, tickets module, feedback
+Week 5: ⏳ system health, API keys, audit UI, settings, polish
+```
+On every subsequent loop, agent reads this file and continues from the first `⏳` row, marking ✅ as it goes — so if credits run out mid-feature, the next loop knows exactly where to resume.
+
+---
+
+## Files touched (high level)
+**New (~25):**
+- `supabase/migrations/<ts>_admin_dashboard_foundation.sql`
+- 7 edge functions under `supabase/functions/admin-*/`
+- `src/admin/layout/{AdminLayout,Sidebar,Topbar,PageWrapper}.tsx`
+- `src/admin/guards/AdminGuard.tsx`
+- `src/admin/lib/{rbac.ts,adminApi.ts}`
+- `src/admin/pages/{AdminLogin,Dashboard,UserList,UserProfile,Placeholder}.tsx`
+- `src/admin/components/{KpiCard,UserTable,UserActions,ChangePlanModal,...}.tsx`
+- `.lovable/admin-progress.md`
+
+**Edited (~5):**
+- `src/App.jsx` — register `/admin/*` routes (lazy).
+- `src/index.css` — `[data-admin-theme]` tokens.
+- `tailwind.config.ts` — admin color tokens.
+- `src/integrations/supabase/types.ts` — auto-regen after migration.
+
+---
+
+## What's NOT in this loop (deferred to Weeks 3–5)
+Stripe refund wiring, real Socket.io live AI feed (will use Supabase Realtime), feature-flag UI editor, announcement editor, prompt template editor (Monaco), system health gauges, API key reveal flow, full audit timeline UI, settings tabs, Framer Motion polish, Docker/CI (not applicable on Lovable — handled by platform).
+
+---
+
+## QA checklist (end of Week 2)
+- Visit `/admin/login` from a fresh browser → can sign in as `support@aisorix.com` with the seeded password.
+- Non-`@aisorix.com` user hitting `/admin/dashboard` sees the restricted screen.
+- Dashboard renders 6 KPIs + 4 charts + 2 tables with real data.
+- User list paginates, filters, exports CSV.
+- Editing a user's plan writes to `subscriptions` and creates an `audit_logs` row.
+- Sidebar collapse persists across reload.
