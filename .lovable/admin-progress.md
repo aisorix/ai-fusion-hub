@@ -7,8 +7,8 @@ agent reads from the top, finds the first ⏳ row, builds it, and marks ✅.
 |------|------|--------|
 | 1 | Foundation: auth gating, owner seed, RBAC schema, design tokens, layout shell, routes | ✅ shipped |
 | 2 | Dashboard overview KPIs + charts + user list + user profile (5 tabs) + CSV export | ✅ shipped (CSV export deferred to Week 3) |
-| 3 | AI monitor (per-feature + per-model + abuse + live feed), Revenue dashboard, Subscription manager, Invoices, Refunds, Coupons | ⏳ next |
-| 4 | Feature flags editor, Announcements, Prompt template editor, Tickets module deepening, Feedback NPS | ⏳ |
+| 3 | AI monitor (per-feature + per-model + live feed), Revenue dashboard, Subscription manager, Invoices CSV export, Coupons CRUD | ✅ shipped (abuse panel deferred — needs rate-limit signal source) |
+| 4 | Feature flags editor, Announcements, Prompt template editor, Tickets module deepening, Feedback NPS | ⏳ next |
 | 5 | System health gauges, API key manager, full Audit timeline, Settings tabs, Polish (Framer Motion, keyboard shortcuts) | ⏳ |
 
 ## Notes
