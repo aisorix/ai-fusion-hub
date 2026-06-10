@@ -1,164 +1,104 @@
+# Admin Dashboard — Weeks 3–5 Build Plan
 
-# AI Sorix Admin Dashboard — Weeks 1–2 (Lovable Cloud build)
-
-Stack adapted from your spec (Node/Mongo/Redis/Socket.io) to the actual project stack:
-React 18 + Vite + TailwindCSS + shadcn + **Lovable Cloud (Supabase Postgres + Edge Functions + Realtime)**. All "Redis cache / Socket.io" features become Supabase Realtime + edge-cached views. All "Mongo collections" become Postgres tables with RLS.
-
-We'll ship Weeks 1–2 this loop and leave a `.lovable/admin-progress.md` tracker so Weeks 3–5 resume cleanly next loop.
+Resumes from `.lovable/admin-progress.md`. Stack stays the same: React + Vite + shadcn + Recharts + Lovable Cloud (Supabase Postgres + Edge Functions + Realtime). All new pages mount under the existing `/admin` `AdminGuard` + `AdminLayout`, so email gating (`*@aisorix.com`), RBAC (`admin_super` / `admin_manager` / `admin_viewer`), and audit logging are inherited automatically.
 
 ---
 
-## Week 1 — Foundation, Auth, RBAC, Layout
+## Week 3 — AI Monitoring, Revenue, Subscriptions
 
-### 1.1 Owner account auto-seed (your requirement)
-New edge function `admin-bootstrap` (public, no JWT):
-- Uses service role to check if `support@aisorix.com` exists in `auth.users`.
-- If missing, creates it via Admin API with the password you gave and `email_confirm: true`.
-- Inserts `user_roles (user_id, role='admin_super')`.
-- Called once from the `/admin/login` page on first mount (idempotent — exits early if seed already done; protected by `INTERNAL_WEBHOOK_SECRET` to block public abuse).
+### Pages
+- `/admin/ai/usage` — Per-feature usage (Chat, Imagine, Cineshoot, Deck, Agent, Health, Agro, Legends, FlowBuilder). Stacked bar (last 30d) + per-feature breakdown table (calls, unique users, avg tokens, error rate).
+- `/admin/ai/tokens` — Token consumption: line chart by day, per-model donut (gpt-4o, gemini, claude, perplexity, flux, etc.), top 20 users table with "View" → user profile.
+- `/admin/ai/abuse` — Rate-limit hits, repeated failures, suspicious prompt flags. Row actions: Suspend / Reset tokens (writes audit log).
+- `/admin/ai/live` — Realtime feed of last 100 AI calls via Supabase Realtime on a new `ai_events` table.
+- `/admin/revenue` — KPIs: MRR, ARR, ARPU, LTV (simple formula), churn %, refund rate. Charts: MRR trend, plan distribution, payment method split, geo split.
+- `/admin/revenue/subscriptions` — Searchable table from `subscriptions`. Filters: plan, status, billing cycle. Row: Change plan / Cancel / Refund last invoice (refund is a stub posting to `payment_history` + audit; real Stripe refund deferred to opt-in).
+- `/admin/revenue/invoices` — Paginated `payment_history`. Export CSV.
+- `/admin/revenue/coupons` — CRUD on new `coupons` table.
 
-### 1.2 Admin-only email gating
-- `/admin/*` routes wrapped in `<AdminGuard>`:
-  - Requires authenticated session.
-  - Requires `user.email.endsWith('@aisorix.com')`.
-  - Requires a row in `admin_users` (active = true) with one of `SUPER_ADMIN | MANAGER | VIEWER`.
-- Non-admin emails see a friendly "Admin portal — restricted access" screen with a Back-to-app link.
-- Public app login/signup at `/login` `/register` is untouched.
+### Data
+- New table `ai_events` (feature, model, user_id, tokens_in/out, latency_ms, status, error_code, created_at) — appended by a thin helper added inside existing AI edge functions (chat, imagine, cineshoot-start, deck-generate, etc.). Added to `supabase_realtime` publication.
+- New table `coupons` (code, percent_off, amount_off, currency, max_redemptions, redeemed_count, expires_at, active).
+- RLS: admin-only read/write via `is_admin_user(auth.uid())`.
 
-### 1.3 RBAC schema (migration)
-New tables (all with GRANTs + RLS):
-- `admin_users` — `user_id uuid PK → auth.users`, `role admin_role`, `is_active`, `last_login_at`, `last_login_ip`.
-- `audit_logs` — `actor_id`, `action`, `resource`, `resource_id`, `previous_value jsonb`, `new_value jsonb`, `ip`, `user_agent`, `created_at`.
-- `announcements` — title, body, type, is_active, start_at, end_at.
-- `feature_flags` — key (unique), name, description, enabled, enabled_for_plans text[], enabled_for_user_ids uuid[].
-- `support_tickets` (if not already present — confirm existing `chat_conversations` covers it; if yes, reuse).
-- New enum `admin_role` = `SUPER_ADMIN | MANAGER | VIEWER`.
-- New SECURITY DEFINER function `public.is_admin(_user_id uuid)` + `public.admin_has_permission(_user_id, _perm text)`.
-- RLS: all admin tables restricted to `is_admin(auth.uid())`; `audit_logs` insert-only from edge functions (service role).
+### Edge functions
+- `admin-ai-overview` (per-feature + per-model aggregates, date-range param).
+- `admin-ai-tokens` (per-day series + top users).
+- `admin-revenue-overview` (MRR/ARR/ARPU/churn).
+- `admin-subscriptions-list`, `admin-subscription-update` (plan change writes to `subscriptions` + audit).
+- `admin-invoices-list`, `admin-invoices-export` (CSV stream).
+- `admin-coupons-crud`.
 
-Existing `user_roles` table already enforces the separate-roles-table rule — we extend the enum.
-
-### 1.4 Design system & layout shell
-- `src/admin/` folder isolates the dashboard from the main app.
-- Brand tokens added to `src/index.css` under `[data-admin-theme]` scope so the marketing site is unaffected:
-  navy `#0A1628`, blue `#1A6FD8`, cyan `#00B4D8`, surface `#F8FAFC`, etc. (all HSL).
-- `AdminLayout` = collapsible sidebar (240↔64px, persisted) + topbar (page title, Cmd+K spotlight stub, notifications bell, admin avatar menu).
-- Sidebar groups: Overview · Users · AI Monitor · Revenue · Content · Support · System.
-- shadcn primitives already cover Button/Input/Modal/Badge/Table/Card/Avatar/Tooltip/Dropdown/Toast/Skeleton — we wrap them with admin-themed variants instead of duplicating.
-
-### 1.5 Routes (lazy-loaded)
-```
-/admin/login           AdminLogin (calls admin-bootstrap on mount)
-/admin                 → /admin/dashboard
-/admin/dashboard       Week 2
-/admin/users           Week 2
-/admin/users/:id       Week 2
-/admin/ai/*            Week 3 (placeholder)
-/admin/revenue/*       Week 3 (placeholder)
-/admin/content/*       Week 4 (placeholder)
-/admin/support/*       Week 4 (placeholder — reuse existing /admin/chat)
-/admin/system/*        Week 5 (placeholder)
-/admin/audit           Week 5 (placeholder)
-/admin/settings        Week 5 (placeholder)
-```
-Placeholders render a "Coming in Week N" card so navigation works end-to-end immediately.
+All use the existing `_shared/adminAuth.ts` (`requireAdmin` + `audit` + `canWrite`).
 
 ---
 
-## Week 2 — Dashboard Overview + User Management
+## Week 4 — Feature Flags, Announcements, Support, Feedback
 
-### 2.1 Dashboard Overview (`/admin/dashboard`)
-KPI row (6 cards): Total Users · Active Today · MRR (BDT) · Total Tokens Used (this month) · Open Tickets · New Signups Today.
-Charts (Recharts, already installed):
-- User Growth line (30d) — `profiles.created_at` aggregation.
-- Plan Distribution donut — from `subscriptions`.
-- Top AI Features bar — from existing tool tables (`image_generations`, `presentations`, `video_jobs`, `analysis_history`, `cowork_tasks`, `agent_runs`).
-- AI Model usage pie — from same.
-Recent Signups (10) + Recent Tickets (10) tables.
-Alerts panel: Supabase Realtime subscription on `audit_logs` for `severity='high'` events.
+### Pages
+- `/admin/content/flags` — Toggle UI for new `feature_flags` table (key, description, enabled, rollout_percent, audience JSON). Live-applies via Realtime; existing app code reads through a new `useFeatureFlag(key)` hook.
+- `/admin/content/announcements` — CRUD on `announcements` (title, body markdown, severity, audience, starts_at, ends_at, active). Drives the existing `AnnouncementBanner.jsx`.
+- `/admin/content/prompts` — Editor for system-prompt templates per tool (Chat, Health, Agro, Legends, etc.) backed by `prompt_templates` table. Version history (`prompt_template_versions`).
+- `/admin/support/tickets` — Uses existing `chat_conversations` + `chat_messages` as the ticket source (already powering `/admin/chat`), but adds: status (open/pending/resolved/closed), priority, assignee, tags, internal notes. New columns added via migration. Detail page with reply box, status toggles, assign-to dropdown.
+- `/admin/feedback` — New `feedback_entries` table (rating 1–5, NPS, comment, feature, user_id). Charts: NPS score, rating distribution, recent comments.
 
-Data via one edge function `admin-dashboard-overview` returning a single payload (cached 30s in-memory per instance).
+### Data
+- New tables: `feature_flags`, `announcements`, `prompt_templates`, `prompt_template_versions`, `feedback_entries`.
+- Extend `chat_conversations` with `status`, `priority`, `assignee_id`, `tags text[]`, `internal_notes`.
+- All RLS admin-write, with public-read where needed (flags + active announcements via a SECURITY DEFINER function).
 
-### 2.2 User Management
-**List** `/admin/users`:
-- Server-side paginated query (edge function `admin-users-list`) supporting `search, plan, status, sortBy, sortOrder, country, page, limit`.
-- Filters + stats strip + bulk selection.
-- Bulk Email / Bulk Suspend / Bulk Export CSV.
-- Row actions: View Profile · Edit Plan · Send Email · Suspend · Ban · Delete (soft).
-
-**Profile** `/admin/users/:id` — 5 tabs:
-- **Overview**: profile card, plan card with "Change Plan" modal (calls `admin-user-update` → writes to `subscriptions` + audit).
-- **AI Usage**: 30-day bar (from existing usage tables) + per-feature donut + paginated log.
-- **Billing**: subscription card + invoices from `payment_history` + "Issue Refund" stub (Week 3 wires Stripe).
-- **Tickets**: list from `chat_conversations` filtered by `user_id`.
-- **Activity Log**: logins + admin actions from `audit_logs` where `resource_id = user_id`.
-
-All write actions go through edge functions that:
-1. Verify caller is admin via `getClaims()` + `is_admin()`.
-2. Check permission for the action.
-3. Perform mutation with service role.
-4. Insert into `audit_logs`.
-
-### 2.3 CSV export
-- `admin-users-export` edge function streams CSV with applied filters; respects `MANAGER`+ permission.
+### Edge functions
+- `admin-flags-crud`, `admin-announcements-crud`, `admin-prompts-crud`, `admin-tickets-update`, `admin-feedback-list`.
 
 ---
 
-## Edge functions added this loop
-```
-admin-bootstrap            seed support@aisorix.com once
-admin-dashboard-overview   single-payload KPIs + charts data
-admin-users-list           paginated list + filters
-admin-user-get             full profile + tabs payload
-admin-user-update          plan/status/token edits, audit
-admin-user-action          ban/unban/suspend/delete/email, audit
-admin-users-export         CSV export
-```
-All set `verify_jwt = false` per project convention and validate via `getClaims()` + RLS-aware service-role queries.
+## Week 5 — System Health, API Keys, Audit, Settings, Polish
+
+### Pages
+- `/admin/system/health` — Gauges for: Lovable AI Gateway status (synthetic ping), OpenRouter status, Supabase DB (round-trip ms), Edge Functions error rate (last hour from `ai_events.status`), storage usage. Auto-refresh every 30s.
+- `/admin/system/api-keys` — Lists configured backend secrets (names only, never values) by calling a `admin-secrets-list` function that reads a hardcoded allow-list and reports presence + last-rotated timestamp from a new `secret_audit` table. Rotation is manual (deep-link to settings) — never reveals values.
+- `/admin/audit` — Full timeline of `audit_logs` with filters (actor, action, resource, severity, date range). Detail drawer shows `previous_value` / `new_value` diff.
+- `/admin/settings` — Tabs: General (site name, support email), Branding (logo upload to `profile-avatars` bucket reused), Email (from-address, footer), Limits (default per-plan token caps), Integrations (toggle Google/GitHub OAuth visibility — wired to existing flags).
+- Polish across all admin pages: Framer Motion route transitions + card mount animations, keyboard shortcuts (`g d` dashboard, `g u` users, `g r` revenue, `?` cheat-sheet modal), empty states with illustrations, print-friendly CSS for invoices/audit.
+
+### Data
+- New tables: `system_settings` (single-row key/value JSON), `secret_audit`.
+
+### Edge functions
+- `admin-system-health` (pings + aggregates).
+- `admin-secrets-list` (allow-list only, no values).
+- `admin-audit-list` (paginated, filterable).
+- `admin-settings-get`, `admin-settings-update`.
 
 ---
 
-## Progress tracker
-Create `.lovable/admin-progress.md`:
-```
-Week 1: ✅ shipped
-Week 2: ✅ shipped
-Week 3: ⏳ AI monitor, revenue, subscriptions, invoices, coupons
-Week 4: ⏳ feature flags UI, announcements UI, prompt editor, tickets module, feedback
-Week 5: ⏳ system health, API keys, audit UI, settings, polish
-```
-On every subsequent loop, agent reads this file and continues from the first `⏳` row, marking ✅ as it goes — so if credits run out mid-feature, the next loop knows exactly where to resume.
+## Cross-cutting
+- **Routing:** `src/App.jsx` — replace the `AdminPlaceholder` routes added in Week 1 with real page imports; add new routes (`ai/abuse`, `ai/live`, `revenue/invoices`, `revenue/coupons`, `content/prompts`, `feedback`, `system/api-keys`).
+- **Sidebar:** `src/admin/layout/AdminLayout.tsx` — extend nav with new sections + badges (e.g. open ticket count from Realtime).
+- **Shared admin UI:** `src/admin/components/` — `KpiCard`, `DataTable` (wrapping shadcn Table with sort/paginate/filter), `ChartCard`, `ConfirmDialog`, `JsonDiff`, `StatusPill`. Reused across all new pages.
+- **Hooks:** `useAdminRealtime(table, filter)` for live feeds; `useFeatureFlag(key)` for client-side flag reads.
+- **Audit:** every write edge function calls `audit(...)` from `_shared/adminAuth.ts`.
+- **Progress:** mark Weeks 3–5 ✅ in `.lovable/admin-progress.md` as each ships.
 
----
+## Deliberately deferred (call out, do not build)
+- Real Stripe refund API call (stub now, opt-in switch later — needs `STRIPE_SECRET_KEY`).
+- Docker / GitHub Actions / nginx — irrelevant on Lovable Cloud.
+- Redis cache — Postgres + edge runtime cache headers are sufficient at this scale.
+- Per-IP rate limiting at the gateway — handled by Lovable Cloud platform.
 
-## Files touched (high level)
-**New (~25):**
-- `supabase/migrations/<ts>_admin_dashboard_foundation.sql`
-- 7 edge functions under `supabase/functions/admin-*/`
-- `src/admin/layout/{AdminLayout,Sidebar,Topbar,PageWrapper}.tsx`
-- `src/admin/guards/AdminGuard.tsx`
-- `src/admin/lib/{rbac.ts,adminApi.ts}`
-- `src/admin/pages/{AdminLogin,Dashboard,UserList,UserProfile,Placeholder}.tsx`
-- `src/admin/components/{KpiCard,UserTable,UserActions,ChangePlanModal,...}.tsx`
-- `.lovable/admin-progress.md`
+## Technical details
+- Charts: `recharts` (already in deps).
+- Tables: shadcn `Table` + manual pagination (no new dep).
+- Animations: `framer-motion` (already in deps).
+- Realtime: `supabase.channel().on('postgres_changes', ...)` — tables added to `supabase_realtime` publication in their migration.
+- All migrations follow project convention: `CREATE TABLE` → `GRANT` (authenticated + service_role; no anon) → `ENABLE RLS` → policies using `public.is_admin_user(auth.uid())`.
+- All admin edge functions: `verify_jwt = false`, validate via `requireAdmin()`, write via service role, log via `audit()`.
+- File count estimate: ~6 migrations, ~18 edge functions, ~20 admin pages, ~8 shared admin components, ~3 hooks, ~2 edits to `App.jsx` and `AdminLayout.tsx`.
 
-**Edited (~5):**
-- `src/App.jsx` — register `/admin/*` routes (lazy).
-- `src/index.css` — `[data-admin-theme]` tokens.
-- `tailwind.config.ts` — admin color tokens.
-- `src/integrations/supabase/types.ts` — auto-regen after migration.
+## Scope per loop
+Building all of Weeks 3–5 in one loop will likely exceed the credit budget. Proposed chunking:
+- **Loop A (this approval):** Week 3 in full (AI monitoring + Revenue + Subscriptions).
+- **Loop B:** Week 4 (Flags, Announcements, Prompts, Tickets deepening, Feedback).
+- **Loop C:** Week 5 (System health, API keys, Audit, Settings, Polish).
 
----
-
-## What's NOT in this loop (deferred to Weeks 3–5)
-Stripe refund wiring, real Socket.io live AI feed (will use Supabase Realtime), feature-flag UI editor, announcement editor, prompt template editor (Monaco), system health gauges, API key reveal flow, full audit timeline UI, settings tabs, Framer Motion polish, Docker/CI (not applicable on Lovable — handled by platform).
-
----
-
-## QA checklist (end of Week 2)
-- Visit `/admin/login` from a fresh browser → can sign in as `support@aisorix.com` with the seeded password.
-- Non-`@aisorix.com` user hitting `/admin/dashboard` sees the restricted screen.
-- Dashboard renders 6 KPIs + 4 charts + 2 tables with real data.
-- User list paginates, filters, exports CSV.
-- Editing a user's plan writes to `subscriptions` and creates an `audit_logs` row.
-- Sidebar collapse persists across reload.
+Confirm and I'll start with Loop A, or tell me to attempt all three in one go and stop when credits run out (progress tracked in `.lovable/admin-progress.md` so the next loop resumes cleanly).

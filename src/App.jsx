@@ -48,6 +48,13 @@ const AdminDashboard = React.lazy(() => import("./admin/pages/AdminDashboard"));
 const AdminUsers = React.lazy(() => import("./admin/pages/AdminUsers"));
 const AdminUserProfile = React.lazy(() => import("./admin/pages/AdminUserProfile"));
 const AdminPlaceholder = React.lazy(() => import("./admin/pages/AdminPlaceholder"));
+const AdminAIUsage = React.lazy(() => import("./admin/pages/AdminAIUsage"));
+const AdminAITokens = React.lazy(() => import("./admin/pages/AdminAITokens"));
+const AdminAILive = React.lazy(() => import("./admin/pages/AdminAILive"));
+const AdminRevenue = React.lazy(() => import("./admin/pages/AdminRevenue"));
+const AdminSubscriptions = React.lazy(() => import("./admin/pages/AdminSubscriptions"));
+const AdminInvoices = React.lazy(() => import("./admin/pages/AdminInvoices"));
+const AdminCoupons = React.lazy(() => import("./admin/pages/AdminCoupons"));
 
 
 
@@ -148,10 +155,13 @@ const App = () => (
                   <Route path="users" element={<AdminUsers />} />
                   <Route path="users/:id" element={<AdminUserProfile />} />
                   <Route path="chat" element={<ChatDashboard />} />
-                  <Route path="ai/usage" element={<AdminPlaceholder title="AI Feature Usage" week={3} />} />
-                  <Route path="ai/tokens" element={<AdminPlaceholder title="Token Usage" week={3} />} />
-                  <Route path="revenue" element={<AdminPlaceholder title="Revenue Dashboard" week={3} />} />
-                  <Route path="revenue/subscriptions" element={<AdminPlaceholder title="Subscriptions" week={3} />} />
+                  <Route path="ai/usage" element={<AdminAIUsage />} />
+                  <Route path="ai/tokens" element={<AdminAITokens />} />
+                  <Route path="ai/live" element={<AdminAILive />} />
+                  <Route path="revenue" element={<AdminRevenue />} />
+                  <Route path="revenue/subscriptions" element={<AdminSubscriptions />} />
+                  <Route path="revenue/invoices" element={<AdminInvoices />} />
+                  <Route path="revenue/coupons" element={<AdminCoupons />} />
                   <Route path="content/flags" element={<AdminPlaceholder title="Feature Flags" week={4} />} />
                   <Route path="content/announcements" element={<AdminPlaceholder title="Announcements" week={4} />} />
                   <Route path="support/tickets" element={<AdminPlaceholder title="Support Tickets" week={4} />} />
