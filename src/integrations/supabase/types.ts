@@ -86,6 +86,48 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_events: {
+        Row: {
+          created_at: string
+          error_code: string | null
+          feature: string
+          id: string
+          latency_ms: number | null
+          metadata: Json | null
+          model: string | null
+          status: string
+          tokens_in: number | null
+          tokens_out: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_code?: string | null
+          feature: string
+          id?: string
+          latency_ms?: number | null
+          metadata?: Json | null
+          model?: string | null
+          status?: string
+          tokens_in?: number | null
+          tokens_out?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_code?: string | null
+          feature?: string
+          id?: string
+          latency_ms?: number | null
+          metadata?: Json | null
+          model?: string | null
+          status?: string
+          tokens_in?: number | null
+          tokens_out?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       analysis_history: {
         Row: {
           created_at: string
@@ -237,6 +279,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      coupons: {
+        Row: {
+          active: boolean
+          amount_off: number | null
+          code: string
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          description: string | null
+          expires_at: string | null
+          id: string
+          max_redemptions: number | null
+          percent_off: number | null
+          redeemed_count: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          amount_off?: number | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          max_redemptions?: number | null
+          percent_off?: number | null
+          redeemed_count?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          amount_off?: number | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          max_redemptions?: number | null
+          percent_off?: number | null
+          redeemed_count?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       cowork_connectors: {
         Row: {
