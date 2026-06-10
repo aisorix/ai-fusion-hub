@@ -34,25 +34,25 @@ export default function AdminInvoices() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Invoices</h1>
-          <p className="text-sm text-slate-400">All payment history records.</p>
+          <p className="text-sm text-slate-500">All payment history records.</p>
         </div>
         <Button onClick={exportCsv} variant="outline" className="gap-2"><Download className="w-4 h-4" /> Export CSV</Button>
       </div>
 
-      <Card className="bg-slate-900/60 border-slate-800">
+      <Card className="bg-white border-slate-200">
         {loading ? <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin" /></div> : (
           <>
             <Table>
               <TableHeader>
-                <TableRow className="border-slate-800">
+                <TableRow className="border-slate-200">
                   <TableHead>Date</TableHead><TableHead>User</TableHead><TableHead>Method</TableHead>
                   <TableHead>Status</TableHead><TableHead className="text-right">Amount</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {rows.map((r) => (
-                  <TableRow key={r.id} className="border-slate-800">
-                    <TableCell className="text-xs text-slate-400">{new Date(r.created_at).toLocaleString()}</TableCell>
+                  <TableRow key={r.id} className="border-slate-200">
+                    <TableCell className="text-xs text-slate-500">{new Date(r.created_at).toLocaleString()}</TableCell>
                     <TableCell className="font-mono text-xs">{r.user_id?.slice(0, 8)}</TableCell>
                     <TableCell className="capitalize">{r.payment_method ?? "—"}</TableCell>
                     <TableCell><Badge variant={r.status === "completed" || r.status === "paid" ? "default" : r.status === "refunded" ? "destructive" : "outline"}>{r.status}</Badge></TableCell>
@@ -62,7 +62,7 @@ export default function AdminInvoices() {
                 {rows.length === 0 && <TableRow><TableCell colSpan={5} className="text-center text-slate-500 py-8">No invoices.</TableCell></TableRow>}
               </TableBody>
             </Table>
-            <div className="flex items-center justify-between p-4 border-t border-slate-800">
+            <div className="flex items-center justify-between p-4 border-t border-slate-200">
               <p className="text-xs text-slate-500">Page {page} • {total} total</p>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" disabled={page === 1} onClick={() => setPage(page - 1)}>Prev</Button>

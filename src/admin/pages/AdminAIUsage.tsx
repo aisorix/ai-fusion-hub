@@ -25,16 +25,16 @@ export default function AdminAIUsage() {
   }, [days]);
 
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin" /></div>;
-  if (!data) return <div className="text-slate-400">No data.</div>;
+  if (!data) return <div className="text-slate-500">No data.</div>;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">AI Feature Usage</h1>
-          <p className="text-sm text-slate-400">Across Chat, Imagine, Cineshoot, Deck, Agent, Health, Agro and more.</p>
+          <p className="text-sm text-slate-500">Across Chat, Imagine, Cineshoot, Deck, Agent, Health, Agro and more.</p>
         </div>
-        <select value={days} onChange={(e) => setDays(parseInt(e.target.value, 10))} className="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm">
+        <select value={days} onChange={(e) => setDays(parseInt(e.target.value, 10))} className="bg-slate-900 border border-slate-200 rounded-lg px-3 py-2 text-sm">
           <option value={7}>Last 7 days</option><option value={30}>Last 30 days</option><option value={90}>Last 90 days</option>
         </select>
       </div>
@@ -46,15 +46,15 @@ export default function AdminAIUsage() {
         <KpiCard label="Unique Users" value={data.totals.unique_users.toLocaleString()} icon={<Users className="w-5 h-5" />} />
       </div>
 
-      <Card className="p-5 bg-slate-900/60 border-slate-800">
+      <Card className="p-5 bg-white border-slate-200">
         <h3 className="font-semibold mb-4">Daily Activity</h3>
         <div className="h-72">
           <ResponsiveContainer>
             <BarChart data={data.series}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-              <XAxis dataKey="day" stroke="#94a3b8" fontSize={12} />
-              <YAxis stroke="#94a3b8" fontSize={12} />
-              <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #334155" }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis dataKey="day" stroke="#64748b" fontSize={12} />
+              <YAxis stroke="#64748b" fontSize={12} />
+              <Tooltip contentStyle={{ background: "#fff", border: "1px solid #e2e8f0", color: "#0f172a" }} />
               <Legend />
               <Bar dataKey="calls" fill="#6366f1" name="Calls" />
               <Bar dataKey="errors" fill="#ef4444" name="Errors" />
@@ -63,11 +63,11 @@ export default function AdminAIUsage() {
         </div>
       </Card>
 
-      <Card className="p-5 bg-slate-900/60 border-slate-800">
+      <Card className="p-5 bg-white border-slate-200">
         <h3 className="font-semibold mb-4">Per-feature breakdown</h3>
         <Table>
           <TableHeader>
-            <TableRow className="border-slate-800">
+            <TableRow className="border-slate-200">
               <TableHead>Feature</TableHead><TableHead className="text-right">Calls</TableHead>
               <TableHead className="text-right">Tokens</TableHead><TableHead className="text-right">Avg Tokens</TableHead>
               <TableHead className="text-right">Users</TableHead><TableHead className="text-right">Error %</TableHead>
@@ -75,7 +75,7 @@ export default function AdminAIUsage() {
           </TableHeader>
           <TableBody>
             {data.features.sort((a, b) => b.calls - a.calls).map((f) => (
-              <TableRow key={f.feature} className="border-slate-800">
+              <TableRow key={f.feature} className="border-slate-200">
                 <TableCell className="font-medium">{f.feature}</TableCell>
                 <TableCell className="text-right tabular-nums">{f.calls.toLocaleString()}</TableCell>
                 <TableCell className="text-right tabular-nums">{f.tokens.toLocaleString()}</TableCell>

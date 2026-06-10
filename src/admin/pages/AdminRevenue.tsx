@@ -21,7 +21,7 @@ export default function AdminRevenue() {
   useEffect(() => { invokeAdmin<Data>("admin-revenue-overview").then((r) => { setData(r); setLoading(false); }).catch(() => setLoading(false)); }, []);
 
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin" /></div>;
-  if (!data) return <div className="text-slate-400">No data.</div>;
+  if (!data) return <div className="text-slate-500">No data.</div>;
 
   const fmt = (n: number) => `$${n.toLocaleString()}`;
 
@@ -29,7 +29,7 @@ export default function AdminRevenue() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Revenue Dashboard</h1>
-        <p className="text-sm text-slate-400">Real-time MRR, ARR, churn and plan distribution.</p>
+        <p className="text-sm text-slate-500">Real-time MRR, ARR, churn and plan distribution.</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -42,15 +42,15 @@ export default function AdminRevenue() {
         <KpiCard label="Churn Rate" value={`${data.kpis.churn_rate}%`} tone={data.kpis.churn_rate > 10 ? "danger" : "default"} />
       </div>
 
-      <Card className="p-5 bg-slate-900/60 border-slate-800">
+      <Card className="p-5 bg-white border-slate-200">
         <h3 className="font-semibold mb-4">MRR trend (12 months)</h3>
         <div className="h-72">
           <ResponsiveContainer>
             <LineChart data={data.mrrTrend}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-              <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} />
-              <YAxis stroke="#94a3b8" fontSize={12} />
-              <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #334155" }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
+              <YAxis stroke="#64748b" fontSize={12} />
+              <Tooltip contentStyle={{ background: "#fff", border: "1px solid #e2e8f0", color: "#0f172a" }} />
               <Line type="monotone" dataKey="value" stroke="#10b981" strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
@@ -58,7 +58,7 @@ export default function AdminRevenue() {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-5 bg-slate-900/60 border-slate-800">
+        <Card className="p-5 bg-white border-slate-200">
           <h3 className="font-semibold mb-4">Plan distribution</h3>
           <div className="h-64">
             <ResponsiveContainer>
@@ -66,21 +66,21 @@ export default function AdminRevenue() {
                 <Pie data={data.planDistribution} dataKey="count" nameKey="plan" outerRadius={90}>
                   {data.planDistribution.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
-                <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #334155" }} />
+                <Tooltip contentStyle={{ background: "#fff", border: "1px solid #e2e8f0", color: "#0f172a" }} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </Card>
-        <Card className="p-5 bg-slate-900/60 border-slate-800">
+        <Card className="p-5 bg-white border-slate-200">
           <h3 className="font-semibold mb-4">Payment methods</h3>
           <div className="h-64">
             <ResponsiveContainer>
               <BarChart data={data.paymentMethods}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                <XAxis dataKey="method" stroke="#94a3b8" fontSize={12} />
-                <YAxis stroke="#94a3b8" fontSize={12} />
-                <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #334155" }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="method" stroke="#64748b" fontSize={12} />
+                <YAxis stroke="#64748b" fontSize={12} />
+                <Tooltip contentStyle={{ background: "#fff", border: "1px solid #e2e8f0", color: "#0f172a" }} />
                 <Bar dataKey="count" fill="#6366f1" />
               </BarChart>
             </ResponsiveContainer>

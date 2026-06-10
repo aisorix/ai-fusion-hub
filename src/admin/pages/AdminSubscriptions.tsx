@@ -56,15 +56,15 @@ export default function AdminSubscriptions() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Subscriptions</h1>
-        <p className="text-sm text-slate-400">Change plans, cancel, and inspect active billing.</p>
+        <p className="text-sm text-slate-500">Change plans, cancel, and inspect active billing.</p>
       </div>
 
       <div className="flex gap-3 flex-wrap">
         <form onSubmit={(e) => { e.preventDefault(); load(); }} className="flex gap-2">
-          <Input placeholder="Search by name or user id" value={q} onChange={(e) => setQ(e.target.value)} className="bg-slate-900 border-slate-800 w-72" />
+          <Input placeholder="Search by name or user id" value={q} onChange={(e) => setQ(e.target.value)} className="bg-slate-900 border-slate-200 w-72" />
           <Button type="submit" variant="secondary">Search</Button>
         </form>
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm">
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="bg-slate-900 border border-slate-200 rounded-lg px-3 py-2 text-sm">
           <option value="">All statuses</option>
           <option value="active">Active</option>
           <option value="cancelled">Cancelled</option>
@@ -73,11 +73,11 @@ export default function AdminSubscriptions() {
         </select>
       </div>
 
-      <Card className="bg-slate-900/60 border-slate-800">
+      <Card className="bg-white border-slate-200">
         {loading ? <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin" /></div> : (
           <Table>
             <TableHeader>
-              <TableRow className="border-slate-800">
+              <TableRow className="border-slate-200">
                 <TableHead>User</TableHead><TableHead>Plan</TableHead><TableHead>Status</TableHead>
                 <TableHead>Cycle</TableHead><TableHead className="text-right">Amount</TableHead>
                 <TableHead>Renews</TableHead><TableHead className="text-right">Actions</TableHead>
@@ -85,13 +85,13 @@ export default function AdminSubscriptions() {
             </TableHeader>
             <TableBody>
               {rows.map((s) => (
-                <TableRow key={s.id} className="border-slate-800">
+                <TableRow key={s.id} className="border-slate-200">
                   <TableCell><Link to={`/admin/users/${s.user_id}`} className="text-indigo-400 hover:underline">{s.full_name ?? s.user_id.slice(0, 8)}</Link></TableCell>
                   <TableCell><Badge variant="secondary" className="capitalize">{s.plan_id}</Badge></TableCell>
                   <TableCell><Badge variant={s.status === "active" ? "default" : "outline"} className="capitalize">{s.status}</Badge></TableCell>
                   <TableCell className="capitalize text-slate-300">{s.billing_cycle}</TableCell>
                   <TableCell className="text-right tabular-nums">{s.currency} {Number(s.amount).toFixed(2)}</TableCell>
-                  <TableCell className="text-slate-400 text-xs">{s.current_period_end ? new Date(s.current_period_end).toLocaleDateString() : "—"}</TableCell>
+                  <TableCell className="text-slate-500 text-xs">{s.current_period_end ? new Date(s.current_period_end).toLocaleDateString() : "—"}</TableCell>
                   <TableCell className="text-right space-x-2">
                     <Button size="sm" variant="outline" onClick={() => { setEditing(s); setNewPlan(s.plan_id); }}>Change</Button>
                     {s.status === "active" && <Button size="sm" variant="destructive" onClick={() => cancelSub(s)}>Cancel</Button>}
@@ -105,11 +105,11 @@ export default function AdminSubscriptions() {
       </Card>
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
-        <DialogContent className="bg-slate-900 border-slate-800 text-slate-100">
+        <DialogContent className="bg-slate-900 border-slate-200 text-slate-100">
           <DialogHeader><DialogTitle>Change Plan</DialogTitle></DialogHeader>
           <div className="space-y-2">
-            <p className="text-sm text-slate-400">User: {editing?.full_name ?? editing?.user_id}</p>
-            <select value={newPlan} onChange={(e) => setNewPlan(e.target.value)} className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 w-full">
+            <p className="text-sm text-slate-500">User: {editing?.full_name ?? editing?.user_id}</p>
+            <select value={newPlan} onChange={(e) => setNewPlan(e.target.value)} className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 w-full">
               {PLANS.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
           </div>
