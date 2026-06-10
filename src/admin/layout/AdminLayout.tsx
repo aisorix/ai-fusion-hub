@@ -13,10 +13,13 @@ const groups = [
   { label: "AI MONITOR", items: [
     { to: "/admin/ai/usage", icon: Cpu, label: "Feature Usage" },
     { to: "/admin/ai/tokens", icon: Cpu, label: "Token Usage" },
+    { to: "/admin/ai/live", icon: Cpu, label: "Live Feed" },
   ]},
   { label: "REVENUE", items: [
-    { to: "/admin/revenue", icon: DollarSign, label: "Revenue" },
+    { to: "/admin/revenue", icon: DollarSign, label: "Overview" },
     { to: "/admin/revenue/subscriptions", icon: DollarSign, label: "Subscriptions" },
+    { to: "/admin/revenue/invoices", icon: FileText, label: "Invoices" },
+    { to: "/admin/revenue/coupons", icon: FileText, label: "Coupons" },
   ]},
   { label: "CONTENT", items: [
     { to: "/admin/content/flags", icon: FileText, label: "Feature Flags" },
