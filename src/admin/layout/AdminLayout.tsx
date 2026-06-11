@@ -24,13 +24,16 @@ const groups = [
   { label: "CONTENT", items: [
     { to: "/admin/content/flags", icon: FileText, label: "Feature Flags" },
     { to: "/admin/content/announcements", icon: FileText, label: "Announcements" },
+    { to: "/admin/content/prompts", icon: FileText, label: "Prompt Templates" },
   ]},
   { label: "SUPPORT", items: [
     { to: "/admin/chat", icon: Headphones, label: "Live Chat" },
     { to: "/admin/support/tickets", icon: Headphones, label: "Tickets" },
+    { to: "/admin/feedback", icon: Headphones, label: "Feedback / NPS" },
   ]},
   { label: "SYSTEM", items: [
     { to: "/admin/system/health", icon: Shield, label: "Health" },
+    { to: "/admin/system/api-keys", icon: Shield, label: "API Keys" },
     { to: "/admin/audit", icon: Shield, label: "Audit Log" },
     { to: "/admin/settings", icon: Settings, label: "Settings" },
   ]},

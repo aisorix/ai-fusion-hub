@@ -55,6 +55,15 @@ const AdminRevenue = React.lazy(() => import("./admin/pages/AdminRevenue"));
 const AdminSubscriptions = React.lazy(() => import("./admin/pages/AdminSubscriptions"));
 const AdminInvoices = React.lazy(() => import("./admin/pages/AdminInvoices"));
 const AdminCoupons = React.lazy(() => import("./admin/pages/AdminCoupons"));
+const AdminFlags = React.lazy(() => import("./admin/pages/AdminFlags"));
+const AdminAnnouncements = React.lazy(() => import("./admin/pages/AdminAnnouncements"));
+const AdminPrompts = React.lazy(() => import("./admin/pages/AdminPrompts"));
+const AdminTickets = React.lazy(() => import("./admin/pages/AdminTickets"));
+const AdminFeedback = React.lazy(() => import("./admin/pages/AdminFeedback"));
+const AdminSystemHealth = React.lazy(() => import("./admin/pages/AdminSystemHealth"));
+const AdminApiKeys = React.lazy(() => import("./admin/pages/AdminApiKeys"));
+const AdminAudit = React.lazy(() => import("./admin/pages/AdminAudit"));
+const AdminSettings = React.lazy(() => import("./admin/pages/AdminSettings"));
 
 
 
@@ -162,12 +171,15 @@ const App = () => (
                   <Route path="revenue/subscriptions" element={<AdminSubscriptions />} />
                   <Route path="revenue/invoices" element={<AdminInvoices />} />
                   <Route path="revenue/coupons" element={<AdminCoupons />} />
-                  <Route path="content/flags" element={<AdminPlaceholder title="Feature Flags" week={4} />} />
-                  <Route path="content/announcements" element={<AdminPlaceholder title="Announcements" week={4} />} />
-                  <Route path="support/tickets" element={<AdminPlaceholder title="Support Tickets" week={4} />} />
-                  <Route path="system/health" element={<AdminPlaceholder title="System Health" week={5} />} />
-                  <Route path="audit" element={<AdminPlaceholder title="Audit Log" week={5} />} />
-                  <Route path="settings" element={<AdminPlaceholder title="Global Settings" week={5} />} />
+                  <Route path="content/flags" element={<AdminFlags />} />
+                  <Route path="content/announcements" element={<AdminAnnouncements />} />
+                  <Route path="content/prompts" element={<AdminPrompts />} />
+                  <Route path="support/tickets" element={<AdminTickets />} />
+                  <Route path="feedback" element={<AdminFeedback />} />
+                  <Route path="system/health" element={<AdminSystemHealth />} />
+                  <Route path="system/api-keys" element={<AdminApiKeys />} />
+                  <Route path="audit" element={<AdminAudit />} />
+                  <Route path="settings" element={<AdminSettings />} />
                 </Route>
                 <Route path="/blog" element={<BlogPage />} />
                 <Route path="/case-studies" element={<CaseStudiesPage />} />

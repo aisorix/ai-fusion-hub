@@ -1,19 +1,24 @@
 # AI Sorix Admin Dashboard — Build Progress
 
-Use this file to resume the build across multiple loops. On each loop, the
-agent reads from the top, finds the first ⏳ row, builds it, and marks ✅.
-
 | Week | Scope | Status |
 |------|------|--------|
 | 1 | Foundation: auth gating, owner seed, RBAC schema, design tokens, layout shell, routes | ✅ shipped |
-| 2 | Dashboard overview KPIs + charts + user list + user profile (5 tabs) + CSV export | ✅ shipped (CSV export deferred to Week 3) |
-| 3 | AI monitor (per-feature + per-model + live feed), Revenue dashboard, Subscription manager, Invoices CSV export, Coupons CRUD | ✅ shipped (abuse panel deferred — needs rate-limit signal source) |
-| 4 | Feature flags editor, Announcements, Prompt template editor, Tickets module deepening, Feedback NPS | ⏳ next |
-| 5 | System health gauges, API key manager, full Audit timeline, Settings tabs, Polish (Framer Motion, keyboard shortcuts) | ⏳ |
+| 2 | Dashboard overview KPIs + charts + user list + user profile + CSV export | ✅ shipped |
+| 3 | AI monitor, Revenue dashboard, Subscription manager, Invoices, Coupons CRUD | ✅ shipped |
+| 4 | Feature flags, Announcements, Prompt templates (versioned), Tickets deepening, Feedback NPS | ✅ shipped |
+| 5 | System health, API keys (presence-only), full Audit timeline, Settings tabs | ✅ shipped |
 
 ## Notes
-- Stack adapted: Supabase Postgres + Edge Functions + Realtime (not Mongo/Express/Redis/Socket.io).
-- Owner account `support@aisorix.com` is seeded automatically by `admin-bootstrap` edge function on first /admin/login visit.
-- Only `*@aisorix.com` emails with an admin role row in `user_roles` can access `/admin/*`.
-- Admin role enum: `admin_super` (full) | `admin_manager` (write) | `admin_viewer` (read-only). Legacy `admin` role also treated as super.
-- All write actions log to `audit_logs`.
+- Stack: Supabase Postgres + Edge Functions + Realtime.
+- Owner `support@aisorix.com` seeded by `admin-bootstrap` on first /admin/login visit.
+- Email gating: `*@aisorix.com` + role in `user_roles`.
+- Roles: `admin_super` (full), `admin_manager` (write), `admin_viewer` (read-only). Legacy `admin` treated as super.
+- All writes audited via `_shared/adminAuth.ts` → `audit_logs`.
+- Realtime tables: `ai_events`, `feature_flags`, `announcements`.
+- Public-read RPCs (no table exposure): `get_enabled_flags()`, `get_active_announcements()`.
+
+## Deferred (intentional)
+- Real Stripe refund call — Subscriptions page stub only; needs `STRIPE_SECRET_KEY` opt-in.
+- Docker / GitHub Actions / nginx / Redis — N/A on Lovable Cloud.
+- In-admin dark-mode toggle — admin is a fixed polished light shell.
+- AI abuse panel — pending rate-limit signal source.
