@@ -158,6 +158,48 @@ export type Database = {
         }
         Relationships: []
       }
+      announcements: {
+        Row: {
+          active: boolean
+          audience: string
+          body_md: string
+          created_at: string
+          created_by: string | null
+          ends_at: string | null
+          id: string
+          severity: string
+          starts_at: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          audience?: string
+          body_md?: string
+          created_at?: string
+          created_by?: string | null
+          ends_at?: string | null
+          id?: string
+          severity?: string
+          starts_at?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          audience?: string
+          body_md?: string
+          created_at?: string
+          created_by?: string | null
+          ends_at?: string | null
+          id?: string
+          severity?: string
+          starts_at?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -206,37 +248,49 @@ export type Database = {
       chat_conversations: {
         Row: {
           assigned_employee_id: string | null
+          assignee_id: string | null
           created_at: string | null
           guest_email: string | null
           guest_name: string | null
           guest_token: string | null
           id: string
+          internal_notes: string | null
           last_message_at: string | null
+          priority: string
           status: string | null
+          tags: string[]
           updated_at: string | null
           user_id: string | null
         }
         Insert: {
           assigned_employee_id?: string | null
+          assignee_id?: string | null
           created_at?: string | null
           guest_email?: string | null
           guest_name?: string | null
           guest_token?: string | null
           id?: string
+          internal_notes?: string | null
           last_message_at?: string | null
+          priority?: string
           status?: string | null
+          tags?: string[]
           updated_at?: string | null
           user_id?: string | null
         }
         Update: {
           assigned_employee_id?: string | null
+          assignee_id?: string | null
           created_at?: string | null
           guest_email?: string | null
           guest_name?: string | null
           guest_token?: string | null
           id?: string
+          internal_notes?: string | null
           last_message_at?: string | null
+          priority?: string
           status?: string | null
+          tags?: string[]
           updated_at?: string | null
           user_id?: string | null
         }
@@ -525,6 +579,75 @@ export type Database = {
           id?: string
           token?: string
           used_at?: string | null
+        }
+        Relationships: []
+      }
+      feature_flags: {
+        Row: {
+          audience: Json
+          created_at: string
+          description: string | null
+          enabled: boolean
+          id: string
+          key: string
+          rollout_percent: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          audience?: Json
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          key: string
+          rollout_percent?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          audience?: Json
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          key?: string
+          rollout_percent?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      feedback_entries: {
+        Row: {
+          comment: string | null
+          created_at: string
+          feature: string
+          id: string
+          metadata: Json
+          nps: number | null
+          rating: number | null
+          user_id: string | null
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          feature?: string
+          id?: string
+          metadata?: Json
+          nps?: number | null
+          rating?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          feature?: string
+          id?: string
+          metadata?: Json
+          nps?: number | null
+          rating?: number | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -908,6 +1031,80 @@ export type Database = {
         }
         Relationships: []
       }
+      prompt_template_versions: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string | null
+          id: string
+          model: string | null
+          template_id: string
+          version: number
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          model?: string | null
+          template_id: string
+          version: number
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          model?: string | null
+          template_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prompt_template_versions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "prompt_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prompt_templates: {
+        Row: {
+          body: string
+          created_at: string
+          current_version: number
+          id: string
+          model: string | null
+          name: string
+          tool: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          current_version?: number
+          id?: string
+          model?: string | null
+          name: string
+          tool: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          current_version?: number
+          id?: string
+          model?: string | null
+          name?: string
+          tool?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       reviews: {
         Row: {
           created_at: string
@@ -944,6 +1141,33 @@ export type Database = {
           status?: string
           user_id?: string | null
           verified?: boolean | null
+        }
+        Relationships: []
+      }
+      secret_audit: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          created_at: string
+          id: string
+          secret_name: string
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          secret_name: string
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          secret_name?: string
         }
         Relationships: []
       }
@@ -1119,6 +1343,27 @@ export type Database = {
           id?: string
           metadata?: Json | null
           reason?: string
+        }
+        Relationships: []
+      }
+      system_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
         }
         Relationships: []
       }
@@ -1454,17 +1699,52 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_active_announcements: {
+        Args: never
+        Returns: {
+          active: boolean
+          audience: string
+          body_md: string
+          created_at: string
+          created_by: string | null
+          ends_at: string | null
+          id: string
+          severity: string
+          starts_at: string | null
+          title: string
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "announcements"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      get_enabled_flags: {
+        Args: never
+        Returns: {
+          audience: Json
+          enabled: boolean
+          key: string
+          rollout_percent: number
+        }[]
+      }
       get_guest_conversation: {
         Args: { _token: string }
         Returns: {
           assigned_employee_id: string | null
+          assignee_id: string | null
           created_at: string | null
           guest_email: string | null
           guest_name: string | null
           guest_token: string | null
           id: string
+          internal_notes: string | null
           last_message_at: string | null
+          priority: string
           status: string | null
+          tags: string[]
           updated_at: string | null
           user_id: string | null
         }[]
