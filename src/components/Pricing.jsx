@@ -714,7 +714,7 @@ const Pricing = () => {
             </div>
           </div>
         </div>
-
+      </div>
 
       {/* Payment Modal */}
       <PaymentModal
