@@ -6,17 +6,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import PaymentModal from './PaymentModal';
 
-// Payment method logos
-import sslcommerzLogo from '../assets/sslcommerz.png';
-import bkashMerchantLogo from '../assets/bkash-merchant.png';
-import stripeLogo from '../assets/stripe.png';
-import mobileBankingLogo from '../assets/mobile-banking.png';
-import dutchBanglaLogo from '../assets/dutch-bangla-bank.png';
-import bracBankLogo from '../assets/brac-bank.png';
-import mastercardLogo from '../assets/mastercard.png';
-import visaLogo from '../assets/visa.png';
-import amexLogo from '../assets/amex.png';
-
 // Model colors for badges (using colored dots like the reference)
 const modelColors = {
   'ChatGPT': 'bg-emerald-500',
