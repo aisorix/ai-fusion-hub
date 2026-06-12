@@ -139,7 +139,7 @@ const TermsOfService = () => {
       ],
     },
     {
-      title: language === "en" ? "6. Credit Usage (Fair Use)" : "৬. ক্রেডিট ব্যবহার (ফেয়ার ইউজ)",
+      title: language === "en" ? "7. Credit Usage (Fair Use)" : "৭. ক্রেডিট ব্যবহার (ফেয়ার ইউজ)",
       content: language === "en" ? "AI Sorix uses a Credit System:" : "AI Sorix একটি ক্রেডিট সিস্টেম ব্যবহার করে:",
       list: [
         {
@@ -160,7 +160,7 @@ const TermsOfService = () => {
       ],
     },
     {
-      title: language === "en" ? "7. Restrictions on Use" : "৭. ব্যবহারের সীমাবদ্ধতা",
+      title: language === "en" ? "8. Restrictions on Use" : "৮. ব্যবহারের সীমাবদ্ধতা",
       content: language === "en" ? "You may not:" : "আপনি করতে পারবেন না:",
       list: [
         {
@@ -187,7 +187,7 @@ const TermsOfService = () => {
           : "লঙ্ঘনের ফলে রিফান্ড ছাড়াই অবিলম্বে অ্যাকাউন্ট বন্ধ হবে।",
     },
     {
-      title: language === "en" ? "8. Disclaimer of Warranties" : "৮. ওয়ারেন্টি অস্বীকৃতি",
+      title: language === "en" ? "9. Disclaimer of Warranties" : "৯. ওয়ারেন্টি অস্বীকৃতি",
       content:
         language === "en"
           ? `AI Sorix provides access to third-party AI models on an "as is" basis. We do not guarantee accuracy or uninterrupted service.`
@@ -198,7 +198,7 @@ const TermsOfService = () => {
           : "আমাদের টুল ব্যবহার থেকে সৃষ্ট কোনো ক্ষতির জন্য আমরা দায়ী নই।",
     },
     {
-      title: language === "en" ? "9. Governing Law" : "৯. প্রযোজ্য আইন",
+      title: language === "en" ? "10. Governing Law" : "১০. প্রযোজ্য আইন",
       content:
         language === "en"
           ? "These Terms are governed by the laws of Bangladesh. Disputes shall be resolved within the jurisdiction of courts in Dhaka, Bangladesh."
