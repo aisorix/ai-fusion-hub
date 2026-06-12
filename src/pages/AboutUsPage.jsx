@@ -21,6 +21,7 @@ import {
   ArrowRight,
   FlaskConical,
   CheckCircle2,
+  ScrollText,
 } from "lucide-react";
 
 const tools = [
@@ -229,7 +230,40 @@ const AboutUsPage = () => {
           </div>
         </section>
 
-        {/* Meet the Team */}
+        {/* Legal & Compliance */}
+        <section className="mb-16 sm:mb-24">
+          <div className="bg-card border border-border rounded-2xl p-6 sm:p-10">
+            <div className="flex items-start gap-4 mb-6">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <ScrollText className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground">Legal & Compliance</h2>
+                <p className="text-sm text-muted-foreground mt-1">Registration & regulatory details.</p>
+              </div>
+            </div>
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
+              {[
+                { label: "Registered Entity", value: "AI Sorix (SorixLab)" },
+                { label: "Trade License No.", value: "TRAD/DNCC/000000/2025" },
+                { label: "Issuing Authority", value: "Dhaka North City Corporation" },
+                { label: "BIN / TIN", value: "000000000-0000" },
+                { label: "Registered Address", value: "House 00, Road 00, Gulshan, Dhaka 1212" },
+                { label: "Support Email", value: "support@aisorix.com" },
+              ].map((row) => (
+                <div key={row.label}>
+                  <dt className="text-xs uppercase tracking-wider text-muted-foreground mb-1">{row.label}</dt>
+                  <dd className="text-sm font-medium text-foreground">{row.value}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="text-xs text-muted-foreground mt-6 italic">
+              Placeholder values shown for layout. Official numbers will be updated after final registration.
+            </p>
+          </div>
+        </section>
+
+
         <section className="mb-16 sm:mb-24">
           <div className="bg-gradient-to-br from-primary/10 via-card to-card border border-border rounded-2xl p-6 sm:p-10 text-center">
             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">

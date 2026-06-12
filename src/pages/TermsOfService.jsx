@@ -63,46 +63,83 @@ const TermsOfService = () => {
     },
     {
       title: language === "en" ? "4. Payment Processing" : "৪. পেমেন্ট প্রক্রিয়াকরণ",
-      content: language === "en" ? "Payment methods available:" : "উপলব্ধ পেমেন্ট পদ্ধতি:",
-      list: [
-        {
-          bold: language === "en" ? "Bangladesh:" : "বাংলাদেশ:",
-          text: language === "en" ? "SSLCommerz and bKash Merchant" : "SSLCommerz এবং bKash Merchant",
-        },
-        {
-          bold: language === "en" ? "International:" : "আন্তর্জাতিক:",
-          text:
-            language === "en"
-              ? "Stripe for secure international card payments (Visa, Mastercard, AMEX)"
-              : "নিরাপদ আন্তর্জাতিক কার্ড পেমেন্টের জন্য Stripe (Visa, Mastercard, AMEX)",
-        },
-      ],
+      content:
+        language === "en"
+          ? "All paid subscriptions are processed exclusively through SSLCommerz, our PCI-DSS compliant payment partner. SSLCommerz supports all major cards (Visa, Mastercard, AMEX, UnionPay), mobile financial services (bKash, Nagad, Rocket, Upay, Tap'n Pay), and net-banking from 20+ Bangladeshi banks."
+          : "সমস্ত পেইড সাবস্ক্রিপশন একচেটিয়াভাবে আমাদের PCI-DSS সম্মত পেমেন্ট পার্টনার SSLCommerz-এর মাধ্যমে প্রক্রিয়া করা হয়। SSLCommerz সমস্ত প্রধান কার্ড (Visa, Mastercard, AMEX, UnionPay), মোবাইল ফাইন্যান্সিয়াল সার্ভিস (bKash, Nagad, Rocket, Upay, Tap'n Pay) এবং ২০+ বাংলাদেশী ব্যাংকের নেট-ব্যাংকিং সমর্থন করে।",
       note:
         language === "en"
-          ? "We accept Stripe for international payments. Failed payments may result in account suspension until the balance is cleared."
-          : "আমরা আন্তর্জাতিক পেমেন্টের জন্য Stripe গ্রহণ করি। ব্যর্থ পেমেন্টে ব্যালেন্স পরিশোধ না হওয়া পর্যন্ত অ্যাকাউন্ট স্থগিত হতে পারে।",
+          ? "Failed payments may result in account suspension until the balance is cleared. All transactions are encrypted end-to-end."
+          : "ব্যর্থ পেমেন্টে ব্যালেন্স পরিশোধ না হওয়া পর্যন্ত অ্যাকাউন্ট স্থগিত হতে পারে। সমস্ত লেনদেন এন্ড-টু-এন্ড এনক্রিপ্টেড।",
     },
     {
       title: language === "en" ? "5. Refund & Cancellation" : "৫. রিফান্ড ও বাতিলকরণ",
       list: [
         {
-          bold: language === "en" ? "No-Refund Policy:" : "নো-রিফান্ড নীতি:",
+          bold: language === "en" ? "7-Day Refund Guarantee:" : "৭ দিনের রিফান্ড গ্যারান্টি:",
           text:
             language === "en"
-              ? "All payments are non-refundable, regardless of usage."
-              : "সমস্ত পেমেন্ট অ-ফেরতযোগ্য, ব্যবহার নির্বিশেষে।",
+              ? "New paid subscriptions are eligible for a refund within 7 days if usage stays at or below 10% of the monthly quota and no premium tool exports have been generated. See our Refund Policy for full details."
+              : "নতুন পেইড সাবস্ক্রিপশন ৭ দিনের মধ্যে রিফান্ডের যোগ্য যদি ব্যবহার মাসিক কোটার ১০% বা তার কম থাকে এবং কোনো প্রিমিয়াম টুল এক্সপোর্ট তৈরি না হয়। সম্পূর্ণ বিস্তারিত জানতে আমাদের রিফান্ড নীতি দেখুন।",
         },
         {
           bold: language === "en" ? "Cancellation:" : "বাতিলকরণ:",
           text:
             language === "en"
-              ? "You may cancel anytime. You retain access until your billing cycle ends."
-              : "আপনি যেকোনো সময় বাতিল করতে পারেন। আপনার বিলিং চক্র শেষ না হওয়া পর্যন্ত অ্যাক্সেস থাকবে।",
+              ? "You may cancel anytime from Settings → Plans. You retain access until your current billing cycle ends."
+              : "আপনি Settings → Plans থেকে যেকোনো সময় বাতিল করতে পারেন। আপনার বর্তমান বিলিং চক্র শেষ না হওয়া পর্যন্ত অ্যাক্সেস থাকবে।",
         },
       ],
     },
     {
-      title: language === "en" ? "6. Credit Usage (Fair Use)" : "৬. ক্রেডিট ব্যবহার (ফেয়ার ইউজ)",
+      title:
+        language === "en"
+          ? "6. Subscription Auto-Renewal"
+          : "৬. সাবস্ক্রিপশন স্বয়ংক্রিয় নবায়ন",
+      content:
+        language === "en"
+          ? "Paid subscriptions renew automatically so your service is never interrupted. By subscribing, you authorize AI Sorix and SSLCommerz to charge your selected payment method on each renewal date."
+          : "পেইড সাবস্ক্রিপশন স্বয়ংক্রিয়ভাবে নবায়ন হয় যাতে আপনার সেবা কখনও বিঘ্নিত না হয়। সাবস্ক্রাইব করে, আপনি প্রতিটি নবায়ন তারিখে আপনার নির্বাচিত পেমেন্ট পদ্ধতি চার্জ করার জন্য AI Sorix এবং SSLCommerz-কে অনুমোদন দেন।",
+      list: [
+        {
+          bold: language === "en" ? "Renewal Cycle:" : "নবায়ন চক্র:",
+          text:
+            language === "en"
+              ? "Monthly plans renew every 30 days; yearly plans renew every 365 days at the then-current published price."
+              : "মাসিক প্ল্যান প্রতি ৩০ দিনে নবায়ন হয়; বার্ষিক প্ল্যান প্রতি ৩৬৫ দিনে তখনকার প্রকাশিত মূল্যে নবায়ন হয়।",
+        },
+        {
+          bold: language === "en" ? "Cancelling Auto-Renewal:" : "স্বয়ংক্রিয় নবায়ন বাতিলকরণ:",
+          text:
+            language === "en"
+              ? "You can disable auto-renewal at any time from Settings → Plans. Cancellation takes effect at the end of the current cycle — no further charges will be made."
+              : "আপনি Settings → Plans থেকে যেকোনো সময় স্বয়ংক্রিয় নবায়ন নিষ্ক্রিয় করতে পারেন। বাতিলকরণ বর্তমান চক্রের শেষে কার্যকর হয় — আর কোনো চার্জ হবে না।",
+        },
+        {
+          bold: language === "en" ? "Price Changes:" : "মূল্য পরিবর্তন:",
+          text:
+            language === "en"
+              ? "We give at least 30 days' written notice (via email) before any renewal price change."
+              : "যেকোনো নবায়ন মূল্য পরিবর্তনের আগে আমরা কমপক্ষে ৩০ দিনের লিখিত নোটিশ (ইমেইলের মাধ্যমে) দিই।",
+        },
+        {
+          bold: language === "en" ? "Failed Renewal:" : "ব্যর্থ নবায়ন:",
+          text:
+            language === "en"
+              ? "If a renewal charge fails, you receive a 3-day grace period to update your payment method before being downgraded to the Free plan."
+              : "নবায়ন চার্জ ব্যর্থ হলে, ফ্রি প্ল্যানে ডাউনগ্রেড হওয়ার আগে আপনি পেমেন্ট পদ্ধতি আপডেট করার জন্য ৩-দিনের গ্রেস পিরিয়ড পান।",
+        },
+        {
+          bold: language === "en" ? "Consent at Checkout:" : "চেকআউটে সম্মতি:",
+          text:
+            language === "en"
+              ? "By ticking the consent box at checkout, you confirm you have read and agree to this auto-renewal arrangement along with our Privacy and Refund policies."
+              : "চেকআউটে সম্মতি বক্সে টিক দিয়ে, আপনি নিশ্চিত করেন যে আপনি এই স্বয়ংক্রিয় নবায়ন ব্যবস্থা এবং আমাদের প্রাইভেসি ও রিফান্ড নীতি পড়েছেন এবং সম্মত হয়েছেন।",
+        },
+      ],
+    },
+    {
+      title: language === "en" ? "7. Credit Usage (Fair Use)" : "৭. ক্রেডিট ব্যবহার (ফেয়ার ইউজ)",
       content: language === "en" ? "AI Sorix uses a Credit System:" : "AI Sorix একটি ক্রেডিট সিস্টেম ব্যবহার করে:",
       list: [
         {
@@ -123,7 +160,7 @@ const TermsOfService = () => {
       ],
     },
     {
-      title: language === "en" ? "7. Restrictions on Use" : "৭. ব্যবহারের সীমাবদ্ধতা",
+      title: language === "en" ? "8. Restrictions on Use" : "৮. ব্যবহারের সীমাবদ্ধতা",
       content: language === "en" ? "You may not:" : "আপনি করতে পারবেন না:",
       list: [
         {
@@ -150,7 +187,7 @@ const TermsOfService = () => {
           : "লঙ্ঘনের ফলে রিফান্ড ছাড়াই অবিলম্বে অ্যাকাউন্ট বন্ধ হবে।",
     },
     {
-      title: language === "en" ? "8. Disclaimer of Warranties" : "৮. ওয়ারেন্টি অস্বীকৃতি",
+      title: language === "en" ? "9. Disclaimer of Warranties" : "৯. ওয়ারেন্টি অস্বীকৃতি",
       content:
         language === "en"
           ? `AI Sorix provides access to third-party AI models on an "as is" basis. We do not guarantee accuracy or uninterrupted service.`
@@ -161,7 +198,7 @@ const TermsOfService = () => {
           : "আমাদের টুল ব্যবহার থেকে সৃষ্ট কোনো ক্ষতির জন্য আমরা দায়ী নই।",
     },
     {
-      title: language === "en" ? "9. Governing Law" : "৯. প্রযোজ্য আইন",
+      title: language === "en" ? "10. Governing Law" : "১০. প্রযোজ্য আইন",
       content:
         language === "en"
           ? "These Terms are governed by the laws of Bangladesh. Disputes shall be resolved within the jurisdiction of courts in Dhaka, Bangladesh."
@@ -278,7 +315,7 @@ const TermsOfService = () => {
             {/* Contact Section */}
             <article className="bg-gradient-to-br from-primary/10 via-cyan-500/5 to-background border border-primary/20 rounded-xl p-5 sm:p-6 lg:p-8 shadow-sm">
               <h2 className="text-lg sm:text-xl font-bold text-foreground mb-3">
-                {language === "en" ? "10. Contact Us" : "১০. যোগাযোগ করুন"}
+                {language === "en" ? "11. Contact Us" : "১১. যোগাযোগ করুন"}
               </h2>
               <p className="text-muted-foreground text-sm sm:text-base mb-5">
                 {language === "en"

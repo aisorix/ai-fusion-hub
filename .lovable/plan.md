@@ -1,96 +1,65 @@
-# Admin Dashboard — Weeks 4 + 5 (Final Loop)
+# Compliance & Payments Polish
 
-Resumes from `.lovable/admin-progress.md`. Everything mounts under the existing `/admin` `AdminGuard` + `AdminLayout`, inheriting `@aisorix.com` gating, RBAC (`admin_super` / `admin_manager` / `admin_viewer`), and audit logging via `_shared/adminAuth.ts`.
+Scope: landing/pricing, footer, about, payment modal, refund policy, T&C — all bilingual (EN/BN), professional.
 
----
+## 1. Landing page — remove "We Accept Multiple Payment Methods" section
+- `src/components/Pricing.jsx` (≈ lines 730–860): delete the entire "Secure Payments" block (header + gateway cards + accepted methods grid). Keep pricing tiers + FAQ.
 
-## Week 4 — Content, Support, Feedback
+## 2. Footer — add SSLCommerz "Pay With" strip (image 2)
+- `src/components/Footer.jsx`: add a new bottom row above the copyright line showing the SSLCommerz-verified payment-methods strip.
+- Save the uploaded image (image-340.png) as a Lovable asset: `src/assets/sslcommerz-paywith.png.asset.json` via `lovable-assets create` (no binary in repo).
+- Render as a single responsive `<img>` with alt "Verified by SSLCommerz — accepted payment methods", `loading="lazy"`, bordered card, light bg so the strip reads on dark footer.
 
-### Migration 1 (single file)
-- `feature_flags` (key unique, description, enabled, rollout_percent, audience jsonb, updated_by, timestamps)
-- `announcements` (title, body_md, severity, audience, starts_at, ends_at, active)
-- `prompt_templates` (tool unique, name, body, model, updated_by) + `prompt_template_versions` (template_id, version, body, created_by)
-- `feedback_entries` (user_id, feature, rating 1-5, nps 0-10, comment, metadata)
-- Extend `chat_conversations`: add `status` (open/pending/resolved/closed), `priority` (low/normal/high/urgent), `assignee_id uuid`, `tags text[]`, `internal_notes text`.
-- All tables: GRANT to authenticated + service_role, ENABLE RLS, admin-only write via `is_admin_user(auth.uid())`.
-- Public-read helpers (SECURITY DEFINER): `get_active_announcements()`, `get_enabled_flags()` — so the marketing app can read without exposing the table.
-- Add `feature_flags` and `announcements` to `supabase_realtime` publication.
+## 3. About Us — Trade License section
+- `src/pages/AboutUsPage.jsx`: add a "Legal & Compliance" card with placeholder fields (user will edit later):
+  - Trade License No: `TRAD/DNCC/XXXXXX/2025`
+  - Issuing Authority: Dhaka North City Corporation
+  - BIN/TIN: `XXXXXXXXX-XXXX`
+  - Registered Address: placeholder
+- Bilingual labels, small print "Subject to update".
 
-### Edge functions
-- `admin-flags-crud` (list/upsert/delete + audit)
-- `admin-announcements-crud`
-- `admin-prompts-crud` (writes new row to `prompt_template_versions` on every update)
-- `admin-tickets-update` (status/priority/assignee/tags/internal_notes on `chat_conversations` + audit)
-- `admin-feedback-list` (aggregates NPS, rating distribution, recent comments)
+## 4. Refund Policy — switch to "7-Day Usage-Based Guarantee"
+- `src/pages/RefundPolicy.jsx`: rewrite section 2 from "No-Refund" to **"7-Day Refund Guarantee"**:
+  - Full refund within 7 days of purchase **if usage is under a defined threshold** (≤ 10% of monthly token/credit quota AND no premium tool export).
+  - After 7 days OR threshold exceeded → non-refundable.
+  - Yearly plans: pro-rata refund within 7 days only.
+  - Coupons / promo purchases: non-refundable.
+- Update related sections (cancellation, exceptions) for consistency. Keep bilingual.
 
-### Pages
-- `/admin/content/flags` — toggle table, inline rollout % slider, audience JSON editor.
-- `/admin/content/announcements` — CRUD with markdown preview, severity pills, schedule pickers.
-- `/admin/content/prompts` — left list (tools), right editor with version history drawer.
-- `/admin/support/tickets` — list (filter status/priority/assignee) + detail drawer with reply (reuses existing `chat_messages`), status/priority/assignee controls, internal notes.
-- `/admin/feedback` — NPS score card, rating histogram, recent comments feed.
+## 5. Payment system — SSLCommerz only
+- `src/components/PaymentModal.tsx`: remove bKash and Stripe gateway cards + their handler branches. Auto-select SSLCommerz (no selector needed if only one) — keep a single branded card so users see what's used.
+- Update copy: "Secure checkout via SSLCommerz".
+- Do NOT delete `bkash-payment` / `stripe-payment` edge functions (left dormant for future).
+- Pricing currency stays BDT.
 
-### Hooks
-- `useFeatureFlag(key)` — public-read via `get_enabled_flags()` RPC, cached + Realtime subscription.
-- `useAdminRealtime(table, filter?)` — generic helper used by Live Feed, Flags, Tickets list.
+## 6. Coupon code field in PaymentModal
+- Add an "Have a coupon? (optional)" collapsible input above the Pay button.
+- On submit, call existing `coupons` table via a new lightweight edge function `validate-coupon` (reads code, returns `{valid, discount_type, discount_value, final_amount}`); if `coupons` table query is sufficient with RLS, do client-side `.select().eq('code', x).eq('is_active', true)` from `supabase` with anon — confirm RLS allows read of active coupons; otherwise edge fn.
+- Apply discount to `totalPrice` before passing to SSLCommerz; pass `coupon_code` in payment metadata so webhook records it.
+- Show applied discount line in plan summary; allow remove.
 
----
+## 7. Checkout consent tickbox (T&C / Refund / Privacy)
+- In `PaymentModal.tsx`, above Pay button add a required checkbox:
+  - EN: "I have read and agree to the [Terms & Conditions], [Refund Policy], and [Privacy Policy]. I understand my subscription will auto-renew unless cancelled."
+  - BN equivalent.
+  - Links open `/terms`, `/refund-policy`, `/privacy-policy` in new tab.
+- Pay button disabled until checked. Validate on click with toast.
 
-## Week 5 — System, Audit, Settings, Polish
+## 8. Terms & Conditions — auto-renewal clause
+- `src/pages/TermsOfService.jsx`: add/extend a "Subscription & Auto-Renewal" section:
+  - Subscriptions renew automatically at end of billing cycle at then-current price.
+  - User can cancel anytime from Settings → Plans before renewal date.
+  - Failed renewal → 3-day grace, then downgrade to Free.
+  - Bilingual.
 
-### Migration 2 (single file)
-- `system_settings` (key unique, value jsonb, updated_by, updated_at) — seeded with `general`, `branding`, `email`, `limits`, `integrations` rows.
-- `secret_audit` (secret_name, action enum: rotated/viewed_presence, actor_id, created_at).
-- Admin-only RLS.
+## Out of scope (deliberate)
+- No DB migrations (coupons table already exists).
+- bKash/Stripe edge functions left in place (dormant).
+- No changes to admin dashboard.
 
-### Edge functions
-- `admin-system-health` — pings Lovable AI Gateway + OpenRouter, measures DB round-trip, computes last-hour error rate from `ai_events`, reads storage usage from `storage.objects`.
-- `admin-secrets-list` — hardcoded allow-list of expected secret names; returns `{ name, present: boolean, last_rotated }`. Never returns values. Logs `viewed_presence` to `secret_audit`.
-- `admin-audit-list` — paginated, filterable (actor, action, resource, severity, date range).
-- `admin-settings-get`, `admin-settings-update` — JSON patch per key, full audit + previous/new diff.
+## Files touched
+- edit: `src/components/Pricing.jsx`, `src/components/Footer.jsx`, `src/pages/AboutUsPage.jsx`, `src/pages/RefundPolicy.jsx`, `src/pages/TermsOfService.jsx`, `src/components/PaymentModal.tsx`
+- new: `src/assets/sslcommerz-paywith.png.asset.json`
+- maybe new: `supabase/functions/validate-coupon/index.ts` (only if RLS blocks anon coupon reads)
 
-### Pages
-- `/admin/system/health` — 5 gauge cards (AI Gateway, OpenRouter, DB, Edge Functions error rate, Storage), auto-refresh 30s.
-- `/admin/system/api-keys` — table of expected secrets with presence dot + last-rotated date + "Manage in Settings" deep-link. No values ever rendered.
-- `/admin/audit` — DataTable with filter bar; row click opens drawer with JsonDiff (previous_value vs new_value).
-- `/admin/settings` — tabs: General, Branding (logo upload to existing `profile-avatars` bucket), Email, Limits, Integrations.
-
-### Shared admin components
-- `src/admin/components/`: `DataTable.tsx` (sort/paginate/filter wrapper around shadcn Table), `ChartCard.tsx`, `ConfirmDialog.tsx`, `JsonDiff.tsx`, `StatusPill.tsx`, `EmptyState.tsx`.
-
-### Polish
-- Framer Motion: route fade/slide transition wrapper on `<Outlet />`, staggered KpiCard mount.
-- Keyboard shortcuts (global in `AdminLayout`): `g d` Dashboard, `g u` Users, `g r` Revenue, `g a` Audit, `?` cheat-sheet modal.
-- Empty states with lucide illustrations on every list page.
-- Print CSS for `/admin/revenue/invoices` and `/admin/audit` detail.
-- Dark-mode pass: ensure all admin pages respect existing `data-admin-theme` light shell (no dark-mode toggle inside admin — explicitly out of scope; admin is always the polished light theme).
-
----
-
-## Routing changes
-`src/App.jsx`: replace the remaining `AdminPlaceholder` routes with real imports for:
-`content/flags`, `content/announcements`, `content/prompts`, `support/tickets`, `feedback`, `system/health`, `system/api-keys`, `audit`, `settings`.
-
-Sidebar (`AdminLayout.tsx`): add `Content › Prompts`, `Support › Tickets` already present, `System › API Keys`, `Audit Log` already present, `Feedback` new entry under SUPPORT.
-
----
-
-## Deliberately deferred (called out, not built)
-- Real Stripe refund call (still a stub on the Subscriptions page from Week 3).
-- Docker / GitHub Actions / nginx / Redis — irrelevant on Lovable Cloud.
-- Per-IP rate limiting at gateway — platform-handled.
-- In-admin dark-mode toggle — admin is a fixed light shell by design.
-
----
-
-## Progress file
-On completion, mark Weeks 4 + 5 ✅ in `.lovable/admin-progress.md`.
-
-## File count estimate
-- 2 migrations
-- 11 edge functions
-- 11 admin pages
-- 6 shared admin components + 2 hooks
-- ~3 edits (`App.jsx`, `AdminLayout.tsx`, progress file)
-
-Approve and I'll build it end-to-end in this loop. If credits run low partway, the progress file will record the last completed module so the next loop resumes cleanly.
+Ready to implement on approval.
