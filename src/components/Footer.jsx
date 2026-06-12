@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import logo from "../assets/logo.png";
+import sslcommerzPayWith from "../assets/sslcommerz-paywith.png.asset.json";
 
 const Footer = () => {
   const { t } = useLanguage();
@@ -518,6 +519,18 @@ const Footer = () => {
                 </Link>
               </li>
             </ul>
+          </div>
+        </div>
+
+        {/* SSLCommerz Pay With strip */}
+        <div className="mt-10 sm:mt-12">
+          <div className="rounded-2xl bg-white border border-border/60 p-3 sm:p-4 shadow-sm">
+            <img
+              src={sslcommerzPayWith.url}
+              alt="Verified by SSLCommerz — accepted payment methods including Visa, Mastercard, American Express, UnionPay, bKash, Nagad, Rocket, Upay, Tap'n Pay, BRAC Bank, Bank Asia, AB Bank, MTB, Dutch-Bangla Bank NEXUS, Islami Wallet, iPay, and more"
+              loading="lazy"
+              className="w-full h-auto object-contain"
+            />
           </div>
         </div>
 
