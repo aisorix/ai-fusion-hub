@@ -32,38 +32,52 @@ const RefundPolicy = () => {
           : "এই রিফান্ড ও বাতিলকরণ নীতি AI Sorix সেবার জন্য পেমেন্ট, রিফান্ড এবং সাবস্ক্রিপশন বাতিলকরণ সম্পর্কে আমাদের নীতিগুলো বর্ণনা করে। আমাদের সেবায় সাবস্ক্রাইব করে, আপনি এই নীতিতে সম্মত হন।",
     },
     {
-      title: language === "en" ? "2. No-Refund Policy" : "২. নো-রিফান্ড নীতি",
+      title: language === "en" ? "2. 7-Day Refund Guarantee (Usage-Based)" : "২. ৭ দিনের রিফান্ড গ্যারান্টি (ব্যবহার-ভিত্তিক)",
       content:
         language === "en"
-          ? "Due to the digital nature of our AI services, all payments made to AI Sorix are final and non-refundable."
-          : "আমাদের AI সেবার ডিজিটাল প্রকৃতির কারণে, AI Sorix-এ করা সমস্ত পেমেন্ট চূড়ান্ত এবং অ-ফেরতযোগ্য।",
+          ? "We offer a 7-day refund guarantee on new paid subscriptions, provided your usage stays within the eligibility limits below. This protects you if the service doesn't fit your needs, while preventing abuse of premium AI compute."
+          : "আমরা নতুন পেইড সাবস্ক্রিপশনে ৭ দিনের রিফান্ড গ্যারান্টি অফার করি, যদি আপনার ব্যবহার নিচের যোগ্যতার সীমার মধ্যে থাকে। এটি আপনাকে রক্ষা করে যদি সেবাটি আপনার চাহিদা পূরণ না করে, পাশাপাশি প্রিমিয়াম AI কম্পিউট অপব্যবহার প্রতিরোধ করে।",
       list: [
         {
-          bold: language === "en" ? "Subscription Fees:" : "সাবস্ক্রিপশন ফি:",
+          bold: language === "en" ? "Time Window:" : "সময়সীমা:",
           text:
             language === "en"
-              ? "Monthly and yearly subscription payments are non-refundable."
-              : "মাসিক এবং বার্ষিক সাবস্ক্রিপশন পেমেন্ট অ-ফেরতযোগ্য।",
+              ? "Refund must be requested within 7 calendar days of the original purchase."
+              : "মূল ক্রয়ের ৭ ক্যালেন্ডার দিনের মধ্যে রিফান্ডের অনুরোধ করতে হবে।",
         },
         {
-          bold: language === "en" ? "Credit Top-ups:" : "ক্রেডিট টপ-আপ:",
+          bold: language === "en" ? "Usage Threshold:" : "ব্যবহারের সীমা:",
           text:
             language === "en"
-              ? "Purchased credits cannot be refunded or transferred."
-              : "ক্রয়কৃত ক্রেডিট ফেরত বা স্থানান্তর করা যাবে না।",
+              ? "Total usage must be at or below 10% of your plan's monthly token / credit quota, and no premium tool exports (Deck, FlowBuilder, Imagine, Cineshoot, voice synthesis) may have been generated."
+              : "মোট ব্যবহার আপনার প্ল্যানের মাসিক টোকেন / ক্রেডিট কোটার ১০% বা তার কম হতে হবে, এবং কোনো প্রিমিয়াম টুল এক্সপোর্ট (Deck, FlowBuilder, Imagine, Cineshoot, ভয়েস সিন্থেসিস) তৈরি করা যাবে না।",
         },
         {
-          bold: language === "en" ? "Partial Usage:" : "আংশিক ব্যবহার:",
+          bold: language === "en" ? "Yearly Plans:" : "বার্ষিক প্ল্যান:",
           text:
             language === "en"
-              ? "Refunds are not provided for unused portions of subscriptions."
-              : "সাবস্ক্রিপশনের অব্যবহৃত অংশের জন্য রিফান্ড দেওয়া হয় না।",
+              ? "Eligible for a pro-rata refund within the same 7-day window, subject to the usage threshold above."
+              : "একই ৭-দিনের উইন্ডোতে আনুপাতিক রিফান্ডের জন্য যোগ্য, উপরের ব্যবহার সীমা সাপেক্ষে।",
+        },
+        {
+          bold: language === "en" ? "Coupons & Promo Purchases:" : "কুপন ও প্রমো ক্রয়:",
+          text:
+            language === "en"
+              ? "Discounted, promotional, or coupon-based purchases are non-refundable."
+              : "ডিসকাউন্টেড, প্রমোশনাল বা কুপন-ভিত্তিক ক্রয় অ-ফেরতযোগ্য।",
+        },
+        {
+          bold: language === "en" ? "After 7 Days:" : "৭ দিনের পরে:",
+          text:
+            language === "en"
+              ? "All payments become final and non-refundable once the window closes or the usage threshold is exceeded."
+              : "উইন্ডো বন্ধ হলে বা ব্যবহার সীমা অতিক্রম করলে সমস্ত পেমেন্ট চূড়ান্ত এবং অ-ফেরতযোগ্য হয়ে যায়।",
         },
       ],
-      warning:
+      note:
         language === "en"
-          ? "All sales are final. Please review our plans carefully before purchasing."
-          : "সমস্ত বিক্রয় চূড়ান্ত। ক্রয়ের আগে অনুগ্রহ করে আমাদের প্ল্যান সাবধানে পর্যালোচনা করুন।",
+          ? "Approved refunds are processed back to the original payment method within 5–10 business days via SSLCommerz."
+          : "অনুমোদিত রিফান্ড SSLCommerz-এর মাধ্যমে ৫–১০ কার্যদিবসের মধ্যে মূল পেমেন্ট পদ্ধতিতে প্রক্রিয়া করা হয়।",
     },
     {
       title: language === "en" ? "3. Subscription Cancellation" : "৩. সাবস্ক্রিপশন বাতিলকরণ",
@@ -278,11 +292,11 @@ const RefundPolicy = () => {
 
   const keyPolicies = [
     {
-      icon: XCircle,
-      title: language === "en" ? "No Refunds" : "কোনো রিফান্ড নেই",
+      icon: RefreshCw,
+      title: language === "en" ? "7-Day Refund" : "৭ দিনের রিফান্ড",
       description:
-        language === "en" ? "All payments are final and non-refundable" : "সমস্ত পেমেন্ট চূড়ান্ত এবং অ-ফেরতযোগ্য",
-      color: "from-red-500/20 to-red-600/10",
+        language === "en" ? "Usage-based guarantee on new purchases" : "নতুন ক্রয়ে ব্যবহার-ভিত্তিক গ্যারান্টি",
+      color: "from-emerald-500/20 to-emerald-600/10",
     },
     {
       icon: Clock,
@@ -291,13 +305,13 @@ const RefundPolicy = () => {
         language === "en"
           ? "Access continues until billing cycle ends"
           : "বিলিং চক্র শেষ না হওয়া পর্যন্ত অ্যাক্সেস থাকে",
-      color: "from-emerald-500/20 to-emerald-600/10",
+      color: "from-blue-500/20 to-blue-600/10",
     },
     {
       icon: ShieldCheck,
       title: language === "en" ? "Secure Payments" : "নিরাপদ পেমেন্ট",
-      description: language === "en" ? "SSLCommerz, bKash & Stripe protected" : "SSLCommerz, bKash ও Stripe সুরক্ষিত",
-      color: "from-blue-500/20 to-blue-600/10",
+      description: language === "en" ? "SSLCommerz protected checkout" : "SSLCommerz সুরক্ষিত চেকআউট",
+      color: "from-cyan-500/20 to-cyan-600/10",
     },
     {
       icon: RefreshCw,
