@@ -315,7 +315,7 @@ const TermsOfService = () => {
             {/* Contact Section */}
             <article className="bg-gradient-to-br from-primary/10 via-cyan-500/5 to-background border border-primary/20 rounded-xl p-5 sm:p-6 lg:p-8 shadow-sm">
               <h2 className="text-lg sm:text-xl font-bold text-foreground mb-3">
-                {language === "en" ? "10. Contact Us" : "১০. যোগাযোগ করুন"}
+                {language === "en" ? "11. Contact Us" : "১১. যোগাযোগ করুন"}
               </h2>
               <p className="text-muted-foreground text-sm sm:text-base mb-5">
                 {language === "en"
