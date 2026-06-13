@@ -67,24 +67,27 @@ const AboutUsPage = () => {
         path="/about-us"
       />
       <Helmet>
-        <script type="application/ld+json">{JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Organization",
-          "name": "AI Sorix",
-          "url": "https://www.aisorix.com",
-          "logo": "https://www.aisorix.com/og-image.png",
-          "sameAs": [
-            "https://facebook.com/profile.php?id=61586687081259",
-            "https://instagram.com/aisorix_",
-            "https://twitter.com/aisorix_",
-            "https://linkedin.com/company/aisorix",
-            "https://youtube.com/@aisorix",
-          ],
-          "description": "Global AI workspace providing unified access to 10+ frontier AI models including GPT-5, Claude, Gemini, DeepSeek, and Grok.",
-          "foundingLocation": "Bangladesh",
-          "areaServed": "Worldwide",
-          "email": "support@aisorix.com",
-        })}</script>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "AI Sorix",
+            url: "https://www.aisorix.com",
+            logo: "https://www.aisorix.com/og-image.png",
+            sameAs: [
+              "https://facebook.com/profile.php?id=61586687081259",
+              "https://instagram.com/aisorix_",
+              "https://twitter.com/aisorix_",
+              "https://linkedin.com/company/aisorix",
+              "https://youtube.com/@aisorix",
+            ],
+            description:
+              "Global AI workspace providing unified access to 10+ frontier AI models including GPT-5, Claude, Gemini, DeepSeek, and Grok.",
+            foundingLocation: "Bangladesh",
+            areaServed: "Worldwide",
+            email: "support@aisorix.com",
+          })}
+        </script>
       </Helmet>
 
       <Navbar />
@@ -100,8 +103,8 @@ const AboutUsPage = () => {
             The Global AI Workspace
           </h1>
           <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            AI Sorix unifies the world's most powerful AI models into a single, secure, beautifully-designed
-            workspace — so anyone, anywhere can think, create, and ship faster.
+            AI Sorix unifies the world's most powerful AI models into a single, secure, beautifully-designed workspace —
+            so anyone, anywhere can think, create, and ship faster.
           </p>
         </section>
 
@@ -111,9 +114,9 @@ const AboutUsPage = () => {
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">Our Mission</h2>
               <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-4">
-                We believe frontier AI shouldn't be locked behind multiple expensive subscriptions or limited to
-                Silicon Valley. AI Sorix gives every student, freelancer, founder, researcher, and creator
-                worldwide unified access to GPT-5, Claude, Gemini, DeepSeek, Grok, and more — in one place.
+                We believe frontier AI shouldn't be locked behind multiple expensive subscriptions or limited to Silicon
+                Valley. AI Sorix gives every student, freelancer, founder, researcher, and creator worldwide unified
+                access to GPT-5, Claude, Gemini, DeepSeek, Grok, and more — in one place.
               </p>
               <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
                 Our vision: a zero-trust, multilingual, globally-accessible AI ecosystem that just works.
@@ -143,14 +146,16 @@ const AboutUsPage = () => {
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-6 text-center">Our Story</h2>
           <div className="bg-card border border-border rounded-2xl p-6 sm:p-10">
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-4">
-              AI Sorix was born inside <Link to="/about-sorix-lab" className="text-primary hover:underline font-medium">SorixLab</Link>,
-              our parent R&D laboratory, with a single observation: developers and creators in emerging markets
-              were paying 5–7 different AI subscriptions just to access the tools their global counterparts used
-              casually.
+              AI Sorix was born inside{" "}
+              <Link to="/about-sorix-lab" className="text-primary hover:underline font-medium">
+                SorixLab
+              </Link>
+              , our parent R&D laboratory, with a single observation: developers and creators in emerging markets were
+              paying 5–7 different AI subscriptions just to access the tools their global counterparts used casually.
             </p>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-4">
-              We built AI Sorix to fix that. One workspace. Ten frontier models. Real tools — not toys.
-              Multilingual by default. Affordable for individuals. Powerful enough for teams.
+              We built AI Sorix to fix that. One workspace. Ten frontier models. Real tools — not toys. Multilingual by
+              default. Affordable for individuals. Powerful enough for teams.
             </p>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
               Today, AI Sorix powers thousands of professionals, students, freelancers, and small teams across
@@ -169,7 +174,10 @@ const AboutUsPage = () => {
             {tools.map((tool) => {
               const Icon = tool.icon;
               return (
-                <div key={tool.name} className="bg-card border border-border rounded-xl p-4 hover:border-primary/40 transition-colors">
+                <div
+                  key={tool.name}
+                  className="bg-card border border-border rounded-xl p-4 hover:border-primary/40 transition-colors"
+                >
                   <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
                     <Icon className="w-4.5 h-4.5 text-primary" />
                   </div>
@@ -244,11 +252,9 @@ const AboutUsPage = () => {
             </div>
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
               {[
-                { label: "Registered Entity", value: "AI Sorix (SorixLab)" },
+                { label: "Registered Entity", value: "AI Sorix Limited (SorixLab)" },
                 { label: "Trade License No.", value: "TRAD/DNCC/000000/2025" },
-                { label: "Issuing Authority", value: "Dhaka North City Corporation" },
-                { label: "BIN / TIN", value: "000000000-0000" },
-                { label: "Registered Address", value: "House 00, Road 00, Gulshan, Dhaka 1212" },
+                { label: "Registered Address", value: "Uttara, Dhaka 1230" },
                 { label: "Support Email", value: "support@aisorix.com" },
               ].map((row) => (
                 <div key={row.label}>
@@ -262,7 +268,6 @@ const AboutUsPage = () => {
             </p>
           </div>
         </section>
-
 
         <section className="mb-16 sm:mb-24">
           <div className="bg-gradient-to-br from-primary/10 via-card to-card border border-border rounded-2xl p-6 sm:p-10 text-center">
