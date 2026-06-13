@@ -1,5 +1,18 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, GraduationCap, Trophy, Users, BookOpen, CheckCircle2, XCircle, Sparkles, Globe, Zap, Award, Clock } from "lucide-react";
+import {
+  ArrowRight,
+  GraduationCap,
+  Trophy,
+  Users,
+  BookOpen,
+  CheckCircle2,
+  XCircle,
+  Sparkles,
+  Globe,
+  Zap,
+  Award,
+  Clock,
+} from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -17,34 +30,88 @@ const losses = [
   { title: "Career stalls", desc: "Roles that don't use AI are being restructured across every industry." },
   { title: "Output gap widens", desc: "AI-fluent peers ship 3–5x more in the same hours, every week." },
   { title: "Decisions get slower", desc: "Without AI, research, analysis, and writing eat your whole calendar." },
-  { title: "Skills compound elsewhere", desc: "Every month you wait, the people who started already get further ahead." },
+  {
+    title: "Skills compound elsewhere",
+    desc: "Every month you wait, the people who started already get further ahead.",
+  },
 ];
 
 const gains = [
-  { title: "Compounding leverage", desc: "AI gives back hours every day. Those hours become the highest-leverage work you do." },
-  { title: "Stronger market position", desc: "AI-fluent professionals are the most-recruited segment of the global workforce." },
+  {
+    title: "Compounding leverage",
+    desc: "AI gives back hours every day. Those hours become the highest-leverage work you do.",
+  },
+  {
+    title: "Stronger market position",
+    desc: "AI-fluent professionals are the most-recruited segment of the global workforce.",
+  },
   { title: "Better decisions, faster", desc: "Research, synthesis, and writing happen in minutes, not afternoons." },
-  { title: "Frontier-ready", desc: "You stay current as models change instead of falling another generation behind each quarter." },
+  {
+    title: "Frontier-ready",
+    desc: "You stay current as models change instead of falling another generation behind each quarter.",
+  },
 ];
 
 const offerings = [
-  { num: "01", icon: GraduationCap, title: "Self-paced Courses", desc: "Six structured courses from prompt fundamentals to LLM Ops, taught by the AI Sorix team.", to: "#courses", active: true },
-  { num: "02", icon: Trophy, title: "AI & Funding Competitions", desc: "Quarterly Build Challenge and SorixLab Startup Funding Competition — cash, credits, and mentorship.", to: "/competitions", active: true },
-  { num: "03", icon: Users, title: "1:1 Mentorship", desc: "Hand-matched mentors from the AI Sorix engineering and product team.", to: null, active: false, soon: "Coming soon" },
-  { num: "04", icon: BookOpen, title: "eBooks & Resources", desc: "Field-tested playbooks, prompt libraries, and reference architectures.", to: null, active: false, soon: "Coming soon" },
+  {
+    num: "01",
+    icon: GraduationCap,
+    title: "Self-paced Courses",
+    desc: "Six structured courses from prompt fundamentals to LLM Ops, taught by the AI Sorix team.",
+    to: "#courses",
+    active: true,
+  },
+  {
+    num: "02",
+    icon: Trophy,
+    title: "AI & Funding Competitions",
+    desc: "Quarterly Build Challenge and SorixLab Startup Funding Competition — cash, credits, and mentorship.",
+    to: "/competitions",
+    active: true,
+  },
+  {
+    num: "03",
+    icon: Users,
+    title: "1:1 Mentorship",
+    desc: "Hand-matched mentors from the AI Sorix engineering and product team.",
+    to: null,
+    active: false,
+    soon: "Coming soon",
+  },
+  {
+    num: "04",
+    icon: BookOpen,
+    title: "eBooks & Resources",
+    desc: "Field-tested playbooks, prompt libraries, and reference architectures.",
+    to: null,
+    active: false,
+    soon: "Coming soon",
+  },
 ];
 
 const promises = [
-  { icon: Sparkles, title: "Practitioner-built", desc: "Every lesson is drawn from real production work shipping AI features used worldwide." },
-  { icon: Globe, title: "Globally accessible", desc: "Online-first, English with growing Bangla support, designed for any timezone." },
-  { icon: Zap, title: "Ship-by-day-three", desc: "Every course ends with a real, shippable artifact — not a certificate of attendance." },
+  {
+    icon: Sparkles,
+    title: "Practitioner-built",
+    desc: "Every lesson is drawn from real production work shipping AI features used worldwide.",
+  },
+  {
+    icon: Globe,
+    title: "Globally accessible",
+    desc: "Online-first, English with growing Bangla support, designed for any timezone.",
+  },
+  {
+    icon: Zap,
+    title: "Ship-by-day-three",
+    desc: "Every course ends with a real, shippable artifact — not a certificate of attendance.",
+  },
 ];
 
 export default function CoursesPage() {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="SorixLab Project · AI Sorix Academy — Learn, Build, Win"
+        title="SorixLab Scholars — Learn, Build, Win"
         description="Self-paced AI courses, the AI Sorix Build Challenge, and the SorixLab Startup Funding Competition. Practitioner-built lessons from the team behind AI Sorix."
         path="/courses"
       />
@@ -52,10 +119,7 @@ export default function CoursesPage() {
 
       {/* HERO */}
       <section className="relative overflow-hidden border-b border-border/40">
-        <div
-          className="absolute inset-0 opacity-30 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroBg})` }}
-        />
+        <div className="absolute inset-0 opacity-30 bg-cover bg-center" style={{ backgroundImage: `url(${heroBg})` }} />
         <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
         <div className="absolute -top-32 -left-32 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
         <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-accent/20 rounded-full blur-3xl" />
@@ -63,7 +127,7 @@ export default function CoursesPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 sm:pt-28 sm:pb-24">
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-6">
             <Sparkles className="w-3.5 h-3.5" />
-            SorixLab Project · AI Sorix Academy
+            SorixLab Scholars
           </span>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] max-w-4xl font-display">
             Master frontier AI. <br className="hidden sm:block" />
@@ -72,13 +136,20 @@ export default function CoursesPage() {
             </span>
           </h1>
           <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-2xl leading-relaxed">
-            Practitioner-built courses, a worldwide Build Challenge, and a SorixLab Funding Competition — everything you need to go from your first prompt to shipping an AI-native company.
+            Practitioner-built courses, a worldwide Build Challenge, and a SorixLab Funding Competition — everything you
+            need to go from your first prompt to shipping an AI-native company.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href="#courses" className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-primary text-primary-foreground font-semibold hover:opacity-90 transition shadow-lg shadow-primary/30">
+            <a
+              href="#courses"
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-primary text-primary-foreground font-semibold hover:opacity-90 transition shadow-lg shadow-primary/30"
+            >
               Browse courses <ArrowRight className="w-4 h-4" />
             </a>
-            <Link to="/competitions" className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl border border-border bg-card/50 backdrop-blur font-semibold hover:bg-muted/60 transition text-foreground">
+            <Link
+              to="/competitions"
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl border border-border bg-card/50 backdrop-blur font-semibold hover:bg-muted/60 transition text-foreground"
+            >
               <Trophy className="w-4 h-4 text-primary" /> Join a competition
             </Link>
           </div>
@@ -99,7 +170,10 @@ export default function CoursesPage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Why learn AI, and why now?</h2>
-          <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">The gap between AI-fluent and non-fluent professionals is compounding weekly. Here's what it looks like in numbers.</p>
+          <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
+            The gap between AI-fluent and non-fluent professionals is compounding weekly. Here's what it looks like in
+            numbers.
+          </p>
         </div>
         <div className="grid md:grid-cols-2 gap-5">
           <div className="rounded-3xl border border-destructive/20 bg-destructive/5 p-6 sm:p-8">
@@ -146,16 +220,26 @@ export default function CoursesPage() {
       {/* OFFERINGS BENTO */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24">
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">What the SorixLab Project offers</h2>
-          <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">Four pillars of a complete AI education. Two are live today; two are landing soon.</p>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
+            What the SorixLab Project offers
+          </h2>
+          <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
+            Four pillars of a complete AI education. Two are live today; two are landing soon.
+          </p>
         </div>
         <div className="grid md:grid-cols-2 gap-5">
           {offerings.map((o) => {
             const Card = (
-              <div className={`group h-full relative overflow-hidden rounded-3xl border p-7 sm:p-9 transition-all ${o.active ? "border-border bg-card hover:border-primary/40 hover:-translate-y-1 hover:shadow-xl" : "border-border/60 bg-card/50"}`}>
-                <div className="absolute right-6 top-5 text-5xl font-black text-foreground/[0.04] tracking-tighter">{o.num}</div>
+              <div
+                className={`group h-full relative overflow-hidden rounded-3xl border p-7 sm:p-9 transition-all ${o.active ? "border-border bg-card hover:border-primary/40 hover:-translate-y-1 hover:shadow-xl" : "border-border/60 bg-card/50"}`}
+              >
+                <div className="absolute right-6 top-5 text-5xl font-black text-foreground/[0.04] tracking-tighter">
+                  {o.num}
+                </div>
                 <div className="relative">
-                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-4 ${o.active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+                  <div
+                    className={`w-11 h-11 rounded-xl flex items-center justify-center mb-4 ${o.active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}
+                  >
                     <o.icon className="w-5 h-5" />
                   </div>
                   <div className="flex items-center gap-2 mb-2">
@@ -176,10 +260,18 @@ export default function CoursesPage() {
               </div>
             );
             if (o.active && o.to?.startsWith("/")) {
-              return <Link key={o.num} to={o.to}>{Card}</Link>;
+              return (
+                <Link key={o.num} to={o.to}>
+                  {Card}
+                </Link>
+              );
             }
             if (o.active && o.to?.startsWith("#")) {
-              return <a key={o.num} href={o.to}>{Card}</a>;
+              return (
+                <a key={o.num} href={o.to}>
+                  {Card}
+                </a>
+              );
             }
             return <div key={o.num}>{Card}</div>;
           })}
@@ -217,13 +309,20 @@ export default function CoursesPage() {
                 </span>
               </div>
               <div className="p-5 flex-1 flex flex-col">
-                <h3 className="text-lg font-bold text-foreground leading-tight group-hover:text-primary transition-colors">{c.title}</h3>
+                <h3 className="text-lg font-bold text-foreground leading-tight group-hover:text-primary transition-colors">
+                  {c.title}
+                </h3>
                 <p className="mt-1.5 text-sm text-muted-foreground line-clamp-2">{c.tagline}</p>
                 <div className="mt-4 flex items-center gap-3 text-xs text-muted-foreground">
-                  <span className="inline-flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{c.duration}</span>
+                  <span className="inline-flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5" />
+                    {c.duration}
+                  </span>
                 </div>
                 <div className="mt-5 pt-5 border-t border-border/60 flex items-center justify-between">
-                  <span className={`text-base font-bold ${c.priceLabel === "Free" ? "text-primary" : "text-foreground"}`}>
+                  <span
+                    className={`text-base font-bold ${c.priceLabel === "Free" ? "text-primary" : "text-foreground"}`}
+                  >
                     {c.priceLabel}
                   </span>
                   <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
@@ -240,7 +339,9 @@ export default function CoursesPage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24">
         <div className="text-center mb-10">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Competitions</h2>
-          <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">Build with us. Cash, credits, mentorship, and a launch runway for the best teams worldwide.</p>
+          <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
+            Build with us. Cash, credits, mentorship, and a launch runway for the best teams worldwide.
+          </p>
         </div>
         <div className="grid md:grid-cols-2 gap-5">
           {competitions.map((comp) => (
@@ -250,7 +351,14 @@ export default function CoursesPage() {
               className="group relative overflow-hidden rounded-3xl border border-border bg-card hover:border-primary/40 hover:-translate-y-1 hover:shadow-xl transition-all duration-300"
             >
               <div className="aspect-[16/9] overflow-hidden bg-muted">
-                <img src={comp.cover} alt="" loading="lazy" width={1024} height={576} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                <img
+                  src={comp.cover}
+                  alt=""
+                  loading="lazy"
+                  width={1024}
+                  height={576}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
               </div>
               <div className="p-6">
                 <div className="flex items-center gap-2 mb-3">
@@ -260,7 +368,9 @@ export default function CoursesPage() {
                   </span>
                   <span className="text-xs font-semibold text-muted-foreground">{comp.prize}</span>
                 </div>
-                <h3 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors">{comp.title}</h3>
+                <h3 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors">
+                  {comp.title}
+                </h3>
                 <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{comp.tagline}</p>
                 <div className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary group-hover:gap-2.5 transition-all">
                   Read the brief <ArrowRight className="w-4 h-4" />
@@ -293,9 +403,17 @@ export default function CoursesPage() {
           <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-accent/30 rounded-full blur-3xl" />
           <div className="relative">
             <Award className="w-10 h-10 mx-auto text-primary mb-4" />
-            <h2 className="text-2xl sm:text-4xl font-bold tracking-tight mb-3 text-foreground">Start with one course this week</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto mb-7">Pick a free course, finish a module tonight, ship something on day three. That's how every AI-fluent professional you know started.</p>
-            <a href="#courses" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-primary text-primary-foreground font-semibold hover:opacity-90 transition shadow-lg shadow-primary/30">
+            <h2 className="text-2xl sm:text-4xl font-bold tracking-tight mb-3 text-foreground">
+              Start with one course this week
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto mb-7">
+              Pick a free course, finish a module tonight, ship something on day three. That's how every AI-fluent
+              professional you know started.
+            </p>
+            <a
+              href="#courses"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-primary text-primary-foreground font-semibold hover:opacity-90 transition shadow-lg shadow-primary/30"
+            >
               Pick a course <ArrowRight className="w-4 h-4" />
             </a>
           </div>
