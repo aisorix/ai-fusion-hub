@@ -180,15 +180,16 @@ const PrivacyPolicy = () => {
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
-      <SEOHead title="Privacy Policy | AI Sorix" description="AI Sorix privacy policy. Learn how we collect, use, and protect your personal information on our AI platform." path="/privacy-policy" />
+      <SEOHead
+        title="Privacy Policy | AI Sorix"
+        description="AI Sorix privacy policy. Learn how we collect, use, and protect your personal information on our AI platform."
+        path="/privacy-policy"
+      />
       {/* Professional Header */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <Link
-              to="/"
-              className="flex items-center gap-1.5 group transition-all duration-300 hover:opacity-80"
-            >
+            <Link to="/" className="flex items-center gap-1.5 group transition-all duration-300 hover:opacity-80">
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                 <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
@@ -296,7 +297,7 @@ const PrivacyPolicy = () => {
                   <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
                     <MapPin className="w-5 h-5 text-primary" />
                   </div>
-                  <span className="text-sm sm:text-base">Ashulia, Savar, Dhaka, Bangladesh</span>
+                  <span className="text-sm sm:text-base">Uttara, Dhaka 1230</span>
                 </div>
               </div>
             </article>
