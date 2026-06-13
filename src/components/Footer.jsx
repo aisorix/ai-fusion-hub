@@ -522,9 +522,9 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* SSLCommerz Pay With strip */}
-        <div className="mt-10 sm:mt-12">
-          <div className="rounded-2xl bg-white border border-border/60 p-3 sm:p-4 shadow-sm">
+        {/* SSLCommerz Pay With strip — 40% smaller, centered */}
+        <div className="mt-10 sm:mt-12 flex justify-center">
+          <div className="rounded-2xl bg-white border border-border/60 p-2 sm:p-3 shadow-sm w-full max-w-[60%]">
             <img
               src={sslcommerzPayWith.url}
               alt="Verified by SSLCommerz — accepted payment methods including Visa, Mastercard, American Express, UnionPay, bKash, Nagad, Rocket, Upay, Tap'n Pay, BRAC Bank, Bank Asia, AB Bank, MTB, Dutch-Bangla Bank NEXUS, Islami Wallet, iPay, and more"

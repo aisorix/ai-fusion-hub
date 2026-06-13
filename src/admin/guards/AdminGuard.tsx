@@ -5,12 +5,15 @@ import { fetchAdminRoles, isAdminEmail, type AdminRole } from "../lib/adminApi";
 import { Loader2, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { AdminRolesContext, buildAdminRolesValue } from "../hooks/useAdminRoles";
+import { AdminRangeProvider } from "../context/AdminRangeContext";
 
 interface Props {
   children: React.ReactNode;
+  required?: "viewer" | "manager" | "super";
 }
 
-export default function AdminGuard({ children }: Props) {
+export default function AdminGuard({ children, required = "viewer" }: Props) {
   const { user, loading } = useAuth();
   const location = useLocation();
   const [roles, setRoles] = useState<AdminRole[] | null>(null);
@@ -23,7 +26,7 @@ export default function AdminGuard({ children }: Props) {
 
   if (loading || checking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-100">
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
         <Loader2 className="w-6 h-6 animate-spin" />
       </div>
     );
@@ -35,12 +38,12 @@ export default function AdminGuard({ children }: Props) {
 
   if (!okEmail || !okRole) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-100 px-4">
-        <div className="max-w-md w-full text-center space-y-6 p-8 rounded-2xl bg-slate-900 border border-slate-800">
-          <ShieldAlert className="w-12 h-12 mx-auto text-amber-400" />
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground px-4">
+        <div className="max-w-md w-full text-center space-y-6 p-8 rounded-2xl bg-card border border-border">
+          <ShieldAlert className="w-12 h-12 mx-auto text-amber-500" />
           <div>
             <h1 className="text-2xl font-bold">Admin Portal — Restricted</h1>
-            <p className="mt-2 text-sm text-slate-400">
+            <p className="mt-2 text-sm text-muted-foreground">
               {okEmail ? "Your account does not have admin permissions." : "This portal is restricted to @aisorix.com accounts."}
             </p>
           </div>
@@ -53,5 +56,30 @@ export default function AdminGuard({ children }: Props) {
     );
   }
 
-  return <>{children}</>;
+  const ctx = buildAdminRolesValue(roles!);
+  if (required === "manager" && !ctx.canWrite) return <Forbidden />;
+  if (required === "super" && !ctx.isSuper) return <Forbidden />;
+
+  return (
+    <AdminRolesContext.Provider value={ctx}>
+      <AdminRangeProvider>
+        {children}
+      </AdminRangeProvider>
+    </AdminRolesContext.Provider>
+  );
+}
+
+function Forbidden() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background text-foreground px-4">
+      <div className="max-w-md w-full text-center space-y-6 p-8 rounded-2xl bg-card border border-border">
+        <ShieldAlert className="w-12 h-12 mx-auto text-amber-500" />
+        <div>
+          <h1 className="text-2xl font-bold">Insufficient permissions</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Your admin role does not allow access to this page.</p>
+        </div>
+        <Button asChild variant="secondary"><Link to="/admin/dashboard">Back to Dashboard</Link></Button>
+      </div>
+    </div>
+  );
 }
