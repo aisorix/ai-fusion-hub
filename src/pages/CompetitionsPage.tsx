@@ -41,7 +41,7 @@ export default function CompetitionsPage() {
             to="/courses"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors mb-4 inline-block"
           >
-            ← SorixLab Project
+            ← SorixLab Scholars
           </Link>
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-5">
             <Trophy className="w-3.5 h-3.5" /> Competitions
