@@ -362,7 +362,7 @@ export const competitions: Competition[] = [
     title: "Sorixlab Build Challenge",
     tagline: "Build a useful AI product in 30 days. Win cash, credits, and a launch spotlight.",
     prize: "$15,000 prize pool",
-    status: "Applications open",
+    status: "Applications close",
     cover: aiCompImg,
     overview:
       "A worldwide, online-first hackathon for anyone building with AI. Ship a working product — agent, app, workflow, or research tool — using any model and any stack. Judged on usefulness, craft, and what real users say after a week of testing.",
@@ -379,7 +379,7 @@ export const competitions: Competition[] = [
       { title: "Responsibility", desc: "Safety, transparency, and respect for user trust." },
     ],
     timeline: [
-      { date: "Week 1", title: "Applications open", desc: "Submit a 200-word idea and team profile." },
+      { date: "Week 1", title: "Applications close", desc: "Submit a 200-word idea and team profile." },
       { date: "Week 2", title: "Kickoff & resources", desc: "Office hours, model credits, and mentor matching." },
       { date: "Weeks 3-4", title: "Build sprint", desc: "Ship a working prototype on a public URL." },
       { date: "Week 5", title: "User testing", desc: "Real users try your build. Judges read the feedback." },
@@ -408,7 +408,7 @@ export const competitions: Competition[] = [
     title: "SorixLab Startup Funding Competition",
     tagline: "Pitch an AI-first startup. Best teams receive funding, mentorship, and a launch runway.",
     prize: "Up to $50,000 + 12 weeks of mentorship",
-    status: "Applications open",
+    status: "Applications close",
     cover: startupCompImg,
     overview:
       "An online-first competition for founders building AI-native companies. Shortlisted teams present to a panel of operators, engineers, and investors. Winners receive funding, hands-on mentorship from the SorixLab team, and a launch runway through the AI Sorix ecosystem.",
@@ -425,7 +425,7 @@ export const competitions: Competition[] = [
       { title: "Execution path", desc: "Can you ship and reach early users credibly?" },
     ],
     timeline: [
-      { date: "Week 1", title: "Applications open", desc: "Submit a one-page memo and a 2-minute video." },
+      { date: "Week 1", title: "Applications close", desc: "Submit a one-page memo and a 2-minute video." },
       { date: "Week 3", title: "Shortlist announced", desc: "Top 30 teams invited to a deep dive." },
       { date: "Week 5", title: "Mentor sprint", desc: "Two weeks of 1:1 mentorship with the SorixLab team." },
       { date: "Week 7", title: "Pitch day", desc: "Live online pitch to investor panel." },
