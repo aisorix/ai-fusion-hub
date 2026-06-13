@@ -221,7 +221,7 @@ export default function CoursesPage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-            What the SorixLab Project offers
+            What the SorixLab Scholars offers
           </h2>
           <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
             Four pillars of a complete AI education. Two are live today; two are landing soon.
