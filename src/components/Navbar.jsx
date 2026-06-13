@@ -1,6 +1,55 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, ChevronDown, ChevronRight, Globe, User, LogOut, MessageSquare, Presentation, ImageIcon, Heart, Leaf, Crown, Bot, Workflow, Cpu, GraduationCap, Rocket, FlaskConical, BookOpen, Newspaper, Briefcase, Handshake, Mail, FileText, Users, Code, Sparkles, HelpCircle, Palette, UserCheck, Shield, Chrome, Code2, Headphones, Landmark, Building2, HeartPulse, HandHeart, ShieldCheck, Plug, CalendarDays, Layers, TrendingUp, Eye, Columns3, Trophy, Clapperboard } from "lucide-react";
+import {
+  Menu,
+  X,
+  ChevronDown,
+  ChevronRight,
+  Globe,
+  User,
+  LogOut,
+  MessageSquare,
+  Presentation,
+  ImageIcon,
+  Heart,
+  Leaf,
+  Crown,
+  Bot,
+  Workflow,
+  Cpu,
+  GraduationCap,
+  Rocket,
+  FlaskConical,
+  BookOpen,
+  Newspaper,
+  Briefcase,
+  Handshake,
+  Mail,
+  FileText,
+  Users,
+  Code,
+  Sparkles,
+  HelpCircle,
+  Palette,
+  UserCheck,
+  Shield,
+  Chrome,
+  Code2,
+  Headphones,
+  Landmark,
+  Building2,
+  HeartPulse,
+  HandHeart,
+  ShieldCheck,
+  Plug,
+  CalendarDays,
+  Layers,
+  TrendingUp,
+  Eye,
+  Columns3,
+  Trophy,
+  Clapperboard,
+} from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useEmployeeRole } from "../hooks/useEmployeeRole";
@@ -44,24 +93,79 @@ const megaMenus = {
     columns: [
       [
         { icon: Code2, name: "Coding", desc: "AI pair programming for engineering teams", to: "/solutions/coding" },
-        { icon: Headphones, name: "Customer Support", desc: "AI agents that resolve tickets 24/7", to: "/solutions/customer-support" },
-        { icon: Landmark, name: "Financial Services", desc: "Secure AI for banking and fintech", to: "/solutions/financial-services" },
-        { icon: Building2, name: "Government", desc: "AI for public sector and civic agencies", to: "/solutions/government" },
+        {
+          icon: Headphones,
+          name: "Customer Support",
+          desc: "AI agents that resolve tickets 24/7",
+          to: "/solutions/customer-support",
+        },
+        {
+          icon: Landmark,
+          name: "Financial Services",
+          desc: "Secure AI for banking and fintech",
+          to: "/solutions/financial-services",
+        },
+        {
+          icon: Building2,
+          name: "Government",
+          desc: "AI for public sector and civic agencies",
+          to: "/solutions/government",
+        },
         { icon: HeartPulse, name: "Healthcare", desc: "HIPAA-aligned AI for clinicians", to: "/solutions/healthcare" },
       ],
       [
-        { icon: FlaskConical, name: "Life Sciences", desc: "AI for biotech and pharma research", to: "/solutions/life-sciences" },
+        {
+          icon: FlaskConical,
+          name: "Life Sciences",
+          desc: "AI for biotech and pharma research",
+          to: "/solutions/life-sciences",
+        },
         { icon: HandHeart, name: "Nonprofits", desc: "Discounted AI for social impact", to: "/solutions/nonprofits" },
         { icon: ShieldCheck, name: "Security", desc: "AI for SOC, GRC and cybersecurity", to: "/solutions/security" },
-        { icon: Workflow, name: "Workflow Automation", desc: "Automate multi-step tasks with AI", to: "/solutions/workflow-automation" },
-        { icon: GraduationCap, name: "Educators", desc: "AI tools for teaching and learning", to: "/solutions/ai-for-educators" },
+        {
+          icon: Workflow,
+          name: "Workflow Automation",
+          desc: "Automate multi-step tasks with AI",
+          to: "/solutions/workflow-automation",
+        },
+        {
+          icon: GraduationCap,
+          name: "Educators",
+          desc: "AI tools for teaching and learning",
+          to: "/solutions/ai-for-educators",
+        },
       ],
       [
-        { icon: Rocket, name: "Startups", desc: "All-in-one AI stack for early-stage teams", to: "/solutions/ai-for-startups" },
-        { icon: FlaskConical, name: "Researchers", desc: "Multi-model research and analysis", to: "/solutions/ai-for-researchers" },
-        { icon: Palette, name: "Creators", desc: "AI for designers, writers and editors", to: "/solutions/ai-for-creators" },
-        { icon: Briefcase, name: "Freelancers", desc: "One AI workspace for solo earners", to: "/solutions/ai-for-freelancers" },
-        { icon: UserCheck, name: "Professionals", desc: "AI productivity for knowledge workers", to: "/solutions/ai-for-professionals" },
+        {
+          icon: Rocket,
+          name: "Startups",
+          desc: "All-in-one AI stack for early-stage teams",
+          to: "/solutions/ai-for-startups",
+        },
+        {
+          icon: FlaskConical,
+          name: "Researchers",
+          desc: "Multi-model research and analysis",
+          to: "/solutions/ai-for-researchers",
+        },
+        {
+          icon: Palette,
+          name: "Creators",
+          desc: "AI for designers, writers and editors",
+          to: "/solutions/ai-for-creators",
+        },
+        {
+          icon: Briefcase,
+          name: "Freelancers",
+          desc: "One AI workspace for solo earners",
+          to: "/solutions/ai-for-freelancers",
+        },
+        {
+          icon: UserCheck,
+          name: "Professionals",
+          desc: "AI productivity for knowledge workers",
+          to: "/solutions/ai-for-professionals",
+        },
       ],
     ],
   },
@@ -78,7 +182,7 @@ const megaMenus = {
       ],
       [
         { icon: Plug, name: "Connectors", desc: "Integrations to 100+ apps", to: "/connectors" },
-        { icon: GraduationCap, name: "SorixLab Project", desc: "AI Sorix Academy & courses", to: "/courses" },
+        { icon: GraduationCap, name: "SorixLab Scholars", desc: "competitions & courses", to: "/courses" },
         { icon: Trophy, name: "Competitions", desc: "AI Challenge & Startup Funding", to: "/competitions" },
         { icon: CalendarDays, name: "Events", desc: "Webinars, hackathons & summits", to: "/events" },
         { icon: Code2, name: "Inside Sorix Code", desc: "Deep-dive into our coding tool", to: "/inside-sorix-code" },
@@ -100,7 +204,12 @@ const megaMenus = {
       [
         { icon: TrendingUp, name: "Economic Futures", desc: "AI's impact on work & growth", to: "/economic-futures" },
         { icon: FlaskConical, name: "Research", desc: "Frontier AI publications", to: "/research" },
-        { icon: ShieldCheck, name: "Security & Compliance", desc: "SOC 2, GDPR, HIPAA", to: "/security-and-compliance" },
+        {
+          icon: ShieldCheck,
+          name: "Security & Compliance",
+          desc: "SOC 2, GDPR, HIPAA",
+          to: "/security-and-compliance",
+        },
         { icon: Eye, name: "Transparency", desc: "How AI Sorix works", to: "/transparency" },
       ],
     ],
@@ -131,7 +240,12 @@ const Navbar = () => {
     if (!user) return "U";
     const name = user.user_metadata?.full_name || user.email || "";
     if (user.user_metadata?.full_name) {
-      return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+      return name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
     }
     return name.charAt(0).toUpperCase();
   };
@@ -159,7 +273,9 @@ const Navbar = () => {
 
   useEffect(() => {
     document.body.style.overflow = mobileMenuOpen ? "hidden" : "unset";
-    return () => { document.body.style.overflow = "unset"; };
+    return () => {
+      document.body.style.overflow = "unset";
+    };
   }, [mobileMenuOpen]);
 
   const handleDropdownEnter = (key) => {
@@ -253,7 +369,9 @@ const Navbar = () => {
                 >
                   <button className="flex items-center gap-1 px-3.5 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/40">
                     {menu.label}
-                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === key ? "rotate-180" : ""}`} />
+                    <ChevronDown
+                      className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === key ? "rotate-180" : ""}`}
+                    />
                   </button>
 
                   {activeDropdown === key && (
@@ -261,7 +379,9 @@ const Navbar = () => {
                       className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-background/95 backdrop-blur-xl border border-border/50 shadow-2xl rounded-2xl p-5 animate-in fade-in slide-in-from-top-2 duration-200 z-[110]"
                       style={{ minWidth: menu.columns.length >= 3 ? 820 : 560 }}
                     >
-                      <div className={`grid ${menu.columns.length >= 3 ? "grid-cols-3" : menu.columns.length === 2 ? "grid-cols-2" : "grid-cols-1"} gap-1`}>
+                      <div
+                        className={`grid ${menu.columns.length >= 3 ? "grid-cols-3" : menu.columns.length === 2 ? "grid-cols-2" : "grid-cols-1"} gap-1`}
+                      >
                         {menu.columns.map((col, ci) => (
                           <div key={ci} className="space-y-1">
                             {col.map(renderMegaItem)}
@@ -312,13 +432,19 @@ const Navbar = () => {
                 {langDropdownOpen && (
                   <div className="absolute top-full right-0 mt-2 bg-card/80 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl overflow-hidden min-w-[140px] z-[110] animate-in fade-in zoom-in-95 duration-200">
                     <button
-                      onClick={() => { setLanguage("en"); setLangDropdownOpen(false); }}
+                      onClick={() => {
+                        setLanguage("en");
+                        setLangDropdownOpen(false);
+                      }}
                       className={`w-full px-4 py-3 text-left text-sm font-medium hover:bg-primary/10 transition-colors flex items-center gap-2 ${language === "en" ? "text-primary bg-primary/5" : "text-foreground"}`}
                     >
                       🇬🇧 English
                     </button>
                     <button
-                      onClick={() => { setLanguage("bn"); setLangDropdownOpen(false); }}
+                      onClick={() => {
+                        setLanguage("bn");
+                        setLangDropdownOpen(false);
+                      }}
                       className={`w-full px-4 py-3 text-left text-sm font-medium hover:bg-primary/10 transition-colors flex items-center gap-2 ${language === "bn" ? "text-primary bg-primary/5" : "text-foreground"}`}
                     >
                       🇧🇩 বাংলা
@@ -409,7 +535,11 @@ const Navbar = () => {
                 className="p-2.5 rounded-xl bg-muted/40 hover:bg-muted/60 backdrop-blur-md border border-border/50 transition-all duration-200"
                 aria-label="Toggle menu"
               >
-                {mobileMenuOpen ? <X className="w-5 h-5 text-foreground" /> : <Menu className="w-5 h-5 text-foreground" />}
+                {mobileMenuOpen ? (
+                  <X className="w-5 h-5 text-foreground" />
+                ) : (
+                  <Menu className="w-5 h-5 text-foreground" />
+                )}
               </button>
             </div>
           </div>
@@ -448,7 +578,9 @@ const Navbar = () => {
                       className="flex items-center justify-between w-full py-4 text-left"
                     >
                       <span className="text-sm font-semibold text-foreground">{menu.label}</span>
-                      <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${mobileExpanded === key ? "rotate-180" : ""}`} />
+                      <ChevronDown
+                        className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${mobileExpanded === key ? "rotate-180" : ""}`}
+                      />
                     </button>
                     {mobileExpanded === key && (
                       <div className="pb-4 space-y-1 animate-in fade-in slide-in-from-top-1 duration-150">

@@ -1,4 +1,4 @@
-// Centralized content for SorixLab Project / AI Sorix Academy.
+// Centralized content for SorixLab Scholars / Sorix Academy.
 // Edit text and pricing here — pages re-render automatically.
 import promptImg from "@/assets/course-prompt.jpg";
 import agentsImg from "@/assets/course-agents.jpg";
