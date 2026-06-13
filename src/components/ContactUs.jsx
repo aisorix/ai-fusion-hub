@@ -50,7 +50,7 @@ const ContactUs = ({ onOpenChat }) => {
   const quickLinks = [
     {
       icon: MessageSquare,
-      title: language === "en" ? "Live Chat" : "লাইভ চ্যাট",
+      title: language === "en" ? "Live Chat (Tickets)" : "লাইভ চ্যাট",
       description: language === "en" ? "Chat with our support team" : "আমাদের সাপোর্ট টিমের সাথে চ্যাট করুন",
       action: language === "en" ? "Chat Now" : "চ্যাট করুন",
       isChat: true,
