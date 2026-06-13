@@ -112,7 +112,7 @@ export default function CoursesPage() {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="SorixLab Scholars — Learn, Build, Win"
-        description="Self-paced AI courses, the AI Sorix Build Challenge, and the SorixLab Startup Funding Competition. Practitioner-built lessons from the team behind AI Sorix."
+        description="Self-paced AI courses, the Sorixlab Build Challenge, and the SorixLab Startup Funding Competition. Practitioner-built lessons from the team behind AI Sorix."
         path="/courses"
       />
       <Navbar />

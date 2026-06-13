@@ -71,11 +71,7 @@ export const courses: Course[] = [
       },
       {
         title: "Module 3 · Evaluation",
-        lessons: [
-          "Building a personal eval set",
-          "A/B testing prompts across models",
-          "Detecting regressions early",
-        ],
+        lessons: ["Building a personal eval set", "A/B testing prompts across models", "Detecting regressions early"],
       },
       {
         title: "Module 4 · Shipping",
@@ -92,8 +88,14 @@ export const courses: Course[] = [
       bio: "Lessons compiled from real production work shipping multi-model AI features used by thousands of professionals worldwide.",
     },
     faqs: [
-      { q: "Do I need a coding background?", a: "No. Module 1 through 3 require zero code. The shipping module shows simple no-code and low-code paths." },
-      { q: "Which models will I use?", a: "GPT, Claude, Gemini, and at least one open-source model so you understand provider trade-offs." },
+      {
+        q: "Do I need a coding background?",
+        a: "No. Module 1 through 3 require zero code. The shipping module shows simple no-code and low-code paths.",
+      },
+      {
+        q: "Which models will I use?",
+        a: "GPT, Claude, Gemini, and at least one open-source model so you understand provider trade-offs.",
+      },
     ],
   },
   {
@@ -117,16 +119,41 @@ export const courses: Course[] = [
       "Ship a working agent to a real workflow",
     ],
     curriculum: [
-      { title: "Module 1 · Agent fundamentals", lessons: ["Reactive vs deliberative agents", "Planning loops", "When NOT to use agents"] },
-      { title: "Module 2 · Tool design", lessons: ["Function calling that scales", "Browser, file, and API tools", "Permission scoping"] },
-      { title: "Module 3 · Memory & state", lessons: ["Working vs long-term memory", "Vector recall patterns", "Avoiding context drift"] },
-      { title: "Module 4 · Supervision", lessons: ["Human-in-the-loop checkpoints", "Eval harnesses for agents", "Cost and latency budgets"] },
-      { title: "Module 5 · Capstone", lessons: ["Build a research agent", "Build an outreach agent", "Deploy to your team"] },
+      {
+        title: "Module 1 · Agent fundamentals",
+        lessons: ["Reactive vs deliberative agents", "Planning loops", "When NOT to use agents"],
+      },
+      {
+        title: "Module 2 · Tool design",
+        lessons: ["Function calling that scales", "Browser, file, and API tools", "Permission scoping"],
+      },
+      {
+        title: "Module 3 · Memory & state",
+        lessons: ["Working vs long-term memory", "Vector recall patterns", "Avoiding context drift"],
+      },
+      {
+        title: "Module 4 · Supervision",
+        lessons: ["Human-in-the-loop checkpoints", "Eval harnesses for agents", "Cost and latency budgets"],
+      },
+      {
+        title: "Module 5 · Capstone",
+        lessons: ["Build a research agent", "Build an outreach agent", "Deploy to your team"],
+      },
     ],
-    instructor: { name: "The AI Sorix Team", role: "Agent engineers", bio: "Patterns drawn from running the Sorix Agent OS at scale." },
+    instructor: {
+      name: "The AI Sorix Team",
+      role: "Agent engineers",
+      bio: "Patterns drawn from running the Sorix Agent OS at scale.",
+    },
     faqs: [
-      { q: "Do I need an API budget?", a: "A small one. Allow roughly $10 of model credits to complete every exercise." },
-      { q: "Can I use my own framework?", a: "Yes. We use Sorix Agent for examples but every concept maps to other frameworks." },
+      {
+        q: "Do I need an API budget?",
+        a: "A small one. Allow roughly $10 of model credits to complete every exercise.",
+      },
+      {
+        q: "Can I use my own framework?",
+        a: "Yes. We use Sorix Agent for examples but every concept maps to other frameworks.",
+      },
     ],
   },
   {
@@ -150,14 +177,33 @@ export const courses: Course[] = [
       "Plan responsible rollout and kill criteria",
     ],
     curriculum: [
-      { title: "Module 1 · Opportunity sizing", lessons: ["Where AI wins, where it loses", "User-job mapping", "Risk and trust budgets"] },
-      { title: "Module 2 · Spec writing", lessons: ["The AI PRD template", "Defining 'good enough'", "Eval criteria up front"] },
-      { title: "Module 3 · Build & beta", lessons: ["Working with prompt and model engineers", "Closed beta playbook", "Telemetry that matters"] },
-      { title: "Module 4 · Launch & learn", lessons: ["Quality dashboards", "Drift and incident response", "When to deprecate a model"] },
+      {
+        title: "Module 1 · Opportunity sizing",
+        lessons: ["Where AI wins, where it loses", "User-job mapping", "Risk and trust budgets"],
+      },
+      {
+        title: "Module 2 · Spec writing",
+        lessons: ["The AI PRD template", "Defining 'good enough'", "Eval criteria up front"],
+      },
+      {
+        title: "Module 3 · Build & beta",
+        lessons: ["Working with prompt and model engineers", "Closed beta playbook", "Telemetry that matters"],
+      },
+      {
+        title: "Module 4 · Launch & learn",
+        lessons: ["Quality dashboards", "Drift and incident response", "When to deprecate a model"],
+      },
     ],
-    instructor: { name: "The AI Sorix Team", role: "Product strategy", bio: "From PMs who have shipped AI features used by professionals worldwide." },
+    instructor: {
+      name: "The AI Sorix Team",
+      role: "Product strategy",
+      bio: "From PMs who have shipped AI features used by professionals worldwide.",
+    },
     faqs: [
-      { q: "Will I write code?", a: "Optional. The course is framework-agnostic and focuses on decisions, not implementation." },
+      {
+        q: "Will I write code?",
+        a: "Optional. The course is framework-agnostic and focuses on decisions, not implementation.",
+      },
     ],
   },
   {
@@ -181,16 +227,38 @@ export const courses: Course[] = [
       "Ship one vision feature end-to-end",
     ],
     curriculum: [
-      { title: "Module 1 · Vision landscape", lessons: ["CNNs, ViTs, multimodal LLMs", "Open vs hosted trade-offs", "Lab setup"] },
-      { title: "Module 2 · Pipelines", lessons: ["Preprocessing and augmentation", "Batch and stream inference", "Caching and cost"] },
-      { title: "Module 3 · OCR & parsing", lessons: ["Document understanding with multimodal LLMs", "Tables and forms", "Quality gates"] },
-      { title: "Module 4 · Detection & segmentation", lessons: ["SAM, Grounding DINO, YOLO", "Custom classes", "Active learning"] },
+      {
+        title: "Module 1 · Vision landscape",
+        lessons: ["CNNs, ViTs, multimodal LLMs", "Open vs hosted trade-offs", "Lab setup"],
+      },
+      {
+        title: "Module 2 · Pipelines",
+        lessons: ["Preprocessing and augmentation", "Batch and stream inference", "Caching and cost"],
+      },
+      {
+        title: "Module 3 · OCR & parsing",
+        lessons: ["Document understanding with multimodal LLMs", "Tables and forms", "Quality gates"],
+      },
+      {
+        title: "Module 4 · Detection & segmentation",
+        lessons: ["SAM, Grounding DINO, YOLO", "Custom classes", "Active learning"],
+      },
       { title: "Module 5 · Fine-tuning", lessons: ["LoRA for small models", "Data curation", "Eval and shipping"] },
-      { title: "Module 6 · Capstone", lessons: ["Real-time analytics demo", "Defect detection pipeline", "Document parser"] },
+      {
+        title: "Module 6 · Capstone",
+        lessons: ["Real-time analytics demo", "Defect detection pipeline", "Document parser"],
+      },
     ],
-    instructor: { name: "The AI Sorix Team", role: "Vision engineers", bio: "Patterns from production vision systems serving global customers." },
+    instructor: {
+      name: "The AI Sorix Team",
+      role: "Vision engineers",
+      bio: "Patterns from production vision systems serving global customers.",
+    },
     faqs: [
-      { q: "GPU required?", a: "A free-tier Colab is enough for most exercises. Fine-tuning works on a single consumer GPU." },
+      {
+        q: "GPU required?",
+        a: "A free-tier Colab is enough for most exercises. Fine-tuning works on a single consumer GPU.",
+      },
     ],
   },
   {
@@ -218,10 +286,12 @@ export const courses: Course[] = [
       { title: "Module 2 · Writing with AI", lessons: ["Voice preservation", "Outlines and drafts", "Editing passes"] },
       { title: "Module 3 · Integrity", lessons: ["Citation hygiene", "Detecting fabrications", "Reader trust"] },
     ],
-    instructor: { name: "The AI Sorix Team", role: "Research & editorial", bio: "Built from real workflows of researchers and writers using AI Sorix daily." },
-    faqs: [
-      { q: "Will my voice survive?", a: "Yes. The course is structured around protecting it." },
-    ],
+    instructor: {
+      name: "The AI Sorix Team",
+      role: "Research & editorial",
+      bio: "Built from real workflows of researchers and writers using AI Sorix daily.",
+    },
+    faqs: [{ q: "Will my voice survive?", a: "Yes. The course is structured around protecting it." }],
   },
   {
     slug: "llm-ops-and-evaluation",
@@ -245,14 +315,27 @@ export const courses: Course[] = [
     ],
     curriculum: [
       { title: "Module 1 · Eval foundations", lessons: ["Golden sets", "LLM-as-judge", "Human review queues"] },
-      { title: "Module 2 · Observability", lessons: ["Traces and spans for LLMs", "Quality dashboards", "Drift signals"] },
-      { title: "Module 3 · Cost & latency", lessons: ["Budgets and caps", "Caching strategies", "Routing across models"] },
+      {
+        title: "Module 2 · Observability",
+        lessons: ["Traces and spans for LLMs", "Quality dashboards", "Drift signals"],
+      },
+      {
+        title: "Module 3 · Cost & latency",
+        lessons: ["Budgets and caps", "Caching strategies", "Routing across models"],
+      },
       { title: "Module 4 · Safety & incidents", lessons: ["Kill-switches", "Rollback playbooks", "Postmortems"] },
       { title: "Module 5 · Migrations", lessons: ["Provider swaps", "Prompt versioning", "Shadow launches"] },
     ],
-    instructor: { name: "The AI Sorix Team", role: "AI Ops", bio: "Practices used to keep AI Sorix running for users in many countries every day." },
+    instructor: {
+      name: "The AI Sorix Team",
+      role: "AI Ops",
+      bio: "Practices used to keep AI Sorix running for users in many countries every day.",
+    },
     faqs: [
-      { q: "Tooling required?", a: "Bring any observability stack. Examples use open tools so the patterns transfer anywhere." },
+      {
+        q: "Tooling required?",
+        a: "Bring any observability stack. Examples use open tools so the patterns transfer anywhere.",
+      },
     ],
   },
 ];
@@ -276,7 +359,7 @@ export interface Competition {
 export const competitions: Competition[] = [
   {
     slug: "ai-challenge",
-    title: "AI Sorix Build Challenge",
+    title: "Sorixlab Build Challenge",
     tagline: "Build a useful AI product in 30 days. Win cash, credits, and a launch spotlight.",
     prize: "$15,000 prize pool",
     status: "Applications open",
@@ -362,8 +445,14 @@ export const competitions: Competition[] = [
       "Any AI stack permitted. The product must use AI meaningfully.",
     ],
     faqs: [
-      { q: "Do you take equity?", a: "For funded teams only, on standard, founder-friendly terms disclosed before you accept." },
-      { q: "Do I need a working prototype?", a: "Not required, but strongly preferred. A clickable demo or pilot is enough." },
+      {
+        q: "Do you take equity?",
+        a: "For funded teams only, on standard, founder-friendly terms disclosed before you accept.",
+      },
+      {
+        q: "Do I need a working prototype?",
+        a: "Not required, but strongly preferred. A clickable demo or pilot is enough.",
+      },
       { q: "Is it remote-friendly?", a: "Entirely. Everything is online." },
     ],
   },
