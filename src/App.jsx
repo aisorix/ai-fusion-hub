@@ -64,6 +64,9 @@ const AdminSystemHealth = React.lazy(() => import("./admin/pages/AdminSystemHeal
 const AdminApiKeys = React.lazy(() => import("./admin/pages/AdminApiKeys"));
 const AdminAudit = React.lazy(() => import("./admin/pages/AdminAudit"));
 const AdminSettings = React.lazy(() => import("./admin/pages/AdminSettings"));
+const AdminBroadcasts = React.lazy(() => import("./admin/pages/AdminBroadcasts"));
+const AdminDatabase = React.lazy(() => import("./admin/pages/AdminDatabase"));
+const PageViewTracker = React.lazy(() => import("./components/PageViewTracker"));
 
 
 
@@ -122,6 +125,7 @@ const App = () => (
           <Sonner position="top-center" />
           <BrowserRouter>
             <ScrollToTop />
+            <Suspense fallback={null}><PageViewTracker /></Suspense>
             <Suspense fallback={<LoadingScreen />}>
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -180,6 +184,8 @@ const App = () => (
                   <Route path="system/api-keys" element={<AdminApiKeys />} />
                   <Route path="audit" element={<AdminAudit />} />
                   <Route path="settings" element={<AdminSettings />} />
+                  <Route path="broadcasts" element={<AdminBroadcasts />} />
+                  <Route path="database" element={<AdminDatabase />} />
                 </Route>
                 <Route path="/blog" element={<BlogPage />} />
                 <Route path="/case-studies" element={<CaseStudiesPage />} />

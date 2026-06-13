@@ -548,3 +548,31 @@ textarea {
   50%      { transform: scale(1.6); opacity: .5; }
 }
 .deck-pulse-dot { animation: deck-pulse-dot 1.2s ease-in-out infinite; }
+
+
+/* ---------- Admin sidebar tokens ---------- */
+@layer base {
+  :root {
+    --admin-sidebar: 213 87% 12%;            /* deep brand */
+    --admin-sidebar-fg: 0 0% 100%;           /* white text on dark sidebar */
+    --admin-sidebar-border: 0 0% 100% / 0.08;
+  }
+  .dark {
+    --admin-sidebar: 213 80% 10%;
+    --admin-sidebar-fg: 0 0% 100%;
+    --admin-sidebar-border: 0 0% 100% / 0.08;
+  }
+}
+@layer components {
+  .admin-sidebar {
+    background: linear-gradient(180deg, hsl(213 87% 14%) 0%, hsl(195 95% 18%) 100%);
+    color: hsl(var(--admin-sidebar-fg));
+  }
+  .admin-sidebar-fg { color: hsl(var(--admin-sidebar-fg)); }
+  .admin-sidebar-hover:hover { background-color: rgba(255,255,255,0.08); }
+  .admin-sidebar-active {
+    background-color: rgba(255,255,255,0.14);
+    border-left: 2px solid hsl(189 95% 55%);
+  }
+}
+

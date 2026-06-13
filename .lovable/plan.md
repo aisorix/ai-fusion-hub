@@ -1,65 +1,155 @@
-# Compliance & Payments Polish
+## Scope
 
-Scope: landing/pricing, footer, about, payment modal, refund policy, T&C — all bilingual (EN/BN), professional.
+Nine connected changes spanning the public footer and the admin dashboard.
 
-## 1. Landing page — remove "We Accept Multiple Payment Methods" section
-- `src/components/Pricing.jsx` (≈ lines 730–860): delete the entire "Secure Payments" block (header + gateway cards + accepted methods grid). Keep pricing tiers + FAQ.
+---
 
-## 2. Footer — add SSLCommerz "Pay With" strip (image 2)
-- `src/components/Footer.jsx`: add a new bottom row above the copyright line showing the SSLCommerz-verified payment-methods strip.
-- Save the uploaded image (image-340.png) as a Lovable asset: `src/assets/sslcommerz-paywith.png.asset.json` via `lovable-assets create` (no binary in repo).
-- Render as a single responsive `<img>` with alt "Verified by SSLCommerz — accepted payment methods", `loading="lazy"`, bordered card, light bg so the strip reads on dark footer.
+### 1. Footer — shrink SSLCommerz "Pay With" banner by 40%
 
-## 3. About Us — Trade License section
-- `src/pages/AboutUsPage.jsx`: add a "Legal & Compliance" card with placeholder fields (user will edit later):
-  - Trade License No: `TRAD/DNCC/XXXXXX/2025`
-  - Issuing Authority: Dhaka North City Corporation
-  - BIN/TIN: `XXXXXXXXX-XXXX`
-  - Registered Address: placeholder
-- Bilingual labels, small print "Subject to update".
+File: `src/components/Footer.jsx`
+- Wrap the existing SSLCommerz strip in a centered container at `max-w-[60%]` (≈40% smaller) with `mx-auto`.
+- Keep the rounded border card; reduce vertical padding (`py-3`) and image `max-h` accordingly.
+- No logic changes.
 
-## 4. Refund Policy — switch to "7-Day Usage-Based Guarantee"
-- `src/pages/RefundPolicy.jsx`: rewrite section 2 from "No-Refund" to **"7-Day Refund Guarantee"**:
-  - Full refund within 7 days of purchase **if usage is under a defined threshold** (≤ 10% of monthly token/credit quota AND no premium tool export).
-  - After 7 days OR threshold exceeded → non-refundable.
-  - Yearly plans: pro-rata refund within 7 days only.
-  - Coupons / promo purchases: non-refundable.
-- Update related sections (cancellation, exceptions) for consistency. Keep bilingual.
+---
 
-## 5. Payment system — SSLCommerz only
-- `src/components/PaymentModal.tsx`: remove bKash and Stripe gateway cards + their handler branches. Auto-select SSLCommerz (no selector needed if only one) — keep a single branded card so users see what's used.
-- Update copy: "Secure checkout via SSLCommerz".
-- Do NOT delete `bkash-payment` / `stripe-payment` edge functions (left dormant for future).
-- Pricing currency stays BDT.
+### 2. Admin sidebar — branded look (logo color, AI Sorix Admin name, adaptive text)
 
-## 6. Coupon code field in PaymentModal
-- Add an "Have a coupon? (optional)" collapsible input above the Pay button.
-- On submit, call existing `coupons` table via a new lightweight edge function `validate-coupon` (reads code, returns `{valid, discount_type, discount_value, final_amount}`); if `coupons` table query is sufficient with RLS, do client-side `.select().eq('code', x).eq('is_active', true)` from `supabase` with anon — confirm RLS allows read of active coupons; otherwise edge fn.
-- Apply discount to `totalPrice` before passing to SSLCommerz; pass `coupon_code` in payment metadata so webhook records it.
-- Show applied discount line in plan summary; allow remove.
+File: `src/admin/layout/AdminLayout.tsx` (+ small CSS tokens in `src/index.css`)
+- Sidebar background = brand gradient matching the AI Sorix logo (cyan→teal, already used elsewhere). Add admin-scoped tokens `--admin-sidebar`, `--admin-sidebar-fg` in `index.css` (light + dark variants).
+- Header block: logo mark + "AI Sorix Admin" in Plus Jakarta Sans, `gap-1.5`.
+- Text auto-contrast rule: use `text-admin-sidebar-fg` token so on white surfaces text becomes black, on dark/colored surfaces text becomes white. Same for active/hover states (replace any hardcoded `text-white`/`text-black`).
+- Active nav item gets a translucent overlay (`bg-white/15` on color, `bg-black/5` on white).
 
-## 7. Checkout consent tickbox (T&C / Refund / Privacy)
-- In `PaymentModal.tsx`, above Pay button add a required checkbox:
-  - EN: "I have read and agree to the [Terms & Conditions], [Refund Policy], and [Privacy Policy]. I understand my subscription will auto-renew unless cancelled."
-  - BN equivalent.
-  - Links open `/terms`, `/refund-policy`, `/privacy-policy` in new tab.
-- Pay button disabled until checked. Validate on click with toast.
+---
 
-## 8. Terms & Conditions — auto-renewal clause
-- `src/pages/TermsOfService.jsx`: add/extend a "Subscription & Auto-Renewal" section:
-  - Subscriptions renew automatically at end of billing cycle at then-current price.
-  - User can cancel anytime from Settings → Plans before renewal date.
-  - Failed renewal → 3-day grace, then downgrade to Free.
-  - Bilingual.
+### 3. Role-Based Access Control for admin pages
 
-## Out of scope (deliberate)
-- No DB migrations (coupons table already exists).
-- bKash/Stripe edge functions left in place (dormant).
-- No changes to admin dashboard.
+Roles already exist: `admin`, `admin_super`, `admin_manager`, `admin_viewer`. Wire them into the UI.
 
-## Files touched
-- edit: `src/components/Pricing.jsx`, `src/components/Footer.jsx`, `src/pages/AboutUsPage.jsx`, `src/pages/RefundPolicy.jsx`, `src/pages/TermsOfService.jsx`, `src/components/PaymentModal.tsx`
-- new: `src/assets/sslcommerz-paywith.png.asset.json`
-- maybe new: `supabase/functions/validate-coupon/index.ts` (only if RLS blocks anon coupon reads)
+File: `src/admin/guards/AdminGuard.tsx`
+- Extend guard to accept `requiredRole?: AdminRole[]` and `mode?: "read"|"write"`.
+- Add `<RoleGate roles={[...]}>` wrapper for in-page write actions.
 
-Ready to implement on approval.
+File: `src/App.jsx`
+- Per route, declare minimum role:
+  - Viewer (read-only): Dashboard, AI Usage/Tokens/Live, Revenue, Subscriptions, Invoices, Audit, Feedback, System Health, Users (list).
+  - Manager: Coupons CRUD, Flags toggle, Announcements, Prompts, Tickets reply, Broadcasts.
+  - Super only: API Keys, Settings, Secrets, role assignment, destructive user actions.
+- Hide sidebar items the user cannot access (filter in `AdminLayout` based on `roles`).
+- Edge functions already check `canWrite`/`isSuper` server-side — keep authoritative.
+
+---
+
+### 4. Broadcast messaging — "one-click message all users" (email + in-app notification)
+
+New admin page: `src/admin/pages/AdminBroadcasts.tsx` (sidebar entry under "Communications").
+- Compose form: subject, body (markdown), audience (All / Plan filter / Country filter / Specific role), channel checkboxes (Email, In-app banner, Both).
+- Preview pane + send button (manager+).
+- History table of past broadcasts with delivery counts.
+
+New DB migration:
+- Table `broadcasts` (id, subject, body, audience jsonb, channels text[], created_by, created_at, recipient_count, sent_count, status). Standard GRANT block, RLS: admins only via `is_admin_user`.
+- Reuse existing `announcements` table for in-app banner channel (insert a row when "in-app" selected).
+
+New edge function: `supabase/functions/admin-broadcast-send/index.ts`
+- requireAdmin + canWrite.
+- Resolves audience → `profiles` query → email list from `auth.users` via service role.
+- For email channel: new React Email template `supabase/functions/_shared/transactional-email-templates/admin-broadcast.tsx` (subject, body, brand header, unsubscribe footer auto-appended). Register in `registry.ts`. Loops one-by-one through `send-transactional-email` with idempotency key `broadcast-{id}-{userId}`.
+- For in-app channel: inserts `announcements` row (already has `get_active_announcements` RPC consumed by `AnnouncementBanner.jsx`).
+- Writes `broadcasts` row + audit log.
+
+Prereq: email infra must be set up (check status; scaffold if missing).
+
+---
+
+### 5. Dark / Light mode in admin dashboard
+
+- `AdminLayout` already inherits app theme. Add explicit `ThemeToggle` (reuse `src/components/ThemeToggle.jsx`) in the admin top bar.
+- Audit admin pages/components for hardcoded colors (`bg-white`, `text-black`, `bg-gray-*`) and replace with semantic tokens (`bg-card`, `text-foreground`, `bg-muted`). Files: `KpiCard`, `DataTable`, `ChartCard`, `StatusPill`, `JsonDiff`, all `AdminXxx.tsx` pages.
+
+---
+
+### 6. Real-time traffic analytics on Admin Dashboard (image 2 style)
+
+File: `src/admin/pages/AdminDashboard.tsx` + new `supabase/functions/admin-traffic-overview/index.ts`
+- New "Web Traffic" card: Visitors, Page views, Views/visit, Visit duration, Bounce rate (KPI strip) + 90-day line chart.
+- New "Traffic breakdown" 4-column grid: Source, Page, Device, Country (tables with counts).
+- Data source: derive from `ai_events` (already logs requests) + new lightweight `page_views` table.
+  - Migration: `page_views(id, user_id nullable, session_id, path, referrer, device, country, created_at)` + GRANTs + RLS (insert: anyone via RPC `log_page_view`, select: admins only).
+  - Tiny client hook `usePageView()` mounted in `App.jsx` to call `log_page_view` on route change (already-captured `country_code` on profile reused for auth users).
+- Realtime: `useAdminRealtime('page_views')` keeps numbers ticking.
+
+---
+
+### 7. World map — country-wise users on Dashboard
+
+- Add `react-simple-maps` + a topojson world atlas.
+- New `WorldUsersMap.tsx` admin component. Choropleth colored by user count per `profiles.country_code` (already exists). Hover tooltip shows country + count + % of total.
+- Placed under KPI strip on `AdminDashboard.tsx`.
+
+---
+
+### 8. Database explorer page (image 3 style)
+
+New route `/admin/database` → `src/admin/pages/AdminDatabase.tsx`.
+- Grid of cards: one per public table, showing name + live row count (realtime via channel).
+- Click a card → drawer/sub-page `AdminDatabaseTable.tsx` with paginated row viewer, column headers, search, and JSON cell expansion.
+- New edge function `admin-db-explorer/index.ts`:
+  - `action: "list_tables"` → returns whitelist of public tables with counts (queried via `pg_class` / `information_schema`).
+  - `action: "read_rows"` → params: table (validated against whitelist), limit, offset, order, filter. Uses service role + `requireAdmin` + viewer role allowed.
+- "RLS policies" + "Backups" badge buttons are links to existing System Health / Audit pages (no Supabase dashboard link — Cloud-only).
+
+---
+
+### 9. Global date-range filter (Today / Yesterday / 24h / 7d / 14d / 30d / 90d / This month / Custom / **1 year**)
+
+- New shared component `src/admin/components/DateRangePicker.tsx` (popover + presets matching image 4 plus "Last 1 year" and "Custom range" using existing `react-day-picker`).
+- New context `src/admin/context/AdminRangeContext.tsx` providing `{from, to, preset, setRange}`, persisted in `localStorage`.
+- `AdminLayout` top bar mounts the picker globally.
+- Update every analytics edge function to accept `{from, to}` body params and filter accordingly:
+  - `admin-dashboard-overview`, `admin-ai-overview`, `admin-ai-tokens`, `admin-ai-usage`, `admin-revenue-overview`, `admin-subscriptions-list`, `admin-invoices-list`, `admin-audit-list`, `admin-feedback-list`, `admin-system-health`, `admin-traffic-overview`.
+- Each admin page reads range from context and refetches when it changes.
+
+---
+
+## Technical Notes
+
+- All new tables: standard GRANT block (authenticated/service_role), RLS enabled, admin-only policies via `is_admin_user(auth.uid())`.
+- All new edge functions use `_shared/adminAuth.ts` (`requireAdmin`, role check, `audit`).
+- New deps: `react-simple-maps`, `d3-geo` (for map), topojson world atlas (`world-atlas` npm).
+- No Stripe/bKash references reintroduced — payment surfaces unchanged.
+- No client-side admin role check — guard + edge function both verify.
+- Reuse existing realtime hook `useAdminRealtime` and chart primitives (`ChartCard`).
+
+---
+
+## Deliverables Summary
+
+```text
+NEW FILES
+  src/admin/pages/AdminBroadcasts.tsx
+  src/admin/pages/AdminDatabase.tsx
+  src/admin/pages/AdminDatabaseTable.tsx
+  src/admin/components/DateRangePicker.tsx
+  src/admin/components/WorldUsersMap.tsx
+  src/admin/components/RoleGate.tsx
+  src/admin/context/AdminRangeContext.tsx
+  src/hooks/usePageView.ts
+  supabase/functions/admin-broadcast-send/index.ts
+  supabase/functions/admin-traffic-overview/index.ts
+  supabase/functions/admin-db-explorer/index.ts
+  supabase/functions/_shared/transactional-email-templates/admin-broadcast.tsx
+  supabase/migrations/<ts>_admin_phase6.sql  (broadcasts, page_views, RPC)
+
+EDITED FILES
+  src/components/Footer.jsx                  (banner -40%)
+  src/admin/layout/AdminLayout.tsx           (brand, theme toggle, range picker, role-filter nav)
+  src/admin/guards/AdminGuard.tsx            (role-gated routes)
+  src/admin/pages/AdminDashboard.tsx         (traffic card, world map)
+  src/App.jsx                                (route role requirements, /admin/database, /admin/broadcasts, usePageView)
+  src/index.css                              (admin sidebar tokens)
+  supabase/functions/_shared/transactional-email-templates/registry.ts
+  All admin-* edge functions                 (accept {from,to} range)
+  All AdminXxx.tsx pages                     (consume range context, token-based colors)
+```
