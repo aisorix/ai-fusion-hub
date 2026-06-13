@@ -245,6 +245,54 @@ export type Database = {
         }
         Relationships: []
       }
+      broadcasts: {
+        Row: {
+          audience: Json
+          body: string
+          channels: string[]
+          created_at: string
+          created_by: string | null
+          created_by_email: string | null
+          failed_count: number
+          id: string
+          recipient_count: number
+          sent_count: number
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          audience?: Json
+          body: string
+          channels?: string[]
+          created_at?: string
+          created_by?: string | null
+          created_by_email?: string | null
+          failed_count?: number
+          id?: string
+          recipient_count?: number
+          sent_count?: number
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          audience?: Json
+          body?: string
+          channels?: string[]
+          created_at?: string
+          created_by?: string | null
+          created_by_email?: string | null
+          failed_count?: number
+          id?: string
+          recipient_count?: number
+          sent_count?: number
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       chat_conversations: {
         Row: {
           assigned_employee_id: string | null
@@ -687,6 +735,45 @@ export type Database = {
           tokens_used?: number
           user_id?: string
           width?: number
+        }
+        Relationships: []
+      }
+      page_views: {
+        Row: {
+          country: string | null
+          created_at: string
+          device: string | null
+          id: string
+          path: string
+          referrer: string | null
+          session_id: string | null
+          source: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          id?: string
+          path: string
+          referrer?: string | null
+          session_id?: string | null
+          source?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          id?: string
+          path?: string
+          referrer?: string | null
+          session_id?: string | null
+          source?: string | null
+          user_agent?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1793,6 +1880,18 @@ export type Database = {
         Returns: boolean
       }
       is_admin_user: { Args: { _user_id: string }; Returns: boolean }
+      log_page_view: {
+        Args: {
+          _country?: string
+          _device?: string
+          _path: string
+          _referrer?: string
+          _session_id?: string
+          _source?: string
+          _user_agent?: string
+        }
+        Returns: string
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
