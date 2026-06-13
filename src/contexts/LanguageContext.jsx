@@ -44,7 +44,7 @@ const translations = {
     heroDesc: "Meet your new AI Co-Worker. Powered by advanced Agentic AI to automate your daily tasks.",
     startFreeTrial: "Start Free Trial",
     viewPricing: "View Pricing",
-    tokensMonth: "3M+ Tokens/Month",
+    tokensMonth: "17M+ Tokens/Month",
     premiumModels: "15+ Premium AI Models",
     securePrivate: "Enterprise-Grade Security",
     poweredByModels: "Powered by the world's most advanced AI models",
