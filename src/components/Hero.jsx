@@ -124,9 +124,7 @@ const Hero = () => {
             <span className="animated-gradient-text">
               {language === "en" ? "Ecosystem — One " : "ইকোসিস্টেম — এক "}
             </span>
-            <span className="animated-gradient-text">
-              {typedText}
-            </span>
+            <span className="animated-gradient-text">{typedText}</span>
             <span className="hero-cursor animated-gradient-text">|</span>
           </span>
         </h1>
@@ -158,10 +156,9 @@ const Hero = () => {
             className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 sm:px-10 py-4 sm:py-5 rounded-2xl font-semibold text-base sm:text-lg glass-card hover:border-primary/30 transition-all duration-500 text-foreground hover-lift"
           >
             <FlaskConical className="w-4 h-4 text-primary group-hover:rotate-12 transition-transform" />
-            {language === "en" ? "SorixLab Project" : "সরিক্সল্যাব প্রজেক্ট"}
+            {language === "en" ? "SorixLab Scholars" : "সরিক্সল্যাব প্রজেক্ট"}
           </a>
         </div>
-
 
         {/* Trust Indicators with Glass Effect */}
         <div className="mt-8 sm:mt-12 flex flex-wrap justify-center items-center gap-3 sm:gap-4 md:gap-6 px-4">
@@ -182,9 +179,7 @@ const Hero = () => {
 
         {/* AI Model Showcase */}
         <div className="mt-8 sm:mt-12">
-          <p className="text-center text-xs sm:text-sm text-muted-foreground mb-4">
-            {t("poweredByModels")}
-          </p>
+          <p className="text-center text-xs sm:text-sm text-muted-foreground mb-4">{t("poweredByModels")}</p>
           <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 px-2">
             {aiModels.map((model, i) => (
               <div
