@@ -3,7 +3,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import ScrollToTop from "./components/ScrollToTop";
@@ -98,6 +98,9 @@ const CoursesPage = React.lazy(() => import("./pages/CoursesPage"));
 const CourseDetailPage = React.lazy(() => import("./pages/CourseDetailPage"));
 const CompetitionsPage = React.lazy(() => import("./pages/CompetitionsPage"));
 const CompetitionDetailPage = React.lazy(() => import("./pages/CompetitionDetailPage"));
+const ScholarsLayout = React.lazy(() => import("./components/scholars/ScholarsLayout"));
+const ScholarsHome = React.lazy(() => import("./pages/scholars/ScholarsHome"));
+const ScholarsCertificates = React.lazy(() => import("./pages/scholars/ScholarsCertificates"));
 const EventsPage = React.lazy(() => import("./pages/EventsPage"));
 const InsideSorixCodePage = React.lazy(() => import("./pages/InsideSorixCodePage"));
 const InsideSorixCoworkPage = React.lazy(() => import("./pages/InsideSorixCoworkPage"));
@@ -115,6 +118,13 @@ const LoadingScreen = () => (
     <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
   </div>
 );
+
+// Small helper for slug-preserving redirects (used to migrate /courses/:slug → /sorixscholars/courses/:slug)
+import { useParams as _useParams } from "react-router-dom";
+const RedirectWithSlug = ({ to }) => {
+  const { slug } = _useParams();
+  return <Navigate to={`${to}/${slug}`} replace />;
+};
 
 const App = () => (
   <HelmetProvider>
@@ -210,10 +220,21 @@ const App = () => (
                 <Route path="/skills" element={<SkillsPage />} />
                 {/* Resources pages */}
                 <Route path="/connectors" element={<ConnectorsPage />} />
-                <Route path="/courses" element={<CoursesPage />} />
-                <Route path="/courses/:slug" element={<CourseDetailPage />} />
-                <Route path="/competitions" element={<CompetitionsPage />} />
-                <Route path="/competitions/:slug" element={<CompetitionDetailPage />} />
+                {/* Sorix Scholars — nested under /sorixscholars with its own layout */}
+                <Route path="/sorixscholars" element={<ScholarsLayout />}>
+                  <Route index element={<ScholarsHome />} />
+                  <Route path="courses" element={<CoursesPage />} />
+                  <Route path="courses/:slug" element={<CourseDetailPage />} />
+                  <Route path="competitions" element={<CompetitionsPage />} />
+                  <Route path="competitions/:slug" element={<CompetitionDetailPage />} />
+                  <Route path="certificates" element={<ScholarsCertificates />} />
+                </Route>
+                {/* Backwards-compatible redirects from old top-level paths */}
+                <Route path="/courses" element={<Navigate to="/sorixscholars/courses" replace />} />
+                <Route path="/courses/:slug" element={<RedirectWithSlug to="/sorixscholars/courses" />} />
+                <Route path="/competitions" element={<Navigate to="/sorixscholars/competitions" replace />} />
+                <Route path="/competitions/:slug" element={<RedirectWithSlug to="/sorixscholars/competitions" />} />
+                <Route path="/about-sorix-lab" element={<Navigate to="/sorixscholars" replace />} />
                 <Route path="/events" element={<EventsPage />} />
                 <Route path="/inside-sorix-code" element={<InsideSorixCodePage />} />
                 <Route path="/inside-sorix-cowork" element={<InsideSorixCoworkPage />} />

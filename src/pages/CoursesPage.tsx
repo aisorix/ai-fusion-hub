@@ -14,8 +14,6 @@ import {
   Clock,
 } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { courses, competitions } from "@/data/academy";
 import heroBg from "@/assets/academy-hero.jpg";
 
@@ -65,8 +63,8 @@ const offerings = [
     num: "02",
     icon: Trophy,
     title: "AI & Funding Competitions",
-    desc: "Quarterly Build Challenge and SorixLab Startup Funding Competition — cash, credits, and mentorship.",
-    to: "/competitions",
+    desc: "Quarterly Build Challenge and Sorix Scholars Startup Funding Competition — cash, credits, and mentorship.",
+    to: "/sorixscholars/competitions",
     active: true,
   },
   {
@@ -109,13 +107,12 @@ const promises = [
 
 export default function CoursesPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
       <SEOHead
-        title="SorixLab Scholars — Learn, Build, Win"
-        description="Self-paced AI courses, the Sorixlab Build Challenge, and the SorixLab Startup Funding Competition. Practitioner-built lessons from the team behind AI Sorix."
-        path="/courses"
+        title="Sorix Scholars — Learn, Build, Win"
+        description="Self-paced AI courses, the Sorix Scholars Build Challenge, and the Sorix Scholars Startup Funding Competition. Practitioner-built lessons from the team behind AI Sorix."
+        path="/sorixscholars/courses"
       />
-      <Navbar />
 
       {/* HERO */}
       <section className="relative overflow-hidden border-b border-border/40">
@@ -127,7 +124,7 @@ export default function CoursesPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 sm:pt-28 sm:pb-24">
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-6">
             <Sparkles className="w-3.5 h-3.5" />
-            SorixLab Scholars
+            Sorix Scholars
           </span>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] max-w-4xl font-display">
             Master frontier AI. <br className="hidden sm:block" />
@@ -136,7 +133,7 @@ export default function CoursesPage() {
             </span>
           </h1>
           <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-2xl leading-relaxed">
-            Practitioner-built courses, a worldwide Build Challenge, and a SorixLab Funding Competition — everything you
+            Practitioner-built courses, a worldwide Build Challenge, and a Sorix Scholars Funding Competition — everything you
             need to go from your first prompt to shipping an AI-native company.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
@@ -147,7 +144,7 @@ export default function CoursesPage() {
               Browse courses <ArrowRight className="w-4 h-4" />
             </a>
             <Link
-              to="/competitions"
+              to="/sorixscholars/competitions"
               className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl border border-border bg-card/50 backdrop-blur font-semibold hover:bg-muted/60 transition text-foreground"
             >
               <Trophy className="w-4 h-4 text-primary" /> Join a competition
@@ -221,7 +218,7 @@ export default function CoursesPage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-            What the SorixLab Scholars offers
+            What Sorix Scholars offers
           </h2>
           <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
             Four pillars of a complete AI education. Two are live today; two are landing soon.
@@ -292,7 +289,7 @@ export default function CoursesPage() {
           {courses.map((c) => (
             <Link
               key={c.slug}
-              to={`/courses/${c.slug}`}
+              to={`/sorixscholars/courses/${c.slug}`}
               className="group flex flex-col rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/40 hover:-translate-y-1 hover:shadow-xl transition-all duration-300"
             >
               <div className="relative aspect-[16/9] overflow-hidden bg-muted">
@@ -347,7 +344,7 @@ export default function CoursesPage() {
           {competitions.map((comp) => (
             <Link
               key={comp.slug}
-              to={`/competitions/${comp.slug}`}
+              to={`/sorixscholars/competitions/${comp.slug}`}
               className="group relative overflow-hidden rounded-3xl border border-border bg-card hover:border-primary/40 hover:-translate-y-1 hover:shadow-xl transition-all duration-300"
             >
               <div className="aspect-[16/9] overflow-hidden bg-muted">
@@ -420,7 +417,7 @@ export default function CoursesPage() {
         </div>
       </section>
 
-      <Footer />
+      
     </div>
   );
 }

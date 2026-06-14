@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Trophy, Sparkles, Globe, Users } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { competitions } from "@/data/academy";
 
 const why = [
@@ -19,29 +17,28 @@ const why = [
   {
     icon: Users,
     title: "Hands-on mentorship",
-    desc: "Direct office hours with the SorixLab engineering and product team.",
+    desc: "Direct office hours with the Sorix Scholars engineering and product team.",
   },
 ];
 
 export default function CompetitionsPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
       <SEOHead
-        title="Competitions · SorixLab Project — AI Build Challenge & Startup Funding"
-        description="Two worldwide competitions from the SorixLab Project: the Sorixlab Build Challenge and the SorixLab Startup Funding Competition. Cash, credits, mentorship, and a launch runway."
-        path="/competitions"
+        title="Competitions · Sorix Scholars — AI Build Challenge & Startup Funding"
+        description="Two worldwide competitions from Sorix Scholars: the Build Challenge and the Startup Funding Competition. Cash, credits, mentorship, and a launch runway."
+        path="/sorixscholars/competitions"
       />
-      <Navbar />
 
       <section className="relative overflow-hidden border-b border-border/40">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-background pointer-events-none" />
         <div className="absolute -top-32 -left-32 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12 sm:pt-24 sm:pb-20">
           <Link
-            to="/courses"
+            to="/sorixscholars/courses"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors mb-4 inline-block"
           >
-            ← SorixLab Scholars
+            ← Sorix Scholars
           </Link>
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-5">
             <Trophy className="w-3.5 h-3.5" /> Competitions
@@ -51,7 +48,7 @@ export default function CompetitionsPage() {
             Win cash, credits, and a launch runway.
           </h1>
           <p className="mt-5 text-base sm:text-lg text-muted-foreground max-w-2xl leading-relaxed">
-            Two worldwide competitions from the SorixLab Project — for individual builders, indie teams, and early-stage
+            Two worldwide competitions from Sorix Scholars — for individual builders, indie teams, and early-stage
             founders.
           </p>
         </div>
@@ -73,7 +70,7 @@ export default function CompetitionsPage() {
         {competitions.map((c) => (
           <Link
             key={c.slug}
-            to={`/competitions/${c.slug}`}
+            to={`/sorixscholars/competitions/${c.slug}`}
             className="group relative overflow-hidden rounded-3xl border border-border bg-card hover:border-primary/40 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300"
           >
             <div className="aspect-[16/9] overflow-hidden bg-muted">
@@ -106,7 +103,6 @@ export default function CompetitionsPage() {
         ))}
       </section>
 
-      <Footer />
     </div>
   );
 }

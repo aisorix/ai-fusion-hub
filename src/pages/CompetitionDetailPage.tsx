@@ -12,8 +12,6 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { getCompetition } from "@/data/academy";
 import ContactModal from "@/components/academy/ContactModal";
 
@@ -22,17 +20,16 @@ export default function CompetitionDetailPage() {
   const comp = getCompetition(slug);
   const [open, setOpen] = useState(false);
 
-  if (!comp) return <Navigate to="/competitions" replace />;
+  if (!comp) return <Navigate to="/sorixscholars/competitions" replace />;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
       <SEOHead
-        title={`${comp.title} · SorixLab Scholars`}
+        title={`${comp.title} · Sorix Scholars`}
         description={comp.tagline}
-        path={`/competitions/${comp.slug}`}
+        path={`/sorixscholars/competitions/${comp.slug}`}
         ogImage={comp.cover}
       />
-      <Navbar />
 
       <section className="relative overflow-hidden border-b border-border/40">
         <div
@@ -42,7 +39,7 @@ export default function CompetitionDetailPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-14 sm:pt-16 sm:pb-20">
           <Link
-            to="/competitions"
+            to="/sorixscholars/competitions"
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
           >
             <ArrowLeft className="w-4 h-4" /> Back to competitions
@@ -184,7 +181,8 @@ export default function CompetitionDetailPage() {
         </section>
       </div>
 
-      <Footer />
+
+
 
       <ContactModal
         open={open}

@@ -182,8 +182,8 @@ const megaMenus = {
       ],
       [
         { icon: Plug, name: "Connectors", desc: "Integrations to 100+ apps", to: "/connectors" },
-        { icon: GraduationCap, name: "SorixLab Scholars", desc: "competitions & courses", to: "/courses" },
-        { icon: Trophy, name: "Competitions", desc: "AI Challenge & Startup Funding", to: "/competitions" },
+        { icon: GraduationCap, name: "Sorix Scholars", desc: "Courses, competitions & certificates", to: "/sorixscholars" },
+        { icon: Trophy, name: "Competitions", desc: "AI Challenge & Startup Funding", to: "/sorixscholars/competitions" },
         { icon: CalendarDays, name: "Events", desc: "Webinars, hackathons & summits", to: "/events" },
         { icon: Code2, name: "Inside Sorix Code", desc: "Deep-dive into our coding tool", to: "/inside-sorix-code" },
         { icon: Layers, name: "Inside Sorix Cowork", desc: "Multi-agent workspace tour", to: "/inside-sorix-cowork" },
@@ -195,7 +195,7 @@ const megaMenus = {
     columns: [
       [
         { icon: Globe, name: "About Us", desc: "Our mission & global team", to: "/about-us" },
-        { icon: FlaskConical, name: "About SorixLab", desc: "Our parent R&D lab", to: "/about-sorix-lab" },
+        { icon: FlaskConical, name: "Sorix Scholars", desc: "Our learning ecosystem", to: "/sorixscholars" },
         { icon: Newspaper, name: "Press & Media", desc: "News & press releases", to: "/press" },
         { icon: Briefcase, name: "Careers", desc: "Join our team", to: "/careers" },
         { icon: Mail, name: "Contact Us", desc: "Get in touch", scrollTo: "contact" },
