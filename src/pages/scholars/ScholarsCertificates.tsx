@@ -98,7 +98,7 @@ export default function ScholarsCertificates() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.setTextColor(59, 130, 246);
-    doc.text("Rakib Eslam  ·  Founder, AI Sorix", w / 2, h - 55, { align: "center" });
+    doc.text("Rakib Eslam  ·  Founder & CEO, AI Sorix Limited", w / 2, h - 55, { align: "center" });
     doc.save(`sorix-scholars-${c.id.slice(0, 8)}.pdf`);
   };
 
@@ -123,8 +123,8 @@ export default function ScholarsCertificates() {
           </h1>
         </div>
         <p className="text-sm sm:text-base text-muted-foreground max-w-2xl">
-          Every course, competition and workshop you finish at Sorix Scholars earns you a
-          verifiable certificate. Download it as a PDF or share the link with your network.
+          Every course, competition and workshop you finish at Sorix Scholars earns you a verifiable certificate.
+          Download it as a PDF or share the link with your network.
         </p>
       </section>
 
@@ -152,8 +152,7 @@ export default function ScholarsCertificates() {
             <Award className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
             <h3 className="text-lg font-semibold text-foreground">No certificates yet</h3>
             <p className="text-sm text-muted-foreground mt-1 mb-5 max-w-md mx-auto">
-              Finish your first course, competition, or workshop and your certificate will appear
-              here automatically.
+              Finish your first course, competition, or workshop and your certificate will appear here automatically.
             </p>
             <div className="flex items-center justify-center gap-2 flex-wrap">
               <Link
@@ -175,10 +174,7 @@ export default function ScholarsCertificates() {
             {items.map((c) => {
               const Icon = kindIcon[c.kind];
               return (
-                <div
-                  key={c.id}
-                  className="rounded-2xl border border-border bg-card p-5 flex flex-col"
-                >
+                <div key={c.id} className="rounded-2xl border border-border bg-card p-5 flex flex-col">
                   <div className="flex items-start gap-3">
                     <span className="w-11 h-11 rounded-xl bg-primary/10 grid place-items-center flex-shrink-0">
                       <Icon className="w-5 h-5 text-primary" />
@@ -192,9 +188,7 @@ export default function ScholarsCertificates() {
                           {new Date(c.issued_at).toLocaleDateString()}
                         </span>
                       </div>
-                      <h3 className="text-base font-semibold text-foreground leading-snug">
-                        {c.title}
-                      </h3>
+                      <h3 className="text-base font-semibold text-foreground leading-snug">{c.title}</h3>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 mt-5 pt-4 border-t border-border/50">
