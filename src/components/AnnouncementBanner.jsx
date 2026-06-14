@@ -30,7 +30,7 @@ const AnnouncementBanner = () => {
           <span className="h-1 w-1 rounded-full bg-primary" />
 
           <span className="text-foreground/80 dark:text-foreground/70">
-            {language === "en" ? "New: Deepseek V4 & Claude Fable 5" : "নতুন: Deepseek V4 & Claude Fable 5"}
+            {language === "en" ? "New: Deepseek V4 & Claude Opus 4.8" : "নতুন: Deepseek V4 & Claude Opus 4.8"}
           </span>
         </div>
       </div>
