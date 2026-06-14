@@ -18,7 +18,7 @@ const AnnouncementBanner = () => {
           whitespace-nowrap"
         >
           <Link
-            to="/about-sorix-lab"
+            to="/sorixscholars"
             className="inline-flex items-center px-1.5 sm:px-2 py-0.5 
               rounded-full text-[8px] sm:text-[10px] font-medium
               bg-primary/10 dark:bg-primary/20 text-primary
