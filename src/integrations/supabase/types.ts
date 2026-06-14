@@ -1454,6 +1454,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_certificates: {
+        Row: {
+          created_at: string
+          id: string
+          issued_at: string
+          kind: string
+          source_slug: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          issued_at?: string
+          kind: string
+          source_slug?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          issued_at?: string
+          kind?: string
+          source_slug?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_chat_windows: {
         Row: {
           updated_at: string
