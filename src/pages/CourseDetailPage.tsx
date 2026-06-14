@@ -2,8 +2,6 @@ import { useState } from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, CheckCircle2, Clock, GraduationCap, ChevronDown, Sparkles, User } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { courses, getCourse } from "@/data/academy";
 import ContactModal from "@/components/academy/ContactModal";
 
@@ -13,22 +11,21 @@ export default function CourseDetailPage() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
   const [modalOpen, setModalOpen] = useState(false);
 
-  if (!course) return <Navigate to="/courses" replace />;
+  if (!course) return <Navigate to="/sorixscholars/courses" replace />;
 
   const related = courses.filter((c) => c.slug !== course.slug).slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
       <SEOHead
-        title={`${course.title} · AI Sorix Academy`}
+        title={`${course.title} · Sorix Scholars`}
         description={course.tagline}
-        path={`/courses/${course.slug}`}
+        path={`/sorixscholars/courses/${course.slug}`}
         ogImage={course.cover}
       />
-      <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <Link to="/courses" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <Link to="/sorixscholars/courses" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to all courses
         </Link>
       </div>
@@ -159,7 +156,7 @@ export default function CourseDetailPage() {
         <h2 className="text-2xl font-bold text-foreground mb-6">Related courses</h2>
         <div className="grid sm:grid-cols-3 gap-5">
           {related.map((r) => (
-            <Link key={r.slug} to={`/courses/${r.slug}`} className="group flex flex-col rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/40 transition-all">
+            <Link key={r.slug} to={`/sorixscholars/courses/${r.slug}`} className="group flex flex-col rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/40 transition-all">
               <div className="aspect-[16/9] overflow-hidden bg-muted">
                 <img src={r.cover} alt="" loading="lazy" width={1024} height={576} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               </div>
@@ -171,13 +168,13 @@ export default function CourseDetailPage() {
           ))}
         </div>
         <div className="mt-8 text-center">
-          <Link to="/courses" className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:gap-2.5 transition-all">
+          <Link to="/sorixscholars/courses" className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:gap-2.5 transition-all">
             See all courses <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </section>
 
-      <Footer />
+
 
       <ContactModal
         open={modalOpen}

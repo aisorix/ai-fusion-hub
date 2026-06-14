@@ -12,8 +12,6 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { getCompetition } from "@/data/academy";
 import ContactModal from "@/components/academy/ContactModal";
 
@@ -184,7 +182,8 @@ export default function CompetitionDetailPage() {
         </section>
       </div>
 
-      <Footer />
+
+
 
       <ContactModal
         open={open}
