@@ -364,7 +364,12 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/sorixscholars" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Sorix Scholars
+                </Link>
+              </li>
+              <li>
+                <Link to="/sorixscholars/courses" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Courses
                 </Link>
               </li>
@@ -408,10 +413,10 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/about-sorix-lab"
+                  to="/sorixscholars"
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
-                  About SorixLab
+                  Sorix Scholars
                 </Link>
               </li>
               <li>
