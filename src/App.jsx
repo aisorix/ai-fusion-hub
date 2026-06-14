@@ -119,6 +119,13 @@ const LoadingScreen = () => (
   </div>
 );
 
+// Small helper for slug-preserving redirects (used to migrate /courses/:slug → /sorixscholars/courses/:slug)
+import { useParams as _useParams } from "react-router-dom";
+const RedirectWithSlug = ({ to }) => {
+  const { slug } = _useParams();
+  return <Navigate to={`${to}/${slug}`} replace />;
+};
+
 const App = () => (
   <HelmetProvider>
   <QueryClientProvider client={queryClient}>
