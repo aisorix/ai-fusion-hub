@@ -1,155 +1,111 @@
-## Scope
+# Sorix Scholars — Rebrand, Restructure & New Layout
 
-Nine connected changes spanning the public footer and the admin dashboard.
+## 1. Global Rename: "SorixLab Scholars" → "Sorix Scholars"
+Search-and-replace across all user-facing strings:
+- `src/components/Navbar.jsx` (mega-menu / link label)
+- `src/components/Footer.jsx`
+- `src/pages/AboutSorixLab.jsx` (the landing page, renamed in routes)
+- `src/pages/CoursesPage.tsx`, `CourseDetailPage.tsx`
+- `src/pages/CompetitionsPage.tsx`, `CompetitionDetailPage.tsx`
+- `src/data/academy.ts` text references
+- SEO `<title>` / meta / sitemap entries
+- `public/sitemap.xml`, `public/llms.txt`
+- Translations file `src/lib/translations.ts`
 
----
+Keep internal identifiers (file names, slugs in `academy.ts`) unchanged to avoid breakage; only display strings change.
 
-### 1. Footer — shrink SSLCommerz "Pay With" banner by 40%
+## 2. Route Restructure (nested under `/sorixscholars`)
+New canonical URLs:
+- `/sorixscholars` → Scholars landing (currently `/about-sorixlab` → rename component usage)
+- `/sorixscholars/courses` → list (was `/courses`)
+- `/sorixscholars/courses/:slug` → detail (was `/courses/:slug`)
+- `/sorixscholars/competitions` → list
+- `/sorixscholars/competitions/:slug` → detail
+- `/sorixscholars/certificates` → **NEW** Certificate Collection page
 
-File: `src/components/Footer.jsx`
-- Wrap the existing SSLCommerz strip in a centered container at `max-w-[60%]` (≈40% smaller) with `mx-auto`.
-- Keep the rounded border card; reduce vertical padding (`py-3`) and image `max-h` accordingly.
-- No logic changes.
+Implementation in `src/App.jsx`: wrap these 5 routes in a parent `<Route element={<ScholarsLayout/>}>` block so they share the dedicated Scholars navbar/footer.
 
----
+Backward compatibility: add `<Navigate>` redirects from old paths (`/about-sorixlab`, `/courses`, `/courses/:slug`, `/competitions`, `/competitions/:slug`) to the new `/sorixscholars/...` equivalents so existing links and the sitemap don't 404.
 
-### 2. Admin sidebar — branded look (logo color, AI Sorix Admin name, adaptive text)
+Update `scripts/generate-sitemap.ts` (or `public/sitemap.xml`) entries to the new URLs.
 
-File: `src/admin/layout/AdminLayout.tsx` (+ small CSS tokens in `src/index.css`)
-- Sidebar background = brand gradient matching the AI Sorix logo (cyan→teal, already used elsewhere). Add admin-scoped tokens `--admin-sidebar`, `--admin-sidebar-fg` in `index.css` (light + dark variants).
-- Header block: logo mark + "AI Sorix Admin" in Plus Jakarta Sans, `gap-1.5`.
-- Text auto-contrast rule: use `text-admin-sidebar-fg` token so on white surfaces text becomes black, on dark/colored surfaces text becomes white. Same for active/hover states (replace any hardcoded `text-white`/`text-black`).
-- Active nav item gets a translucent overlay (`bg-white/15` on color, `bg-black/5` on white).
+## 3. Dedicated Scholars Layout & Navbar
+New files:
+- `src/components/scholars/ScholarsLayout.tsx` — `<ScholarsNavbar/> <Outlet/> <ScholarsFooter/>`
+- `src/components/scholars/ScholarsNavbar.tsx`
+- `src/components/scholars/ScholarsFooter.tsx` (lighter variant; reuse main footer legal links)
 
----
+Navbar spec (matches the uploaded video reference):
+- Left: "Sorix Scholars" wordmark + small graduation-cap mark (Lucide `GraduationCap`)
+- Center links: Home · Courses · Competitions · Certificates · Mentor
+- Right: existing auth buttons (reuses `useAuth` — same login system; no separate auth)
+- Sticky, translucent backdrop-blur, theme-aware tokens (no hardcoded colors)
+- Mobile: hamburger sheet
 
-### 3. Role-Based Access Control for admin pages
+Design parity with the project: Plus Jakarta Sans wordmark, `gap-1.5` between mark and text (per brand memory).
 
-Roles already exist: `admin`, `admin_super`, `admin_manager`, `admin_viewer`. Wire them into the UI.
+## 4. Scholars Landing Page (`/sorixscholars`)
+Restructure `AboutSorixLab.jsx` into `src/pages/scholars/ScholarsHome.tsx` keeping the same visual sections shown in the video:
+- Hero: "Sorix Scholars — Learn. Build. Get certified."
+- Stat strip (learners, courses, competitions, certificates issued)
+- Featured Courses grid (pulls from `academy.ts`)
+- Competitions strip
+- **Mentor section** — single highlighted mentor card:
+  - Photo: upload provided image via Lovable Assets → `src/assets/mentor-rakib.jpg.asset.json`
+  - Name: **Rakib Eslam**
+  - Title: **Founder & CEO, AI Sorix Limited · Software Engineer**
+  - Bio (~80 words): builder of the AI Sorix ecosystem, ships frontier multi-model AI products used worldwide; mentors learners on prompt engineering, AI agents, and shipping production AI features. Speaker at global AI meetups.
+  - Tags: Frontier AI · Agents · Product
+  - CTA: "Book a mentor session"
+- Certificates teaser → links to `/sorixscholars/certificates`
+- Final CTA band
 
-File: `src/admin/guards/AdminGuard.tsx`
-- Extend guard to accept `requiredRole?: AdminRole[]` and `mode?: "read"|"write"`.
-- Add `<RoleGate roles={[...]}>` wrapper for in-page write actions.
+Text content only — no layout change from existing AboutSorixLab.
 
-File: `src/App.jsx`
-- Per route, declare minimum role:
-  - Viewer (read-only): Dashboard, AI Usage/Tokens/Live, Revenue, Subscriptions, Invoices, Audit, Feedback, System Health, Users (list).
-  - Manager: Coupons CRUD, Flags toggle, Announcements, Prompts, Tickets reply, Broadcasts.
-  - Super only: API Keys, Settings, Secrets, role assignment, destructive user actions.
-- Hide sidebar items the user cannot access (filter in `AdminLayout` based on `roles`).
-- Edge functions already check `canWrite`/`isSuper` server-side — keep authoritative.
+## 5. Certificate Collection Page (NEW)
+`src/pages/scholars/ScholarsCertificates.tsx`:
+- Hero: "Your Certificate Collection"
+- If unauthenticated → CTA to log in
+- If authenticated → grid of earned certificates
+- Empty state with EmptyState component: "Finish a course, competition or workshop to earn your first certificate" + browse links
+- Each card: certificate title, source type badge (Course / Competition / Workshop), issued date, "View" + "Download PDF" buttons (PDF download stubbed via existing `exportUtils` jsPDF flow — generates a simple certificate with user name + course title; can be wired to real issuance later)
+- Data source: new lightweight Supabase table `user_certificates (id, user_id, kind, title, source_slug, issued_at)` with RLS `user_id = auth.uid()` + standard GRANTs. No edge function needed (direct select). Migration includes the required `GRANT SELECT, INSERT ON public.user_certificates TO authenticated; GRANT ALL TO service_role;` block.
 
----
+## 6. Sitemap, SEO, llms.txt
+- Update `scripts/generate-sitemap.ts` entries to new `/sorixscholars/...` paths
+- SEO `<title>` and meta on each Scholars page → "Sorix Scholars" branding
+- `public/llms.txt` rename section
 
-### 4. Broadcast messaging — "one-click message all users" (email + in-app notification)
+## 7. Memory Update
+Add a project memory `mem://features/sorix-scholars` capturing:
+- Brand name is **Sorix Scholars** (never "SorixLab")
+- All Scholars routes live under `/sorixscholars/*`
+- Dedicated `ScholarsLayout` with its own navbar/footer
+- Reuses main auth (`useAuth`) — no separate login
+Update `mem://index.md` to reference it.
 
-New admin page: `src/admin/pages/AdminBroadcasts.tsx` (sidebar entry under "Communications").
-- Compose form: subject, body (markdown), audience (All / Plan filter / Country filter / Specific role), channel checkboxes (Email, In-app banner, Both).
-- Preview pane + send button (manager+).
-- History table of past broadcasts with delivery counts.
+## Files
+**New**
+- `src/components/scholars/ScholarsLayout.tsx`
+- `src/components/scholars/ScholarsNavbar.tsx`
+- `src/components/scholars/ScholarsFooter.tsx`
+- `src/pages/scholars/ScholarsHome.tsx`
+- `src/pages/scholars/ScholarsCertificates.tsx`
+- `src/assets/mentor-rakib.jpg.asset.json` (from uploaded photo via lovable-assets)
+- `supabase/migrations/<ts>_user_certificates.sql`
 
-New DB migration:
-- Table `broadcasts` (id, subject, body, audience jsonb, channels text[], created_by, created_at, recipient_count, sent_count, status). Standard GRANT block, RLS: admins only via `is_admin_user`.
-- Reuse existing `announcements` table for in-app banner channel (insert a row when "in-app" selected).
+**Edited**
+- `src/App.jsx` (nested routes + redirects)
+- `src/components/Navbar.jsx`, `Footer.jsx` (rename + link to `/sorixscholars`)
+- `src/pages/CoursesPage.tsx`, `CourseDetailPage.tsx`, `CompetitionsPage.tsx`, `CompetitionDetailPage.tsx` (rename strings, link bases now `/sorixscholars/...`)
+- `src/data/academy.ts` (display copy)
+- `src/lib/translations.ts`
+- `scripts/generate-sitemap.ts`, `public/llms.txt`
+- `mem://index.md` + new memory file
 
-New edge function: `supabase/functions/admin-broadcast-send/index.ts`
-- requireAdmin + canWrite.
-- Resolves audience → `profiles` query → email list from `auth.users` via service role.
-- For email channel: new React Email template `supabase/functions/_shared/transactional-email-templates/admin-broadcast.tsx` (subject, body, brand header, unsubscribe footer auto-appended). Register in `registry.ts`. Loops one-by-one through `send-transactional-email` with idempotency key `broadcast-{id}-{userId}`.
-- For in-app channel: inserts `announcements` row (already has `get_active_announcements` RPC consumed by `AnnouncementBanner.jsx`).
-- Writes `broadcasts` row + audit log.
+**No removals.** Old paths kept as redirects.
 
-Prereq: email infra must be set up (check status; scaffold if missing).
-
----
-
-### 5. Dark / Light mode in admin dashboard
-
-- `AdminLayout` already inherits app theme. Add explicit `ThemeToggle` (reuse `src/components/ThemeToggle.jsx`) in the admin top bar.
-- Audit admin pages/components for hardcoded colors (`bg-white`, `text-black`, `bg-gray-*`) and replace with semantic tokens (`bg-card`, `text-foreground`, `bg-muted`). Files: `KpiCard`, `DataTable`, `ChartCard`, `StatusPill`, `JsonDiff`, all `AdminXxx.tsx` pages.
-
----
-
-### 6. Real-time traffic analytics on Admin Dashboard (image 2 style)
-
-File: `src/admin/pages/AdminDashboard.tsx` + new `supabase/functions/admin-traffic-overview/index.ts`
-- New "Web Traffic" card: Visitors, Page views, Views/visit, Visit duration, Bounce rate (KPI strip) + 90-day line chart.
-- New "Traffic breakdown" 4-column grid: Source, Page, Device, Country (tables with counts).
-- Data source: derive from `ai_events` (already logs requests) + new lightweight `page_views` table.
-  - Migration: `page_views(id, user_id nullable, session_id, path, referrer, device, country, created_at)` + GRANTs + RLS (insert: anyone via RPC `log_page_view`, select: admins only).
-  - Tiny client hook `usePageView()` mounted in `App.jsx` to call `log_page_view` on route change (already-captured `country_code` on profile reused for auth users).
-- Realtime: `useAdminRealtime('page_views')` keeps numbers ticking.
-
----
-
-### 7. World map — country-wise users on Dashboard
-
-- Add `react-simple-maps` + a topojson world atlas.
-- New `WorldUsersMap.tsx` admin component. Choropleth colored by user count per `profiles.country_code` (already exists). Hover tooltip shows country + count + % of total.
-- Placed under KPI strip on `AdminDashboard.tsx`.
-
----
-
-### 8. Database explorer page (image 3 style)
-
-New route `/admin/database` → `src/admin/pages/AdminDatabase.tsx`.
-- Grid of cards: one per public table, showing name + live row count (realtime via channel).
-- Click a card → drawer/sub-page `AdminDatabaseTable.tsx` with paginated row viewer, column headers, search, and JSON cell expansion.
-- New edge function `admin-db-explorer/index.ts`:
-  - `action: "list_tables"` → returns whitelist of public tables with counts (queried via `pg_class` / `information_schema`).
-  - `action: "read_rows"` → params: table (validated against whitelist), limit, offset, order, filter. Uses service role + `requireAdmin` + viewer role allowed.
-- "RLS policies" + "Backups" badge buttons are links to existing System Health / Audit pages (no Supabase dashboard link — Cloud-only).
-
----
-
-### 9. Global date-range filter (Today / Yesterday / 24h / 7d / 14d / 30d / 90d / This month / Custom / **1 year**)
-
-- New shared component `src/admin/components/DateRangePicker.tsx` (popover + presets matching image 4 plus "Last 1 year" and "Custom range" using existing `react-day-picker`).
-- New context `src/admin/context/AdminRangeContext.tsx` providing `{from, to, preset, setRange}`, persisted in `localStorage`.
-- `AdminLayout` top bar mounts the picker globally.
-- Update every analytics edge function to accept `{from, to}` body params and filter accordingly:
-  - `admin-dashboard-overview`, `admin-ai-overview`, `admin-ai-tokens`, `admin-ai-usage`, `admin-revenue-overview`, `admin-subscriptions-list`, `admin-invoices-list`, `admin-audit-list`, `admin-feedback-list`, `admin-system-health`, `admin-traffic-overview`.
-- Each admin page reads range from context and refetches when it changes.
-
----
-
-## Technical Notes
-
-- All new tables: standard GRANT block (authenticated/service_role), RLS enabled, admin-only policies via `is_admin_user(auth.uid())`.
-- All new edge functions use `_shared/adminAuth.ts` (`requireAdmin`, role check, `audit`).
-- New deps: `react-simple-maps`, `d3-geo` (for map), topojson world atlas (`world-atlas` npm).
-- No Stripe/bKash references reintroduced — payment surfaces unchanged.
-- No client-side admin role check — guard + edge function both verify.
-- Reuse existing realtime hook `useAdminRealtime` and chart primitives (`ChartCard`).
-
----
-
-## Deliverables Summary
-
-```text
-NEW FILES
-  src/admin/pages/AdminBroadcasts.tsx
-  src/admin/pages/AdminDatabase.tsx
-  src/admin/pages/AdminDatabaseTable.tsx
-  src/admin/components/DateRangePicker.tsx
-  src/admin/components/WorldUsersMap.tsx
-  src/admin/components/RoleGate.tsx
-  src/admin/context/AdminRangeContext.tsx
-  src/hooks/usePageView.ts
-  supabase/functions/admin-broadcast-send/index.ts
-  supabase/functions/admin-traffic-overview/index.ts
-  supabase/functions/admin-db-explorer/index.ts
-  supabase/functions/_shared/transactional-email-templates/admin-broadcast.tsx
-  supabase/migrations/<ts>_admin_phase6.sql  (broadcasts, page_views, RPC)
-
-EDITED FILES
-  src/components/Footer.jsx                  (banner -40%)
-  src/admin/layout/AdminLayout.tsx           (brand, theme toggle, range picker, role-filter nav)
-  src/admin/guards/AdminGuard.tsx            (role-gated routes)
-  src/admin/pages/AdminDashboard.tsx         (traffic card, world map)
-  src/App.jsx                                (route role requirements, /admin/database, /admin/broadcasts, usePageView)
-  src/index.css                              (admin sidebar tokens)
-  supabase/functions/_shared/transactional-email-templates/registry.ts
-  All admin-* edge functions                 (accept {from,to} range)
-  All AdminXxx.tsx pages                     (consume range context, token-based colors)
-```
+## Out of scope
+- Real certificate issuance pipeline (stubbed PDF + manual rows)
+- New auth flow (Scholars uses existing login)
+- Visual redesign of cards (kept identical to current Courses/Competitions UI)
