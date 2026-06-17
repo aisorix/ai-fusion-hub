@@ -1,129 +1,136 @@
-# Sorix Scholars — Rebrand, Restructure & New Layout
+## Scope
 
-## 1. Global Rename: "SorixLab Scholars" → "Sorix Scholars"
+Fixes and small features across navigation, scholars area, admin polish, and one auth bug. No backend logic changes outside the new `workshops` table and one analytics view fix.
 
-Search-and-replace across all user-facing strings:
+---
 
-- `src/components/Navbar.jsx` (mega-menu / link label)
-- `src/components/Footer.jsx`
-- `src/pages/AboutSorixLab.jsx` (the landing page, renamed in routes)
-- `src/pages/CoursesPage.tsx`, `CourseDetailPage.tsx`
-- `src/pages/CompetitionsPage.tsx`, `CompetitionDetailPage.tsx`
-- `src/data/academy.ts` text references
-- SEO `<title>` / meta / sitemap entries
-- `public/sitemap.xml`, `public/llms.txt`
-- Translations file `src/lib/translations.ts`
+### 1. Navbar & Footer — restructure
 
-Keep internal identifiers (file names, slugs in `academy.ts`) unchanged to avoid breakage; only display strings change.
+**Company menu** (Navbar + Footer):
+- Remove "Sorix Scholars" from Company. Add "About SorixLab" back, linking to `/about-sorix-lab` (existing `AboutSorixLab.jsx`, re-enabled).
+- Keep "Built by SorixLab" CTA → `/about-sorix-lab` (currently redirects to scholars; revert).
 
-## 2. Route Restructure (nested under `/sorixscholars`)
+**Resources menu**:
+- Keep "Sorix Scholars" → `/sorixscholars` (only place it appears).
 
-New canonical URLs:
+**Features menu** — new order:
+1. Sorix Agent  2. Cineshoot  3. Sorix Health  4. Sorix Agro  5. Sorix Imagine  6. AI Chat  7. Multi-Chat  8. Sorix Deck  9. FlowBuilder  10. Legends  11. Code
 
-- `/sorixscholars` → Scholars landing (currently `/about-sorixlab` → rename component usage)
-- `/sorixscholars/courses` → list (was `/courses`)
-- `/sorixscholars/courses/:slug` → detail (was `/courses/:slug`)
-- `/sorixscholars/competitions` → list
-- `/sorixscholars/competitions/:slug` → detail
-- `/sorixscholars/certificates` → **NEW** Certificate Collection page
+**Solutions menu** — new order:
+1. Workflow Automation  2. Professional Services  3. (then current rest: Customer Support, Coding, Healthcare, Financial, Government, Life Sciences, Nonprofits, Security)
 
-Implementation in `src/App.jsx`: wrap these 5 routes in a parent `<Route element={<ScholarsLayout/>}>` block so they share the dedicated Scholars navbar/footer.
+Files: `src/components/Navbar.jsx`, `src/components/Footer.jsx`, `src/App.jsx` (route-revert for `/about-sorix-lab` redirect).
 
-Backward compatibility: add `<Navigate>` redirects from old paths (`/about-sorixlab`, `/courses`, `/courses/:slug`, `/competitions`, `/competitions/:slug`) to the new `/sorixscholars/...` equivalents so existing links and the sitemap don't 404.
+---
 
-Update `scripts/generate-sitemap.ts` (or `public/sitemap.xml`) entries to the new URLs.
+### 2. AboutSorixLab page — restore + add team cards
 
-## 3. Dedicated Scholars Layout & Navbar
+- Re-enable `/about-sorix-lab` route (remove redirect, keep page intact).
+- Add a "Team" section with two cards using the uploaded Rakib photo for both (placeholder for supporting dev):
+  - **Rakib Eslam** — Founder & CEO, AI Sorix Limited · Software Engineer
+  - **Supporting Developer** — Engineering Team (same photo, placeholder name "TBD")
+- Upload Rakib photo via `lovable-assets` from `/mnt/user-uploads/image-347.png` → `src/assets/founder-rakib.jpg.asset.json`.
 
-New files:
+Files: `src/pages/AboutSorixLab.jsx`.
 
-- `src/components/scholars/ScholarsLayout.tsx` — `<ScholarsNavbar/> <Outlet/> <ScholarsFooter/>`
-- `src/components/scholars/ScholarsNavbar.tsx`
-- `src/components/scholars/ScholarsFooter.tsx` (lighter variant; reuse main footer legal links)
+---
 
-Navbar spec (matches the uploaded video reference):
+### 3. Workshops module (real DB + admin CRUD)
 
-- Left: "Sorix Scholars" wordmark + small graduation-cap mark (Lucide `GraduationCap`)
-- Center links: Home · Courses · Competitions · Certificates · Mentor
-- Right: existing auth buttons (reuses `useAuth` — same login system; no separate auth)
-- Sticky, translucent backdrop-blur, theme-aware tokens (no hardcoded colors)
-- Mobile: hamburger sheet
+**Migration** — new table `public.workshops` with: `slug`, `title`, `summary`, `description`, `cover_url`, `mentor_name`, `mentor_role`, `mentor_bio`, `mentor_avatar_url`, `duration_hours`, `price_bdt`, `starts_at`, `is_published`. GRANTs: `SELECT` to anon/authenticated (published only via policy), full to service_role. RLS: anon/authenticated SELECT WHERE `is_published=true`; admins (`has_role` admin*) full access.
 
-Design parity with the project: Plus Jakarta Sans wordmark, `gap-1.5` between mark and text (per brand memory).
+**Frontend**:
+- `src/pages/scholars/WorkshopsPage.tsx` (list)
+- `src/pages/scholars/WorkshopDetailPage.tsx` (detail + mentor card + Buy CTA)
+- Routes under `/sorixscholars/workshops` and `/sorixscholars/workshops/:slug` in `src/App.jsx`.
+- Add "Workshops" link to `ScholarsNavbar` + `ScholarsFooter`.
 
-## 4. Scholars Landing Page (`/sorixscholars`)
+**Admin**:
+- `src/admin/pages/AdminWorkshops.tsx` — CRUD list + create/edit dialog, role-gated `write`.
+- Sidebar entry in `AdminLayout.tsx`.
 
-Restructure `AboutSorixLab.jsx` into `src/pages/scholars/ScholarsHome.tsx` keeping the same visual sections shown in the video:
+---
 
-- Hero: "Sorix Scholars — Learn. Build. Get certified."
-- Stat strip (learners, courses, competitions, certificates issued)
-- Featured Courses grid (pulls from `academy.ts`)
-- Competitions strip
-- **Mentor section** — single highlighted mentor card:
-  - Photo: upload provided image via Lovable Assets → `src/assets/mentor-rakib.jpg.asset.json`
-  - Name: **Rakib Eslam**
-  - Title: **Founder & CEO, AI Sorix Limited | Software Engineer**
-  - Bio (~80 words): builder of the AI Sorix ecosystem, ships frontier multi-model AI products used worldwide; mentors learners on prompt engineering, AI agents, and shipping production AI features. Speaker at global AI meetups.
-  - Tags: Frontier AI · Agents · Product
-  - CTA: "Book a mentor session"
-- Certificates teaser → links to `/sorixscholars/certificates`
-- Final CTA band
+### 4. Mentor info card on Course/Workshop/Competition detail pages
 
-Text content only — no layout change from existing AboutSorixLab.
+Reusable component `src/components/scholars/MentorCard.tsx` (avatar, name, role, bio, social/contact). Removed from `ScholarsHome` and embedded in:
+- `CourseDetailPage.tsx`
+- `CompetitionDetailPage.tsx`
+- `WorkshopDetailPage.tsx`
 
-## 5. Certificate Collection Page (NEW)
+Data source: mentor fields already on course/workshop, plus default fallback (Rakib).
 
-`src/pages/scholars/ScholarsCertificates.tsx`:
+---
 
-- Hero: "Your Certificate Collection"
-- If unauthenticated → CTA to log in
-- If authenticated → grid of earned certificates
-- Empty state with EmptyState component: "Finish a course, competition or workshop to earn your first certificate" + browse links
-- Each card: certificate title, source type badge (Course / Competition / Workshop), issued date, "View" + "Download PDF" buttons (PDF download stubbed via existing `exportUtils` jsPDF flow — generates a simple certificate with user name + course title; can be wired to real issuance later)
-- Data source: new lightweight Supabase table `user_certificates (id, user_id, kind, title, source_slug, issued_at)` with RLS `user_id = auth.uid()` + standard GRANTs. No edge function needed (direct select). Migration includes the required `GRANT SELECT, INSERT ON public.user_certificates TO authenticated; GRANT ALL TO service_role;` block.
+### 5. Mobile / tablet polish
 
-## 6. Sitemap, SEO, llms.txt
+**ScholarsLayout / Navbar / Footer**: add mobile menu sheet, `px-4 sm:px-6`, stack hero, reduce hero font on `<sm`, fix overflow on mentor section.
 
-- Update `scripts/generate-sitemap.ts` entries to new `/sorixscholars/...` paths
-- SEO `<title>` and meta on each Scholars page → "Sorix Scholars" branding
-- `public/llms.txt` rename section
+**AdminLayout**: convert fixed sidebar to a `Sheet` on `<lg`, collapsible burger button in topbar, tables wrap in `overflow-x-auto`, KPIs `grid-cols-1 sm:grid-cols-2 xl:grid-cols-4`, `WorldUsersMap` responsive container.
 
-## 7. Memory Update
+Files: `src/components/scholars/*`, `src/pages/scholars/ScholarsHome.tsx`, `src/admin/layout/AdminLayout.tsx`, `src/admin/pages/AdminDashboard.tsx`.
 
-Add a project memory `mem://features/sorix-scholars` capturing:
+---
 
-- Brand name is **Sorix Scholars** (never "SorixLab")
-- All Scholars routes live under `/sorixscholars/*`
-- Dedicated `ScholarsLayout` with its own navbar/footer
-- Reuses main auth (`useAuth`) — no separate login
-  Update `mem://index.md` to reference it.
+### 6. Admin input contrast (light & dark)
 
-## Files
+Audit admin pages using raw `<input>`/`<textarea>` with dark bg. Replace with shadcn `Input`/`Textarea` (semantic tokens already correct) OR add `text-foreground bg-background` explicitly. Targets identified: `AdminCoupons.tsx` (new-coupon dialog shown in screenshot), `AdminBroadcasts.tsx` audience `<select>`, `AdminPrompts.tsx`, `AdminAnnouncements.tsx`. Sweep all `src/admin/pages/*.tsx` for `className="...bg-` without `text-foreground`.
 
-**New**
+---
 
-- `src/components/scholars/ScholarsLayout.tsx`
-- `src/components/scholars/ScholarsNavbar.tsx`
-- `src/components/scholars/ScholarsFooter.tsx`
-- `src/pages/scholars/ScholarsHome.tsx`
-- `src/pages/scholars/ScholarsCertificates.tsx`
-- `src/assets/mentor-rakib.jpg.asset.json` (from uploaded photo via lovable-assets)
-- `supabase/migrations/<ts>_user_certificates.sql`
+### 7. Reset password — redirect bug
 
-**Edited**
+Symptom: after clicking the recovery email link, user lands in `/chat` without setting a new password.
 
-- `src/App.jsx` (nested routes + redirects)
-- `src/components/Navbar.jsx`, `Footer.jsx` (rename + link to `/sorixscholars`)
-- `src/pages/CoursesPage.tsx`, `CourseDetailPage.tsx`, `CompetitionsPage.tsx`, `CompetitionDetailPage.tsx` (rename strings, link bases now `/sorixscholars/...`)
-- `src/data/academy.ts` (display copy)
-- `src/lib/translations.ts`
-- `scripts/generate-sitemap.ts`, `public/llms.txt`
-- `mem://index.md` + new memory file
+Cause: `AuthContext`/router auto-navigates on `SIGNED_IN` event; Supabase fires `SIGNED_IN` (event subtype `PASSWORD_RECOVERY`) on the recovery link too.
 
-**No removals.** Old paths kept as redirects.
+Fix:
+- In `src/pages/ResetPassword.jsx`: read hash params, if `type=recovery` set a `sessionStorage` flag `pw_recovery=1` before any redirect logic runs.
+- In `src/contexts/AuthContext.tsx`: when `event === 'PASSWORD_RECOVERY'` OR `pw_recovery` flag set, do NOT trigger any post-login navigation; force route to `/reset-password`.
+- Ensure `ProtectedRoute`/landing redirects respect the flag and don't bounce to `/chat`.
+- Clear flag after `updateUser({ password })` success, then navigate to `/login`.
 
-## Out of scope
+Files: `src/pages/ResetPassword.jsx`, `src/contexts/AuthContext.tsx`, `src/components/ProtectedRoute.tsx` (only if it forces redirects).
 
-- Real certificate issuance pipeline (stubbed PDF + manual rows)
-- New auth flow (Scholars uses existing login)
-- Visual redesign of cards (kept identical to current Courses/Competitions UI)
+---
+
+### 8. Admin analytics data accuracy
+
+Issue: visitors / page views / counts don't match real DB.
+
+Fix in `supabase/functions/admin-traffic-overview/index.ts` and `admin-dashboard-overview/index.ts`:
+- Replace estimated counts with exact `SELECT count(*)` from `page_views`, `profiles`, `subscriptions`, `chat_conversations`, `payment_history` using service-role client.
+- Visitors = distinct `session_id` in range; Page views = total rows; Unique users = distinct `user_id IS NOT NULL`.
+- Honour the `range` param from `AdminRangeContext` (currently ignored in some queries).
+- Geographic counts from `page_views.country` group-by (real data, drop hard-coded sample).
+
+Also fix `AdminDashboard.tsx` KPI cards to display the returned values verbatim (no client-side multipliers).
+
+---
+
+### Technical details
+
+**Files created**
+- `src/assets/founder-rakib.jpg.asset.json`
+- `src/components/scholars/MentorCard.tsx`
+- `src/pages/scholars/WorkshopsPage.tsx`
+- `src/pages/scholars/WorkshopDetailPage.tsx`
+- `src/admin/pages/AdminWorkshops.tsx`
+- migration: `workshops` table + RLS + GRANTs
+
+**Files edited**
+- `src/components/Navbar.jsx`, `src/components/Footer.jsx`
+- `src/App.jsx` (route revert + workshop routes)
+- `src/pages/AboutSorixLab.jsx`
+- `src/components/scholars/ScholarsNavbar.tsx`, `ScholarsFooter.tsx`, `ScholarsLayout.tsx`
+- `src/pages/scholars/ScholarsHome.tsx` (remove mentor section duplication if redundant)
+- `src/pages/CourseDetailPage.tsx`, `src/pages/CompetitionDetailPage.tsx`
+- `src/admin/layout/AdminLayout.tsx`, `src/admin/pages/AdminDashboard.tsx`
+- `src/admin/pages/AdminCoupons.tsx`, `AdminBroadcasts.tsx`, `AdminPrompts.tsx`, `AdminAnnouncements.tsx` (contrast)
+- `src/contexts/AuthContext.tsx`, `src/pages/ResetPassword.jsx`
+- `supabase/functions/admin-traffic-overview/index.ts`, `admin-dashboard-overview/index.ts`
+
+**Out of scope**
+- Real payment/buy-flow for workshops (uses existing `PaymentModal`).
+- Issuing certificates for workshops (will reuse existing `user_certificates` with `kind='workshop'`).
+- New design tokens.
