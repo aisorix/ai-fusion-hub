@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 import { courses, competitions } from "@/data/academy";
-import mentorAsset from "@/assets/mentor-rakib.jpg.asset.json";
 import {
   Sparkles,
   ArrowRight,
@@ -9,9 +8,6 @@ import {
   GraduationCap,
   Award,
   Users,
-  Globe,
-  Code,
-  Brain,
 } from "lucide-react";
 
 const stats = [
@@ -20,6 +16,7 @@ const stats = [
   { label: "Active competitions", value: `${competitions.length}`, icon: Trophy },
   { label: "Certificates issued", value: "3,200+", icon: Award },
 ];
+
 
 export default function ScholarsHome() {
   const featured = courses.slice(0, 6);
@@ -141,62 +138,8 @@ export default function ScholarsHome() {
         </div>
       </section>
 
-      {/* Mentor */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="rounded-3xl border border-border bg-gradient-to-br from-primary/10 via-card to-cyan-500/5 p-6 sm:p-10 grid md:grid-cols-[260px_1fr] gap-8 items-center">
-          <div className="relative">
-            <div className="absolute -inset-2 bg-gradient-to-br from-primary to-cyan-500 rounded-3xl blur opacity-30" />
-            <img
-              src={mentorAsset.url}
-              alt="Rakib Eslam — Founder & CEO, AI Sorix Limited"
-              className="relative w-full aspect-square object-cover rounded-2xl shadow-xl"
-            />
-          </div>
-          <div>
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-3">
-              <Sparkles className="w-3 h-3" /> Lead Mentor
-            </span>
-            <h3
-              className="text-2xl sm:text-3xl font-bold text-foreground"
-              style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}
-            >
-              Rakib Eslam
-            </h3>
-            <p className="text-sm text-primary font-medium mt-1">
-              Founder &amp; CEO, AI Sorix Limited · Software Engineer
-            </p>
-            <p className="mt-4 text-sm sm:text-base text-muted-foreground leading-relaxed">
-              Builder of the AI Sorix ecosystem — a multi-model AI workspace used by professionals
-              worldwide. Rakib ships frontier AI features end-to-end, from prompt design and agent
-              architecture to production observability. At Sorix Scholars he mentors learners on
-              prompt engineering, autonomous agents, and turning AI prototypes into products real
-              people pay for. Frequent speaker at global AI meetups.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {[
-                { icon: Brain, label: "Frontier AI" },
-                { icon: Code, label: "Agents & Tools" },
-                { icon: Globe, label: "Global product" },
-              ].map((t) => (
-                <span
-                  key={t.label}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background text-xs font-medium text-foreground"
-                >
-                  <t.icon className="w-3.5 h-3.5 text-primary" /> {t.label}
-                </span>
-              ))}
-            </div>
-            <div className="mt-6">
-              <Link
-                to="/sorixscholars/courses"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-foreground text-background text-sm font-semibold hover:opacity-90 transition-opacity"
-              >
-                Learn with Rakib <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Mentor section removed from home — now shown on course/workshop/competition detail pages */}
+
 
       {/* Competitions */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-14">

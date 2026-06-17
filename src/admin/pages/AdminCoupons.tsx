@@ -84,17 +84,17 @@ export default function AdminCoupons() {
       </Card>
 
       <Dialog open={creating} onOpenChange={setCreating}>
-        <DialogContent className="bg-slate-900 border-slate-200 text-slate-100">
-          <DialogHeader><DialogTitle>New Coupon</DialogTitle></DialogHeader>
+        <DialogContent className="bg-background text-foreground border-border">
+          <DialogHeader><DialogTitle className="text-foreground">New Coupon</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <Input placeholder="CODE (e.g. LAUNCH20)" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} className="bg-slate-50 border-slate-200" />
-            <Input placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="bg-slate-50 border-slate-200" />
+            <Input placeholder="CODE (e.g. LAUNCH20)" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} className="bg-background text-foreground border-input" />
+            <Input placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="bg-background text-foreground border-input" />
             <div className="grid grid-cols-2 gap-3">
-              <Input type="number" placeholder="Percent off (1-100)" value={form.percent_off} onChange={(e) => setForm({ ...form, percent_off: e.target.value })} className="bg-slate-50 border-slate-200" />
-              <Input type="number" step="0.01" placeholder="Amount off" value={form.amount_off} onChange={(e) => setForm({ ...form, amount_off: e.target.value })} className="bg-slate-50 border-slate-200" />
+              <Input type="number" placeholder="Percent off (1-100)" value={form.percent_off} onChange={(e) => setForm({ ...form, percent_off: e.target.value })} className="bg-background text-foreground border-input" />
+              <Input type="number" step="0.01" placeholder="Amount off" value={form.amount_off} onChange={(e) => setForm({ ...form, amount_off: e.target.value })} className="bg-background text-foreground border-input" />
             </div>
-            <Input type="number" placeholder="Max redemptions (optional)" value={form.max_redemptions} onChange={(e) => setForm({ ...form, max_redemptions: e.target.value })} className="bg-slate-50 border-slate-200" />
-            <Input type="datetime-local" placeholder="Expires" value={form.expires_at} onChange={(e) => setForm({ ...form, expires_at: e.target.value })} className="bg-slate-50 border-slate-200" />
+            <Input type="number" placeholder="Max redemptions (optional)" value={form.max_redemptions} onChange={(e) => setForm({ ...form, max_redemptions: e.target.value })} className="bg-background text-foreground border-input" />
+            <Input type="datetime-local" placeholder="Expires" value={form.expires_at} onChange={(e) => setForm({ ...form, expires_at: e.target.value })} className="bg-background text-foreground border-input" />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreating(false)}>Cancel</Button>
@@ -105,3 +105,4 @@ export default function AdminCoupons() {
     </div>
   );
 }
+
