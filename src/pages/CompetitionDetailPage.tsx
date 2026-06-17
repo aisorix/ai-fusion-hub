@@ -14,6 +14,8 @@ import {
 import SEOHead from "@/components/SEOHead";
 import { getCompetition } from "@/data/academy";
 import ContactModal from "@/components/academy/ContactModal";
+import MentorCard from "@/components/scholars/MentorCard";
+
 
 export default function CompetitionDetailPage() {
   const { slug = "" } = useParams();
@@ -150,6 +152,11 @@ export default function CompetitionDetailPage() {
         </section>
 
         <section>
+          <h2 className="text-2xl font-bold text-foreground mb-5">Lead mentor</h2>
+          <MentorCard />
+        </section>
+
+        <section>
           <h2 className="text-2xl font-bold text-foreground mb-5">FAQ</h2>
           <div className="space-y-3 max-w-3xl">
             {comp.faqs.map((f) => (
@@ -160,6 +167,7 @@ export default function CompetitionDetailPage() {
             ))}
           </div>
         </section>
+
 
         <section>
           <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/15 via-card to-card p-8 sm:p-12 text-center">

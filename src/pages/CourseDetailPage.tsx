@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, CheckCircle2, Clock, GraduationCap, ChevronDown, Sparkles, User } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Clock, GraduationCap, ChevronDown, Sparkles } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import { courses, getCourse } from "@/data/academy";
 import ContactModal from "@/components/academy/ContactModal";
+import MentorCard from "@/components/scholars/MentorCard";
+
 
 export default function CourseDetailPage() {
   const { slug = "" } = useParams();
@@ -90,19 +92,14 @@ export default function CourseDetailPage() {
             </div>
           </section>
 
-          <section className="rounded-2xl border border-border bg-card p-6">
-            <h2 className="text-xl font-bold text-foreground mb-4">Instructor</h2>
-            <div className="flex gap-4 items-start">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
-                <User className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="font-semibold text-foreground">{course.instructor.name}</div>
-                <div className="text-sm text-primary">{course.instructor.role}</div>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{course.instructor.bio}</p>
-              </div>
-            </div>
-          </section>
+          <MentorCard
+            mentor={{
+              name: course.instructor.name,
+              role: course.instructor.role,
+              bio: course.instructor.bio,
+            }}
+          />
+
 
           <section>
             <h2 className="text-2xl font-bold text-foreground mb-5">FAQ</h2>

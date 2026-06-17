@@ -15,9 +15,11 @@ import {
 const links = [
   { to: "/sorixscholars", label: "Home", end: true },
   { to: "/sorixscholars/courses", label: "Courses" },
+  { to: "/sorixscholars/workshops", label: "Workshops" },
   { to: "/sorixscholars/competitions", label: "Competitions" },
   { to: "/sorixscholars/certificates", label: "Certificates" },
 ];
+
 
 export default function ScholarsNavbar() {
   const [open, setOpen] = useState(false);

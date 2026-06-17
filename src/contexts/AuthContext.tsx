@@ -26,7 +26,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const accessToken = hashParams.get('access_token');
       const refreshToken = hashParams.get('refresh_token');
-      
+      const type = hashParams.get('type');
+
+      // Password-recovery links also carry access/refresh tokens.
+      // Do NOT treat those as OAuth completion — let /reset-password handle it.
+      if (type === 'recovery' || window.location.pathname === '/reset-password') {
+        return;
+      }
+
       if (accessToken && refreshToken) {
         try {
           const { data, error } = await supabase.auth.setSession({
@@ -56,6 +63,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // If Supabase fires the dedicated password-recovery event, force the
+        // user to the reset page instead of letting them slip into the app.
+        if (event === 'PASSWORD_RECOVERY' && window.location.pathname !== '/reset-password') {
+          window.location.replace('/reset-password');
+        }
       }
     );
 
@@ -71,6 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => subscription.unsubscribe();
   }, []);
+
 
   const signUp = async (email: string, password: string, fullName: string) => {
     // Use basic signUp - Supabase will send OTP code (not magic link)

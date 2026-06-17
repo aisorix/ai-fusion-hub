@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
       totalUsers, newToday, subs, ticketsOpen, tokensAgg,
       growthRaw, recentSignups, recentTickets,
       imgCount, vidCount, deckCount, analysisCount, agentCount,
-      countriesRaw,
+      countriesRaw, activeTodayViews,
     ] = await Promise.all([
       s.from("profiles").select("id", { count: "exact", head: true }),
       s.from("profiles").select("id", { count: "exact", head: true }).gte("created_at", today),
@@ -40,6 +40,7 @@ Deno.serve(async (req) => {
       s.from("analysis_history").select("id", { count: "exact", head: true }).gte("created_at", since.toISOString()).lte("created_at", until.toISOString()),
       s.from("agent_runs").select("id", { count: "exact", head: true }).gte("created_at", since.toISOString()).lte("created_at", until.toISOString()),
       s.from("profiles").select("country_code"),
+      s.from("page_views").select("user_id, session_id").gte("created_at", today),
     ]);
 
     const planMap: Record<string, { count: number; revenue: number }> = {};
@@ -69,6 +70,13 @@ Deno.serve(async (req) => {
       if (c) usersByCountry[c] = (usersByCountry[c] || 0) + 1;
     });
 
+    // Distinct active visitors today (user_id when present, else session_id)
+    const activeSet = new Set<string>();
+    (activeTodayViews.data ?? []).forEach((r: any) => {
+      const key = r.user_id || r.session_id;
+      if (key) activeSet.add(key);
+    });
+
     const features = [
       { name: "Imagine", count: imgCount.count ?? 0 },
       { name: "Cineshoot", count: vidCount.count ?? 0 },
@@ -84,7 +92,7 @@ Deno.serve(async (req) => {
         mrr,
         totalTokens,
         ticketsOpen: ticketsOpen.count ?? 0,
-        activeToday: newToday.count ?? 0,
+        activeToday: activeSet.size,
       },
       planDistribution: Object.entries(planMap).map(([plan, v]) => ({ plan, ...v })),
       growth,
@@ -97,3 +105,4 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: (e as Error).message }, 500);
   }
 });
+

@@ -28,21 +28,21 @@ export default function ScholarsFooter() {
           </p>
           <ul className="space-y-2 text-sm">
             <li>
-              <Link
-                to="/sorixscholars/courses"
-                className="text-muted-foreground hover:text-foreground"
-              >
+              <Link to="/sorixscholars/courses" className="text-muted-foreground hover:text-foreground">
                 Courses
               </Link>
             </li>
             <li>
-              <Link
-                to="/sorixscholars/competitions"
-                className="text-muted-foreground hover:text-foreground"
-              >
+              <Link to="/sorixscholars/workshops" className="text-muted-foreground hover:text-foreground">
+                Workshops
+              </Link>
+            </li>
+            <li>
+              <Link to="/sorixscholars/competitions" className="text-muted-foreground hover:text-foreground">
                 Competitions
               </Link>
             </li>
+
             <li>
               <Link
                 to="/sorixscholars/certificates"

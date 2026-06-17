@@ -4,6 +4,7 @@ import SEOHead from "@/components/SEOHead";
 import { ArrowLeft, Rocket, Code, Star, Lightbulb, Globe, Target, Home, ChevronRight } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import logo from "../assets/logo.png";
+import founderImg from "../assets/founder-rakib.png.asset.json";
 
 const AboutSorixLab = () => {
   const { language } = useLanguage();
@@ -13,18 +14,21 @@ const AboutSorixLab = () => {
       name: "Rakib Eslam",
       role: language === "en" ? "Founder & CEO" : "প্রতিষ্ঠাতা এবং সিইও",
       icon: Star,
+      photo: founderImg.url,
       description:
         language === "en"
-          ? "Visionary leader driving AI innovation in Bangladesh"
-          : "বাংলাদেশে AI উদ্ভাবন চালিত দূরদর্শী নেতা",
+          ? "Visionary leader driving AI innovation worldwide"
+          : "বিশ্বব্যাপী AI উদ্ভাবন চালিত দূরদর্শী নেতা",
     },
     {
       name: "Shahadat Hossain",
       role: language === "en" ? "Supporting Developer" : "সহায়ক ডেভেলপার",
       icon: Code,
-      description: language === "en" ? "" : "",
+      photo: founderImg.url,
+      description: language === "en" ? "Engineering & product support" : "ইঞ্জিনিয়ারিং এবং পণ্য সহায়তা",
     },
   ];
+
 
   const focusAreas = [
     {
@@ -188,14 +192,20 @@ const AboutSorixLab = () => {
                     key={index}
                     className="group relative bg-muted/30 rounded-2xl p-6 border border-border/50 hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
                   >
-                    <div className="w-16 h-16 rounded-full gradient-primary flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-glow">
-                      <member.icon className="w-8 h-8 text-foreground" />
+                    <div className="relative w-20 h-20 mx-auto mb-4">
+                      <div className="absolute -inset-1 rounded-full gradient-primary opacity-40 blur" />
+                      <img
+                        src={member.photo}
+                        alt={member.name}
+                        className="relative w-20 h-20 rounded-full object-cover shadow-glow"
+                      />
                     </div>
                     <h3 className="text-lg font-bold text-foreground text-center mb-1">{member.name}</h3>
                     <p className="text-sm text-primary font-medium text-center mb-2">{member.role}</p>
                     <p className="text-xs text-muted-foreground text-center leading-relaxed">{member.description}</p>
                   </div>
                 ))}
+
               </div>
 
               {/* University Info */}

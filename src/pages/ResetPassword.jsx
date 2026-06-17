@@ -16,20 +16,38 @@ const ResetPassword = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user came from a valid reset link
+    // Recovery link puts access_token + type=recovery in the URL hash.
+    // Manually install the recovery session so updateUser({ password }) works,
+    // and DO NOT redirect into the app.
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const accessToken = hashParams.get('access_token');
+    const refreshToken = hashParams.get('refresh_token');
     const type = hashParams.get('type');
 
+    if (type === 'recovery' && accessToken && refreshToken) {
+      supabase.auth
+        .setSession({ access_token: accessToken, refresh_token: refreshToken })
+        .then(() => {
+          // Clean the hash so refresh doesn't loop
+          window.history.replaceState(null, '', window.location.pathname);
+        })
+        .catch((err) => {
+          console.error('Failed to set recovery session', err);
+          toast({
+            title: "Invalid Reset Link",
+            description: "Please request a new password reset link.",
+            variant: "destructive",
+          });
+        });
+      return;
+    }
+
     if (type !== 'recovery' && !accessToken) {
-      // No valid recovery session, redirect to forgot password
-      toast({
-        title: "Invalid Reset Link",
-        description: "Please request a new password reset link.",
-        variant: "destructive",
-      });
+      // No valid recovery session — but don't auto-redirect.
+      // User may have an existing session; just let them try to set a password.
     }
   }, [toast]);
+
 
   const validatePassword = () => {
     if (password.length < 6) {
@@ -64,10 +82,14 @@ const ResetPassword = () => {
         description: "Your password has been successfully reset.",
       });
 
+      // Sign out the recovery session so the user explicitly logs in with new password
+      await supabase.auth.signOut();
+
       // Redirect to login after 3 seconds
       setTimeout(() => {
         navigate('/login');
       }, 3000);
+
     } catch (error) {
       toast({
         title: "Error",

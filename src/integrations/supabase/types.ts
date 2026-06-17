@@ -1768,6 +1768,63 @@ export type Database = {
         }
         Relationships: []
       }
+      workshops: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          duration_hours: number | null
+          id: string
+          is_published: boolean
+          mentor_avatar_url: string | null
+          mentor_bio: string | null
+          mentor_name: string | null
+          mentor_role: string | null
+          price_bdt: number | null
+          slug: string
+          starts_at: string | null
+          summary: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          duration_hours?: number | null
+          id?: string
+          is_published?: boolean
+          mentor_avatar_url?: string | null
+          mentor_bio?: string | null
+          mentor_name?: string | null
+          mentor_role?: string | null
+          price_bdt?: number | null
+          slug: string
+          starts_at?: string | null
+          summary?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          duration_hours?: number | null
+          id?: string
+          is_published?: boolean
+          mentor_avatar_url?: string | null
+          mentor_bio?: string | null
+          mentor_name?: string | null
+          mentor_role?: string | null
+          price_bdt?: number | null
+          slug?: string
+          starts_at?: string | null
+          summary?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       reviews_public: {

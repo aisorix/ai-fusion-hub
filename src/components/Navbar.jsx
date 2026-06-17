@@ -69,18 +69,18 @@ const megaMenus = {
     label: "Features",
     columns: [
       [
-        { icon: MessageSquare, name: "AI Chat", desc: "Multi-model AI conversations", to: "/chat" },
-        { icon: Columns3, name: "Multi-window Chat", desc: "Compare AI models side-by-side", to: "/chat?multi=1" },
         { icon: Bot, name: "AI Agents", desc: "Autonomous task execution", to: "/agent" },
         { icon: Cpu, name: "Sorix Agent OS", desc: "Multi-agent autonomous workspace", to: "/agent" },
-        { icon: Presentation, name: "Sorix Deck", desc: "AI-powered presentations", to: "/deck" },
         { icon: Clapperboard, name: "Sorix Cineshoot", desc: "AI video from text, image & video", to: "/cineshoot" },
-        { icon: ImageIcon, name: "Sorix Imagine", desc: "AI image generation", to: "/imagine" },
-        { icon: Workflow, name: "Flow Builder", desc: "AI diagrams & flowcharts", to: "/flowbuilder" },
-      ],
-      [
         { icon: Heart, name: "Sorix Health", desc: "AI health analysis", to: "/health" },
         { icon: Leaf, name: "Sorix Agro", desc: "AI agriculture insights", to: "/agro" },
+        { icon: ImageIcon, name: "Sorix Imagine", desc: "AI image generation", to: "/imagine" },
+        { icon: MessageSquare, name: "AI Chat", desc: "Multi-model AI conversations", to: "/chat" },
+        { icon: Columns3, name: "Multi-window Chat", desc: "Compare AI models side-by-side", to: "/chat?multi=1" },
+      ],
+      [
+        { icon: Presentation, name: "Sorix Deck", desc: "AI-powered presentations", to: "/deck" },
+        { icon: Workflow, name: "Flow Builder", desc: "AI diagrams & flowcharts", to: "/flowbuilder" },
         { icon: Crown, name: "Sorix Legends", desc: "Chat with historical figures", to: "/legends" },
         { icon: Shield, name: "Sorix Security", desc: "Zero-trust AI platform security", to: "/sorix-security" },
         { icon: Chrome, name: "Sorix for Chrome", desc: "AI copilot in every tab", to: "/sorix-for-chrome" },
@@ -92,6 +92,18 @@ const megaMenus = {
     label: "Solutions",
     columns: [
       [
+        {
+          icon: Workflow,
+          name: "Workflow Automation",
+          desc: "Automate multi-step tasks with AI",
+          to: "/solutions/workflow-automation",
+        },
+        {
+          icon: UserCheck,
+          name: "Professionals",
+          desc: "AI productivity for knowledge workers",
+          to: "/solutions/ai-for-professionals",
+        },
         { icon: Code2, name: "Coding", desc: "AI pair programming for engineering teams", to: "/solutions/coding" },
         {
           icon: Headphones,
@@ -105,6 +117,8 @@ const megaMenus = {
           desc: "Secure AI for banking and fintech",
           to: "/solutions/financial-services",
         },
+      ],
+      [
         {
           icon: Building2,
           name: "Government",
@@ -112,8 +126,6 @@ const megaMenus = {
           to: "/solutions/government",
         },
         { icon: HeartPulse, name: "Healthcare", desc: "HIPAA-aligned AI for clinicians", to: "/solutions/healthcare" },
-      ],
-      [
         {
           icon: FlaskConical,
           name: "Life Sciences",
@@ -122,20 +134,14 @@ const megaMenus = {
         },
         { icon: HandHeart, name: "Nonprofits", desc: "Discounted AI for social impact", to: "/solutions/nonprofits" },
         { icon: ShieldCheck, name: "Security", desc: "AI for SOC, GRC and cybersecurity", to: "/solutions/security" },
-        {
-          icon: Workflow,
-          name: "Workflow Automation",
-          desc: "Automate multi-step tasks with AI",
-          to: "/solutions/workflow-automation",
-        },
+      ],
+      [
         {
           icon: GraduationCap,
           name: "Educators",
           desc: "AI tools for teaching and learning",
           to: "/solutions/ai-for-educators",
         },
-      ],
-      [
         {
           icon: Rocket,
           name: "Startups",
@@ -159,12 +165,6 @@ const megaMenus = {
           name: "Freelancers",
           desc: "One AI workspace for solo earners",
           to: "/solutions/ai-for-freelancers",
-        },
-        {
-          icon: UserCheck,
-          name: "Professionals",
-          desc: "AI productivity for knowledge workers",
-          to: "/solutions/ai-for-professionals",
         },
       ],
     ],
@@ -195,7 +195,7 @@ const megaMenus = {
     columns: [
       [
         { icon: Globe, name: "About Us", desc: "Our mission & global team", to: "/about-us" },
-        { icon: FlaskConical, name: "Sorix Scholars", desc: "Our learning ecosystem", to: "/sorixscholars" },
+        { icon: Rocket, name: "About SorixLab", desc: "Our R&D hub & founding team", to: "/about-sorix-lab" },
         { icon: Newspaper, name: "Press & Media", desc: "News & press releases", to: "/press" },
         { icon: Briefcase, name: "Careers", desc: "Join our team", to: "/careers" },
         { icon: Mail, name: "Contact Us", desc: "Get in touch", scrollTo: "contact" },
@@ -215,6 +215,7 @@ const megaMenus = {
     ],
   },
 };
+
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
