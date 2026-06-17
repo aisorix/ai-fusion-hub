@@ -98,9 +98,13 @@ const CoursesPage = React.lazy(() => import("./pages/CoursesPage"));
 const CourseDetailPage = React.lazy(() => import("./pages/CourseDetailPage"));
 const CompetitionsPage = React.lazy(() => import("./pages/CompetitionsPage"));
 const CompetitionDetailPage = React.lazy(() => import("./pages/CompetitionDetailPage"));
+const WorkshopsPage = React.lazy(() => import("./pages/scholars/WorkshopsPage"));
+const WorkshopDetailPage = React.lazy(() => import("./pages/scholars/WorkshopDetailPage"));
 const ScholarsLayout = React.lazy(() => import("./components/scholars/ScholarsLayout"));
 const ScholarsHome = React.lazy(() => import("./pages/scholars/ScholarsHome"));
 const ScholarsCertificates = React.lazy(() => import("./pages/scholars/ScholarsCertificates"));
+const AdminWorkshops = React.lazy(() => import("./admin/pages/AdminWorkshops"));
+
 const EventsPage = React.lazy(() => import("./pages/EventsPage"));
 const InsideSorixCodePage = React.lazy(() => import("./pages/InsideSorixCodePage"));
 const InsideSorixCoworkPage = React.lazy(() => import("./pages/InsideSorixCoworkPage"));
@@ -196,6 +200,8 @@ const App = () => (
                   <Route path="settings" element={<AdminSettings />} />
                   <Route path="broadcasts" element={<AdminBroadcasts />} />
                   <Route path="database" element={<AdminDatabase />} />
+                  <Route path="content/workshops" element={<AdminWorkshops />} />
+
                 </Route>
                 <Route path="/blog" element={<BlogPage />} />
                 <Route path="/case-studies" element={<CaseStudiesPage />} />
@@ -227,14 +233,17 @@ const App = () => (
                   <Route path="courses/:slug" element={<CourseDetailPage />} />
                   <Route path="competitions" element={<CompetitionsPage />} />
                   <Route path="competitions/:slug" element={<CompetitionDetailPage />} />
+                  <Route path="workshops" element={<WorkshopsPage />} />
+                  <Route path="workshops/:slug" element={<WorkshopDetailPage />} />
                   <Route path="certificates" element={<ScholarsCertificates />} />
                 </Route>
+
                 {/* Backwards-compatible redirects from old top-level paths */}
                 <Route path="/courses" element={<Navigate to="/sorixscholars/courses" replace />} />
                 <Route path="/courses/:slug" element={<RedirectWithSlug to="/sorixscholars/courses" />} />
                 <Route path="/competitions" element={<Navigate to="/sorixscholars/competitions" replace />} />
                 <Route path="/competitions/:slug" element={<RedirectWithSlug to="/sorixscholars/competitions" />} />
-                <Route path="/about-sorix-lab" element={<Navigate to="/sorixscholars" replace />} />
+
                 <Route path="/events" element={<EventsPage />} />
                 <Route path="/inside-sorix-code" element={<InsideSorixCodePage />} />
                 <Route path="/inside-sorix-cowork" element={<InsideSorixCoworkPage />} />
