@@ -1,83 +1,67 @@
-## Scope
+# Sync Footer Features with Navbar + Admin Mobile Polish
 
-Continuation round: three small UI fixes the user just asked for, plus the five remaining items from last round.
+## 1. Footer Features list — match Navbar order exactly
 
----
+`src/components/Footer.jsx` Features column currently starts with AI Chat / Multi-window then Agents. Navbar's mega-menu puts the tool-first ordering at the top. Reorder the footer `<ul>` to mirror Navbar `megaMenus.products` exactly:
 
-### 1. AboutSorixLab — remove team images
-`src/pages/AboutSorixLab.jsx`: remove the founder + supporting-developer photo cards added previously. Keep all other content intact (text-only About page).
+1. AI Agents → /agent
+2. Sorix Agent OS → /agent
+3. Sorix Cineshoot → /cineshoot
+4. Sorix Health → /health
+5. Sorix Agro → /agro
+6. Sorix Imagine → /imagine
+7. AI Chat → /chat
+8. Multi-window Chat → /chat?multi=1
+9. Sorix Deck → /deck
+10. Flow Builder → /flowbuilder
+11. Sorix Legends → /legends
+12. Sorix Security → /sorix-security
+13. Sorix for Chrome → /sorix-for-chrome
+14. Skills → /skills
 
-### 2. "Built by SorixLab" CTA → `/about-sorix-lab`
-- `src/components/AnnouncementBanner.jsx`: change `<Link to="/sorixscholars">` to `to="/about-sorix-lab"`.
-- Sweep `Hero.jsx`, `Footer.jsx`, `Navbar.jsx` for any other "Built by SorixLab" link and repoint to `/about-sorix-lab`.
+Same icons, same labels, same routes as Navbar — single source of truth visually.
 
-### 3. Solutions menu reorder (Navbar + Footer)
-New order in `src/components/Navbar.jsx` Solutions dropdown and `src/components/Footer.jsx` Solutions column:
+Also verify Footer Solutions column matches the Navbar Solutions reorder (Workflow → Professional Services → Professionals → Educators → Startups → Researchers → Creators → Freelancers → rest). Patch any drift.
 
-1. Workflow Automation
-2. Professional Services
-3. Professionals
-4. Educators
-5. Startups
-6. Researchers
-7. Creators
-8. Freelancers
-9. Then existing rest: Customer Support, Coding, Healthcare, Financial, Government, Life Sciences, Nonprofits, Security
+## 2. Admin mobile + tablet polish (all `/admin/*` pages)
 
-If Educators / Startups / Researchers / Creators / Freelancers aren't already Solutions entries, add them as links to existing `/solutions` (anchor or page) — confirmed on file read first.
+Goal: every admin page is usable and clean at 360–768px without horizontal scroll bleed or cramped controls.
 
----
+### 2a. Shared layout (`src/admin/layout/AdminLayout.tsx`)
+- Header: stack `DateRangePicker` below the title on `<sm` (move it into a second row); shrink title to `text-sm` with truncation.
+- Show `DateRangePicker` on mobile too (currently hidden `sm:block`) but full-width in the second row.
+- Reduce main padding to `p-3` on mobile (already done) and ensure `overflow-x-auto` is only on the table wrapper, not the whole `<main>`, so sticky header doesn't shift.
 
-### 4. Footer Features/Solutions reorder (clean rewrite)
-Last attempt failed due to ellipsis match. Rewrite the Features + Solutions columns of `src/components/Footer.jsx` to mirror the navbar order exactly:
-- **Features**: Sorix Agent, Cineshoot, Sorix Health, Sorix Agro, Sorix Imagine, AI Chat, Multi-Chat, Sorix Deck, FlowBuilder, Legends, Code.
-- **Solutions**: order from item 3 above.
+### 2b. Shared components
+- `src/admin/components/DataTable.tsx`: wrap `<table>` in `overflow-x-auto rounded-md border`; add `min-w-[640px]` on table so columns don't squish. Make pagination/footer wrap (`flex-wrap gap-2`).
+- `src/admin/components/KpiCard.tsx`: ensure responsive grid usages (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`) — audit all pages.
+- `src/admin/components/ChartCard.tsx`: enforce `w-full` and `h-[260px] sm:h-[320px]`; titles wrap.
+- `src/admin/components/DateRangePicker.tsx`: full-width trigger on mobile (`w-full sm:w-auto`), popover `align="start"` and `w-[calc(100vw-2rem)] sm:w-auto`.
 
-### 5. Scholars pages mobile-polish pass
-- `src/components/scholars/ScholarsNavbar.tsx`: add mobile sheet/burger menu, stack actions.
-- `src/components/scholars/ScholarsFooter.tsx`: `grid-cols-2 sm:grid-cols-3 lg:grid-cols-4`, smaller paddings on `<sm`.
-- `src/pages/scholars/ScholarsHome.tsx`: reduce hero font on `<sm`, stack CTA, fix card grids to `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`, `px-4 sm:px-6`.
-- `CoursesPage`, `CompetitionsPage`, `WorkshopsPage`, `ScholarsCertificates`: same grid/padding pass + `overflow-x-auto` on any tables.
+### 2c. Per-page sweep
+For each page below: convert KPI rows to `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`, wrap tables in the shared scroll container, stack filter/search rows (`flex-col sm:flex-row gap-2`), make action buttons `w-full sm:w-auto`, and shrink section paddings.
 
-### 6. Admin contrast sweep (remaining pages)
-Audit `src/admin/pages/AdminPrompts.tsx` and `AdminAnnouncements.tsx` for raw `<input>`/`<textarea>`/`<select>` with dark bg and no `text-foreground`. Replace with shadcn `Input`/`Textarea`/`Select`, or add `bg-background text-foreground border-border` explicitly so both themes are legible.
+- AdminDashboard, AdminUsers, AdminUserProfile
+- AdminAIUsage, AdminAITokens, AdminAILive
+- AdminRevenue, AdminSubscriptions, AdminInvoices, AdminCoupons
+- AdminFlags, AdminAnnouncements, AdminPrompts, AdminWorkshops
+- AdminBroadcasts
+- ChatDashboard (`src/pages/admin/ChatDashboard.tsx`): on mobile show either the conversation list OR the chat window (toggle with back arrow), since the 320px sidebar + chat doesn't fit. Hide the stats row on `<sm`.
+- AdminTickets, AdminFeedback
+- AdminDatabase, AdminSystemHealth, AdminApiKeys, AdminAudit, AdminSettings
 
-### 7. Global DateRangePicker wiring
-Wire `useAdminRange()` (from `AdminRangeContext`) into:
-- `AdminRevenue.tsx`
-- `AdminSubscriptions.tsx`
-- `AdminAIUsage.tsx`
-- `AdminAITokens.tsx`
-- `AdminFeedback.tsx`
-- `AdminInvoices.tsx`
-- `AdminTickets.tsx`
+### 2d. Modals/dialogs
+- Audit `ConfirmDialog`, any inline `Dialog` usages: `max-w-[calc(100vw-1.5rem)] sm:max-w-lg`, scrollable body (`max-h-[85vh] overflow-y-auto`).
 
-Each page reads `{ from, to }` from context, passes it to its data fetch/edge function body, and re-queries when the range changes. No new UI — picker already lives in `AdminLayout` topbar.
+## Out of scope
+- No backend/edge-function changes.
+- No design-token or theme changes.
+- No new pages or features.
+- No scholars/landing page work (already covered prior round).
 
-### 8. Admin traffic accuracy follow-up
-In `supabase/functions/admin-traffic-overview/index.ts`:
-- Honour `range` param everywhere (some queries still ignore it).
-- Visitors = `count(distinct session_id)` from `page_views` in range.
-- Page views = `count(*)` from `page_views` in range.
-- Unique users = `count(distinct user_id) where user_id is not null` in range.
-- Top pages = group by `path` in range, order by count desc, limit 10.
-- Geographic = group by `country` in range (drop any hard-coded sample data).
-- Bounce/sessions derived from real `session_id` grouping, not estimates.
-
-Mirror the same fixes in `admin-dashboard-overview/index.ts` KPI block.
-
----
-
-### Files edited
-- `src/pages/AboutSorixLab.jsx`
-- `src/components/AnnouncementBanner.jsx`, `Hero.jsx` (if applicable)
-- `src/components/Navbar.jsx`, `src/components/Footer.jsx`
-- `src/components/scholars/ScholarsNavbar.tsx`, `ScholarsFooter.tsx`
-- `src/pages/scholars/ScholarsHome.tsx`, `CoursesPage.tsx`, `CompetitionsPage.tsx`, `WorkshopsPage.tsx`, `ScholarsCertificates.tsx`
-- `src/admin/pages/AdminPrompts.tsx`, `AdminAnnouncements.tsx`
-- `src/admin/pages/AdminRevenue.tsx`, `AdminSubscriptions.tsx`, `AdminAIUsage.tsx`, `AdminAITokens.tsx`, `AdminFeedback.tsx`, `AdminInvoices.tsx`, `AdminTickets.tsx`
-- `supabase/functions/admin-traffic-overview/index.ts`, `admin-dashboard-overview/index.ts`
-
-### Out of scope
-- No DB migrations, no new pages, no design-token changes.
-- No new payment/buy flows.
+## Files to edit
+- `src/components/Footer.jsx`
+- `src/admin/layout/AdminLayout.tsx`
+- `src/admin/components/DataTable.tsx`, `KpiCard.tsx`, `ChartCard.tsx`, `DateRangePicker.tsx`, `ConfirmDialog.tsx`
+- All `src/admin/pages/Admin*.tsx`
+- `src/pages/admin/ChatDashboard.tsx`
