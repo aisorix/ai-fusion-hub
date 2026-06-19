@@ -41,10 +41,10 @@ export default function AdminAnnouncements() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-600">Drive the in-app announcement banner.</p>
+        <p className="text-sm text-muted-foreground">Drive the in-app announcement banner.</p>
         <Button onClick={() => setEditing({ title: "", body_md: "", severity: "info", audience: "all", active: true })}><Plus className="w-4 h-4 mr-1" /> New</Button>
       </div>
-      {loading ? <div className="text-sm text-slate-500">Loading…</div> : (
+      {loading ? <div className="text-sm text-muted-foreground">Loading…</div> : (
         <DataTable rows={rows} searchKeys={["title"]} columns={[
           { key: "title", header: "Title", render: (r) => <span className="font-medium">{r.title}</span> },
           { key: "severity", header: "Severity", render: (r) => <StatusPill value={r.severity} /> },
@@ -72,8 +72,8 @@ export default function AdminAnnouncements() {
               <Input placeholder="Audience (all, pro, etc.)" value={editing?.audience ?? "all"} onChange={(e) => setEditing((p) => ({ ...p!, audience: e.target.value }))} />
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div><label className="text-xs text-slate-600">Starts at</label><Input type="datetime-local" value={editing?.starts_at?.slice(0,16) ?? ""} onChange={(e) => setEditing((p) => ({ ...p!, starts_at: e.target.value || null }))} /></div>
-              <div><label className="text-xs text-slate-600">Ends at</label><Input type="datetime-local" value={editing?.ends_at?.slice(0,16) ?? ""} onChange={(e) => setEditing((p) => ({ ...p!, ends_at: e.target.value || null }))} /></div>
+              <div><label className="text-xs text-muted-foreground">Starts at</label><Input type="datetime-local" value={editing?.starts_at?.slice(0,16) ?? ""} onChange={(e) => setEditing((p) => ({ ...p!, starts_at: e.target.value || null }))} /></div>
+              <div><label className="text-xs text-muted-foreground">Ends at</label><Input type="datetime-local" value={editing?.ends_at?.slice(0,16) ?? ""} onChange={(e) => setEditing((p) => ({ ...p!, ends_at: e.target.value || null }))} /></div>
             </div>
             <div className="flex items-center gap-2"><Switch checked={editing?.active ?? true} onCheckedChange={(v) => setEditing((p) => ({ ...p!, active: v }))} /><span className="text-sm">Active</span></div>
           </div>

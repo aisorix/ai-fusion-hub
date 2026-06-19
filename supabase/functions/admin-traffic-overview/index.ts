@@ -71,15 +71,10 @@ Deno.serve(async (req) => {
   const byPage = groupCount("path");
   const byDevice = groupCount("device");
 
-  // Country: include both page_view + profile country fallback
+  // Country counts derived ONLY from in-range page_views (no profile fallback —
+  // mixing all-time profile counts here was inflating geo numbers).
   const countryCount: Record<string, number> = {};
   rows.forEach((r: any) => { if (r.country) countryCount[r.country] = (countryCount[r.country] || 0) + 1; });
-  // Augment with profiles for full coverage on the world map
-  const { data: profiles } = await ctx.service.from("profiles").select("country_code");
-  (profiles ?? []).forEach((p: any) => {
-    const c = (p.country_code || "").toUpperCase();
-    if (c) countryCount[c] = (countryCount[c] || 0) + 1;
-  });
   const byCountry = Object.entries(countryCount)
     .sort(([, a], [, b]) => b - a)
     .map(([code, count]) => ({ code, name: COUNTRY_NAMES[code] || code, count }));

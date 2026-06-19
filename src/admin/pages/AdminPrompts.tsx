@@ -42,43 +42,43 @@ export default function AdminPrompts() {
 
   return (
     <div className="grid grid-cols-12 gap-4">
-      <Card className="col-span-3 p-3 bg-white border-slate-200 h-fit">
-        <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-2 pb-2">Tools</div>
+      <Card className="col-span-3 p-3 bg-card border-border h-fit">
+        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 pb-2">Tools</div>
         <div className="space-y-0.5">
           {templates.map((t) => (
-            <button key={t.id} onClick={() => selectTemplate(t)} className={`w-full text-left px-2.5 py-2 rounded text-sm ${active?.id === t.id ? "bg-sky-50 text-sky-700 font-medium" : "hover:bg-slate-50"}`}>
-              {t.name} <span className="text-xs text-slate-400">v{t.current_version}</span>
+            <button key={t.id} onClick={() => selectTemplate(t)} className={`w-full text-left px-2.5 py-2 rounded text-sm ${active?.id === t.id ? "bg-primary/10 text-primary font-medium" : "text-foreground hover:bg-muted/60"}`}>
+              {t.name} <span className="text-xs text-muted-foreground">v{t.current_version}</span>
             </button>
           ))}
         </div>
       </Card>
-      <Card className="col-span-9 p-5 bg-white border-slate-200 space-y-3">
+      <Card className="col-span-9 p-5 bg-card border-border space-y-3">
         {active ? (
           <>
             <div className="flex items-center justify-between">
-              <div><h2 className="font-semibold">{active.name}</h2><p className="text-xs text-slate-500">tool: <span className="font-mono">{active.tool}</span> · current v{active.current_version}</p></div>
+              <div><h2 className="font-semibold text-foreground">{active.name}</h2><p className="text-xs text-muted-foreground">tool: <span className="font-mono">{active.tool}</span> · current v{active.current_version}</p></div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={loadVersions}><History className="w-4 h-4 mr-1" /> History</Button>
                 <Button size="sm" onClick={save} disabled={saving}><Save className="w-4 h-4 mr-1" /> Save</Button>
               </div>
             </div>
-            <div><label className="text-xs text-slate-600">Model (optional)</label><Input value={model} onChange={(e) => setModel(e.target.value)} placeholder="google/gemini-2.5-flash" /></div>
-            <div><label className="text-xs text-slate-600">System prompt</label><Textarea rows={18} value={body} onChange={(e) => setBody(e.target.value)} className="font-mono text-sm" /></div>
+            <div><label className="text-xs text-muted-foreground">Model (optional)</label><Input value={model} onChange={(e) => setModel(e.target.value)} placeholder="google/gemini-2.5-flash" /></div>
+            <div><label className="text-xs text-muted-foreground">System prompt</label><Textarea rows={18} value={body} onChange={(e) => setBody(e.target.value)} className="font-mono text-sm" /></div>
           </>
-        ) : <p className="text-sm text-slate-500">Select a tool</p>}
+        ) : <p className="text-sm text-muted-foreground">Select a tool</p>}
       </Card>
       <Sheet open={showVer} onOpenChange={setShowVer}>
         <SheetContent className="overflow-y-auto">
           <SheetHeader><SheetTitle>Version history</SheetTitle></SheetHeader>
           <div className="space-y-3 mt-4">
             {versions.map((v) => (
-              <Card key={v.id} className="p-3 bg-white border-slate-200">
-                <div className="flex items-center justify-between text-xs mb-2"><span className="font-semibold">v{v.version}</span><span className="text-slate-500">{new Date(v.created_at).toLocaleString()}</span></div>
-                <pre className="text-xs whitespace-pre-wrap font-mono bg-slate-50 p-2 rounded max-h-60 overflow-auto">{v.body}</pre>
+              <Card key={v.id} className="p-3 bg-card border-border">
+                <div className="flex items-center justify-between text-xs mb-2"><span className="font-semibold text-foreground">v{v.version}</span><span className="text-muted-foreground">{new Date(v.created_at).toLocaleString()}</span></div>
+                <pre className="text-xs whitespace-pre-wrap font-mono bg-muted/50 text-foreground p-2 rounded max-h-60 overflow-auto">{v.body}</pre>
                 <Button variant="ghost" size="sm" className="mt-2" onClick={() => { setBody(v.body); setShowVer(false); toast.info("Loaded into editor — Save to publish"); }}>Restore</Button>
               </Card>
             ))}
-            {!versions.length && <p className="text-sm text-slate-500">No prior versions yet.</p>}
+            {!versions.length && <p className="text-sm text-muted-foreground">No prior versions yet.</p>}
           </div>
         </SheetContent>
       </Sheet>
