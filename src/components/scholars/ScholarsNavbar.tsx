@@ -60,7 +60,7 @@ export default function ScholarsNavbar() {
               <GraduationCap className="w-5 h-5 text-primary-foreground" />
             </span>
             <span className="text-base sm:text-lg lg:text-xl font-bold tracking-tight text-foreground truncate">
-              {t("সোরিক্স স্কলারস", "Sorix Scholars")}
+              Sorix Scholars
             </span>
           </Link>
 

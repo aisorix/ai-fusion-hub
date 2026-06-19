@@ -1,6 +1,14 @@
 import { Link } from "react-router-dom";
-import { GraduationCap, Facebook, Youtube, MessageCircle, MapPin } from "lucide-react";
+import { GraduationCap, Facebook, Instagram, Youtube, Twitter, Linkedin, MapPin } from "lucide-react";
 import { useScholarsLang } from "@/contexts/ScholarsI18nContext";
+
+const SOCIALS = [
+  { Icon: Facebook, href: "https://facebook.com/profile.php?id=61586687081259", label: "Facebook" },
+  { Icon: Instagram, href: "https://instagram.com/aisorix_", label: "Instagram" },
+  { Icon: Youtube, href: "https://youtube.com/@aisorix", label: "YouTube" },
+  { Icon: Twitter, href: "https://twitter.com/aisorix_", label: "Twitter" },
+  { Icon: Linkedin, href: "https://linkedin.com/company/aisorix", label: "LinkedIn" },
+];
 
 export default function ScholarsFooter() {
   const { t } = useScholarsLang();
