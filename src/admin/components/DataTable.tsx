@@ -1,6 +1,5 @@
 import { ReactNode, useMemo, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 
@@ -38,21 +37,26 @@ export default function DataTable<T extends Record<string, any>>({
   return (
     <div className="space-y-3">
       {searchKeys && (
-        <div className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg w-full max-w-sm">
-          <Search className="w-4 h-4 text-slate-400" />
-          <input value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} placeholder="Search..." className="flex-1 bg-transparent outline-none text-sm" />
+        <div className="flex items-center gap-2 px-3 py-2 bg-card border border-border rounded-lg w-full sm:max-w-sm">
+          <Search className="w-4 h-4 text-muted-foreground" />
+          <input
+            value={q}
+            onChange={(e) => { setQ(e.target.value); setPage(1); }}
+            placeholder="Search..."
+            className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground"
+          />
         </div>
       )}
-      <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-        <Table>
+      <div className="bg-card rounded-lg border border-border overflow-x-auto">
+        <Table className="min-w-[640px]">
           <TableHeader>
-            <TableRow className="bg-slate-50 hover:bg-slate-50">
+            <TableRow className="bg-muted/40 hover:bg-muted/40">
               {columns.map((c) => <TableHead key={c.key} className={c.className}>{c.header}</TableHead>)}
             </TableRow>
           </TableHeader>
           <TableBody>
             {pageRows.length === 0 ? (
-              <TableRow><TableCell colSpan={columns.length} className="text-center py-12 text-slate-500">{empty ?? "No results"}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={columns.length} className="text-center py-12 text-muted-foreground">{empty ?? "No results"}</TableCell></TableRow>
             ) : pageRows.map((row, i) => (
               <TableRow key={i} onClick={() => onRowClick?.(row)} className={onRowClick ? "cursor-pointer" : ""}>
                 {columns.map((c) => <TableCell key={c.key} className={c.className}>{c.render ? c.render(row) : String(row[c.key] ?? "")}</TableCell>)}
@@ -61,7 +65,7 @@ export default function DataTable<T extends Record<string, any>>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between text-sm text-slate-500">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
         <span>{filtered.length} rows</span>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage((p) => p - 1)}><ChevronLeft className="w-4 h-4" /></Button>

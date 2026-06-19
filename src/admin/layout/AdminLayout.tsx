@@ -188,24 +188,27 @@ export default function AdminLayout() {
         </>
       )}
 
-      <div className={`flex-1 flex flex-col transition-all ${collapsed ? "lg:ml-16" : "lg:ml-60"}`}>
-        <header className="h-16 bg-card border-b border-border flex items-center px-3 sm:px-6 gap-2 sm:gap-3 sticky top-0 z-30">
-          <button
-            onClick={() => setMobileOpen(true)}
-            className="lg:hidden p-2 -ml-1 rounded hover:bg-muted text-foreground"
-            aria-label="Open menu"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-sm sm:text-base font-semibold text-foreground truncate">{pageTitle}</h1>
+      <div className={`flex-1 flex flex-col min-w-0 transition-all ${collapsed ? "lg:ml-16" : "lg:ml-60"}`}>
+        <header className="bg-card border-b border-border sticky top-0 z-30">
+          <div className="h-14 sm:h-16 flex items-center px-3 sm:px-6 gap-2 sm:gap-3">
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="lg:hidden p-2 -ml-1 rounded hover:bg-muted text-foreground"
+              aria-label="Open menu"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-sm sm:text-base font-semibold text-foreground truncate">{pageTitle}</h1>
+            </div>
+            <div className="hidden sm:block"><DateRangePicker /></div>
+            <ThemeToggleBtn />
+            <Button variant="ghost" size="icon" className="hidden sm:inline-flex"><Bell className="w-5 h-5" /></Button>
+            <div className="text-xs text-muted-foreground hidden md:block truncate max-w-[140px]">{user?.email}</div>
           </div>
-          <div className="hidden sm:block"><DateRangePicker /></div>
-          <ThemeToggleBtn />
-          <Button variant="ghost" size="icon" className="hidden sm:inline-flex"><Bell className="w-5 h-5" /></Button>
-          <div className="text-xs text-muted-foreground hidden md:block truncate max-w-[140px]">{user?.email}</div>
+          <div className="sm:hidden px-3 pb-2"><DateRangePicker /></div>
         </header>
-        <main className="flex-1 p-3 sm:p-6 overflow-x-auto">
+        <main className="flex-1 p-3 sm:p-6 min-w-0 overflow-x-hidden">
           <Outlet />
         </main>
       </div>

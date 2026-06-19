@@ -116,13 +116,13 @@ const ChatDashboard = () => {
       {/* Main Content */}
       <div className="flex h-[calc(100vh-57px)]">
         {/* Conversation List - Sidebar */}
-        <div className="w-80 border-r bg-muted/20 flex-shrink-0">
+        <div className={`${selectedConversation ? 'hidden md:flex' : 'flex'} w-full md:w-80 border-r bg-muted/20 flex-shrink-0 flex-col`}>
           <div className="p-3 border-b">
             <h2 className="text-sm font-medium text-muted-foreground">
               Conversations ({conversations.length})
             </h2>
           </div>
-          <div className="h-[calc(100%-49px)]">
+          <div className="flex-1 overflow-y-auto">
             <ConversationList
               conversations={conversations}
               selectedId={selectedConversation?.id || null}
@@ -133,7 +133,15 @@ const ChatDashboard = () => {
         </div>
 
         {/* Chat Window - Main Area */}
-        <div className="flex-1">
+        <div className={`${selectedConversation ? 'flex' : 'hidden md:flex'} flex-1 flex-col min-w-0`}>
+          {selectedConversation && (
+            <button
+              onClick={() => setSelectedConversation(null)}
+              className="md:hidden flex items-center gap-2 px-3 py-2 border-b text-sm text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4" /> Back to conversations
+            </button>
+          )}
           <ChatWindow
             conversation={selectedConversation}
             messages={messages}

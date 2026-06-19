@@ -85,118 +85,31 @@ const Footer = () => {
               Features
             </h4>
             <ul className="space-y-3 sm:space-y-4">
-              <li>
-                <Link
-                  to="/chat"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-                >
-                  <MessageSquare className="w-3.5 h-3.5" /> AI Chat
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/chat?multi=1"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-                >
-                  <Columns3 className="w-3.5 h-3.5" /> Multi-window Chat
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/agent"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-                >
-                  <Bot className="w-3.5 h-3.5" /> AI Agents
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/agent"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-                >
-                  <Cpu className="w-3.5 h-3.5" /> Sorix Agent OS
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/deck"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-                >
-                  <Presentation className="w-3.5 h-3.5" /> Sorix Deck
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/cineshoot"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-                >
-                  <Clapperboard className="w-3.5 h-3.5" /> Sorix Cineshoot
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/imagine"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-                >
-                  <ImageIcon className="w-3.5 h-3.5" /> Sorix Imagine
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/flowbuilder"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-                >
-                  <Workflow className="w-3.5 h-3.5" /> Flow Builder
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/health"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-                >
-                  <Heart className="w-3.5 h-3.5" /> Sorix Health
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/agro"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-                >
-                  <Leaf className="w-3.5 h-3.5" /> Sorix Agro
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/legends"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-                >
-                  <Crown className="w-3.5 h-3.5" /> Sorix Legends
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/sorix-security"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-                >
-                  <Shield className="w-3.5 h-3.5" /> Sorix Security
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/sorix-for-chrome"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-                >
-                  <Chrome className="w-3.5 h-3.5" /> Sorix for Chrome
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/skills"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-                >
-                  <Sparkles className="w-3.5 h-3.5" /> Skills
-                </Link>
-              </li>
+              {[
+                [Bot, "AI Agents", "/agent"],
+                [Cpu, "Sorix Agent OS", "/agent"],
+                [Clapperboard, "Sorix Cineshoot", "/cineshoot"],
+                [Heart, "Sorix Health", "/health"],
+                [Leaf, "Sorix Agro", "/agro"],
+                [ImageIcon, "Sorix Imagine", "/imagine"],
+                [MessageSquare, "AI Chat", "/chat"],
+                [Columns3, "Multi-window Chat", "/chat?multi=1"],
+                [Presentation, "Sorix Deck", "/deck"],
+                [Workflow, "Flow Builder", "/flowbuilder"],
+                [Crown, "Sorix Legends", "/legends"],
+                [Shield, "Sorix Security", "/sorix-security"],
+                [Chrome, "Sorix for Chrome", "/sorix-for-chrome"],
+                [Sparkles, "Skills", "/skills"],
+              ].map(([Icon, label, to]) => (
+                <li key={label}>
+                  <Link
+                    to={to}
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+                  >
+                    <Icon className="w-3.5 h-3.5" /> {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
