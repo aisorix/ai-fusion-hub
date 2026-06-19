@@ -25,7 +25,7 @@ export default function ScholarsFooter() {
               className="text-lg font-bold text-foreground"
               style={{ fontFamily: "'Plus Jakarta Sans', 'Noto Sans Bengali', system-ui, sans-serif" }}
             >
-              {t("সোরিক্স স্কলারস", "Sorix Scholars")}
+              Sorix Scholars
             </span>
           </Link>
           <p className="mt-4 text-sm text-muted-foreground leading-relaxed max-w-sm">
@@ -35,16 +35,13 @@ export default function ScholarsFooter() {
             )}
           </p>
           <div className="mt-5 flex items-center gap-2">
-            {[
-              { Icon: Facebook, href: "#" },
-              { Icon: Youtube, href: "#" },
-              { Icon: MessageCircle, href: "https://wa.me/8801933554982" },
-            ].map(({ Icon, href }, i) => (
+            {SOCIALS.map(({ Icon, href, label }) => (
               <a
-                key={i}
+                key={label}
                 href={href}
                 target="_blank"
                 rel="noreferrer"
+                aria-label={label}
                 className="w-9 h-9 rounded-full bg-muted/60 hover:bg-muted grid place-items-center text-muted-foreground hover:text-foreground transition-colors"
               >
                 <Icon className="w-4 h-4" />
