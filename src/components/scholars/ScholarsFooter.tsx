@@ -117,7 +117,7 @@ export default function ScholarsFooter() {
       </div>
 
       <div className="border-t border-border/40 py-5 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} {t("সোরিক্স স্কলারস", "Sorix Scholars")} ·{" "}
+        © {new Date().getFullYear()} Sorix Scholars ·{" "}
         {t("AI Sorix-এর অংশ", "part of AI Sorix")}
       </div>
     </footer>
