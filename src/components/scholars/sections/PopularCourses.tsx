@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { BookOpen, ArrowRight } from "lucide-react";
 import { useScholarsLang } from "@/contexts/ScholarsI18nContext";
 import { courses } from "@/data/academy";
-import founderAsset from "@/assets/founder-rakib.png.asset.json";
 
 export default function PopularCourses() {
   const { t } = useScholarsLang();
@@ -34,9 +33,10 @@ export default function PopularCourses() {
             >
               <div className="relative aspect-[16/10] overflow-hidden bg-muted">
                 <img
-                  src={founderAsset.url}
+                  src={c.cover}
                   alt={c.title}
                   className="w-full h-full object-cover"
+                  loading="lazy"
                 />
                 {idx === 0 && (
                   <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-background/90 backdrop-blur text-[11px] font-bold text-foreground shadow">
