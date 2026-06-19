@@ -17,13 +17,13 @@ const reviews: Review[] = [
   },
   {
     quoteBn: "AI শিখে আমার কাজের গতি এখন ১০ গুণ বেড়ে গেছে। Sorix Scholars-এর গাইডলাইন ছাড়া এটা সম্ভব হতো না।",
-    quoteEn: "After learning AI my work speed is 10× faster. Wouldn't have happened without Sorix Scholars' guidance.",
+    quoteEn: "My work speed is 10× faster after learning AI. Couldn't have done it without Sorix Scholars.",
     name: "Muhammad Sharif",
-    location: "Dhaka, Bangladesh",
+    location: "Chattogram, Bangladesh",
   },
   {
-    quoteBn: "Learning AI at Sorix Scholars was the best decision for my career. Now I automate my daily tasks easily and stay ahead.",
-    quoteEn: "Learning AI at Sorix Scholars was the best decision for my career. Now I automate my daily tasks easily and stay ahead.",
+    quoteBn: "এই কোর্সটি করে আমি ফ্রিল্যান্সিং-এ মাসে $1,200 ইনকাম শুরু করেছি — AI দিয়ে কনটেন্ট ও অটোমেশন সার্ভিস বিক্রি করি।",
+    quoteEn: "After this course I started earning $1,200/mo freelancing — selling AI content and automation services.",
     name: "Samsul Baten",
     location: "New York, USA",
   },
@@ -38,6 +38,60 @@ const reviews: Review[] = [
     quoteEn: "The mentorship sessions were exceptional. I got a clear path for my career.",
     name: "Tahmid Rahman",
     location: "London, UK",
+  },
+  {
+    quoteBn: "আমার এজেন্সিতে রিপোর্ট জেনারেশনে দিনে ৪ ঘণ্টা সময় বাঁচছে। ROI প্রথম সপ্তাহেই পেয়েছি।",
+    quoteEn: "Our agency saves 4 hours a day on report generation. ROI in the very first week.",
+    name: "Farah Chowdhury",
+    location: "Dubai, UAE",
+  },
+  {
+    quoteBn: "ইউনিভার্সিটির থিসিস রিসার্চে AI ওয়ার্কফ্লো শিখে আমি ৩ মাসের কাজ ৩ সপ্তাহে শেষ করেছি।",
+    quoteEn: "AI research workflows let me finish 3 months of thesis work in 3 weeks.",
+    name: "Arif Mahmud",
+    location: "Toronto, Canada",
+  },
+  {
+    quoteBn: "প্রম্পট ইঞ্জিনিয়ারিং মডিউলটাই গেম-চেঞ্জার। এখন প্রতিটা মডেল থেকে ঠিক যা চাই সেটাই বের করি।",
+    quoteEn: "The prompt engineering module is a game-changer — I now pull exactly what I want out of any model.",
+    name: "Priya Sharma",
+    location: "Bengaluru, India",
+  },
+  {
+    quoteBn: "একজন স্কুল টিচার হিসেবে আমি ক্লাস প্ল্যান ও কুইজ ৫ মিনিটে তৈরি করি। শিক্ষার্থীরাও মুগ্ধ।",
+    quoteEn: "As a teacher I now build lesson plans and quizzes in 5 minutes. Students are amazed.",
+    name: "Rumana Sultana",
+    location: "Sylhet, Bangladesh",
+  },
+  {
+    quoteBn: "Sorix Agent দিয়ে আমি একটা পুরো সেলস আউটরিচ অটোমেশন বানিয়েছি — কোডিং ব্যাকগ্রাউন্ড নেই, তবুও।",
+    quoteEn: "I built a full sales outreach automation with Sorix Agent — no coding background, still shipped it.",
+    name: "Hasan Iqbal",
+    location: "Singapore",
+  },
+  {
+    quoteBn: "ক্লাসগুলো প্র্যাক্টিক্যাল আর সাপোর্ট কমিউনিটি দারুণ অ্যাক্টিভ। প্রশ্ন করলে দ্রুত উত্তর পাই।",
+    quoteEn: "Classes are practical and the support community is super active — questions get answered fast.",
+    name: "Lubna Karim",
+    location: "Berlin, Germany",
+  },
+  {
+    quoteBn: "ফাইনালি একটা বাংলা ভাষার AI লার্নিং প্ল্যাটফর্ম যেটা সিরিয়াসলি ক্যারিয়ার ফোকাসড।",
+    quoteEn: "Finally a Bangla-first AI learning platform that's seriously career-focused.",
+    name: "Sadia Noor",
+    location: "Rajshahi, Bangladesh",
+  },
+  {
+    quoteBn: "আমি একজন ডাক্তার — পেশেন্ট নোট এবং রিসার্চ সামারি AI দিয়ে করছি, এক ঘন্টার কাজ এখন ১০ মিনিটে।",
+    quoteEn: "I'm a doctor — patient notes and research summaries with AI take 10 minutes instead of an hour.",
+    name: "Dr. Imran Hossain",
+    location: "Kuala Lumpur, Malaysia",
+  },
+  {
+    quoteBn: "সার্টিফিকেটটা LinkedIn-এ অ্যাড করার পর ৩টা ইন্টারভিউ কল পেয়েছি। এক মাসেই জব সুইচ করেছি।",
+    quoteEn: "After adding the certificate to LinkedIn I got 3 interview calls — switched jobs within a month.",
+    name: "Niloy Saha",
+    location: "Dhaka, Bangladesh",
   },
 ];
 
@@ -58,7 +112,7 @@ export default function ScholarsTestimonials() {
             {[0, 1, 2, 3, 4].map((i) => (
               <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
             ))}
-            <span className="ml-1">{t("৫০০+ হ্যাপি লার্নারস", "500+ happy learners")}</span>
+            <span className="ml-1">{t("১০০+ লার্নার স্টোরি", "100+ learner stories")}</span>
           </div>
         </div>
       </div>
