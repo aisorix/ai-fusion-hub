@@ -12,15 +12,15 @@ interface Props {
 
 export default function ChartCard({ title, subtitle, action, children, className }: Props) {
   return (
-    <Card className={cn("p-5 bg-white border-slate-200", className)}>
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
-          {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+    <Card className={cn("p-4 sm:p-5 bg-card border-border w-full", className)}>
+      <div className="flex flex-wrap items-start justify-between gap-2 mb-4">
+        <div className="min-w-0">
+          <h3 className="text-sm font-semibold text-foreground break-words">{title}</h3>
+          {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
         </div>
         {action}
       </div>
-      {children}
+      <div className="w-full overflow-x-auto">{children}</div>
     </Card>
   );
 }

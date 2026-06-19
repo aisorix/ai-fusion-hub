@@ -32,15 +32,20 @@ export default function DateRangePicker() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-9 gap-2">
-          <CalendarIcon className="w-3.5 h-3.5" />
-          <span className="text-xs font-medium">{PRESET_LABEL[range.preset]}</span>
-          <ChevronDown className="w-3.5 h-3.5 opacity-60" />
+        <Button variant="outline" size="sm" className="h-9 gap-2 w-full sm:w-auto justify-between sm:justify-center">
+          <span className="flex items-center gap-2 min-w-0">
+            <CalendarIcon className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="text-xs font-medium truncate">{PRESET_LABEL[range.preset]}</span>
+          </span>
+          <ChevronDown className="w-3.5 h-3.5 opacity-60 flex-shrink-0" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0 pointer-events-auto" align="end">
-        <div className="flex">
-          <div className="w-44 border-r border-border p-2 space-y-0.5">
+      <PopoverContent
+        className="w-[calc(100vw-1.5rem)] sm:w-auto max-w-[680px] p-0 pointer-events-auto"
+        align="start"
+      >
+        <div className="flex flex-col sm:flex-row max-h-[80vh] overflow-y-auto">
+          <div className="w-full sm:w-44 border-b sm:border-b-0 sm:border-r border-border p-2 grid grid-cols-3 sm:block gap-1 sm:gap-0 sm:space-y-0.5">
             {PRESETS.map((p) => (
               <button
                 key={p.id}
@@ -53,18 +58,25 @@ export default function DateRangePicker() {
                 {p.label}
               </button>
             ))}
-            <div className="my-1 border-t border-border" />
-            <div className="px-2.5 py-1 text-[10px] uppercase tracking-wider text-muted-foreground">Custom range</div>
+            <div className="hidden sm:block my-1 border-t border-border" />
+            <div className="hidden sm:block px-2.5 py-1 text-[10px] uppercase tracking-wider text-muted-foreground">Custom range</div>
           </div>
-          <div className="p-3 space-y-2">
+          <div className="p-3 space-y-2 overflow-x-auto">
+            <Calendar
+              mode="range"
+              selected={{ from, to }}
+              onSelect={(r: any) => { setFrom(r?.from); setTo(r?.to); }}
+              numberOfMonths={1}
+              className="pointer-events-auto sm:hidden"
+            />
             <Calendar
               mode="range"
               selected={{ from, to }}
               onSelect={(r: any) => { setFrom(r?.from); setTo(r?.to); }}
               numberOfMonths={2}
-              className="pointer-events-auto"
+              className="pointer-events-auto hidden sm:block"
             />
-            <div className="flex items-center justify-between gap-2 px-1 text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-xs text-muted-foreground">
               <span>
                 {from ? format(from, "MMM d, yyyy") : "Start"} – {to ? format(to, "MMM d, yyyy") : "End"}
               </span>
