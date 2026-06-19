@@ -1,75 +1,58 @@
-# Sorix Scholars — AI Shikhun-style Redesign
+# Sorix Scholars polish pass
 
-Rebuild the Sorix Scholars home page and Scholars navbar as a pixel-faithful clone of the 10 attached reference screenshots. Content is rewritten for the AI Sorix / Sorix Scholars ecosystem; every course/workshop thumbnail uses the existing founder image (`src/assets/founder-rakib.png.asset.json`). Scholars area defaults to Bangla with a working EN/BN toggle scoped to Scholars.
+Scope is presentation-only. No backend, data-shape, or RLS changes.
 
-## Sections to build (in order, matching reference)
+## 1. Founder image — used only in banner slots, not as course thumbnails
 
-1. **Hero (IMG_3083)** — pill badge, two-line serif display headline with second line in primary blue, sub-paragraph, 3 chip pills (Workshop / Course / Mentorship), primary dark CTA + white outline CTA, learner-count + 4.9★ rating chip. Soft grid background.
-2. **"Why Sorix Scholars for you?" split (IMG_3084)** — left: heading w/ brand word highlighted, 2 paragraphs, 2×2 check-list (1:1 AI Mentorship / Online Courses / Live Workshops / eBooks & Resources). Right: rounded video/poster card with play button.
-3. **"Why learn AI?" comparison (IMG_3085)** — two large rounded cards side-by-side. Left red-tinted "What you lose if you don't learn AI" with 4 ✕ items. Right green-tinted "What you gain by learning AI" with 4 ✓ items.
-4. **"What we do" 2×2 grid (IMG_3086)** — cream background section, 4 numbered cards (০১–০৪) with icon chip, title, paragraph, "বিস্তারিত দেখুন →" link, big faded numeral watermark.
-5. **Popular courses (IMG_3087)** — section header + single featured course card: left thumbnail uses **founder image** with "প্রিমিয়াম" pill + "৬ মডিউল" footer pill; right side title "AI for Professionals", body, price ৳৮৭০, "বিস্তারিত" pill button. Dark "সব কোর্স দেখুন →" pill below.
-6. **Upcoming workshops (IMG_3088)** — full-bleed dark/violet section. Workshop card: left thumbnail uses **founder image** with "লাইভ ওয়ার্কশপ" red pill + Batch/date/time pills; right: Google Meet location, title, body, ৳৪৭০ ~~৳৯৯৯~~, "বিস্তারিত" pill. Red rounded "সব ওয়ার্কশপ দেখুন →" CTA.
-7. **Testimonials (IMG_3089)** — heading + 5★ + "৫০০+ হ্যাপি লার্নারস". Horizontal scrolling row of white quote cards (5★ top-left, quote-mark badge top-right, italic Bangla/English quote, avatar initial + name + location). Peek edges on both sides.
-8. **FAQ (IMG_3090)** — centered heading with "(FAQ)" in primary, sub-paragraph, single rounded container with 5 accordion rows.
-9. **Contact CTA (IMG_3091)** — dark navy rounded panel: left support badge, headline w/ 2nd line in primary, paragraph, blue "হোয়াটসঅ্যাপে মেসেজ" CTA; right two stacked cards (Hotline +880 01933-554982 / Social: Facebook + YouTube) and Office address card.
-10. **Footer (IMG_3092)** — replaces current `ScholarsFooter`. 3-column: brand logo + description + 3 social icons / গুরুত্বপূর্ণ লিংক / আইনি ও যোগাযোগ with location row.
+The user-uploaded photo (`IMG_2900.jpeg`) is the real founder photo and should replace the previous `founder-rakib.png`. It is shown ONLY in dedicated banner spots — never repeated across every course/workshop card.
 
-## Files
+Actions:
+- Upload `IMG_2900.jpeg` to Lovable Assets at `src/assets/founder-rakib.png.asset.json` (overwrite the existing pointer).
+- `PopularCourses.tsx`: stop using `founderAsset.url` for every card. Use each course's existing `cover` (the original course illustrations in `src/data/academy.ts`: `course-prompt.jpg`, `course-agents.jpg`, `course-pm.jpg`, …) as the card thumbnail. No founder image on the popular-courses grid.
+- `UpcomingWorkshops.tsx`: keep ONE workshop only (the existing "3-day live AI workshop") and keep the founder image as that single workshop banner (this is the "workshop banner — founder image only here" case). No other workshop card uses the founder image.
+- Anywhere else the founder image is currently being used as a generic thumbnail (course detail covers, certificates page, etc.) is left untouched — they already use proper course covers.
 
-**Edit**
-- `src/components/scholars/ScholarsNavbar.tsx` — Bangla default labels, EN/BN toggle button (sun/globe-style), mobile sheet menu.
-- `src/components/scholars/ScholarsFooter.tsx` — replaced with IMG_3092 layout.
-- `src/components/scholars/ScholarsLayout.tsx` — wrap in `ScholarsI18nProvider`.
-- `src/pages/scholars/ScholarsHome.tsx` — full rewrite into 10 sections above using new components.
-- `src/data/academy.ts` — swap course/workshop `cover` to `founderAsset.url` for entries shown on home.
+## 2. Support / Contact CTA aligned with AI Sorix
 
-**Create**
-- `src/contexts/ScholarsI18nContext.tsx` — `lang: 'bn' | 'en'`, default `'bn'`, persisted in `localStorage` (`scholars_lang`), `t(bn, en)` helper. Scoped to Scholars only; does NOT affect global `LanguageContext`.
-- `src/components/scholars/sections/ScholarsHero.tsx`
-- `src/components/scholars/sections/WhyScholars.tsx`
-- `src/components/scholars/sections/WhyLearnAI.tsx`
-- `src/components/scholars/sections/WhatWeDo.tsx`
-- `src/components/scholars/sections/PopularCourses.tsx`
-- `src/components/scholars/sections/UpcomingWorkshops.tsx`
-- `src/components/scholars/sections/ScholarsTestimonials.tsx`
-- `src/components/scholars/sections/ScholarsFAQ.tsx`
-- `src/components/scholars/sections/ScholarsContactCTA.tsx`
-- `src/components/scholars/LangToggle.tsx`
+Rebuild `ScholarsContactCTA.tsx` so it mirrors the main `aisorix.com` support pattern:
 
-## Design tokens (locked, applied via Tailwind utilities + arbitrary HSL)
+- Primary contact tile: support email — `support@aisorix.com` (mailto). This replaces the current Hotline-only block.
+- Secondary tile: WhatsApp button (`https://wa.me/8801933554982`) — keep.
+- New tile: "Live chat" button that triggers the same `ChatWidget` used on the AI Sorix marketing site. Mount `ChatWidget` inside `ScholarsLayout.tsx` and expose a small wrapper hook/ref so the CTA button can call `openChat()`. This gives Scholars the exact same live-chat experience as aisorix.com.
+- Social media tile: replace placeholder `#` hrefs with the canonical AI Sorix links from `src/components/Footer.jsx` (`socialLinks`): Facebook, Instagram, YouTube, Twitter, LinkedIn — same icons, same URLs.
+- Office address tile: use the same address string already used in the main Footer (Aftabnagar, Dhaka block) — already matches, keep as-is.
 
-- Display serif (headings): `"Playfair Display", "Noto Serif Bengali", serif` via Google Fonts `<link>` already-loaded check; load in `index.html` if missing.
-- Body: existing Plus Jakarta Sans + Noto Sans Bengali fallback.
-- Primary brand blue (matches reference): `#1B2A6B` (dark navy) and `#1E3A8A` accent. Mapped through existing `--primary` token where possible; section-local arbitrary colors only when a token doesn't fit.
-- Cream/paper background for "What we do": `#FAF7EE`.
-- Workshop dark section: `#0B0413 → #1A0526` radial.
-- Use existing `text-foreground / text-primary / bg-card / border-border` tokens for all neutral surfaces. No hard-coded `text-white` / `bg-black`.
+`ScholarsFooter.tsx` social row + address get the same treatment (real AI Sorix Facebook/Instagram/YouTube/Twitter/LinkedIn URLs).
 
-## Content rewrites (BN default / EN alt)
+## 3. Testimonials — expand and present "100+"
 
-- Brand: "AI Shikhun" → "Sorix Scholars" (or "AI Sorix" where the reference says "platform").
-- Hotline / address / socials: keep AI Sorix global Dhaka HQ values already used in current `ScholarsFooter` / contact page (no new info invented).
-- Price chips on course/workshop cards: keep the existing prices from `src/data/academy.ts`; do not invent.
-- All Bangla copy follows reference tone; English fallback provided in `t()`.
+In `ScholarsTestimonials.tsx`:
 
-## Responsive / mobile + tablet rules
+- Grow the `reviews` array from 5 to ~14 realistic learner stories (mix of Dhaka, Chittagong, Sylhet, Mumbai, London, New York, Dubai, Toronto, Berlin, Singapore — names + cities + bilingual quotes describing concrete wins: automation saved hours, freelancing income, job switch, university research, etc.).
+- Header chip changes from "৫০০+ হ্যাপি লার্নারস / 500+ happy learners" to "১০০+ লার্নার স্টোরি / 100+ learner stories" to match the request.
+- Keep the existing snap-x horizontal scroller layout; it scales cleanly to 14 cards on every breakpoint.
+- The Footer "Learner stories" link already targets `#testimonials` — no routing change needed.
 
-- Mobile (`<640px`): single column for every grid; hero headline `text-3xl`, paragraph `text-sm`; horizontal scrollers (testimonials, course/workshop cards if >1) use `snap-x snap-mandatory overflow-x-auto -mx-4 px-4`; comparison cards stack; contact panel stacks; nav collapses into Sheet drawer with EN/BN toggle + links.
-- Tablet (`640–1024px`): 2-col grids where reference shows 2-col; hero stays centered single column; "What we do" 2-col; FAQ container full width with `max-w-2xl`.
-- Desktop (`≥1024px`): matches screenshots exactly.
-- Bangla width rule from project memory: `whitespace-nowrap` only on short pill chips; otherwise allow wrap with `leading-snug`; chips use `min-w-0 truncate` where needed.
+## 4. Logo wordmark always in English
 
-## Language toggle behavior
+In `ScholarsNavbar.tsx` and `ScholarsFooter.tsx`, the brand text next to the graduation-cap mark is currently `t("সোরিক্স স্কলারস", "Sorix Scholars")`. Hard-code it to `Sorix Scholars` (English) regardless of language selection. The rest of the nav/footer copy stays bilingual.
 
-- `LangToggle` shows current language code (`BN` / `EN`) inside a small pill; click flips.
-- Persisted in `localStorage`. Default `bn` on first visit to any `/sorixscholars/*` route.
-- Only Scholars pages consume `useScholarsLang()`; global app language untouched.
-- Navbar links, all 10 home sections, and footer all read through `t(bn, en)`.
+Also: the copyright line in the footer's bottom bar uses the same wordmark — switch it to the English string too.
+
+## 5. Files touched
+
+- `src/assets/founder-rakib.png.asset.json` — overwrite via `lovable-assets` from the uploaded image
+- `src/components/scholars/sections/PopularCourses.tsx` — use `c.cover`, drop founder import
+- `src/components/scholars/sections/UpcomingWorkshops.tsx` — keep founder banner for the single workshop
+- `src/components/scholars/sections/ScholarsTestimonials.tsx` — 14 entries, updated count chip
+- `src/components/scholars/sections/ScholarsContactCTA.tsx` — email + WhatsApp + live-chat + real socials
+- `src/components/scholars/ScholarsLayout.tsx` — mount `ChatWidget` + ref context
+- `src/components/scholars/ScholarsNavbar.tsx` — English wordmark
+- `src/components/scholars/ScholarsFooter.tsx` — English wordmark, real social URLs
 
 ## Out of scope
 
-- No backend, RLS, or edge-function changes.
-- No changes to course/workshop detail pages, certificates, or admin (handled in earlier rounds).
-- No changes to the marketing site navbar/footer outside `/sorixscholars/*`.
-- Pricing values, hotline number, and office address are reused from existing data — not invented.
+- Course detail pages, certificates page, workshops listing page styling
+- Any change to `src/data/academy.ts` content (only consumed differently)
+- Live-chat backend / `useChat` hook — reused as-is
+- Admin / main site pages
