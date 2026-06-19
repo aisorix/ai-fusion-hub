@@ -1,67 +1,75 @@
-# Sync Footer Features with Navbar + Admin Mobile Polish
+# Sorix Scholars — AI Shikhun-style Redesign
 
-## 1. Footer Features list — match Navbar order exactly
+Rebuild the Sorix Scholars home page and Scholars navbar as a pixel-faithful clone of the 10 attached reference screenshots. Content is rewritten for the AI Sorix / Sorix Scholars ecosystem; every course/workshop thumbnail uses the existing founder image (`src/assets/founder-rakib.png.asset.json`). Scholars area defaults to Bangla with a working EN/BN toggle scoped to Scholars.
 
-`src/components/Footer.jsx` Features column currently starts with AI Chat / Multi-window then Agents. Navbar's mega-menu puts the tool-first ordering at the top. Reorder the footer `<ul>` to mirror Navbar `megaMenus.products` exactly:
+## Sections to build (in order, matching reference)
 
-1. AI Agents → /agent
-2. Sorix Agent OS → /agent
-3. Sorix Cineshoot → /cineshoot
-4. Sorix Health → /health
-5. Sorix Agro → /agro
-6. Sorix Imagine → /imagine
-7. AI Chat → /chat
-8. Multi-window Chat → /chat?multi=1
-9. Sorix Deck → /deck
-10. Flow Builder → /flowbuilder
-11. Sorix Legends → /legends
-12. Sorix Security → /sorix-security
-13. Sorix for Chrome → /sorix-for-chrome
-14. Skills → /skills
+1. **Hero (IMG_3083)** — pill badge, two-line serif display headline with second line in primary blue, sub-paragraph, 3 chip pills (Workshop / Course / Mentorship), primary dark CTA + white outline CTA, learner-count + 4.9★ rating chip. Soft grid background.
+2. **"Why Sorix Scholars for you?" split (IMG_3084)** — left: heading w/ brand word highlighted, 2 paragraphs, 2×2 check-list (1:1 AI Mentorship / Online Courses / Live Workshops / eBooks & Resources). Right: rounded video/poster card with play button.
+3. **"Why learn AI?" comparison (IMG_3085)** — two large rounded cards side-by-side. Left red-tinted "What you lose if you don't learn AI" with 4 ✕ items. Right green-tinted "What you gain by learning AI" with 4 ✓ items.
+4. **"What we do" 2×2 grid (IMG_3086)** — cream background section, 4 numbered cards (০১–০৪) with icon chip, title, paragraph, "বিস্তারিত দেখুন →" link, big faded numeral watermark.
+5. **Popular courses (IMG_3087)** — section header + single featured course card: left thumbnail uses **founder image** with "প্রিমিয়াম" pill + "৬ মডিউল" footer pill; right side title "AI for Professionals", body, price ৳৮৭০, "বিস্তারিত" pill button. Dark "সব কোর্স দেখুন →" pill below.
+6. **Upcoming workshops (IMG_3088)** — full-bleed dark/violet section. Workshop card: left thumbnail uses **founder image** with "লাইভ ওয়ার্কশপ" red pill + Batch/date/time pills; right: Google Meet location, title, body, ৳৪৭০ ~~৳৯৯৯~~, "বিস্তারিত" pill. Red rounded "সব ওয়ার্কশপ দেখুন →" CTA.
+7. **Testimonials (IMG_3089)** — heading + 5★ + "৫০০+ হ্যাপি লার্নারস". Horizontal scrolling row of white quote cards (5★ top-left, quote-mark badge top-right, italic Bangla/English quote, avatar initial + name + location). Peek edges on both sides.
+8. **FAQ (IMG_3090)** — centered heading with "(FAQ)" in primary, sub-paragraph, single rounded container with 5 accordion rows.
+9. **Contact CTA (IMG_3091)** — dark navy rounded panel: left support badge, headline w/ 2nd line in primary, paragraph, blue "হোয়াটসঅ্যাপে মেসেজ" CTA; right two stacked cards (Hotline +880 01933-554982 / Social: Facebook + YouTube) and Office address card.
+10. **Footer (IMG_3092)** — replaces current `ScholarsFooter`. 3-column: brand logo + description + 3 social icons / গুরুত্বপূর্ণ লিংক / আইনি ও যোগাযোগ with location row.
 
-Same icons, same labels, same routes as Navbar — single source of truth visually.
+## Files
 
-Also verify Footer Solutions column matches the Navbar Solutions reorder (Workflow → Professional Services → Professionals → Educators → Startups → Researchers → Creators → Freelancers → rest). Patch any drift.
+**Edit**
+- `src/components/scholars/ScholarsNavbar.tsx` — Bangla default labels, EN/BN toggle button (sun/globe-style), mobile sheet menu.
+- `src/components/scholars/ScholarsFooter.tsx` — replaced with IMG_3092 layout.
+- `src/components/scholars/ScholarsLayout.tsx` — wrap in `ScholarsI18nProvider`.
+- `src/pages/scholars/ScholarsHome.tsx` — full rewrite into 10 sections above using new components.
+- `src/data/academy.ts` — swap course/workshop `cover` to `founderAsset.url` for entries shown on home.
 
-## 2. Admin mobile + tablet polish (all `/admin/*` pages)
+**Create**
+- `src/contexts/ScholarsI18nContext.tsx` — `lang: 'bn' | 'en'`, default `'bn'`, persisted in `localStorage` (`scholars_lang`), `t(bn, en)` helper. Scoped to Scholars only; does NOT affect global `LanguageContext`.
+- `src/components/scholars/sections/ScholarsHero.tsx`
+- `src/components/scholars/sections/WhyScholars.tsx`
+- `src/components/scholars/sections/WhyLearnAI.tsx`
+- `src/components/scholars/sections/WhatWeDo.tsx`
+- `src/components/scholars/sections/PopularCourses.tsx`
+- `src/components/scholars/sections/UpcomingWorkshops.tsx`
+- `src/components/scholars/sections/ScholarsTestimonials.tsx`
+- `src/components/scholars/sections/ScholarsFAQ.tsx`
+- `src/components/scholars/sections/ScholarsContactCTA.tsx`
+- `src/components/scholars/LangToggle.tsx`
 
-Goal: every admin page is usable and clean at 360–768px without horizontal scroll bleed or cramped controls.
+## Design tokens (locked, applied via Tailwind utilities + arbitrary HSL)
 
-### 2a. Shared layout (`src/admin/layout/AdminLayout.tsx`)
-- Header: stack `DateRangePicker` below the title on `<sm` (move it into a second row); shrink title to `text-sm` with truncation.
-- Show `DateRangePicker` on mobile too (currently hidden `sm:block`) but full-width in the second row.
-- Reduce main padding to `p-3` on mobile (already done) and ensure `overflow-x-auto` is only on the table wrapper, not the whole `<main>`, so sticky header doesn't shift.
+- Display serif (headings): `"Playfair Display", "Noto Serif Bengali", serif` via Google Fonts `<link>` already-loaded check; load in `index.html` if missing.
+- Body: existing Plus Jakarta Sans + Noto Sans Bengali fallback.
+- Primary brand blue (matches reference): `#1B2A6B` (dark navy) and `#1E3A8A` accent. Mapped through existing `--primary` token where possible; section-local arbitrary colors only when a token doesn't fit.
+- Cream/paper background for "What we do": `#FAF7EE`.
+- Workshop dark section: `#0B0413 → #1A0526` radial.
+- Use existing `text-foreground / text-primary / bg-card / border-border` tokens for all neutral surfaces. No hard-coded `text-white` / `bg-black`.
 
-### 2b. Shared components
-- `src/admin/components/DataTable.tsx`: wrap `<table>` in `overflow-x-auto rounded-md border`; add `min-w-[640px]` on table so columns don't squish. Make pagination/footer wrap (`flex-wrap gap-2`).
-- `src/admin/components/KpiCard.tsx`: ensure responsive grid usages (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`) — audit all pages.
-- `src/admin/components/ChartCard.tsx`: enforce `w-full` and `h-[260px] sm:h-[320px]`; titles wrap.
-- `src/admin/components/DateRangePicker.tsx`: full-width trigger on mobile (`w-full sm:w-auto`), popover `align="start"` and `w-[calc(100vw-2rem)] sm:w-auto`.
+## Content rewrites (BN default / EN alt)
 
-### 2c. Per-page sweep
-For each page below: convert KPI rows to `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`, wrap tables in the shared scroll container, stack filter/search rows (`flex-col sm:flex-row gap-2`), make action buttons `w-full sm:w-auto`, and shrink section paddings.
+- Brand: "AI Shikhun" → "Sorix Scholars" (or "AI Sorix" where the reference says "platform").
+- Hotline / address / socials: keep AI Sorix global Dhaka HQ values already used in current `ScholarsFooter` / contact page (no new info invented).
+- Price chips on course/workshop cards: keep the existing prices from `src/data/academy.ts`; do not invent.
+- All Bangla copy follows reference tone; English fallback provided in `t()`.
 
-- AdminDashboard, AdminUsers, AdminUserProfile
-- AdminAIUsage, AdminAITokens, AdminAILive
-- AdminRevenue, AdminSubscriptions, AdminInvoices, AdminCoupons
-- AdminFlags, AdminAnnouncements, AdminPrompts, AdminWorkshops
-- AdminBroadcasts
-- ChatDashboard (`src/pages/admin/ChatDashboard.tsx`): on mobile show either the conversation list OR the chat window (toggle with back arrow), since the 320px sidebar + chat doesn't fit. Hide the stats row on `<sm`.
-- AdminTickets, AdminFeedback
-- AdminDatabase, AdminSystemHealth, AdminApiKeys, AdminAudit, AdminSettings
+## Responsive / mobile + tablet rules
 
-### 2d. Modals/dialogs
-- Audit `ConfirmDialog`, any inline `Dialog` usages: `max-w-[calc(100vw-1.5rem)] sm:max-w-lg`, scrollable body (`max-h-[85vh] overflow-y-auto`).
+- Mobile (`<640px`): single column for every grid; hero headline `text-3xl`, paragraph `text-sm`; horizontal scrollers (testimonials, course/workshop cards if >1) use `snap-x snap-mandatory overflow-x-auto -mx-4 px-4`; comparison cards stack; contact panel stacks; nav collapses into Sheet drawer with EN/BN toggle + links.
+- Tablet (`640–1024px`): 2-col grids where reference shows 2-col; hero stays centered single column; "What we do" 2-col; FAQ container full width with `max-w-2xl`.
+- Desktop (`≥1024px`): matches screenshots exactly.
+- Bangla width rule from project memory: `whitespace-nowrap` only on short pill chips; otherwise allow wrap with `leading-snug`; chips use `min-w-0 truncate` where needed.
+
+## Language toggle behavior
+
+- `LangToggle` shows current language code (`BN` / `EN`) inside a small pill; click flips.
+- Persisted in `localStorage`. Default `bn` on first visit to any `/sorixscholars/*` route.
+- Only Scholars pages consume `useScholarsLang()`; global app language untouched.
+- Navbar links, all 10 home sections, and footer all read through `t(bn, en)`.
 
 ## Out of scope
-- No backend/edge-function changes.
-- No design-token or theme changes.
-- No new pages or features.
-- No scholars/landing page work (already covered prior round).
 
-## Files to edit
-- `src/components/Footer.jsx`
-- `src/admin/layout/AdminLayout.tsx`
-- `src/admin/components/DataTable.tsx`, `KpiCard.tsx`, `ChartCard.tsx`, `DateRangePicker.tsx`, `ConfirmDialog.tsx`
-- All `src/admin/pages/Admin*.tsx`
-- `src/pages/admin/ChatDashboard.tsx`
+- No backend, RLS, or edge-function changes.
+- No changes to course/workshop detail pages, certificates, or admin (handled in earlier rounds).
+- No changes to the marketing site navbar/footer outside `/sorixscholars/*`.
+- Pricing values, hotline number, and office address are reused from existing data — not invented.
