@@ -206,126 +206,30 @@ const Footer = () => {
               Solutions
             </h4>
             <ul className="space-y-3 sm:space-y-4">
-              <li>
-                <Link
-                  to="/solutions/coding"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Coding
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/solutions/customer-support"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Customer Support
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/solutions/financial-services"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Financial Services
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/solutions/government"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Government
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/solutions/healthcare"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Healthcare
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/solutions/life-sciences"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Life Sciences
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/solutions/nonprofits"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Nonprofits
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/solutions/security"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Security
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/solutions/workflow-automation"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Workflow Automation
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/solutions/ai-for-educators"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Educators
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/solutions/ai-for-startups"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Startups
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/solutions/ai-for-researchers"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Researchers
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/solutions/ai-for-creators"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Creators
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/solutions/ai-for-freelancers"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Freelancers
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/solutions/ai-for-professionals"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Professionals
-                </Link>
-              </li>
+              {[
+                ["/solutions/workflow-automation", "Workflow Automation"],
+                ["/solutions/ai-for-professionals", "Professional Services"],
+                ["/solutions/ai-for-professionals", "Professionals"],
+                ["/solutions/ai-for-educators", "Educators"],
+                ["/solutions/ai-for-startups", "Startups"],
+                ["/solutions/ai-for-researchers", "Researchers"],
+                ["/solutions/ai-for-creators", "Creators"],
+                ["/solutions/ai-for-freelancers", "Freelancers"],
+                ["/solutions/coding", "Coding"],
+                ["/solutions/customer-support", "Customer Support"],
+                ["/solutions/healthcare", "Healthcare"],
+                ["/solutions/financial-services", "Financial Services"],
+                ["/solutions/government", "Government"],
+                ["/solutions/life-sciences", "Life Sciences"],
+                ["/solutions/nonprofits", "Nonprofits"],
+                ["/solutions/security", "Security"],
+              ].map(([to, label]) => (
+                <li key={to + label}>
+                  <Link to={to} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
