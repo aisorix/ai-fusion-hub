@@ -1,6 +1,14 @@
 import { Link } from "react-router-dom";
-import { GraduationCap, Facebook, Youtube, MessageCircle, MapPin } from "lucide-react";
+import { GraduationCap, Facebook, Instagram, Youtube, Twitter, Linkedin, MapPin } from "lucide-react";
 import { useScholarsLang } from "@/contexts/ScholarsI18nContext";
+
+const SOCIALS = [
+  { Icon: Facebook, href: "https://facebook.com/profile.php?id=61586687081259", label: "Facebook" },
+  { Icon: Instagram, href: "https://instagram.com/aisorix_", label: "Instagram" },
+  { Icon: Youtube, href: "https://youtube.com/@aisorix", label: "YouTube" },
+  { Icon: Twitter, href: "https://twitter.com/aisorix_", label: "Twitter" },
+  { Icon: Linkedin, href: "https://linkedin.com/company/aisorix", label: "LinkedIn" },
+];
 
 export default function ScholarsFooter() {
   const { t } = useScholarsLang();
@@ -17,7 +25,7 @@ export default function ScholarsFooter() {
               className="text-lg font-bold text-foreground"
               style={{ fontFamily: "'Plus Jakarta Sans', 'Noto Sans Bengali', system-ui, sans-serif" }}
             >
-              {t("সোরিক্স স্কলারস", "Sorix Scholars")}
+              Sorix Scholars
             </span>
           </Link>
           <p className="mt-4 text-sm text-muted-foreground leading-relaxed max-w-sm">
@@ -27,16 +35,13 @@ export default function ScholarsFooter() {
             )}
           </p>
           <div className="mt-5 flex items-center gap-2">
-            {[
-              { Icon: Facebook, href: "#" },
-              { Icon: Youtube, href: "#" },
-              { Icon: MessageCircle, href: "https://wa.me/8801933554982" },
-            ].map(({ Icon, href }, i) => (
+            {SOCIALS.map(({ Icon, href, label }) => (
               <a
-                key={i}
+                key={label}
                 href={href}
                 target="_blank"
                 rel="noreferrer"
+                aria-label={label}
                 className="w-9 h-9 rounded-full bg-muted/60 hover:bg-muted grid place-items-center text-muted-foreground hover:text-foreground transition-colors"
               >
                 <Icon className="w-4 h-4" />
@@ -112,7 +117,7 @@ export default function ScholarsFooter() {
       </div>
 
       <div className="border-t border-border/40 py-5 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} {t("সোরিক্স স্কলারস", "Sorix Scholars")} ·{" "}
+        © {new Date().getFullYear()} Sorix Scholars ·{" "}
         {t("AI Sorix-এর অংশ", "part of AI Sorix")}
       </div>
     </footer>

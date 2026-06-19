@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { MapPin, Calendar, Clock, ArrowRight } from "lucide-react";
 import { useScholarsLang } from "@/contexts/ScholarsI18nContext";
-import founderAsset from "@/assets/founder-rakib.png.asset.json";
+import founderAsset from "@/assets/founder-rakib.jpg.asset.json";
 
 interface WorkshopItem {
   slug: string;

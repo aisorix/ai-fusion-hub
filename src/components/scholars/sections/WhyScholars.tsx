@@ -1,6 +1,6 @@
 import { CheckCircle2, PlayCircle } from "lucide-react";
 import { useScholarsLang } from "@/contexts/ScholarsI18nContext";
-import founderAsset from "@/assets/founder-rakib.png.asset.json";
+import founderAsset from "@/assets/founder-rakib.jpg.asset.json";
 
 export default function WhyScholars() {
   const { t } = useScholarsLang();
