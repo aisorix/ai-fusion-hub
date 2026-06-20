@@ -127,10 +127,7 @@ export default function ScholarsContactCTA() {
                     {t("অফিস ঠিকানা", "Office address")}
                   </div>
                   <p className="mt-1 text-xs sm:text-sm text-white/90 leading-relaxed">
-                    {t(
-                      "১ম তলা, এ-১, ডমিন্যান্ট বিল্ডিংস, হাউজ ৩০/৩২, রোড ৫, সেক্টর ১, ব্লক ই, আফতাবনগর, ঢাকা।",
-                      "1st Floor, A-1, Dominant Buildings, House 30/32, Road 5, Sector 1, Block E, Aftabnagar, Dhaka."
-                    )}
+                    {t("উত্তরা, ঢাকা ১২৩০, বাংলাদেশ", "Uttara, Dhaka 1230, Bangladesh")}
                   </p>
                 </div>
               </div>

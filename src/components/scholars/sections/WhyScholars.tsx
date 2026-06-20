@@ -59,7 +59,12 @@ export default function WhyScholars() {
                 className="w-full h-full object-cover"
               />
               <button
-                aria-label="Play"
+                aria-label="Scroll to upcoming workshops"
+                onClick={() => {
+                  document
+                    .getElementById("upcoming-workshops")
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
                 className="absolute inset-0 grid place-items-center group"
               >
                 <span className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-background/85 backdrop-blur grid place-items-center shadow-2xl group-hover:scale-110 transition-transform">

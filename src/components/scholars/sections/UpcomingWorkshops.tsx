@@ -43,7 +43,9 @@ export default function UpcomingWorkshops() {
   const { t, lang } = useScholarsLang();
 
   return (
-    <section className="relative overflow-hidden py-14 sm:py-20 lg:py-24"
+    <section
+      id="upcoming-workshops"
+      className="relative overflow-hidden py-14 sm:py-20 lg:py-24"
       style={{ background: "radial-gradient(ellipse at top, #1A0526 0%, #0B0413 60%)" }}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -106,7 +108,7 @@ export default function UpcomingWorkshops() {
                     )}
                   </div>
                   <Link
-                    to="/sorixscholars/workshops"
+                    to={`/sorixscholars/workshops/${w.slug}`}
                     className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm font-semibold transition-colors backdrop-blur"
                   >
                     {t("বিস্তারিত", "Details")} <ArrowRight className="w-3.5 h-3.5" />
