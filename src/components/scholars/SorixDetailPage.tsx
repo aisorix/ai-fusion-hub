@@ -75,6 +75,10 @@ export interface DetailConfig {
   // Optional auto-enrollment when the user is signed in
   enrollKind?: "course" | "workshop" | "competition";
   enrollSlug?: string;
+  // Numeric BDT price used by the Scholars secure-checkout button
+  enrollPriceBdt?: number;
+  enrollItemTitle?: string;
+  enrollSeatsAvailable?: number | null;
 }
 
 const bnFont = { fontFamily: "'Noto Serif Bengali', serif" };
