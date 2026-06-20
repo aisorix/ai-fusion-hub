@@ -141,13 +141,18 @@ export function generateCertificatePdf(cert: CertificateData) {
     align: "center",
   });
 
-  // Recipient name (italic serif as script substitute)
+  // Recipient name (italic serif as script substitute) — auto-shrink to fit
   doc.setFont("times", "italic");
-  doc.setFontSize(58);
   doc.setTextColor(BROWN);
-  doc.text(cert.recipient_name || "Sorix Scholar", w / 2, 325, {
-    align: "center",
-  });
+  const recipient = cert.recipient_name || "Sorix Scholar";
+  const maxNameWidth = w - 240; // keep clear of decorative corners
+  let nameSize = 58;
+  doc.setFontSize(nameSize);
+  while (doc.getTextWidth(recipient) > maxNameWidth && nameSize > 22) {
+    nameSize -= 2;
+    doc.setFontSize(nameSize);
+  }
+  doc.text(recipient, w / 2, 325, { align: "center" });
 
   // Body
   doc.setFont("times", "normal");
