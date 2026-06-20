@@ -247,10 +247,8 @@ export default function AdminScholarsCourses() {
               </TabsContent>
 
               <TabsContent value="media" className="space-y-3 pt-4">
-                <FieldText label="Cover image URL" value={editing.cover_url || ""} onChange={(v) => setEditing({ ...editing, cover_url: v })} placeholder="https://..." />
-                {editing.cover_url && <img src={editing.cover_url} alt="" className="rounded border border-border max-h-48 object-cover w-full" />}
-                <FieldText label="Banner image URL (detail page hero)" value={editing.banner_url || ""} onChange={(v) => setEditing({ ...editing, banner_url: v })} placeholder="https://..." />
-                {editing.banner_url && <img src={editing.banner_url} alt="" className="rounded border border-border max-h-48 object-cover w-full" />}
+                <MediaUrlField label="Cover image URL" kind="image" value={editing.cover_url || ""} onChange={(v) => setEditing({ ...editing, cover_url: v })} />
+                <MediaUrlField label="Banner image URL (detail page hero)" kind="image" value={editing.banner_url || ""} onChange={(v) => setEditing({ ...editing, banner_url: v })} />
               </TabsContent>
 
               <TabsContent value="pricing" className="space-y-3 pt-4">
