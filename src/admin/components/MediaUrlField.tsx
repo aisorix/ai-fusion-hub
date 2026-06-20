@@ -59,6 +59,12 @@ function vimeoId(u: URL): string | null {
 function safeName(name: string) {
   return name.toLowerCase().replace(/[^\w.\-]+/g, "-").replace(/-+/g, "-").slice(-80);
 }
+function formatBytes(n: number) {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  if (n < 1024 * 1024 * 1024) return `${(n / 1024 / 1024).toFixed(1)} MB`;
+  return `${(n / 1024 / 1024 / 1024).toFixed(2)} GB`;
+}
 
 export function MediaUrlField({
   label, value, onChange, placeholder, kind = "image", required,
