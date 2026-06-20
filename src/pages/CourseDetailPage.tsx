@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import SEOHead from "@/components/SEOHead";
 import ContactModal from "@/components/academy/ContactModal";
 import { supabase } from "@/integrations/supabase/client";
+import ScholarsEnrollButton from "@/components/scholars/ScholarsEnrollButton";
 import { getCourse } from "@/data/academy";
 import courseCover from "@/assets/course-prompt.jpg";
 import mentorImg from "@/assets/founder-rakib.jpg.asset.json";
@@ -165,8 +166,17 @@ export default function CourseDetailPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [promo, setPromo] = useState("");
+  const [dbCourse, setDbCourse] = useState<any>(null);
+  // Load DB price for secure server-side checkout
+  // (falls back to free / contact flow if missing)
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    supabase.from("courses").select("id, slug, title, price_bdt").eq("slug", slug).maybeSingle()
+      .then(({ data }) => setDbCourse(data));
+  }, [slug]);
 
   if (!course) return <Navigate to="/sorixscholars/courses" replace />;
+
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
