@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import SEOHead from "@/components/SEOHead";
 import ContactModal from "@/components/academy/ContactModal";
+import { supabase } from "@/integrations/supabase/client";
 
 const BN_NUM = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
 export const toBn = (n: number | string) =>
