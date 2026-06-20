@@ -6,9 +6,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
   AlertCircle, CheckCircle2, ImageIcon, Video, ExternalLink, Loader2,
-  Upload, X, RotateCcw,
+  Upload, X, RotateCcw, WifiOff, Lock, FileWarning, ServerCrash,
 } from "lucide-react";
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+
+type UploadErrorKind = "none" | "file_size" | "file_type" | "auth" | "network" | "server" | "bucket" | "aborted" | "unknown";
 
 type Kind = "image" | "video";
 
