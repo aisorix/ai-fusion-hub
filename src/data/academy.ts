@@ -21,6 +21,11 @@ export interface Course {
   cover: string;
   overview: string;
   outcomes: string[];
+  curriculum: CourseModule[];
+  instructor: { name: string; role: string; bio: string };
+  faqs: { q: string; a: string }[];
+}
+
 export const courses: Course[] = [
   {
     slug: "ai-for-professionals",
