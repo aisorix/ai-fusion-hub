@@ -1,5 +1,5 @@
 import { Brain, Code, Globe, Sparkles, User } from "lucide-react";
-import mentorAsset from "@/assets/mentor-rakib.jpg.asset.json";
+import mentorAsset from "@/assets/founder-rakib.jpg.asset.json";
 
 export interface MentorInfo {
   name?: string;

@@ -27,6 +27,7 @@ export default function ScholarsHome() {
       <ScholarsTestimonials />
       <span id="faq" />
       <ScholarsFAQ />
+      <span id="contact" />
       <ScholarsContactCTA />
     </>
   );

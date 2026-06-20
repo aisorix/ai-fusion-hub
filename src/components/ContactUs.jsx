@@ -36,7 +36,7 @@ const ContactUs = ({ onOpenChat }) => {
     {
       icon: MapPin,
       title: language === "en" ? "Our Office" : "আমাদের অফিস",
-      value: language === "en" ? "Uttara, Dhaka" : "ঢাকা",
+      value: language === "en" ? "Uttara, Dhaka 1230" : "উত্তরা, ঢাকা ১২৩০",
       description: language === "en" ? "AI Sorix HQ, Bangladesh" : "AI Sorix সদর দপ্তর, বাংলাদেশ",
     },
     {
