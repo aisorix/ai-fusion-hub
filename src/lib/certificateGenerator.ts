@@ -204,12 +204,9 @@ export function generateCertificatePdf(cert: CertificateData) {
   const verifyUrl = `https://aisorix.com/sorixscholars/verify/${cert.certificate_number}`;
   const verifyLabel = `Verify at aisorix.com/sorixscholars/verify/${cert.certificate_number}`;
   const verifyWidth = doc.getTextWidth(verifyLabel);
-  const verifyX = w - 60;
+  const verifyX = w - 60 - verifyWidth;
   const verifyY = h - 40;
-  doc.textWithLink(verifyLabel, verifyX, verifyY, {
-    align: "right",
-    url: verifyUrl,
-  });
+  doc.textWithLink(verifyLabel, verifyX, verifyY, { url: verifyUrl });
 
   doc.save(`sorix-scholars-${cert.certificate_number}.pdf`);
 }
