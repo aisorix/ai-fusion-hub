@@ -1,34 +1,38 @@
-## Goal
-Make the Scholars sub-pages (Workshops, Competitions) match the home-page section design language — light background, centered Bangla heading in Playfair + Noto Serif Bengali, short subtitle, simple card grid. Drop the big "hero with badge + tagline" blocks. Use the same card visual treatment as `PopularCourses` / `UpcomingWorkshops` on the home page so the whole site feels consistent.
+# Plan: Rebuild Course Detail Page (AI for Professionals)
 
-The Workshops page result should look exactly like the attached screenshot: heading "আমাদের ওয়ার্কশপসমূহ", 2-line Bangla subtitle, then a 2-column card grid.
+Full rewrite of `src/pages/CourseDetailPage.tsx` to match the 9 attached screenshots, section-by-section in Bangla. All content is hard-coded for the single `ai-for-professionals` course (also widening `Course` data shape in `src/data/academy.ts` where new fields are needed).
 
-## Changes
+## Sections (top → bottom)
 
-### 1. `src/pages/scholars/WorkshopsPage.tsx` — full rewrite
-- Remove the gradient hero, badge ("Sorix Scholars · Workshops"), the Supabase fetch, loading skeletons, and empty state.
-- Render only:
-  - `SEOHead`
-  - Centered heading **"আমাদের ওয়ার্কশপসমূহ"** (Playfair Display + Noto Serif Bengali, same sizing as `PopularCourses`)
-  - Bangla subtitle (same copy as screenshot: "সরাসরি এক্সপার্টদের কাছ থেকে শিখুন। আমাদের প্র্যাক্টিক্যাল লাইভ ওয়ার্কশপগুলোতে জয়েন করে আপনার স্কিলকে নিয়ে যান নেক্সট লেভেলে।")
-  - 2-column responsive grid (`sm:grid-cols-2`) of rounded-3xl cards with:
-    - Cover banner image (16/10), red "লাইভ ওয়ার্কশপ" badge top-left, date pill + "রাত ৯ টা" time pill bottom-left
-    - Body: `MapPin` + "Google Meet", Bangla title (Playfair/Noto Serif), 2-line description
-    - Footer row: price ৳ value (with optional strikethrough old price in rose), "বিস্তারিত →" link to `/sorixscholars/workshops/${slug}`
-- Static `WORKSHOPS` array (two items matching screenshot):
-  1. `slug: "ai-private-batch-2month"` · ২ মাসের AI প্রাইভেট ব্যাচ · ৳5000 · 1 জুলাই – 31 আগস্ট
-  2. `slug: "ai-smart-productivity-3day"` · ৩ দিনের AI লাইভ ওয়ার্কশপ · ৳470 (old ৳999) · 16,17,18 জুলাই
-  - Both cover images use existing `founder-rakib.jpg` asset (banner-style images will be uploaded by user later).
+1. **Hero (dark blue grid bg)** — left: "ভর্তি হন এখনই" pill, big serif "AI for Professionals" title, Bangla tagline, two CTAs: "কোর্সে ভর্তি হোন →" (primary blue, scrolls to enroll card) and "📖 কারিকুলাম দেখুন" (outline, scrolls to curriculum). Right: rounded video placeholder card with play button overlay (uses existing course cover image; clicking play does nothing for now or opens a YouTube embed if URL provided).
 
-### 2. `src/pages/CompetitionsPage.tsx` — full rewrite to match
-- Remove gradient hero, badge, large headline, "why" 3-card grid.
-- Render:
-  - `SEOHead`
-  - Centered heading **"আমাদের কম্পিটিশনসমূহ"** (Playfair + Noto Serif Bengali)
-  - Bangla subtitle
-  - 2-column grid of rounded-3xl cards using existing `competitions` data from `@/data/academy`. Each card: cover image with "প্রিমিয়াম"/status pill top-left, prize pill bottom-left, title, tagline, prize amount + "বিস্তারিত →".
+2. **"এই সমস্যাগুলোর সাথে কি আপনি রিলেট করতে পারছেন?"** (light bg) — 2×2 grid of soft white cards, each with red ⚠ icon + Bangla problem text. Below: dark navy banner with the "এই কোর্সে আমরা ধাপে ধাপে…" reassurance text.
 
-### 3. Out of scope
-- `ScholarsCertificates.tsx` — authenticated user dashboard, different purpose; leaving its layout alone.
-- Workshop / competition detail pages — unchanged.
-- No backend / data-source changes.
+3. **"কোর্সে কী কী শিখতে পারবেন"** (dark bg) — 2×3 grid of dark glass cards, each with blue ▶ icon, Bangla/English title, and Bangla description (6 outcomes).
+
+4. **"কোর্স সামারি" + "আপনি পাবেন"** (split: light card on left, dark card on right) — Left: Bangla summary paragraph + 2×2+1 grid of stat tiles (১৫ দিনের execution roadmap, ৫টি practical module, ১৫টি office use-case class, লাইফটাইম অ্যাক্সেস, সকল ডিভাইস সাপোর্ট with monitor icon). Right: 2×3 dark grid (লাইফটাইম এক্সেস, সার্টিফিকেট, কমিউনিটি এক্সেস, মেন্টর সাপোর্ট, প্রম্পট ই-বুক, কুইজ) each with ✓ icon, title, and Bangla description.
+
+5. **"কোর্স কারিকুলাম"** (dark bg) — Centered title + pill "মোট ৬ টি মডিউল • ৪৩ টি ক্লাস". Vertical timeline (left circle numbers in Bangla numerals) with 6 accordion modules. Each closed row shows title + "X টি ক্লাস". Open module reveals lessons list with ▶ icons and Bangla numeral index. First module open by default. Module data: Foundation (5), AI in Writing (7), AI in Presentation & Graphics (13), AI in Research (6), AI in Data Analysis (6), AI in Personal Productivity (6) — total 43.
+
+6. **"শিক্ষার্থীদের মন্তব্য"** (light heading band → dark section) — Mentor card with rounded photo (founder-rakib.jpg) on left, "আপনার মেন্টর" pill, name "Md. Rakibul Islam" (large serif), role "Founder, AI Sorix", and Bangla bio on right.
+
+7. **"সচরাচর জিজ্ঞাসিত প্রশ্নাবলী"** (light bg) — Centered title, accordion FAQ list (reuse existing FAQs from data).
+
+8. **"এখনই প্রিবুক করুন"** (light bg, large dark enroll card) — Title + Bangla subtitle. Card: left = checklist of 6 features. Right = strikethrough "৳৮৭০" + "০% ছাড়" red pill, large "৳ ৮৭০" price, promo code input + "প্রয়োগ করুন" blue button, big white "📖 এখনই প্রিবুক করুন →" CTA, "১০০% নিরাপদ পেমেন্ট ও ইনস্ট্যান্ট এক্সেস" footer. Yellow "⭐ বেস্ট ভ্যালু" badge top-right. CTA opens existing `ContactModal`.
+
+## Button behavior
+- Hero "কোর্সে ভর্তি হোন" → smooth-scroll to `#enroll` section.
+- Hero "কারিকুলাম দেখুন" → smooth-scroll to `#curriculum`.
+- Promo "প্রয়োগ করুন" → no-op visual (toast "শীঘ্রই আসছে" via sonner).
+- "এখনই প্রিবুক করুন" → opens `ContactModal` with subject "Pre-book: AI for Professionals".
+- Back link → `/sorixscholars/courses`.
+
+## Files to change
+- `src/pages/CourseDetailPage.tsx` — full rewrite.
+- `src/data/academy.ts` — extend `ai-for-professionals` curriculum to the 6 modules / 43 lessons shown in screenshots; add `problems[]`, `learnings[]`, `summary`, `perks[]`, `stats[]` fields on the Course (optional, typed).
+- No new assets; reuse `course-prompt.jpg` and `founder-rakib.jpg.asset.json`.
+
+## Out of scope
+- Real video playback (placeholder only).
+- Real promo code / payment processing.
+- Other pages.
