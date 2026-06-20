@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Edit3, Plus, Trash2, BookOpen, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import RoleGate from "../../components/RoleGate";
+import MediaUrlField from "../../components/MediaUrlField";
 
 interface Course {
   id?: string;
