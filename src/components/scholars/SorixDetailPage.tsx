@@ -70,6 +70,10 @@ export interface DetailConfig {
 
   contactSubjectPrefix: string;
   contactModalTitle: string;
+
+  // Optional auto-enrollment when the user is signed in
+  enrollKind?: "course" | "workshop" | "competition";
+  enrollSlug?: string;
 }
 
 const bnFont = { fontFamily: "'Noto Serif Bengali', serif" };
