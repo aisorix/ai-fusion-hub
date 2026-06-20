@@ -64,6 +64,9 @@ export default function WorkshopDetailPage() {
 
         contactSubjectPrefix: `Workshop Booking: ${w.title}`,
         contactModalTitle: `সিট বুকিং · ${w.title}`,
+
+        enrollKind: "workshop",
+        enrollSlug: w.slug,
       }}
     />
   );

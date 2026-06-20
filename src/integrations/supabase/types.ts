@@ -914,6 +914,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           country_code: string | null
           created_at: string
           full_name: string | null
@@ -924,6 +925,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           country_code?: string | null
           created_at?: string
           full_name?: string | null
@@ -934,6 +936,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           country_code?: string | null
           created_at?: string
           full_name?: string | null
@@ -1456,28 +1459,43 @@ export type Database = {
       }
       user_certificates: {
         Row: {
+          certificate_number: string | null
           created_at: string
           id: string
           issued_at: string
+          issuer_name: string | null
+          issuer_title: string | null
           kind: string
+          metadata: Json | null
+          recipient_name: string | null
           source_slug: string | null
           title: string
           user_id: string
         }
         Insert: {
+          certificate_number?: string | null
           created_at?: string
           id?: string
           issued_at?: string
+          issuer_name?: string | null
+          issuer_title?: string | null
           kind: string
+          metadata?: Json | null
+          recipient_name?: string | null
           source_slug?: string | null
           title: string
           user_id: string
         }
         Update: {
+          certificate_number?: string | null
           created_at?: string
           id?: string
           issued_at?: string
+          issuer_name?: string | null
+          issuer_title?: string | null
           kind?: string
+          metadata?: Json | null
+          recipient_name?: string | null
           source_slug?: string | null
           title?: string
           user_id?: string
@@ -1625,6 +1643,45 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_enrollments: {
+        Row: {
+          completed_at: string | null
+          enrolled_at: string
+          id: string
+          kind: string
+          progress: number
+          source_slug: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          enrolled_at?: string
+          id?: string
+          kind: string
+          progress?: number
+          source_slug: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          enrolled_at?: string
+          id?: string
+          kind?: string
+          progress?: number
+          source_slug?: string
+          status?: string
+          title?: string
           updated_at?: string
           user_id?: string
         }
@@ -1873,6 +1930,27 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      enroll_item: {
+        Args: { _kind: string; _slug: string; _title: string }
+        Returns: {
+          completed_at: string | null
+          enrolled_at: string
+          id: string
+          kind: string
+          progress: number
+          source_slug: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "user_enrollments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       get_active_announcements: {
         Args: never
         Returns: {
@@ -2014,6 +2092,11 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      update_enrollment_progress: {
+        Args: { _kind: string; _progress: number; _slug: string }
+        Returns: Json
+      }
+      verify_certificate: { Args: { _number: string }; Returns: Json }
     }
     Enums: {
       app_role:

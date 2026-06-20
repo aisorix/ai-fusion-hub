@@ -1,47 +1,109 @@
-# Plan: Workshop & Competition Detail Pages — Match Course Detail Design
+# Sorix Scholars — Dashboard, Profile, Certificate System
 
-Rewrite both `WorkshopDetailPage.tsx` and `CompetitionDetailPage.tsx` to mirror the high-fidelity Bangla layout already shipped on `CourseDetailPage.tsx` (matching the 9 attached screenshots).
+Build a complete learner workspace inside `/sorixscholars`: a dashboard with enrollments + progress, a profile editor, an upgraded certificate hub with PDF download + verification, and automatic certificate issuance when a learner finishes a course/workshop/competition. Visual style matches the existing courses/workshops pages (Plus Jakarta Sans, soft cards, Bangla/English toggle).
 
-## Files to change
+---
 
-1. **`src/pages/scholars/WorkshopDetailPage.tsx`** — full rewrite. Drop the Supabase fetch; use the static `WORKSHOPS` array from `WorkshopsPage.tsx` (lift it to `src/data/workshops.ts` so both pages share it). Match by `slug`, 404 → redirect to `/sorixscholars/workshops`.
+## 1. Database changes (one migration)
 
-2. **`src/pages/CompetitionDetailPage.tsx`** — full rewrite. Source data from `src/data/academy.ts` `competitions[]` matched by `slug`. Extend that entry with the same extra fields used below (problems, learnings, curriculum/timeline, mentor, FAQs, perks, pricing) — hard-coded per competition.
+Extend `public.user_certificates`:
+- `certificate_number text unique` — human-readable ID, format `SS-YYYY-XXXXXX` (e.g. `SS-2026-A4F19K`)
+- `recipient_name text` — snapshot of name at issue time (so renames don't change old certs)
+- `issuer_name text default 'Rakib Eslam'`
+- `issuer_title text default 'Founder & CEO, AI Sorix Limited'`
+- `metadata jsonb default '{}'` — for description / extra fields
 
-3. **`src/data/workshops.ts`** (new) — export the WORKSHOPS array + per-workshop extended content (problems, learnings, curriculum days, mentor, FAQs, perks, price/oldPrice, batch label, deadline timestamp).
+New table `public.user_enrollments`:
+- `user_id uuid` (FK auth.users)
+- `kind text check in ('course','workshop','competition')`
+- `source_slug text` — slug of the item
+- `title text`
+- `progress int default 0` (0–100)
+- `status text default 'in_progress'` ('in_progress' | 'completed')
+- `enrolled_at`, `completed_at`, `updated_at`
+- Unique `(user_id, kind, source_slug)`
+- GRANTs + RLS: user can SELECT/INSERT/UPDATE their own; service_role full.
 
-## Section-by-section (both pages, same pattern)
+RPCs (SECURITY DEFINER, search_path = public):
+- `enroll_item(_kind, _slug, _title)` — upsert enrollment for `auth.uid()`.
+- `update_progress(_kind, _slug, _progress)` — clamps 0–100; if 100 → marks completed_at + status, then auto-issues certificate by inserting into `user_certificates` (only if one doesn't already exist for that user+kind+slug); generates `certificate_number` server-side.
+- `verify_certificate(_number text)` — public (granted to anon + authenticated); returns `{ valid, recipient_name, title, kind, issued_at, certificate_number, issuer_name, issuer_title }` or `{ valid:false }`. No user_id leak.
 
-1. **Hero (dark navy, grid bg)** — left: green pulse pill (`চলমান ব্যাচ: Batch 4` for workshop / `স্ট্যাটাস` pill for competition), big serif title (Bangla + English mix), Bangla tagline, 3 info pills (date / time / Google Meet OR prize / deadline / mode), primary yellow "সিট বুক করুন →" CTA + outline "📖 কারিকুলাম দেখুন" CTA. Right: rounded video placeholder card with play button overlay; below: live countdown ("রেজিস্ট্রেশন শেষ হতে বাকি: XX দিন : XX ঘণ্টা : XX মিনিট : XX সেকেন্ড") ticking via `useEffect` + `setInterval`. Smooth-scroll CTAs → `#enroll` / `#curriculum`.
+Update existing `user_certificates` policy to also allow public SELECT only through the verify RPC (keep table RLS user-only, RPC bypasses).
 
-2. **"কেন এই ওয়ার্কশপ/কম্পিটিশন আপনার প্রয়োজন?"** (light bg) — centered title with short blue underline, 2×2 grid of soft white cards with red ⚠ circle icon + Bangla problem text.
+Make `certificates` policy add public-read of minimal columns? No — use RPC only.
 
-3. **"এই ওয়ার্কশপ/কম্পিটিশন থেকে যা যা শিখবেন/পাবেন"** (dark navy bg) — centered title + short blue underline, 2×2 dark glass cards with blue ▶ icon, title + Bangla description.
+Add public GRANT EXECUTE on `verify_certificate` to `anon, authenticated`; others to `authenticated` + `service_role`.
 
-4. **"ওয়ার্কশপ কারিকুলাম" / "কম্পিটিশন রাউন্ডসমূহ"** (light bg) — centered title + blue underline + Bangla subtitle. Pill-tab selector (Day 1 / Day 2 / Day 3 for workshop, Round 1 / Round 2 / Final for competition) with Bangla numeral in blue square. Active tab gets blue gradient bg + shadow; inactive light. Selected tab reveals a white rounded card listing items with blue ● bullets in 2-column grid.
+Backfill: for existing rows in `user_certificates`, populate `certificate_number` = `SS-<year>-<6 random hex>` and `recipient_name` from profiles.full_name.
 
-5. **"যাদের জন্য এই ওয়ার্কশপ" + "ওয়ার্কশপে যা যা প্রয়োজন"** (light bg, 2-col split cards) — two rounded cards side-by-side with icon header (Users / Target) and bulleted Bangla list (blue ● / blue ✓).
+---
 
-6. **"আপনার ইনস্ট্রাক্টর" / "আয়োজক"** (dark navy section) — rounded photo card on left (uses `founder-rakib.jpg`), big serif Bangla name, blue subtitle (role/institution), Bangla bio paragraph with left blue border.
+## 2. Certificate PDF (shared utility)
 
-7. **"শিক্ষার্থীদের মতামত"** (light bg) — horizontal scroll row of 4–6 white testimonial cards, each: 5 yellow stars, Bangla quote, blue circle avatar with first letter + name + "AI Workshop Participant" / "Competition Participant".
+New `src/lib/certificateGenerator.ts` exporting `generateCertificatePdf(cert)`. Recreates the design in image 2 exactly:
+- Landscape A4, cream `#F5EBD6` background.
+- Brown ornamental corner brackets (drawn with jsPDF lines/rects) + simple daisy clusters (small circles + petals) in 4 corners.
+- Big serif "CERTIFICATE" (Times Bold), subtitle "OF COMPLETION" (or "OF PARTICIPATION" for competitions).
+- "THIS CERTIFICATE IS PROUDLY PRESENTED TO".
+- Recipient name in cursive (use jsPDF's `times` italic at 48pt as best-available script font; document limitation — embedding a true script font like "Great Vibes" requires adding a base64 TTF, which we'll do via a small `greatVibes.ts` font file loaded with `doc.addFileToVFS` + `doc.addFont` for an authentic look).
+- Body paragraph: "for successfully completing the {kind} '{title}' organized by AI Sorix Limited, showing curiosity, effort and a passion for learning."
+- Signature block: cursive "Rakib Eslam" + thin divider + "Founder & CEO, AI Sorix Limited".
+- Footer-left: `Certificate No: SS-2026-A4F19K`  ·  `Issued: June 20, 2026`  ·  `Verify at aisorix.com/verify/SS-2026-A4F19K`.
 
-8. **"সচরাচর জিজ্ঞাসিত প্রশ্ন"** (light bg) — centered title + blue underline. Accordion list (first item open by default, blue ring + light blue bg when open; closed items white with grey `?` circle). Reuses `shadcn/ui` Accordion already in project.
+Replace the inline PDF code in `ScholarsCertificates.tsx` with this util. Reuse on dashboard, certificates page, and verify page.
 
-9. **"এখনই রেজিস্ট্রেশন করুন"** (large dark enroll card, `id="enroll"`) — top blue→purple gradient border. Left: "ওয়ার্কশপে কী কী পাচ্ছেন?" + 6 ✓ Bangla checklist. Right: strikethrough old price (rose), giant white price (৳৪৭০ etc.), "সীমিত সময়ের জন্য" subtitle, "প্রোমো কোড (যদি থাকে)" input + dark "Apply" button (sonner toast), yellow "⚡ মাত্র ৯৯৮ টি সিট বাকি" line, big blue→purple gradient "রেজিস্ট্রেশন করুন →" CTA → opens existing `ContactModal` with the workshop/competition title as subject, footer row "🛡 সিকিউর পেমেন্ট    ⏱ লাইফটাইম অ্যাক্সেস".
+---
 
-10. **Sticky bottom bar** (mobile + desktop, fixed `bottom-4`) — dark pill: title + price + Batch pill + live countdown + yellow "সিট বুক করুন →" button (scrolls to `#enroll`).
+## 3. Pages & routes
 
-## Button behavior
-- Hero "সিট বুক করুন" / sticky CTA → smooth-scroll to `#enroll`.
-- Hero "কারিকুলাম দেখুন" → smooth-scroll to `#curriculum`.
-- Promo "Apply" → sonner toast `"শীঘ্রই আসছে"`.
-- "রেজিস্ট্রেশন করুন" → opens `ContactModal` (subject = item title).
-- Back link → `/sorixscholars/workshops` or `/sorixscholars/competitions`.
-- Countdown computes from a hard-coded `deadline` ISO timestamp per item.
+Add to `src/App.jsx` under `/sorixscholars`:
+- `dashboard` → `ScholarsDashboard.tsx` (auth-gated; redirect to /login if signed-out)
+- `profile` → `ScholarsProfile.tsx` (auth-gated)
+- `verify` and `verify/:number` → `CertificateVerifyPage.tsx` (public)
 
-## Out of scope
-- Real video playback (placeholder only).
-- Real promo / payment.
-- Editing `CourseDetailPage` or other pages.
-- New imagery beyond `founder-rakib.jpg`.
+Keep `certificates` route. Add navbar/footer links so both navbar and footer point to certificates (already there) + dashboard + profile (in user dropdown).
+
+### 3a. `ScholarsDashboard.tsx` (`/sorixscholars/dashboard`)
+- Header: greeting "স্বাগতম, {firstName} 👋" + small "Edit profile" button → `/sorixscholars/profile`.
+- 4 stat cards: Enrolled courses, Workshops attended, Competitions joined, Certificates earned.
+- 3 tabbed sections (Courses / Workshops / Competitions):
+  - Each item card shows: thumb (kind icon), title, status pill, progress bar (`progress %`), enrolled date, "Continue" → detail page, and if status=in_progress an "Mark complete" button (calls `update_progress(_,_,100)` → toast "🎉 Certificate issued").
+  - Empty state for each tab with a CTA to browse.
+- "Recent certificates" row: latest 3 cards with Download PDF.
+
+### 3b. `ScholarsProfile.tsx` (`/sorixscholars/profile`)
+- Avatar uploader (drag/click) → uploads to existing `profile-avatars` storage bucket (path `{user_id}/avatar.{ext}`, public URL → `profiles.avatar_url`).
+- Form fields: Full name, Email (read-only, with "Change email" calling `supabase.auth.updateUser({ email })`), Phone (country code + number, reusing existing columns), Bio (optional, add `bio text` to profiles in same migration).
+- Password section: "Change password" → `supabase.auth.updateUser({ password })`.
+- Save → updates `profiles`; sonner toast on success.
+
+### 3c. `ScholarsCertificates.tsx` (upgrade)
+- Same Plus Jakarta layout as today, but:
+  - Sorted newest-first (already), badge "NEW" if issued in last 7 days.
+  - Each card shows certificate number prominently, kind icon, title, issued date, "Download PDF" (new util) + "Verify" link → `/sorixscholars/verify/{number}` + "Copy link" button (sonner toast).
+  - Empty state CTAs unchanged.
+
+### 3d. `CertificateVerifyPage.tsx` (`/sorixscholars/verify` and `/verify/:number`)
+- Hero: "Verify a Sorix Scholars certificate" + an input box (auto-filled when `:number` present).
+- On submit → calls `verify_certificate` RPC.
+- Valid result: green success card showing recipient name, title, kind, issued date, certificate number, issuer; "Download a copy" button (re-renders PDF from returned data).
+- Invalid: red card "No certificate found with this number."
+- Page styled like courses/workshops listing pages.
+
+---
+
+## 4. Navbar / Footer / triggers
+
+- Navbar user dropdown (currently has "আমার সার্টিফিকেট" + "ড্যাশবোর্ড" pointing to `/dashboard`): change Dashboard to `/sorixscholars/dashboard`, add "প্রোফাইল / Profile" item above logout.
+- Footer "গুরুত্বপূর্ণ লিংক": add "Verify certificate" → `/sorixscholars/verify` and "ড্যাশবোর্ড" → `/sorixscholars/dashboard` (only when signed in is fine — but easier to always show).
+- On course/workshop/competition detail pages, "Enroll" / "Register" buttons (currently open ContactModal) — also call `enroll_item` RPC when the user is authenticated, so it shows in the dashboard. ContactModal flow stays for unauthenticated leads.
+
+---
+
+## 5. Out of scope
+
+- Real lesson-by-lesson progress tracking (we expose only manual "Mark complete" + RPC; future lesson UI can call `update_progress`).
+- Public certificate "share" image (PDF download covers the request).
+- Editing certificates after issue (immutable by design).
+- Embedding a custom signature image (cursive font via embedded Great Vibes TTF approximates image 2's hand-written look).

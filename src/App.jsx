@@ -103,6 +103,9 @@ const WorkshopDetailPage = React.lazy(() => import("./pages/scholars/WorkshopDet
 const ScholarsLayout = React.lazy(() => import("./components/scholars/ScholarsLayout"));
 const ScholarsHome = React.lazy(() => import("./pages/scholars/ScholarsHome"));
 const ScholarsCertificates = React.lazy(() => import("./pages/scholars/ScholarsCertificates"));
+const ScholarsDashboard = React.lazy(() => import("./pages/scholars/ScholarsDashboard"));
+const ScholarsProfile = React.lazy(() => import("./pages/scholars/ScholarsProfile"));
+const CertificateVerifyPage = React.lazy(() => import("./pages/scholars/CertificateVerifyPage"));
 const AdminWorkshops = React.lazy(() => import("./admin/pages/AdminWorkshops"));
 
 const EventsPage = React.lazy(() => import("./pages/EventsPage"));
@@ -236,6 +239,10 @@ const App = () => (
                   <Route path="workshops" element={<WorkshopsPage />} />
                   <Route path="workshops/:slug" element={<WorkshopDetailPage />} />
                   <Route path="certificates" element={<ScholarsCertificates />} />
+                  <Route path="dashboard" element={<ScholarsDashboard />} />
+                  <Route path="profile" element={<ScholarsProfile />} />
+                  <Route path="verify" element={<CertificateVerifyPage />} />
+                  <Route path="verify/:number" element={<CertificateVerifyPage />} />
                 </Route>
 
                 {/* Backwards-compatible redirects from old top-level paths */}

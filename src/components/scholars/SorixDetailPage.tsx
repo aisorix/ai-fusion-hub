@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import SEOHead from "@/components/SEOHead";
 import ContactModal from "@/components/academy/ContactModal";
+import { supabase } from "@/integrations/supabase/client";
 
 const BN_NUM = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
 export const toBn = (n: number | string) =>
@@ -70,6 +71,10 @@ export interface DetailConfig {
 
   contactSubjectPrefix: string;
   contactModalTitle: string;
+
+  // Optional auto-enrollment when the user is signed in
+  enrollKind?: "course" | "workshop" | "competition";
+  enrollSlug?: string;
 }
 
 const bnFont = { fontFamily: "'Noto Serif Bengali', serif" };
@@ -623,7 +628,21 @@ export default function SorixDetailPage({ cfg }: { cfg: DetailConfig }) {
                 </p>
 
                 <button
-                  onClick={() => setModalOpen(true)}
+                  onClick={async () => {
+                    setModalOpen(true);
+                    if (cfg.enrollKind && cfg.enrollSlug) {
+                      try {
+                        const { data: { user } } = await supabase.auth.getUser();
+                        if (user) {
+                          await supabase.rpc("enroll_item" as any, {
+                            _kind: cfg.enrollKind,
+                            _slug: cfg.enrollSlug,
+                            _title: cfg.heroTitleLines.join(" "),
+                          });
+                        }
+                      } catch {}
+                    }
+                  }}
                   className="mt-4 w-full inline-flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-95 text-white font-bold text-lg transition shadow-xl"
                   style={bnFont}
                 >

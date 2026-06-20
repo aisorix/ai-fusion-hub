@@ -106,12 +106,18 @@ export default function ScholarsNavbar() {
                     {fullName || user.email}
                   </span>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-52">
+                  <DropdownMenuItem onClick={() => navigate("/sorixscholars/dashboard")}>
+                    {t("ড্যাশবোর্ড", "Dashboard")}
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/sorixscholars/certificates")}>
                     {t("আমার সার্টিফিকেট", "My Certificates")}
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/dashboard")}>
-                    {t("ড্যাশবোর্ড", "Dashboard")}
+                  <DropdownMenuItem onClick={() => navigate("/sorixscholars/profile")}>
+                    {t("প্রোফাইল এডিট", "Edit Profile")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/sorixscholars/verify")}>
+                    {t("সার্টিফিকেট যাচাই", "Verify Certificate")}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => signOut()}>

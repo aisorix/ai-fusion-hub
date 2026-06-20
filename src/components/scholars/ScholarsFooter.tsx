@@ -56,6 +56,8 @@ export default function ScholarsFooter() {
             <li><Link to="/sorixscholars/workshops" className="text-muted-foreground hover:text-foreground">{t("লাইভ ওয়ার্কশপ", "Live workshops")}</Link></li>
             <li><Link to="/sorixscholars/competitions" className="text-muted-foreground hover:text-foreground">{t("প্রতিযোগিতা", "Competitions")}</Link></li>
             <li><Link to="/sorixscholars/certificates" className="text-muted-foreground hover:text-foreground">{t("সার্টিফিকেট", "Certificates")}</Link></li>
+            <li><Link to="/sorixscholars/verify" className="text-muted-foreground hover:text-foreground">{t("সার্টিফিকেট যাচাই", "Verify certificate")}</Link></li>
+            <li><Link to="/sorixscholars/dashboard" className="text-muted-foreground hover:text-foreground">{t("ড্যাশবোর্ড", "Dashboard")}</Link></li>
             <li><Link to="/sorixscholars#testimonials" className="text-muted-foreground hover:text-foreground">{t("শিক্ষার্থীদের মন্তব্য", "Learner stories")}</Link></li>
             <li><Link to="/sorixscholars#faq" className="text-muted-foreground hover:text-foreground">{t("জিজ্ঞাসা", "FAQ")}</Link></li>
           </ul>

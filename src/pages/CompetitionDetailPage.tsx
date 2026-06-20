@@ -124,6 +124,9 @@ export default function CompetitionDetailPage() {
 
         contactSubjectPrefix: `Apply: ${c.title}`,
         contactModalTitle: `Apply · ${c.title}`,
+
+        enrollKind: "competition",
+        enrollSlug: c.slug,
       }}
     />
   );
