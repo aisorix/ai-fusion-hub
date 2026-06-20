@@ -99,19 +99,18 @@ export const useChatSync = (userId: string | null) => {
     }
   }, [userId]);
 
-  // ── Save token usage ──
-  const saveTokensToDB = useCallback(async (tokensUsed: number) => {
+  // ── Save token usage (increment via secure RPC) ──
+  const saveTokensToDB = useCallback(async (delta: number) => {
     if (!userId) return;
+    if (!Number.isFinite(delta) || delta <= 0) return;
     try {
-      await supabase
-        .from('subscriptions')
-        .update({ tokens_used: tokensUsed })
-        .eq('user_id', userId)
-        .eq('status', 'active');
+      const amount = Math.min(Math.floor(delta), 1_000_000);
+      await supabase.rpc('increment_tokens_used' as any, { _amount: amount });
     } catch (err) {
       console.error('Failed to save tokens to DB:', err);
     }
   }, [userId]);
+
 
   // ── Save multi-window state ──
   const saveWindowsToDB = useCallback(async (windows: ChatWindow[]) => {
@@ -267,10 +266,12 @@ export const useChatSync = (userId: string | null) => {
         }
       }
 
-      // Tokens
+      // Tokens (only allow increments via secure RPC)
       if (state.user.tokensUsed !== prevState.user.tokensUsed) {
-        saveTokensToDB(state.user.tokensUsed);
+        const delta = (state.user.tokensUsed ?? 0) - (prevState.user.tokensUsed ?? 0);
+        if (delta > 0) saveTokensToDB(delta);
       }
+
 
       // Multi-window changed → debounced save (ignore isStreaming-only changes)
       if (state.chatWindows !== prevState.chatWindows) {

@@ -28,12 +28,14 @@ export default function AdminTickets() {
   useEffect(() => { load(); }, [statusF, priorityF]);
 
   const openTicket = async (row: any) => {
-    setActive(row); setNotes(row.internal_notes ?? "");
+    setActive(row); setNotes("");
     try {
       const r = await invokeAdmin<{ ticket: any; messages: any[] }>("admin-tickets-update", { action: "get", id: row.id });
       setMessages(r.messages);
+      if (r.ticket) { setActive(r.ticket); setNotes(r.ticket.internal_notes ?? ""); }
     } catch (e: any) { toast.error(e.message); }
   };
+
   const patch = async (p: any) => {
     if (!active) return;
     try { const r = await invokeAdmin<{ ticket: any }>("admin-tickets-update", { action: "update", id: active.id, patch: p }); setActive(r.ticket); load(); }

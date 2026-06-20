@@ -293,6 +293,32 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_conversation_internal_notes: {
+        Row: {
+          conversation_id: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          conversation_id: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          conversation_id?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_conversation_internal_notes_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: true
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_conversations: {
         Row: {
           assigned_employee_id: string | null
@@ -302,7 +328,6 @@ export type Database = {
           guest_name: string | null
           guest_token: string | null
           id: string
-          internal_notes: string | null
           last_message_at: string | null
           priority: string
           status: string | null
@@ -318,7 +343,6 @@ export type Database = {
           guest_name?: string | null
           guest_token?: string | null
           id?: string
-          internal_notes?: string | null
           last_message_at?: string | null
           priority?: string
           status?: string | null
@@ -334,7 +358,6 @@ export type Database = {
           guest_name?: string | null
           guest_token?: string | null
           id?: string
-          internal_notes?: string | null
           last_message_at?: string | null
           priority?: string
           status?: string | null
@@ -2396,7 +2419,6 @@ export type Database = {
           guest_name: string | null
           guest_token: string | null
           id: string
-          internal_notes: string | null
           last_message_at: string | null
           priority: string
           status: string | null
@@ -2452,6 +2474,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_tokens_used: { Args: { _amount: number }; Returns: number }
       is_admin_user: { Args: { _user_id: string }; Returns: boolean }
       log_page_view: {
         Args: {
