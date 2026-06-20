@@ -230,35 +230,67 @@ export function MediaUrlField({
 
       {!disableUpload && (
         <div
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragOver={(e) => { if (!uploading) { e.preventDefault(); setDragOver(true); } }}
           onDragLeave={() => setDragOver(false)}
           onDrop={onDrop}
-          onClick={() => !uploading && inputRef.current?.click()}
+          onClick={() => { if (!uploading) inputRef.current?.click(); }}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") inputRef.current?.click(); }}
+          onKeyDown={(e) => { if (!uploading && (e.key === "Enter" || e.key === " ")) inputRef.current?.click(); }}
           className={[
-            "mt-2 cursor-pointer rounded-lg border-2 border-dashed px-3 py-3 text-xs transition-colors",
-            "flex items-center justify-between gap-3",
-            dragOver ? "border-primary bg-primary/5" : "border-border bg-muted/20 hover:bg-muted/40",
-            uploading ? "pointer-events-none opacity-80" : "",
+            "mt-2 rounded-lg border-2 border-dashed px-3 py-3 text-xs transition-colors",
+            uploading ? "cursor-default" : "cursor-pointer",
+            dragOver ? "border-primary bg-primary/5"
+              : uploadError ? "border-destructive/60 bg-destructive/5"
+              : "border-border bg-muted/20 hover:bg-muted/40",
           ].join(" ")}
         >
-          <div className="flex items-center gap-2 min-w-0">
-            {uploading ? <Loader2 className="w-4 h-4 animate-spin text-primary" /> : <Upload className="w-4 h-4 text-muted-foreground" />}
-            <span className="truncate text-muted-foreground">
-              {uploading
-                ? `Uploading… ${progress}%`
-                : dragOver
-                  ? `Drop ${kind} to upload`
-                  : `Drag & drop or click to upload (${kind === "image" ? `≤ ${MAX_IMAGE_MB} MB` : `≤ ${MAX_VIDEO_MB} MB`})`}
-            </span>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              {uploading ? <Loader2 className="w-4 h-4 animate-spin text-primary flex-shrink-0" />
+                : uploadError ? <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+                : <Upload className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
+              <span className="truncate text-muted-foreground">
+                {uploading
+                  ? `Uploading ${lastFile?.name ?? ""}`
+                  : uploadError
+                    ? uploadError
+                    : dragOver
+                      ? `Drop ${kind} to upload`
+                      : `Drag & drop or click to upload (${kind === "image" ? `≤ ${MAX_IMAGE_MB} MB` : `≤ ${MAX_VIDEO_MB} MB`})`}
+              </span>
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {uploading && (
+                <Button type="button" variant="ghost" size="sm" className="h-7 px-2" onClick={(e) => { e.stopPropagation(); cancelUpload(); }}>
+                  <X className="w-3.5 h-3.5 mr-1" /> Cancel
+                </Button>
+              )}
+              {!uploading && uploadError && lastFile && (
+                <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-primary" onClick={(e) => { e.stopPropagation(); retryUpload(); }}>
+                  <RotateCcw className="w-3.5 h-3.5 mr-1" /> Retry
+                </Button>
+              )}
+              {!uploading && value && (
+                <Button type="button" variant="ghost" size="sm" className="h-7 px-2" onClick={(e) => { e.stopPropagation(); clear(); }}>
+                  <X className="w-3.5 h-3.5 mr-1" /> Clear
+                </Button>
+              )}
+            </div>
           </div>
-          {value && !uploading && (
-            <Button type="button" variant="ghost" size="sm" className="h-7 px-2" onClick={(e) => { e.stopPropagation(); clear(); }}>
-              <X className="w-3.5 h-3.5 mr-1" /> Clear
-            </Button>
+
+          {uploading && (
+            <div className="mt-2 space-y-1">
+              <div className="h-1.5 w-full bg-muted rounded overflow-hidden">
+                <div className="h-full bg-primary transition-all duration-150" style={{ width: `${progress}%` }} />
+              </div>
+              <div className="flex items-center justify-between text-[10px] text-muted-foreground tabular-nums">
+                <span>{progress}%</span>
+                {bytes && <span>{formatBytes(bytes.loaded)} / {formatBytes(bytes.total)}</span>}
+              </div>
+            </div>
           )}
+
           <input
             ref={inputRef}
             type="file"
@@ -269,11 +301,6 @@ export function MediaUrlField({
         </div>
       )}
 
-      {uploading && (
-        <div className="mt-1 h-1 w-full bg-muted rounded overflow-hidden">
-          <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
-        </div>
-      )}
 
       {preview && (
         <div className="mt-2 rounded-lg border border-border overflow-hidden bg-muted/30">
