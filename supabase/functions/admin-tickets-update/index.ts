@@ -22,7 +22,9 @@ Deno.serve(async (req) => {
   if (action === "get") {
     const { data: conv } = await ctx.service.from("chat_conversations").select("*").eq("id", body.id).maybeSingle();
     const { data: messages } = await ctx.service.from("chat_messages").select("*").eq("conversation_id", body.id).order("created_at");
-    return jsonResponse({ ticket: conv, messages: messages ?? [] });
+    const { data: noteRow } = await ctx.service.from("chat_conversation_internal_notes").select("notes").eq("conversation_id", body.id).maybeSingle();
+    const ticket = conv ? { ...conv, internal_notes: noteRow?.notes ?? "" } : null;
+    return jsonResponse({ ticket, messages: messages ?? [] });
   }
 
   if (!canWrite(ctx)) return jsonResponse({ error: "Forbidden: read-only role" }, 403);
@@ -31,14 +33,27 @@ Deno.serve(async (req) => {
     const { id, patch } = body;
     const { data: prev } = await ctx.service.from("chat_conversations").select("*").eq("id", id).maybeSingle();
     const allowed: any = {};
-    for (const k of ["status","priority","assignee_id","tags","internal_notes","title"]) {
+    for (const k of ["status","priority","assignee_id","tags","title"]) {
       if (k in patch) allowed[k] = patch[k];
     }
-    const { data, error } = await ctx.service.from("chat_conversations").update(allowed).eq("id", id).select().single();
-    if (error) return jsonResponse({ error: error.message }, 500);
-    await audit(ctx, "ticket.update", "chat_conversations", id, prev, data);
-    return jsonResponse({ ticket: data });
+    let updated: any = prev;
+    if (Object.keys(allowed).length > 0) {
+      const { data, error } = await ctx.service.from("chat_conversations").update(allowed).eq("id", id).select().single();
+      if (error) return jsonResponse({ error: error.message }, 500);
+      updated = data;
+    }
+    if ("internal_notes" in patch) {
+      const notes = typeof patch.internal_notes === "string" ? patch.internal_notes : "";
+      const { error: noteErr } = await ctx.service
+        .from("chat_conversation_internal_notes")
+        .upsert({ conversation_id: id, notes, updated_at: new Date().toISOString() }, { onConflict: "conversation_id" });
+      if (noteErr) return jsonResponse({ error: noteErr.message }, 500);
+      updated = { ...(updated ?? {}), internal_notes: notes };
+    }
+    await audit(ctx, "ticket.update", "chat_conversations", id, prev, updated);
+    return jsonResponse({ ticket: updated });
   }
+
 
   if (action === "reply") {
     const { id, content } = body;
