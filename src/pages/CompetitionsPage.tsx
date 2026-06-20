@@ -1,108 +1,72 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Trophy, Sparkles, Globe, Users } from "lucide-react";
+import { ArrowRight, Trophy } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import { competitions } from "@/data/academy";
 
-const why = [
-  {
-    icon: Sparkles,
-    title: "Real prizes, real launches",
-    desc: "Cash, credits, mentorship, and a featured spotlight in the AI Sorix ecosystem.",
-  },
-  {
-    icon: Globe,
-    title: "Open worldwide",
-    desc: "Online-first. Open to individuals and teams in any country, any timezone.",
-  },
-  {
-    icon: Users,
-    title: "Hands-on mentorship",
-    desc: "Direct office hours with the Sorix Scholars engineering and product team.",
-  },
-];
-
 export default function CompetitionsPage() {
   return (
-    <div className="bg-background">
+    <div className="bg-background min-h-screen">
       <SEOHead
-        title="Competitions · Sorix Scholars — AI Build Challenge & Startup Funding"
-        description="Two worldwide competitions from Sorix Scholars: the Build Challenge and the Startup Funding Competition. Cash, credits, mentorship, and a launch runway."
+        title="Sorix Scholars — আমাদের কম্পিটিশনসমূহ"
+        description="Sorix Scholars কম্পিটিশন — বিল্ড চ্যালেঞ্জ ও স্টার্টআপ ফান্ডিং কম্পিটিশনে অংশ নিন। ক্যাশ, ক্রেডিট, মেন্টরশিপ ও লঞ্চ স্পটলাইট।"
         path="/sorixscholars/competitions"
       />
 
-      <section className="relative overflow-hidden border-b border-border/40">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-background pointer-events-none" />
-        <div className="absolute -top-32 -left-32 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12 sm:pt-24 sm:pb-20">
-          <Link
-            to="/sorixscholars/courses"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors mb-4 inline-block"
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+          <h1
+            className="text-3xl sm:text-4xl lg:text-[52px] leading-tight font-bold text-foreground"
+            style={{ fontFamily: "'Playfair Display', 'Noto Serif Bengali', Georgia, serif" }}
           >
-            ← Sorix Scholars
-          </Link>
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-5">
-            <Trophy className="w-3.5 h-3.5" /> Competitions
-          </span>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] max-w-4xl font-display">
-            Build with us. <br className="hidden sm:block" />
-            Win cash, credits, and a launch runway.
+            আমাদের কম্পিটিশনসমূহ
           </h1>
-          <p className="mt-5 text-base sm:text-lg text-muted-foreground max-w-2xl leading-relaxed">
-            Two worldwide competitions from Sorix Scholars — for individual builders, indie teams, and early-stage
-            founders.
+          <p className="mt-5 text-sm sm:text-base text-muted-foreground leading-relaxed">
+            বিশ্বব্যাপী বিল্ডার, টিম ও আর্লি-স্টেজ ফাউন্ডারদের জন্য আমাদের কম্পিটিশন। ক্যাশ, ক্রেডিট, মেন্টরশিপ ও লঞ্চ রানওয়ে জিতুন।
           </p>
         </div>
-      </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 grid md:grid-cols-3 gap-5">
-        {why.map((w) => (
-          <div key={w.title} className="p-6 rounded-2xl border border-border bg-card">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-3">
-              <w.icon className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-foreground">{w.title}</h3>
-            <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">{w.desc}</p>
-          </div>
-        ))}
-      </section>
-
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 grid md:grid-cols-2 gap-5">
-        {competitions.map((c) => (
-          <Link
-            key={c.slug}
-            to={`/sorixscholars/competitions/${c.slug}`}
-            className="group relative overflow-hidden rounded-3xl border border-border bg-card hover:border-primary/40 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300"
-          >
-            <div className="aspect-[16/9] overflow-hidden bg-muted">
-              <img
-                src={c.cover}
-                alt=""
-                loading="lazy"
-                width={1024}
-                height={576}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-            </div>
-            <div className="p-7">
-              <div className="flex items-center gap-2 mb-3 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+        <div className="grid sm:grid-cols-2 gap-5 sm:gap-6">
+          {competitions.map((c) => (
+            <Link
+              key={c.slug}
+              to={`/sorixscholars/competitions/${c.slug}`}
+              className="group rounded-3xl bg-card border border-border overflow-hidden hover:shadow-xl hover:-translate-y-0.5 transition-all flex flex-col"
+            >
+              <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+                <img
+                  src={c.cover}
+                  alt={c.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+                <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500 text-white text-[11px] font-bold shadow">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                   {c.status}
                 </span>
-                <span className="text-xs font-semibold text-muted-foreground">{c.prize}</span>
+                <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/70 backdrop-blur text-[11px] font-semibold text-white">
+                  <Trophy className="w-3 h-3" /> {c.prize}
+                </span>
               </div>
-              <h3 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors">
-                {c.title}
-              </h3>
-              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{c.tagline}</p>
-              <div className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary group-hover:gap-2.5 transition-all">
-                Read the brief <ArrowRight className="w-4 h-4" />
-              </div>
-            </div>
-          </Link>
-        ))}
-      </section>
 
+              <div className="p-5 sm:p-6 flex-1 flex flex-col">
+                <h2
+                  className="text-lg sm:text-xl font-bold text-foreground leading-snug group-hover:text-primary transition-colors"
+                  style={{ fontFamily: "'Playfair Display', 'Noto Serif Bengali', Georgia, serif" }}
+                >
+                  {c.title}
+                </h2>
+                <p className="mt-2 text-sm text-muted-foreground line-clamp-3 flex-1">{c.tagline}</p>
+                <div className="mt-5 pt-5 border-t border-border/60 flex items-center justify-between gap-3">
+                  <div className="text-sm font-semibold text-foreground line-clamp-1">{c.prize}</div>
+                  <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-semibold group-hover:bg-primary/20 transition-colors whitespace-nowrap">
+                    বিস্তারিত <ArrowRight className="w-3.5 h-3.5" />
+                  </span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

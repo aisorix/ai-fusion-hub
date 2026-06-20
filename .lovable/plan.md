@@ -1,34 +1,34 @@
 ## Goal
-Rebuild `/sorixscholars/courses` so it shows **only** the heading "আমাদের কোর্সসমূহ", a short subtitle, and **one** sample course card — "AI for Professionals" (৳870, 6 মডিউল, Premium badge) — exactly like the screenshot. Remove every other section and every other course from this page.
+Make the Scholars sub-pages (Workshops, Competitions) match the home-page section design language — light background, centered Bangla heading in Playfair + Noto Serif Bengali, short subtitle, simple card grid. Drop the big "hero with badge + tagline" blocks. Use the same card visual treatment as `PopularCourses` / `UpcomingWorkshops` on the home page so the whole site feels consistent.
+
+The Workshops page result should look exactly like the attached screenshot: heading "আমাদের ওয়ার্কশপসমূহ", 2-line Bangla subtitle, then a 2-column card grid.
 
 ## Changes
 
-### 1. `src/data/academy.ts`
-- Replace the `courses` array with a single entry:
-  - `slug: "ai-for-professionals"`
-  - `title: "AI for Professionals"`
-  - `tagline: "অফিসের real কাজ মাথায় রেখে তৈরি practical masterclass — Email, report, presentation, research…"`
-  - `level: "Intermediate"`
-  - `duration: "6 মডিউল"`
-  - `priceLabel: "৳870"`
-  - `cover`: existing `course-prompt.jpg` placeholder (kept for now — banner will be updated when the user uploads the AI for Professionals banner)
-  - Full `overview`, `outcomes`, 6-module `curriculum`, `instructor` (Md. Rakibul Islam — founder), `faqs`
-- Remove all other course imports/objects. Keep `competitions` untouched (used elsewhere).
+### 1. `src/pages/scholars/WorkshopsPage.tsx` — full rewrite
+- Remove the gradient hero, badge ("Sorix Scholars · Workshops"), the Supabase fetch, loading skeletons, and empty state.
+- Render only:
+  - `SEOHead`
+  - Centered heading **"আমাদের ওয়ার্কশপসমূহ"** (Playfair Display + Noto Serif Bengali, same sizing as `PopularCourses`)
+  - Bangla subtitle (same copy as screenshot: "সরাসরি এক্সপার্টদের কাছ থেকে শিখুন। আমাদের প্র্যাক্টিক্যাল লাইভ ওয়ার্কশপগুলোতে জয়েন করে আপনার স্কিলকে নিয়ে যান নেক্সট লেভেলে।")
+  - 2-column responsive grid (`sm:grid-cols-2`) of rounded-3xl cards with:
+    - Cover banner image (16/10), red "লাইভ ওয়ার্কশপ" badge top-left, date pill + "রাত ৯ টা" time pill bottom-left
+    - Body: `MapPin` + "Google Meet", Bangla title (Playfair/Noto Serif), 2-line description
+    - Footer row: price ৳ value (with optional strikethrough old price in rose), "বিস্তারিত →" link to `/sorixscholars/workshops/${slug}`
+- Static `WORKSHOPS` array (two items matching screenshot):
+  1. `slug: "ai-private-batch-2month"` · ২ মাসের AI প্রাইভেট ব্যাচ · ৳5000 · 1 জুলাই – 31 আগস্ট
+  2. `slug: "ai-smart-productivity-3day"` · ৩ দিনের AI লাইভ ওয়ার্কশপ · ৳470 (old ৳999) · 16,17,18 জুলাই
+  - Both cover images use existing `founder-rakib.jpg` asset (banner-style images will be uploaded by user later).
 
-### 2. `src/pages/CoursesPage.tsx`
-Rewrite the page to render only:
-- `SEOHead`
-- Centered heading **"আমাদের কোর্সসমূহ"** (Playfair + Noto Serif Bengali, same as `PopularCourses`)
-- Bangla subtitle paragraph
-- A single course card (same visual style as `PopularCourses` — rounded-3xl, cover image, "প্রিমিয়াম" badge top-left, "6 মডিউল" pill bottom-left, title, tagline, price ৳870, "বিস্তারিত →" link to `/sorixscholars/courses/ai-for-professionals`)
-- Card is centered (`max-w-sm mx-auto`) so the layout matches the screenshot
+### 2. `src/pages/CompetitionsPage.tsx` — full rewrite to match
+- Remove gradient hero, badge, large headline, "why" 3-card grid.
+- Render:
+  - `SEOHead`
+  - Centered heading **"আমাদের কম্পিটিশনসমূহ"** (Playfair + Noto Serif Bengali)
+  - Bangla subtitle
+  - 2-column grid of rounded-3xl cards using existing `competitions` data from `@/data/academy`. Each card: cover image with "প্রিমিয়াম"/status pill top-left, prize pill bottom-left, title, tagline, prize amount + "বিস্তারিত →".
 
-Remove: hero section, stats strip, "Why learn AI" comparison, offerings bento, competitions banner, promises, final CTA, and the multi-course grid.
-
-### 3. `src/components/scholars/sections/PopularCourses.tsx`
-Update `featured` to `courses.slice(0, 1)` so the home page also shows only the single available course (avoids empty cards).
-
-## Out of scope
-- Course detail page (`/sorixscholars/courses/ai-for-professionals`) keeps current layout; only its data changes via `academy.ts`.
-- No changes to competitions, workshops, footer, or any other page.
-- Cover image swap to the actual "AI for Professionals" banner will require the user to upload the banner asset — current image remains as placeholder.
+### 3. Out of scope
+- `ScholarsCertificates.tsx` — authenticated user dashboard, different purpose; leaving its layout alone.
+- Workshop / competition detail pages — unchanged.
+- No backend / data-source changes.

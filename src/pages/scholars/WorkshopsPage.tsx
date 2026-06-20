@@ -1,136 +1,119 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { MapPin, Calendar, Clock, ArrowRight } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
-import { ArrowRight, Calendar, Clock, GraduationCap, Sparkles } from "lucide-react";
+import founderAsset from "@/assets/founder-rakib.jpg.asset.json";
 
 interface Workshop {
-  id: string;
   slug: string;
+  badge: string;
   title: string;
-  summary: string | null;
-  cover_url: string | null;
-  duration_hours: number | null;
-  price_bdt: number | null;
-  starts_at: string | null;
-  mentor_name: string | null;
+  desc: string;
+  price: string;
+  oldPrice?: string;
+  date: string;
+  time: string;
+  location: string;
+  cover: string;
 }
 
+const WORKSHOPS: Workshop[] = [
+  {
+    slug: "ai-private-batch-2month",
+    badge: "লাইভ ওয়ার্কশপ",
+    title: "২ মাসের AI প্রাইভেট ব্যাচ",
+    desc: "আপনার লক্ষ্য অনুযায়ী AI শেখার জন্য জয়েন করুন আমাদের প্রাইভেট ব্যাচে।",
+    price: "৳5000",
+    date: "১ জুলাই – ৩১ আগস্ট",
+    time: "রাত ৯ টা",
+    location: "Google Meet",
+    cover: founderAsset.url,
+  },
+  {
+    slug: "ai-smart-productivity-3day",
+    badge: "লাইভ ওয়ার্কশপ",
+    title: "৩ দিনের AI লাইভ ওয়ার্কশপ",
+    desc: "প্রতিযোগিতায় টিকে থাকতে AI শেখার বিকল্প নেই। আপনার ৫ ঘণ্টার কাজ ৫ মিনিটে নামিয়ে আনতে জয়েন করুন এই প্র্যাক্টিক্যাল সেশনে।",
+    price: "৳470",
+    oldPrice: "৳999",
+    date: "১৬, ১৭, ১৮ জুলাই",
+    time: "রাত ৯ টা",
+    location: "Google Meet",
+    cover: founderAsset.url,
+  },
+];
+
 export default function WorkshopsPage() {
-  const [rows, setRows] = useState<Workshop[] | null>(null);
-
-  useEffect(() => {
-    supabase
-      .from("workshops")
-      .select("id, slug, title, summary, cover_url, duration_hours, price_bdt, starts_at, mentor_name")
-      .eq("is_published", true)
-      .order("starts_at", { ascending: true })
-      .then(({ data }) => setRows((data as any) ?? []));
-  }, []);
-
   return (
-    <div className="bg-background">
+    <div className="bg-background min-h-screen">
       <SEOHead
-        title="Workshops · Sorix Scholars"
-        description="Live, hands-on AI workshops mentored by AI Sorix practitioners. Build real projects in days, not months."
+        title="Sorix Scholars — আমাদের ওয়ার্কশপসমূহ"
+        description="সরাসরি এক্সপার্টদের কাছ থেকে শিখুন। প্র্যাক্টিক্যাল লাইভ AI ওয়ার্কশপে জয়েন করে নিজের স্কিল নেক্সট লেভেলে নিয়ে যান।"
         path="/sorixscholars/workshops"
       />
 
-      <section className="relative overflow-hidden border-b border-border/40">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent" />
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 text-center">
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-4">
-            <Sparkles className="w-3.5 h-3.5" /> Sorix Scholars · Workshops
-          </span>
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
           <h1
-            className="text-3xl sm:text-5xl font-bold tracking-tight text-foreground"
-            style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}
+            className="text-3xl sm:text-4xl lg:text-[52px] leading-tight font-bold text-foreground"
+            style={{ fontFamily: "'Playfair Display', 'Noto Serif Bengali', Georgia, serif" }}
           >
-            Live, hands-on AI workshops
+            আমাদের ওয়ার্কশপসমূহ
           </h1>
-          <p className="mt-4 text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Compact, mentor-led sessions. Build a real project end-to-end and earn a certificate.
+          <p className="mt-5 text-sm sm:text-base text-muted-foreground leading-relaxed">
+            সরাসরি এক্সপার্টদের কাছ থেকে শিখুন। আমাদের প্র্যাক্টিক্যাল লাইভ ওয়ার্কশপগুলোতে জয়েন করে আপনার স্কিলকে নিয়ে যান নেক্সট লেভেলে।
           </p>
         </div>
-      </section>
 
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {rows === null && (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-72 rounded-2xl bg-muted/40 animate-pulse" />
-            ))}
-          </div>
-        )}
-
-        {rows && rows.length === 0 && (
-          <div className="text-center py-20 rounded-3xl border border-dashed border-border">
-            <GraduationCap className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
-            <h2 className="text-xl font-bold text-foreground">No workshops scheduled right now</h2>
-            <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
-              We&apos;re curating the next cohort. Check back soon — or join a course in the meantime.
-            </p>
-            <Link
-              to="/sorixscholars/courses"
-              className="mt-5 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-foreground text-background text-sm font-semibold hover:opacity-90"
+        <div className="grid sm:grid-cols-2 gap-5 sm:gap-6">
+          {WORKSHOPS.map((w) => (
+            <div
+              key={w.slug}
+              className="rounded-3xl bg-card border border-border overflow-hidden hover:shadow-xl hover:-translate-y-0.5 transition-all flex flex-col"
             >
-              Browse courses <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        )}
+              <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+                <img src={w.cover} alt={w.title} className="w-full h-full object-cover" loading="lazy" />
+                <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-rose-500 text-white text-[11px] font-bold shadow">
+                  {w.badge}
+                </span>
+                <div className="absolute bottom-3 left-3 right-3 flex flex-wrap gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur text-[11px] font-semibold text-white">
+                    <Calendar className="w-3 h-3" /> {w.date}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur text-[11px] font-semibold text-white">
+                    <Clock className="w-3 h-3" /> {w.time}
+                  </span>
+                </div>
+              </div>
 
-        {rows && rows.length > 0 && (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {rows.map((w) => (
-              <Link
-                key={w.id}
-                to={`/sorixscholars/workshops/${w.slug}`}
-                className="group flex flex-col rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/40 hover:-translate-y-0.5 transition-all"
-              >
-                <div className="aspect-[16/9] overflow-hidden bg-muted">
-                  {w.cover_url ? (
-                    <img
-                      src={w.cover_url}
-                      alt={w.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full grid place-items-center text-muted-foreground">
-                      <GraduationCap className="w-10 h-10" />
-                    </div>
-                  )}
+              <div className="p-5 sm:p-6 flex-1 flex flex-col">
+                <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
+                  <MapPin className="w-3.5 h-3.5" /> {w.location}
                 </div>
-                <div className="p-5 flex-1 flex flex-col">
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
-                    {w.duration_hours && (
-                      <span className="inline-flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" /> {w.duration_hours}h
-                      </span>
-                    )}
-                    {w.starts_at && (
-                      <span className="inline-flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5" />
-                        {new Date(w.starts_at).toLocaleDateString()}
-                      </span>
+                <h2
+                  className="text-lg sm:text-xl font-bold text-foreground leading-snug"
+                  style={{ fontFamily: "'Playfair Display', 'Noto Serif Bengali', Georgia, serif" }}
+                >
+                  {w.title}
+                </h2>
+                <p className="mt-2 text-sm text-muted-foreground line-clamp-3 flex-1">{w.desc}</p>
+                <div className="mt-5 pt-5 border-t border-border/60 flex items-center justify-between gap-3">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-lg sm:text-xl font-bold text-foreground">{w.price}</span>
+                    {w.oldPrice && (
+                      <span className="text-sm line-through text-rose-500/80">{w.oldPrice}</span>
                     )}
                   </div>
-                  <h3 className="text-base font-semibold text-foreground mb-1.5 group-hover:text-primary transition-colors">
-                    {w.title}
-                  </h3>
-                  {w.summary && (
-                    <p className="text-sm text-muted-foreground line-clamp-2 flex-1">{w.summary}</p>
-                  )}
-                  <div className="mt-4 flex items-center justify-between">
-                    <span className="text-sm font-semibold text-foreground">
-                      {w.price_bdt && w.price_bdt > 0 ? `৳${w.price_bdt.toLocaleString()}` : "Free"}
-                    </span>
-                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 group-hover:text-primary transition-all" />
-                  </div>
+                  <Link
+                    to={`/sorixscholars/workshops/${w.slug}`}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-semibold hover:bg-primary/20 transition-colors whitespace-nowrap"
+                  >
+                    বিস্তারিত <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
-              </Link>
-            ))}
-          </div>
-        )}
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
     </div>
   );
