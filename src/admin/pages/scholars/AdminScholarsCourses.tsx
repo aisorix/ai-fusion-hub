@@ -223,7 +223,7 @@ export default function AdminScholarsCourses() {
                             <Button variant="ghost" size="icon" onClick={() => { const n = [...modules]; n[mi].lessons.splice(li, 1); setModules(n); }}><Trash2 className="w-3.5 h-3.5 text-destructive" /></Button>
                           </div>
                           <div className="grid sm:grid-cols-[1fr_140px] gap-2">
-                            <MediaUrlField label="Video URL" kind="video" value={l.video_url || ""} onChange={(v) => { const n = [...modules]; n[mi].lessons[li].video_url = v; setModules(n); }} placeholder="YouTube, Vimeo, or .mp4" />
+                            <MediaUrlField label="Video URL" kind="video" uploadFolder="courses/lessons" value={l.video_url || ""} onChange={(v) => { const n = [...modules]; n[mi].lessons[li].video_url = v; setModules(n); }} placeholder="YouTube, Vimeo, or .mp4" />
                             <div>
                               <Label>Duration (sec)</Label>
                               <Input type="number" placeholder="0" value={l.duration_sec ?? ""} onChange={(e) => { const n = [...modules]; n[mi].lessons[li].duration_sec = e.target.value ? parseInt(e.target.value, 10) : null; setModules(n); }} />
@@ -247,8 +247,8 @@ export default function AdminScholarsCourses() {
               </TabsContent>
 
               <TabsContent value="media" className="space-y-3 pt-4">
-                <MediaUrlField label="Cover image URL" kind="image" value={editing.cover_url || ""} onChange={(v) => setEditing({ ...editing, cover_url: v })} />
-                <MediaUrlField label="Banner image URL (detail page hero)" kind="image" value={editing.banner_url || ""} onChange={(v) => setEditing({ ...editing, banner_url: v })} />
+                <MediaUrlField label="Cover image URL" kind="image" uploadFolder="courses/covers" value={editing.cover_url || ""} onChange={(v) => setEditing({ ...editing, cover_url: v })} />
+                <MediaUrlField label="Banner image URL (detail page hero)" kind="image" uploadFolder="courses/banners" value={editing.banner_url || ""} onChange={(v) => setEditing({ ...editing, banner_url: v })} />
               </TabsContent>
 
               <TabsContent value="pricing" className="space-y-3 pt-4">
