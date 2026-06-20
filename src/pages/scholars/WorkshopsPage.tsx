@@ -1,46 +1,7 @@
 import { Link } from "react-router-dom";
 import { MapPin, Calendar, Clock, ArrowRight } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
-import founderAsset from "@/assets/founder-rakib.jpg.asset.json";
-
-interface Workshop {
-  slug: string;
-  badge: string;
-  title: string;
-  desc: string;
-  price: string;
-  oldPrice?: string;
-  date: string;
-  time: string;
-  location: string;
-  cover: string;
-}
-
-const WORKSHOPS: Workshop[] = [
-  {
-    slug: "ai-private-batch-2month",
-    badge: "লাইভ ওয়ার্কশপ",
-    title: "২ মাসের AI প্রাইভেট ব্যাচ",
-    desc: "আপনার লক্ষ্য অনুযায়ী AI শেখার জন্য জয়েন করুন আমাদের প্রাইভেট ব্যাচে।",
-    price: "৳5000",
-    date: "১ জুলাই – ৩১ আগস্ট",
-    time: "রাত ৯ টা",
-    location: "Google Meet",
-    cover: founderAsset.url,
-  },
-  {
-    slug: "ai-smart-productivity-3day",
-    badge: "লাইভ ওয়ার্কশপ",
-    title: "৩ দিনের AI লাইভ ওয়ার্কশপ",
-    desc: "প্রতিযোগিতায় টিকে থাকতে AI শেখার বিকল্প নেই। আপনার ৫ ঘণ্টার কাজ ৫ মিনিটে নামিয়ে আনতে জয়েন করুন এই প্র্যাক্টিক্যাল সেশনে।",
-    price: "৳470",
-    oldPrice: "৳999",
-    date: "১৬, ১৭, ১৮ জুলাই",
-    time: "রাত ৯ টা",
-    location: "Google Meet",
-    cover: founderAsset.url,
-  },
-];
+import { WORKSHOPS } from "@/data/workshops";
 
 export default function WorkshopsPage() {
   return (
