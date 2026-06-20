@@ -64,7 +64,7 @@ export default function ScholarsHero() {
         <div className="mt-7 sm:mt-9 flex items-center justify-center gap-3 flex-wrap">
           <Link
             to="/sorixscholars/workshops"
-            className="inline-flex items-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 rounded-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 text-sm sm:text-base font-bold shadow-lg shadow-yellow-400/30 hover:shadow-yellow-300/40 transition-all"
+            className="inline-flex items-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 rounded-full bg-primary text-primary-foreground text-sm sm:text-base font-semibold shadow-lg shadow-primary/25 hover:opacity-90 transition-opacity"
           >
             {t("ওয়ার্কশপে জয়েন করুন", "Join a workshop")} <ArrowRight className="w-4 h-4" />
           </Link>

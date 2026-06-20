@@ -660,7 +660,7 @@ export default function SorixDetailPage({ cfg }: { cfg: DetailConfig }) {
                         } catch {}
                       }
                     }}
-                    className="mt-4 w-full inline-flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold text-lg transition shadow-xl shadow-yellow-400/30"
+                    className="mt-4 w-full inline-flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-95 text-white font-bold text-lg transition shadow-xl"
                     style={bnFont}
                   >
                     {cfg.enrollCtaLabel} <ArrowRight className="w-5 h-5" />
