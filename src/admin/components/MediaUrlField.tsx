@@ -6,8 +6,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
   AlertCircle, CheckCircle2, ImageIcon, Video, ExternalLink, Loader2,
-  Upload, X,
+  Upload, X, RotateCcw,
 } from "lucide-react";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 
 type Kind = "image" | "video";
 
@@ -58,6 +59,12 @@ function vimeoId(u: URL): string | null {
 function safeName(name: string) {
   return name.toLowerCase().replace(/[^\w.\-]+/g, "-").replace(/-+/g, "-").slice(-80);
 }
+function formatBytes(n: number) {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  if (n < 1024 * 1024 * 1024) return `${(n / 1024 / 1024).toFixed(1)} MB`;
+  return `${(n / 1024 / 1024 / 1024).toFixed(2)} GB`;
+}
 
 export function MediaUrlField({
   label, value, onChange, placeholder, kind = "image", required,
@@ -67,7 +74,12 @@ export function MediaUrlField({
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [bytes, setBytes] = useState<{ loaded: number; total: number } | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [lastFile, setLastFile] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const xhrRef = useRef<XMLHttpRequest | null>(null);
+
 
   const url = parseUrl(value);
   const trimmed = value.trim();
@@ -118,31 +130,69 @@ export function MediaUrlField({
   const upload = async (file: File) => {
     const err = validateFile(file);
     if (err) { toast.error(err); return; }
+    setLastFile(file);
+    setUploadError(null);
     setUploading(true);
-    setProgress(10);
+    setProgress(0);
+    setBytes({ loaded: 0, total: file.size });
+
+    let path: string;
     try {
+      const { data: sess } = await supabase.auth.getSession();
+      const token = sess.session?.access_token;
+      if (!token) throw new Error("Not signed in");
       const ext = (file.name.split(".").pop() || "bin").toLowerCase();
-      const path = `${uploadFolder.replace(/^\/+|\/+$/g, "")}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}-${safeName(file.name.replace(/\.[^.]+$/, ""))}.${ext}`;
-      setProgress(40);
-      const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, {
-        cacheControl: "31536000",
-        upsert: false,
-        contentType: file.type || undefined,
+      path = `${uploadFolder.replace(/^\/+|\/+$/g, "")}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}-${safeName(file.name.replace(/\.[^.]+$/, ""))}.${ext}`;
+      const endpoint = `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`;
+
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhrRef.current = xhr;
+        xhr.open("POST", endpoint, true);
+        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+        xhr.setRequestHeader("x-upsert", "false");
+        xhr.setRequestHeader("Cache-Control", "max-age=31536000");
+        if (file.type) xhr.setRequestHeader("Content-Type", file.type);
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            setBytes({ loaded: e.loaded, total: e.total });
+            setProgress(Math.min(99, Math.round((e.loaded / e.total) * 100)));
+          }
+        };
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) resolve();
+          else {
+            let msg = `Upload failed (${xhr.status})`;
+            try { const j = JSON.parse(xhr.responseText); if (j?.message) msg = j.message; } catch {}
+            reject(new Error(msg));
+          }
+        };
+        xhr.onerror = () => reject(new Error("Network error"));
+        xhr.onabort = () => reject(new Error("__aborted__"));
+        xhr.send(file);
       });
-      if (upErr) throw upErr;
-      setProgress(80);
+
       const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(path);
       if (!pub?.publicUrl) throw new Error("Could not resolve URL");
       onChange(pub.publicUrl);
       setProgress(100);
       toast.success("Uploaded");
     } catch (e: any) {
-      toast.error(e?.message || "Upload failed");
+      const msg = e?.message || "Upload failed";
+      if (msg === "__aborted__") {
+        setUploadError("Upload cancelled");
+      } else {
+        setUploadError(msg);
+        toast.error(msg);
+      }
     } finally {
+      xhrRef.current = null;
       setUploading(false);
-      setTimeout(() => setProgress(0), 400);
     }
   };
+
+  const cancelUpload = () => { xhrRef.current?.abort(); };
+  const retryUpload = () => { if (lastFile) upload(lastFile); };
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault(); e.stopPropagation(); setDragOver(false);
@@ -151,7 +201,15 @@ export function MediaUrlField({
     if (file) upload(file);
   };
 
-  const clear = () => { onChange(""); if (inputRef.current) inputRef.current.value = ""; };
+  const clear = () => {
+    onChange("");
+    setUploadError(null);
+    setLastFile(null);
+    setBytes(null);
+    setProgress(0);
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
 
   return (
     <div>
@@ -178,35 +236,67 @@ export function MediaUrlField({
 
       {!disableUpload && (
         <div
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragOver={(e) => { if (!uploading) { e.preventDefault(); setDragOver(true); } }}
           onDragLeave={() => setDragOver(false)}
           onDrop={onDrop}
-          onClick={() => !uploading && inputRef.current?.click()}
+          onClick={() => { if (!uploading) inputRef.current?.click(); }}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") inputRef.current?.click(); }}
+          onKeyDown={(e) => { if (!uploading && (e.key === "Enter" || e.key === " ")) inputRef.current?.click(); }}
           className={[
-            "mt-2 cursor-pointer rounded-lg border-2 border-dashed px-3 py-3 text-xs transition-colors",
-            "flex items-center justify-between gap-3",
-            dragOver ? "border-primary bg-primary/5" : "border-border bg-muted/20 hover:bg-muted/40",
-            uploading ? "pointer-events-none opacity-80" : "",
+            "mt-2 rounded-lg border-2 border-dashed px-3 py-3 text-xs transition-colors",
+            uploading ? "cursor-default" : "cursor-pointer",
+            dragOver ? "border-primary bg-primary/5"
+              : uploadError ? "border-destructive/60 bg-destructive/5"
+              : "border-border bg-muted/20 hover:bg-muted/40",
           ].join(" ")}
         >
-          <div className="flex items-center gap-2 min-w-0">
-            {uploading ? <Loader2 className="w-4 h-4 animate-spin text-primary" /> : <Upload className="w-4 h-4 text-muted-foreground" />}
-            <span className="truncate text-muted-foreground">
-              {uploading
-                ? `Uploading… ${progress}%`
-                : dragOver
-                  ? `Drop ${kind} to upload`
-                  : `Drag & drop or click to upload (${kind === "image" ? `≤ ${MAX_IMAGE_MB} MB` : `≤ ${MAX_VIDEO_MB} MB`})`}
-            </span>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              {uploading ? <Loader2 className="w-4 h-4 animate-spin text-primary flex-shrink-0" />
+                : uploadError ? <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+                : <Upload className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
+              <span className="truncate text-muted-foreground">
+                {uploading
+                  ? `Uploading ${lastFile?.name ?? ""}`
+                  : uploadError
+                    ? uploadError
+                    : dragOver
+                      ? `Drop ${kind} to upload`
+                      : `Drag & drop or click to upload (${kind === "image" ? `≤ ${MAX_IMAGE_MB} MB` : `≤ ${MAX_VIDEO_MB} MB`})`}
+              </span>
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {uploading && (
+                <Button type="button" variant="ghost" size="sm" className="h-7 px-2" onClick={(e) => { e.stopPropagation(); cancelUpload(); }}>
+                  <X className="w-3.5 h-3.5 mr-1" /> Cancel
+                </Button>
+              )}
+              {!uploading && uploadError && lastFile && (
+                <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-primary" onClick={(e) => { e.stopPropagation(); retryUpload(); }}>
+                  <RotateCcw className="w-3.5 h-3.5 mr-1" /> Retry
+                </Button>
+              )}
+              {!uploading && value && (
+                <Button type="button" variant="ghost" size="sm" className="h-7 px-2" onClick={(e) => { e.stopPropagation(); clear(); }}>
+                  <X className="w-3.5 h-3.5 mr-1" /> Clear
+                </Button>
+              )}
+            </div>
           </div>
-          {value && !uploading && (
-            <Button type="button" variant="ghost" size="sm" className="h-7 px-2" onClick={(e) => { e.stopPropagation(); clear(); }}>
-              <X className="w-3.5 h-3.5 mr-1" /> Clear
-            </Button>
+
+          {uploading && (
+            <div className="mt-2 space-y-1">
+              <div className="h-1.5 w-full bg-muted rounded overflow-hidden">
+                <div className="h-full bg-primary transition-all duration-150" style={{ width: `${progress}%` }} />
+              </div>
+              <div className="flex items-center justify-between text-[10px] text-muted-foreground tabular-nums">
+                <span>{progress}%</span>
+                {bytes && <span>{formatBytes(bytes.loaded)} / {formatBytes(bytes.total)}</span>}
+              </div>
+            </div>
           )}
+
           <input
             ref={inputRef}
             type="file"
@@ -217,11 +307,6 @@ export function MediaUrlField({
         </div>
       )}
 
-      {uploading && (
-        <div className="mt-1 h-1 w-full bg-muted rounded overflow-hidden">
-          <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
-        </div>
-      )}
 
       {preview && (
         <div className="mt-2 rounded-lg border border-border overflow-hidden bg-muted/30">
