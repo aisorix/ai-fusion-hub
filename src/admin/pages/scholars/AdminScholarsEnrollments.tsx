@@ -27,11 +27,13 @@ export default function AdminScholarsEnrollments() {
       .order("created_at", { ascending: false }).limit(500);
     if (kind !== "all") query = query.eq("kind", kind);
     query.then(async ({ data }) => {
-      const enrolls = (data as any) || [];
-      const userIds = [...new Set(enrolls.map((r: any) => r.user_id))];
-      const slugs = [...new Set(enrolls.map((r: any) => r.source_slug).filter(Boolean))];
+      const enrolls = (data as any[]) || [];
+      const userIds = Array.from(new Set(enrolls.map((r: any) => r.user_id as string)));
+      const slugs = Array.from(new Set(enrolls.map((r: any) => r.source_slug as string).filter(Boolean)));
       const { data: certs } = await supabase.from("user_certificates")
-        .select("user_id, source_slug, certificate_number").in("user_id", userIds.length ? userIds : [""]).in("source_slug", slugs.length ? slugs : [""]);
+        .select("user_id, source_slug, certificate_number")
+        .in("user_id", userIds.length ? userIds : [""])
+        .in("source_slug", slugs.length ? slugs : [""]);
       const certMap = new Map((certs || []).map((c: any) => [`${c.user_id}|${c.source_slug}`, c]));
       setRows(enrolls.map((r: any) => ({ ...r, cert: certMap.get(`${r.user_id}|${r.source_slug}`) || null })));
     });
