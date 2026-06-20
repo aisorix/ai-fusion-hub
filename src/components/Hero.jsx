@@ -153,9 +153,9 @@ const Hero = () => {
           </a>
           <a
             href="/sorixscholars"
-            className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 sm:px-10 py-4 sm:py-5 rounded-2xl font-semibold text-base sm:text-lg glass-card hover:border-primary/30 transition-all duration-500 text-foreground hover-lift"
+            className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 sm:px-10 py-4 sm:py-5 rounded-2xl font-bold text-base sm:text-lg bg-yellow-400 hover:bg-yellow-300 text-slate-900 shadow-lg shadow-yellow-400/30 hover:shadow-yellow-300/40 transform hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-300"
           >
-            <FlaskConical className="w-4 h-4 text-primary group-hover:rotate-12 transition-transform" />
+            <FlaskConical className="w-4 h-4 text-slate-900 group-hover:rotate-12 transition-transform" />
             {language === "en" ? "Sorix Scholars" : "সরিক্স স্কলার্স"}
           </a>
         </div>

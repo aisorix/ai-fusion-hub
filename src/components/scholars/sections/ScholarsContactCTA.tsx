@@ -54,7 +54,7 @@ export default function ScholarsContactCTA() {
                 <button
                   type="button"
                   onClick={openScholarsChat}
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/30 hover:opacity-90 transition-opacity"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 text-sm font-bold shadow-lg shadow-yellow-400/30 hover:shadow-yellow-300/40 transition-all"
                 >
                   <MessagesSquare className="w-4 h-4" />
                   {t("লাইভ চ্যাট শুরু করুন", "Start live chat")}

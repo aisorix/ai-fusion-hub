@@ -67,7 +67,7 @@ export default function ScholarsEnrollButton({ kind, slug, title, priceBdt, seat
   };
 
   const primaryClasses = variant === "primary"
-    ? "bg-gradient-to-r from-cyan-500 to-teal-500 text-white hover:opacity-90 shadow-lg shadow-cyan-500/20"
+    ? "bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold shadow-lg shadow-yellow-400/30 hover:shadow-yellow-300/40"
     : "";
 
   return (
@@ -94,7 +94,7 @@ export default function ScholarsEnrollButton({ kind, slug, title, priceBdt, seat
               <div className="text-xs text-muted-foreground capitalize">{kind}</div>
               <div className="font-semibold text-foreground">{title}</div>
               {priceBdt > 0
-                ? <div className="text-2xl font-bold mt-1 bg-gradient-to-r from-cyan-500 to-teal-500 bg-clip-text text-transparent">৳{(priceBdt * (kind === "workshop" ? seats : 1)).toLocaleString()}</div>
+                ? <div className="text-2xl font-bold mt-1 text-yellow-500 dark:text-yellow-400">৳{(priceBdt * (kind === "workshop" ? seats : 1)).toLocaleString()}</div>
                 : <div className="text-sm text-emerald-600 font-semibold mt-1">Free</div>}
             </div>
 
@@ -122,7 +122,7 @@ export default function ScholarsEnrollButton({ kind, slug, title, priceBdt, seat
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)} disabled={loading}>Cancel</Button>
-            <Button onClick={submit} disabled={loading || (priceBdt > 0 && !accept)} className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white">
+            <Button onClick={submit} disabled={loading || (priceBdt > 0 && !accept)} className="bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold shadow-lg shadow-yellow-400/30">
               {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing…</> : (priceBdt > 0 ? "Continue to payment" : "Confirm")}
             </Button>
           </DialogFooter>
