@@ -74,19 +74,25 @@ export function MediaUrlField({
 
   let preview: { type: "img" | "video" | "iframe"; src: string; href: string } | null = null;
   let typeWarning: string | null = null;
+  let sourceLabel: string | null = null;
 
   if (url) {
     if (kind === "image") {
       preview = { type: "img", src: url.toString(), href: url.toString() };
+      const isUploaded = /scholars-media/.test(url.pathname + url.hostname);
+      sourceLabel = isUploaded ? "Uploaded file" : url.hostname.replace(/^www\./, "");
       if (!IMG_EXT.test(url.pathname) && !/scholars-media|googleusercontent|unsplash|cloudinary|imgur|supabase/.test(url.hostname + url.pathname)) {
         typeWarning = "URL has no image extension — preview may fail.";
       }
     } else {
       const yt = youtubeId(url);
       const vm = vimeoId(url);
-      if (yt) preview = { type: "iframe", src: `https://www.youtube.com/embed/${yt}`, href: `https://youtu.be/${yt}` };
-      else if (vm) preview = { type: "iframe", src: `https://player.vimeo.com/video/${vm}`, href: `https://vimeo.com/${vm}` };
-      else if (VID_EXT.test(url.pathname)) preview = { type: "video", src: url.toString(), href: url.toString() };
+      if (yt) { preview = { type: "iframe", src: `https://www.youtube.com/embed/${yt}`, href: `https://youtu.be/${yt}` }; sourceLabel = "YouTube"; }
+      else if (vm) { preview = { type: "iframe", src: `https://player.vimeo.com/video/${vm}`, href: `https://vimeo.com/${vm}` }; sourceLabel = "Vimeo"; }
+      else if (VID_EXT.test(url.pathname)) {
+        preview = { type: "video", src: url.toString(), href: url.toString() };
+        sourceLabel = /scholars-media/.test(url.pathname + url.hostname) ? "Uploaded video" : "Direct video";
+      }
       else typeWarning = "Unsupported video host. Use YouTube, Vimeo, or a direct mp4/webm link.";
     }
   }
