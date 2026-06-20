@@ -8,7 +8,7 @@ import {
   AlertCircle, CheckCircle2, ImageIcon, Video, ExternalLink, Loader2,
   Upload, X, RotateCcw,
 } from "lucide-react";
-import { SUPABASE_URL } from "@/integrations/supabase/client";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 
 type Kind = "image" | "video";
 
