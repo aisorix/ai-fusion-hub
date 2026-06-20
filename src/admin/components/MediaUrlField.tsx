@@ -6,8 +6,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
   AlertCircle, CheckCircle2, ImageIcon, Video, ExternalLink, Loader2,
-  Upload, X,
+  Upload, X, RotateCcw,
 } from "lucide-react";
+import { SUPABASE_URL } from "@/integrations/supabase/client";
 
 type Kind = "image" | "video";
 
