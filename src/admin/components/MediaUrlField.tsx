@@ -74,19 +74,25 @@ export function MediaUrlField({
 
   let preview: { type: "img" | "video" | "iframe"; src: string; href: string } | null = null;
   let typeWarning: string | null = null;
+  let sourceLabel: string | null = null;
 
   if (url) {
     if (kind === "image") {
       preview = { type: "img", src: url.toString(), href: url.toString() };
+      const isUploaded = /scholars-media/.test(url.pathname + url.hostname);
+      sourceLabel = isUploaded ? "Uploaded file" : url.hostname.replace(/^www\./, "");
       if (!IMG_EXT.test(url.pathname) && !/scholars-media|googleusercontent|unsplash|cloudinary|imgur|supabase/.test(url.hostname + url.pathname)) {
         typeWarning = "URL has no image extension — preview may fail.";
       }
     } else {
       const yt = youtubeId(url);
       const vm = vimeoId(url);
-      if (yt) preview = { type: "iframe", src: `https://www.youtube.com/embed/${yt}`, href: `https://youtu.be/${yt}` };
-      else if (vm) preview = { type: "iframe", src: `https://player.vimeo.com/video/${vm}`, href: `https://vimeo.com/${vm}` };
-      else if (VID_EXT.test(url.pathname)) preview = { type: "video", src: url.toString(), href: url.toString() };
+      if (yt) { preview = { type: "iframe", src: `https://www.youtube.com/embed/${yt}`, href: `https://youtu.be/${yt}` }; sourceLabel = "YouTube"; }
+      else if (vm) { preview = { type: "iframe", src: `https://player.vimeo.com/video/${vm}`, href: `https://vimeo.com/${vm}` }; sourceLabel = "Vimeo"; }
+      else if (VID_EXT.test(url.pathname)) {
+        preview = { type: "video", src: url.toString(), href: url.toString() };
+        sourceLabel = /scholars-media/.test(url.pathname + url.hostname) ? "Uploaded video" : "Direct video";
+      }
       else typeWarning = "Unsupported video host. Use YouTube, Vimeo, or a direct mp4/webm link.";
     }
   }
@@ -232,18 +238,27 @@ export function MediaUrlField({
             </div>
           )}
           {preview.type === "video" && (
-            <video src={preview.src} controls preload="metadata" className="w-full max-h-56 bg-black"
-              onLoadedMetadata={() => setLoadState("ok")} onError={() => setLoadState("error")} />
+            <div className="aspect-video bg-black">
+              <video src={preview.src} controls preload="metadata" className="w-full h-full object-contain"
+                onLoadedMetadata={() => setLoadState("ok")} onError={() => setLoadState("error")} />
+            </div>
           )}
           {preview.type === "iframe" && (
-            <div className="aspect-video">
+            <div className="aspect-video bg-black">
               <iframe src={preview.src} title="preview" className="w-full h-full"
                 allow="accelerometer; encrypted-media; picture-in-picture" allowFullScreen
                 onLoad={() => setLoadState("ok")} />
             </div>
           )}
           <div className="flex items-center justify-between gap-2 px-2.5 py-1.5 text-[11px] text-muted-foreground border-t border-border">
-            <span className="truncate">{url?.hostname}</span>
+            <span className="inline-flex items-center gap-1.5 min-w-0">
+              {sourceLabel && (
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium text-[10px] uppercase tracking-wide">
+                  {sourceLabel}
+                </span>
+              )}
+              <span className="truncate">{url?.hostname}</span>
+            </span>
             <a href={preview.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-foreground" onClick={(e) => e.stopPropagation()}>
               Open <ExternalLink className="w-3 h-3" />
             </a>
