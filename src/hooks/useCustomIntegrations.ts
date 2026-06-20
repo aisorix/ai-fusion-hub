@@ -8,10 +8,10 @@ export interface CustomIntegration {
   base_url: string;
   auth_header: string;
   auth_scheme: string;
-  api_key: string;
   description: string | null;
   created_at: string;
 }
+
 
 export interface CustomIntegrationInput {
   name: string;
@@ -32,9 +32,10 @@ export function useCustomIntegrations() {
     setLoading(true);
     const { data } = await supabase
       .from("user_custom_integrations" as any)
-      .select("*")
+      .select("id, name, base_url, auth_header, auth_scheme, description, created_at")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
+
     setItems(((data as any) ?? []) as CustomIntegration[]);
     setLoading(false);
   }, [user]);
