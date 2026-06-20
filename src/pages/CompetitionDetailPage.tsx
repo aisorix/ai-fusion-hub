@@ -1,205 +1,130 @@
-import { useState } from "react";
-import { useParams, Link, Navigate } from "react-router-dom";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Trophy,
-  Calendar,
-  Award,
-  ListChecks,
-  ScrollText,
-  Sparkles,
-  CheckCircle2,
-} from "lucide-react";
-import SEOHead from "@/components/SEOHead";
+import { useParams, Navigate } from "react-router-dom";
+import { Calendar, Trophy, Globe } from "lucide-react";
+import SorixDetailPage from "@/components/scholars/SorixDetailPage";
 import { getCompetition } from "@/data/academy";
-import ContactModal from "@/components/academy/ContactModal";
-import MentorCard from "@/components/scholars/MentorCard";
-
+import founderAsset from "@/assets/founder-rakib.jpg.asset.json";
 
 export default function CompetitionDetailPage() {
   const { slug = "" } = useParams();
-  const comp = getCompetition(slug);
-  const [open, setOpen] = useState(false);
+  const c = getCompetition(slug);
+  if (!c) return <Navigate to="/sorixscholars/competitions" replace />;
 
-  if (!comp) return <Navigate to="/sorixscholars/competitions" replace />;
+  // Hard-coded Bangla detail content per competition slug
+  const isStartup = c.slug === "startup-funding";
+
+  const problems = isStartup
+    ? [
+        "একটা ভালো AI আইডিয়া আছে, কিন্তু ফান্ডিং কোথা থেকে আসবে জানেন না।",
+        "Investor pitch তৈরি করতে গিয়ে আটকে যাচ্ছেন।",
+        "একা একা startup চালাতে গিয়ে mentor এর অভাব ফিল করছেন।",
+        "Product আছে, কিন্তু launch করার runway পাচ্ছেন না।",
+      ]
+    : [
+        "Hackathon-এ অংশ নিতে চান কিন্তু সঠিক প্ল্যাটফর্ম পাচ্ছেন না।",
+        "AI দিয়ে কিছু একটা build করতে চান, কিন্তু idea থেকে product পর্যন্ত guidance দরকার।",
+        "নিজের skill দেখানোর মত একটা showcase platform খুঁজছেন।",
+        "Cash prize ও real users পাওয়ার সুযোগ মিস করতে চান না।",
+      ];
+
+  const learnings = isStartup
+    ? [
+        { title: "Investor-ready pitch", desc: "১২ সপ্তাহে ১:১ মেন্টরিং নিয়ে নিজের pitch তৈরি করুন।" },
+        { title: "Funding up to $50K", desc: "Winner team পাবে $50,000 ক্যাশ ফান্ডিং + launch runway।" },
+        { title: "Operator mentorship", desc: "SorixLab-এর engineer ও operator দের কাছ থেকে hands-on guidance।" },
+        { title: "Launch spotlight", desc: "AI Sorix ecosystem-এর মাধ্যমে global audience এর কাছে launch।" },
+      ]
+    : [
+        { title: "Cash + AI credits", desc: "Grand Prize $8,000 cash + AI Sorix credits + launch feature।" },
+        { title: "Real user testing", desc: "Week 5-এ real users আপনার product test করবে।" },
+        { title: "Mentor matching", desc: "Industry mentor-এর সাথে weekly office hours।" },
+        { title: "Demo day spotlight", desc: "Live online demo day-এ judges + investors-এর সামনে showcase।" },
+      ];
+
+  const curriculum = c.timeline.map((t) => ({
+    title: `${t.date} · ${t.title}`,
+    lessons: [t.desc],
+  }));
+
+  const faqs = [
+    ...c.faqs.map((f) => ({ q: f.q, a: f.a })),
+    { q: "Worldwide কি apply করা যাবে?", a: "হ্যাঁ — competition সম্পূর্ণ online এবং বিশ্বের যে কোনো দেশ থেকে participate করা যাবে।" },
+    { q: "Team size কত?", a: isStartup ? "Solo founder থেকে শুরু করে সর্বোচ্চ ৪ জনের team allowed।" : "Individual বা সর্বোচ্চ ৪ জনের team।" },
+  ];
+
+  const perks = isStartup
+    ? [
+        "Up to $50,000 funding",
+        "১২ সপ্তাহের ১:১ mentorship",
+        "AI Sorix launch spotlight",
+        "Investor panel-এর সামনে pitch",
+        "Standard founder-friendly equity terms",
+        "Global founder community access",
+      ]
+    : [
+        "$15,000 total prize pool",
+        "AI Sorix model credits",
+        "Mentor matching + office hours",
+        "Real user testing week",
+        "Live demo day showcase",
+        "Winner spotlight + launch feature",
+      ];
 
   return (
-    <div className="bg-background">
-      <SEOHead
-        title={`${comp.title} · Sorix Scholars`}
-        description={comp.tagline}
-        path={`/sorixscholars/competitions/${comp.slug}`}
-        ogImage={comp.cover}
-      />
+    <SorixDetailPage
+      cfg={{
+        seoTitle: `${c.title} · Sorix Scholars`,
+        seoDescription: c.tagline,
+        seoPath: `/sorixscholars/competitions/${c.slug}`,
+        backHref: "/sorixscholars/competitions",
+        backLabel: "সব কম্পিটিশন",
 
-      <section className="relative overflow-hidden border-b border-border/40">
-        <div
-          className="absolute inset-0 opacity-20 bg-cover bg-center"
-          style={{ backgroundImage: `url(${comp.cover})` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-14 sm:pt-16 sm:pb-20">
-          <Link
-            to="/sorixscholars/competitions"
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
-          >
-            <ArrowLeft className="w-4 h-4" /> Back to competitions
-          </Link>
-          <div className="flex items-center gap-2 flex-wrap mb-4">
-            <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" /> {comp.status}
-            </span>
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-foreground px-2.5 py-1 rounded-full bg-card border border-border">
-              <Trophy className="w-3.5 h-3.5 text-primary" /> {comp.prize}
-            </span>
-          </div>
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.05] max-w-4xl font-display">
-            {comp.title}
-          </h1>
-          <p className="mt-4 text-base sm:text-lg text-muted-foreground max-w-2xl leading-relaxed">{comp.tagline}</p>
-          <div className="mt-7">
-            <button
-              onClick={() => setOpen(true)}
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-primary text-primary-foreground font-semibold hover:opacity-90 transition shadow-lg shadow-primary/30"
-            >
-              Apply now <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </section>
+        heroBadge: c.status,
+        heroTitleLines: isStartup
+          ? ["SorixLab", "Startup Funding"]
+          : ["SorixLab", "Build Challenge"],
+        heroTagline: c.tagline,
+        heroPills: [
+          { icon: <Trophy className="w-4 h-4" />, label: c.prize },
+          { icon: <Calendar className="w-4 h-4" />, label: c.timeline[0]?.date ?? "Open" },
+          { icon: <Globe className="w-4 h-4" />, label: "Online · Worldwide" },
+        ],
+        heroCoverUrl: c.cover,
+        primaryCtaLabel: "Apply now",
+        curriculumCtaLabel: "Timeline দেখুন",
+        deadlineISO: new Date(Date.now() + 14 * 86400000).toISOString(),
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 space-y-16">
-        <section>
-          <h2 className="text-2xl font-bold text-foreground mb-3">About this competition</h2>
-          <p className="text-muted-foreground leading-relaxed max-w-3xl">{comp.overview}</p>
-        </section>
+        problemsTitle: "কেন এই কম্পিটিশন আপনার জন্য?",
+        problems,
+        problemsFootnote:
+          "এই কম্পিটিশনে আমরা mentor, funding আর global spotlight — সবকিছু একসাথে দিচ্ছি যাতে আপনার AI idea production-ready হয়ে দ্রুত launch করতে পারে।",
 
-        <section>
-          <h2 className="text-2xl font-bold text-foreground mb-5 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" /> Tracks
-          </h2>
-          <div className="grid sm:grid-cols-2 gap-4">
-            {comp.tracks.map((t) => (
-              <div key={t.title} className="p-5 rounded-2xl border border-border bg-card">
-                <div className="font-semibold text-foreground">{t.title}</div>
-                <p className="mt-1.5 text-sm text-muted-foreground">{t.desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+        learningsTitle: "এই কম্পিটিশন থেকে যা যা পাবেন",
+        learnings,
 
-        <section>
-          <h2 className="text-2xl font-bold text-foreground mb-5 flex items-center gap-2">
-            <ListChecks className="w-5 h-5 text-primary" /> Judging criteria
-          </h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {comp.criteria.map((c) => (
-              <div key={c.title} className="p-5 rounded-2xl border border-border bg-card">
-                <div className="font-semibold text-foreground">{c.title}</div>
-                <p className="mt-1.5 text-sm text-muted-foreground">{c.desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+        curriculumTitle: "Competition Timeline",
+        curriculumPill: "মোট {n} টি ধাপ",
+        curriculum,
 
-        <section>
-          <h2 className="text-2xl font-bold text-foreground mb-5 flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-primary" /> Timeline
-          </h2>
-          <ol className="space-y-3">
-            {comp.timeline.map((t, i) => (
-              <li key={t.title} className="flex gap-4 p-4 rounded-xl border border-border bg-card">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold flex-shrink-0">
-                  {i + 1}
-                </div>
-                <div>
-                  <div className="text-xs uppercase tracking-wider font-bold text-primary">{t.date}</div>
-                  <div className="font-semibold text-foreground">{t.title}</div>
-                  <p className="text-sm text-muted-foreground mt-1">{t.desc}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </section>
+        mentorPill: "আয়োজক",
+        mentorName: "Md. Rakibul Islam",
+        mentorRole: "Founder, AI Sorix · SorixLab",
+        mentorBio:
+          "SorixLab টিম বিশ্বজুড়ে ফাউন্ডার ও বিল্ডারদের সাথে কাজ করার অভিজ্ঞতা থেকে এই কম্পিটিশনটি ডিজাইন করেছে। লক্ষ্য — সেরা AI বিল্ডারদের funding, mentorship আর global launch runway দেওয়া।",
+        mentorImageUrl: founderAsset.url,
 
-        <section>
-          <h2 className="text-2xl font-bold text-foreground mb-5 flex items-center gap-2">
-            <Award className="w-5 h-5 text-primary" /> Prizes
-          </h2>
-          <div className="grid sm:grid-cols-2 gap-4">
-            {comp.prizes.map((p) => (
-              <div key={p.place} className="p-5 rounded-2xl border border-primary/20 bg-primary/5">
-                <div className="text-xs uppercase tracking-wider font-bold text-primary">{p.place}</div>
-                <div className="font-semibold text-foreground mt-1">{p.reward}</div>
-              </div>
-            ))}
-          </div>
-        </section>
+        faqsTitle: "সচরাচর জিজ্ঞাসিত প্রশ্ন",
+        faqs,
 
-        <section>
-          <h2 className="text-2xl font-bold text-foreground mb-5 flex items-center gap-2">
-            <ScrollText className="w-5 h-5 text-primary" /> Rules
-          </h2>
-          <ul className="space-y-3 max-w-3xl">
-            {comp.rules.map((r) => (
-              <li key={r} className="flex gap-2.5">
-                <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-foreground">{r}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
+        enrollTitle: "এখনই Apply করুন",
+        enrollSubtitle:
+          "Applications take under five minutes. আমরা ২ business days এর মধ্যে reply করি।",
+        enrollPerks: perks,
+        price: c.prize,
+        enrollCtaLabel: "Apply now",
 
-        <section>
-          <h2 className="text-2xl font-bold text-foreground mb-5">Lead mentor</h2>
-          <MentorCard />
-        </section>
-
-        <section>
-          <h2 className="text-2xl font-bold text-foreground mb-5">FAQ</h2>
-          <div className="space-y-3 max-w-3xl">
-            {comp.faqs.map((f) => (
-              <div key={f.q} className="rounded-xl border border-border bg-card p-5">
-                <div className="font-semibold text-foreground">{f.q}</div>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{f.a}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-
-        <section>
-          <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/15 via-card to-card p-8 sm:p-12 text-center">
-            <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/30 rounded-full blur-3xl" />
-            <div className="relative">
-              <Trophy className="w-10 h-10 mx-auto text-primary mb-4" />
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3 text-foreground">Ready to enter?</h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto mb-6">
-                Applications take under five minutes. We reply within two business days.
-              </p>
-              <button
-                onClick={() => setOpen(true)}
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-primary text-primary-foreground font-semibold hover:opacity-90 transition shadow-lg shadow-primary/30"
-              >
-                Apply now <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </section>
-      </div>
-
-
-
-
-      <ContactModal
-        open={open}
-        onClose={() => setOpen(false)}
-        title={`Apply · ${comp.title}`}
-        subtitle="Tell us about you and your project. We reply within two business days."
-        subjectPrefix={`Apply: ${comp.title}`}
-        extraLabel="Project name / URL (optional)"
-      />
-    </div>
+        contactSubjectPrefix: `Apply: ${c.title}`,
+        contactModalTitle: `Apply · ${c.title}`,
+      }}
+    />
   );
 }
