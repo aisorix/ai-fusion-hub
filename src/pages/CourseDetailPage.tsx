@@ -558,27 +558,17 @@ export default function CourseDetailPage() {
                   </button>
                 </div>
 
-                <button
-                  onClick={async () => {
-                    setModalOpen(true);
-                    try {
-                      const { data: { user } } = await supabase.auth.getUser();
-                      if (user) {
-                        await supabase.rpc("enroll_item" as any, {
-                          _kind: "course",
-                          _slug: course.slug,
-                          _title: course.title,
-                        });
-                      }
-                    } catch {}
-                  }}
-                  className="mt-4 w-full inline-flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-white text-[#06102a] font-bold text-lg hover:bg-blue-50 transition shadow-xl"
-                  style={bnFont}
-                >
-                  <BookOpen className="w-5 h-5" /> এখনই প্রিবুক করুন <ArrowRight className="w-5 h-5" />
-                </button>
+                <div className="mt-4">
+                  <ScholarsEnrollButton
+                    kind="course"
+                    slug={course.slug}
+                    title={course.title}
+                    priceBdt={dbCourse ? Number(dbCourse.price_bdt) : 0}
+                    className="w-full text-lg py-4 rounded-2xl"
+                  />
+                </div>
 
-                <div className="mt-5 flex items-center gap-2 text-sm text-emerald-300" style={bnFont}>
+                <div className="mt-3 flex items-center gap-2 text-sm text-emerald-300" style={bnFont}>
                   <Shield className="w-4 h-4" /> ১০০% নিরাপদ পেমেন্ট ও ইনস্ট্যান্ট এক্সেস
                 </div>
               </div>
