@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Edit3, Plus, Trash2, BookOpen, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import RoleGate from "../../components/RoleGate";
+import MediaUrlField from "../../components/MediaUrlField";
 
 interface Course {
   id?: string;
@@ -221,9 +222,12 @@ export default function AdminScholarsCourses() {
                             <Input value={l.title} onChange={(e) => { const n = [...modules]; n[mi].lessons[li].title = e.target.value; setModules(n); }} placeholder="Lesson title" />
                             <Button variant="ghost" size="icon" onClick={() => { const n = [...modules]; n[mi].lessons.splice(li, 1); setModules(n); }}><Trash2 className="w-3.5 h-3.5 text-destructive" /></Button>
                           </div>
-                          <div className="grid sm:grid-cols-2 gap-2">
-                            <Input placeholder="Video URL (YouTube / mp4)" value={l.video_url || ""} onChange={(e) => { const n = [...modules]; n[mi].lessons[li].video_url = e.target.value; setModules(n); }} />
-                            <Input type="number" placeholder="Duration (sec)" value={l.duration_sec ?? ""} onChange={(e) => { const n = [...modules]; n[mi].lessons[li].duration_sec = e.target.value ? parseInt(e.target.value, 10) : null; setModules(n); }} />
+                          <div className="grid sm:grid-cols-[1fr_140px] gap-2">
+                            <MediaUrlField label="Video URL" kind="video" value={l.video_url || ""} onChange={(v) => { const n = [...modules]; n[mi].lessons[li].video_url = v; setModules(n); }} placeholder="YouTube, Vimeo, or .mp4" />
+                            <div>
+                              <Label>Duration (sec)</Label>
+                              <Input type="number" placeholder="0" value={l.duration_sec ?? ""} onChange={(e) => { const n = [...modules]; n[mi].lessons[li].duration_sec = e.target.value ? parseInt(e.target.value, 10) : null; setModules(n); }} />
+                            </div>
                           </div>
                           <label className="flex items-center gap-2 text-xs text-muted-foreground">
                             <input type="checkbox" checked={l.is_preview} onChange={(e) => { const n = [...modules]; n[mi].lessons[li].is_preview = e.target.checked; setModules(n); }} />
@@ -243,10 +247,8 @@ export default function AdminScholarsCourses() {
               </TabsContent>
 
               <TabsContent value="media" className="space-y-3 pt-4">
-                <FieldText label="Cover image URL" value={editing.cover_url || ""} onChange={(v) => setEditing({ ...editing, cover_url: v })} placeholder="https://..." />
-                {editing.cover_url && <img src={editing.cover_url} alt="" className="rounded border border-border max-h-48 object-cover w-full" />}
-                <FieldText label="Banner image URL (detail page hero)" value={editing.banner_url || ""} onChange={(v) => setEditing({ ...editing, banner_url: v })} placeholder="https://..." />
-                {editing.banner_url && <img src={editing.banner_url} alt="" className="rounded border border-border max-h-48 object-cover w-full" />}
+                <MediaUrlField label="Cover image URL" kind="image" value={editing.cover_url || ""} onChange={(v) => setEditing({ ...editing, cover_url: v })} />
+                <MediaUrlField label="Banner image URL (detail page hero)" kind="image" value={editing.banner_url || ""} onChange={(v) => setEditing({ ...editing, banner_url: v })} />
               </TabsContent>
 
               <TabsContent value="pricing" className="space-y-3 pt-4">

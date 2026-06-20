@@ -14,6 +14,7 @@ import { Edit3, Plus, Trash2, GraduationCap, Users } from "lucide-react";
 import { toast } from "sonner";
 import RoleGate from "../../components/RoleGate";
 import { Header, FieldText } from "./AdminScholarsCourses";
+import MediaUrlField from "../../components/MediaUrlField";
 
 interface Workshop {
   id?: string; slug: string; title: string; summary: string | null; description: string | null;
@@ -137,14 +138,12 @@ export default function AdminScholarsWorkshops() {
                   <FieldText label="Mentor role" value={editing.mentor_role || ""} onChange={(v: string) => setEditing({ ...editing, mentor_role: v })} />
                 </div>
                 <div><Label>Mentor bio</Label><Textarea rows={3} value={editing.mentor_bio || ""} onChange={(e) => setEditing({ ...editing, mentor_bio: e.target.value })} /></div>
-                <FieldText label="Mentor avatar URL" value={editing.mentor_avatar_url || ""} onChange={(v: string) => setEditing({ ...editing, mentor_avatar_url: v })} />
+                <MediaUrlField label="Mentor avatar URL" kind="image" value={editing.mentor_avatar_url || ""} onChange={(v: string) => setEditing({ ...editing, mentor_avatar_url: v })} />
               </TabsContent>
 
               <TabsContent value="media" className="space-y-3 pt-4">
-                <FieldText label="Cover image URL" value={editing.cover_url || ""} onChange={(v: string) => setEditing({ ...editing, cover_url: v })} />
-                {editing.cover_url && <img src={editing.cover_url} alt="" className="rounded max-h-48 w-full object-cover border border-border" />}
-                <FieldText label="Banner image URL" value={editing.banner_url || ""} onChange={(v: string) => setEditing({ ...editing, banner_url: v })} />
-                {editing.banner_url && <img src={editing.banner_url} alt="" className="rounded max-h-48 w-full object-cover border border-border" />}
+                <MediaUrlField label="Cover image URL" kind="image" value={editing.cover_url || ""} onChange={(v: string) => setEditing({ ...editing, cover_url: v })} />
+                <MediaUrlField label="Banner image URL" kind="image" value={editing.banner_url || ""} onChange={(v: string) => setEditing({ ...editing, banner_url: v })} />
               </TabsContent>
             </Tabs>
           )}
