@@ -21,319 +21,74 @@ export interface Course {
   cover: string;
   overview: string;
   outcomes: string[];
-  curriculum: CourseModule[];
-  instructor: { name: string; role: string; bio: string };
-  faqs: { q: string; a: string }[];
-}
-
 export const courses: Course[] = [
   {
-    slug: "prompt-engineering-foundations",
-    title: "Prompt Engineering Foundations",
-    tagline: "From your first prompt to production-grade systems",
-    level: "Beginner",
-    duration: "6 hours · 4 modules",
-    priceLabel: "Free",
+    slug: "ai-for-professionals",
+    title: "AI for Professionals",
+    tagline:
+      "অফিসের real কাজ মাথায় রেখে তৈরি practical masterclass — Email, report, presentation, research সব এক কোর্সে।",
+    level: "Intermediate",
+    duration: "6 মডিউল",
+    priceLabel: "৳870",
     cover: promptImg,
     overview:
-      "A no-fluff masterclass on writing prompts that actually work across GPT, Claude, Gemini, and open models. You will leave with a personal prompt library, a tested system-prompt template, and a clear mental model for when to reach for retrieval, tools, or fine-tuning.",
+      "একজন প্রফেশনালের প্রতিদিনের অফিস-কাজ সহজ ও দ্রুত করার জন্য ডিজাইন করা একটি practical AI masterclass। ChatGPT, Claude, Gemini এবং AI Sorix-এর মতো frontier টুল ব্যবহার করে email লেখা, report তৈরি, presentation বানানো, research সারসংক্ষেপ — সবকিছু কিভাবে কম সময়ে high-quality output দিয়ে করবেন তা শেখানো হবে।",
     outcomes: [
-      "Design clear, testable prompts for any model",
-      "Build reusable system-prompt templates",
-      "Compare model outputs systematically",
-      "Recognise and prevent hallucinations",
-      "Apply role, context, and constraint patterns",
-      "Use few-shot examples without overfitting",
-      "Chain prompts safely for multi-step tasks",
-      "Ship a prompt to a real workflow by day three",
+      "Professional email ও reply দ্রুত draft করা",
+      "Meeting note থেকে structured report তৈরি",
+      "Slide outline ও speaker note generate করা",
+      "Long document থেকে দ্রুত summary বের করা",
+      "Spreadsheet ও data analysis এ AI ব্যবহার",
+      "Personal AI workflow তৈরি করা",
     ],
     curriculum: [
       {
-        title: "Module 1 · Mental models",
-        lessons: [
-          "How modern LLMs actually reason",
-          "Tokens, context windows and cost",
-          "Choosing the right model for the job",
-        ],
+        title: "Module 1 · AI Foundations for Professionals",
+        lessons: ["Frontier AI টুল পরিচিতি", "কোন কাজে কোন মডেল", "Account ও workspace setup"],
       },
       {
-        title: "Module 2 · Prompt anatomy",
-        lessons: [
-          "Role, task, context, constraints",
-          "Few-shot examples that generalise",
-          "Structured output with JSON schemas",
-        ],
+        title: "Module 2 · Email & Communication",
+        lessons: ["Professional email drafting", "Tone ও style control", "Reply, follow-up, negotiation"],
       },
       {
-        title: "Module 3 · Evaluation",
-        lessons: ["Building a personal eval set", "A/B testing prompts across models", "Detecting regressions early"],
+        title: "Module 3 · Reports & Documents",
+        lessons: ["Meeting note → report", "Long document summarisation", "Citation ও fact-check"],
       },
       {
-        title: "Module 4 · Shipping",
-        lessons: [
-          "From prompt to product",
-          "Safety, guardrails, and red-teaming",
-          "Capstone: ship one workflow you actually use",
-        ],
+        title: "Module 4 · Presentations",
+        lessons: ["Slide outline তৈরি", "Speaker note ও script", "Deck design AI টুল"],
+      },
+      {
+        title: "Module 5 · Research & Analysis",
+        lessons: ["Web research workflow", "Data ও spreadsheet এ AI", "Insight extraction"],
+      },
+      {
+        title: "Module 6 · Personal AI Workflow",
+        lessons: ["Daily routine অটোমেশন", "Prompt library তৈরি", "Capstone: নিজের কাজে একটি workflow ship"],
       },
     ],
     instructor: {
-      name: "The AI Sorix Team",
-      role: "Frontier AI educators",
-      bio: "Lessons compiled from real production work shipping multi-model AI features used by thousands of professionals worldwide.",
+      name: "Md. Rakibul Islam",
+      role: "Founder, AI Sorix · Sorix Scholars",
+      bio: "AI Sorix-এর প্রতিষ্ঠাতা। বিশ্বজুড়ে প্রফেশনাল ও টিমের জন্য frontier AI প্রোডাক্ট তৈরি ও ship করার অভিজ্ঞতা থেকে এই কোর্সের সব lesson তৈরি।",
     },
     faqs: [
       {
-        q: "Do I need a coding background?",
-        a: "No. Module 1 through 3 require zero code. The shipping module shows simple no-code and low-code paths.",
+        q: "কোডিং জানা লাগবে?",
+        a: "না। সম্পূর্ণ কোর্সটি no-code, শুধু AI টুল ব্যবহার শেখানো হবে।",
       },
       {
-        q: "Which models will I use?",
-        a: "GPT, Claude, Gemini, and at least one open-source model so you understand provider trade-offs.",
-      },
-    ],
-  },
-  {
-    slug: "build-ai-agents",
-    title: "Build AI Agents with Sorix Agent",
-    tagline: "Design autonomous agents that ship real work",
-    level: "Intermediate",
-    duration: "10 hours · 5 modules",
-    priceLabel: "$79",
-    cover: agentsImg,
-    overview:
-      "Move beyond chat. Design, deploy, and supervise autonomous agents that browse the web, call your APIs, and finish multi-step tasks unattended. Built around the Sorix Agent OS, but every pattern transfers to LangGraph, CrewAI, or your own stack.",
-    outcomes: [
-      "Decompose tasks into agent-friendly steps",
-      "Pick the right tool surface for each agent",
-      "Design memory that does not bloat context",
-      "Add approval gates for high-risk actions",
-      "Monitor agents in production",
-      "Recover gracefully from tool failures",
-      "Cost-optimise long-running workflows",
-      "Ship a working agent to a real workflow",
-    ],
-    curriculum: [
-      {
-        title: "Module 1 · Agent fundamentals",
-        lessons: ["Reactive vs deliberative agents", "Planning loops", "When NOT to use agents"],
+        q: "কোর্স access কতদিন?",
+        a: "একবার enroll করলে lifetime access — যত খুশি revisit করতে পারবেন।",
       },
       {
-        title: "Module 2 · Tool design",
-        lessons: ["Function calling that scales", "Browser, file, and API tools", "Permission scoping"],
-      },
-      {
-        title: "Module 3 · Memory & state",
-        lessons: ["Working vs long-term memory", "Vector recall patterns", "Avoiding context drift"],
-      },
-      {
-        title: "Module 4 · Supervision",
-        lessons: ["Human-in-the-loop checkpoints", "Eval harnesses for agents", "Cost and latency budgets"],
-      },
-      {
-        title: "Module 5 · Capstone",
-        lessons: ["Build a research agent", "Build an outreach agent", "Deploy to your team"],
-      },
-    ],
-    instructor: {
-      name: "The AI Sorix Team",
-      role: "Agent engineers",
-      bio: "Patterns drawn from running the Sorix Agent OS at scale.",
-    },
-    faqs: [
-      {
-        q: "Do I need an API budget?",
-        a: "A small one. Allow roughly $10 of model credits to complete every exercise.",
-      },
-      {
-        q: "Can I use my own framework?",
-        a: "Yes. We use Sorix Agent for examples but every concept maps to other frameworks.",
-      },
-    ],
-  },
-  {
-    slug: "ai-for-product-managers",
-    title: "AI for Product Managers",
-    tagline: "Ship AI features users actually keep using",
-    level: "Intermediate",
-    duration: "7 hours · 4 modules",
-    priceLabel: "$59",
-    cover: pmImg,
-    overview:
-      "A practical course for PMs who need to scope, prioritise, and measure AI features without drowning in jargon. Learn how to write AI PRDs that engineers respect and how to spot the failure modes that kill AI launches.",
-    outcomes: [
-      "Translate user problems into AI capabilities",
-      "Write PRDs that include eval criteria",
-      "Choose between RAG, fine-tuning, and prompting",
-      "Estimate cost and latency early",
-      "Run AI feature betas without burning trust",
-      "Measure quality with the right metrics",
-      "Negotiate model trade-offs with engineering",
-      "Plan responsible rollout and kill criteria",
-    ],
-    curriculum: [
-      {
-        title: "Module 1 · Opportunity sizing",
-        lessons: ["Where AI wins, where it loses", "User-job mapping", "Risk and trust budgets"],
-      },
-      {
-        title: "Module 2 · Spec writing",
-        lessons: ["The AI PRD template", "Defining 'good enough'", "Eval criteria up front"],
-      },
-      {
-        title: "Module 3 · Build & beta",
-        lessons: ["Working with prompt and model engineers", "Closed beta playbook", "Telemetry that matters"],
-      },
-      {
-        title: "Module 4 · Launch & learn",
-        lessons: ["Quality dashboards", "Drift and incident response", "When to deprecate a model"],
-      },
-    ],
-    instructor: {
-      name: "The AI Sorix Team",
-      role: "Product strategy",
-      bio: "From PMs who have shipped AI features used by professionals worldwide.",
-    },
-    faqs: [
-      {
-        q: "Will I write code?",
-        a: "Optional. The course is framework-agnostic and focuses on decisions, not implementation.",
-      },
-    ],
-  },
-  {
-    slug: "computer-vision-for-builders",
-    title: "Computer Vision for Builders",
-    tagline: "Real-world CV without a PhD",
-    level: "Advanced",
-    duration: "12 hours · 6 modules",
-    priceLabel: "$119",
-    cover: visionImg,
-    overview:
-      "A hands-on tour of modern vision models — from CLIP and SAM to multimodal LLMs — focused on what actually ships. Build a defect-detection pipeline, a document parser, and a real-time analytics demo by the end.",
-    outcomes: [
-      "Choose between open and hosted vision models",
-      "Build robust image pipelines",
-      "Use multimodal LLMs for OCR and parsing",
-      "Fine-tune small CV models on your data",
-      "Deploy vision inference at low cost",
-      "Handle edge cases and adversarial inputs",
-      "Combine CV with LLM reasoning",
-      "Ship one vision feature end-to-end",
-    ],
-    curriculum: [
-      {
-        title: "Module 1 · Vision landscape",
-        lessons: ["CNNs, ViTs, multimodal LLMs", "Open vs hosted trade-offs", "Lab setup"],
-      },
-      {
-        title: "Module 2 · Pipelines",
-        lessons: ["Preprocessing and augmentation", "Batch and stream inference", "Caching and cost"],
-      },
-      {
-        title: "Module 3 · OCR & parsing",
-        lessons: ["Document understanding with multimodal LLMs", "Tables and forms", "Quality gates"],
-      },
-      {
-        title: "Module 4 · Detection & segmentation",
-        lessons: ["SAM, Grounding DINO, YOLO", "Custom classes", "Active learning"],
-      },
-      { title: "Module 5 · Fine-tuning", lessons: ["LoRA for small models", "Data curation", "Eval and shipping"] },
-      {
-        title: "Module 6 · Capstone",
-        lessons: ["Real-time analytics demo", "Defect detection pipeline", "Document parser"],
-      },
-    ],
-    instructor: {
-      name: "The AI Sorix Team",
-      role: "Vision engineers",
-      bio: "Patterns from production vision systems serving global customers.",
-    },
-    faqs: [
-      {
-        q: "GPU required?",
-        a: "A free-tier Colab is enough for most exercises. Fine-tuning works on a single consumer GPU.",
-      },
-    ],
-  },
-  {
-    slug: "ai-for-researchers-writers",
-    title: "AI for Researchers & Writers",
-    tagline: "Literature, synthesis and writing — at AI speed, with rigour",
-    level: "Beginner",
-    duration: "5 hours · 3 modules",
-    priceLabel: "Free",
-    cover: researchImg,
-    overview:
-      "A workflow-first course for academics, journalists, and serious writers. Use AI to map a literature, draft with discipline, and keep citations honest. We treat hallucination as a process problem, not a model problem.",
-    outcomes: [
-      "Build a fast, honest literature map",
-      "Use AI without losing your voice",
-      "Manage citations and provenance",
-      "Avoid the most common hallucination traps",
-      "Synthesize across sources at scale",
-      "Outline long-form work with AI",
-      "Edit with a model that respects your style",
-      "Ship a publishable draft in one week",
-    ],
-    curriculum: [
-      { title: "Module 1 · Research workflows", lessons: ["Sourcing", "Note systems", "AI-assisted synthesis"] },
-      { title: "Module 2 · Writing with AI", lessons: ["Voice preservation", "Outlines and drafts", "Editing passes"] },
-      { title: "Module 3 · Integrity", lessons: ["Citation hygiene", "Detecting fabrications", "Reader trust"] },
-    ],
-    instructor: {
-      name: "The AI Sorix Team",
-      role: "Research & editorial",
-      bio: "Built from real workflows of researchers and writers using AI Sorix daily.",
-    },
-    faqs: [{ q: "Will my voice survive?", a: "Yes. The course is structured around protecting it." }],
-  },
-  {
-    slug: "llm-ops-and-evaluation",
-    title: "LLM Ops & Evaluation",
-    tagline: "Run AI features in production without surprises",
-    level: "Advanced",
-    duration: "9 hours · 5 modules",
-    priceLabel: "$99",
-    cover: llmopsImg,
-    overview:
-      "The course you wish your team had before launching its first AI feature. Set up evals, dashboards, drift detection, cost controls, and an incident playbook. Bring your own model stack — every pattern is provider-agnostic.",
-    outcomes: [
-      "Design an eval set that catches real regressions",
-      "Track quality, cost, and latency in one view",
-      "Detect model drift early",
-      "Build kill-switches and fallbacks",
-      "Run safe model migrations",
-      "Manage prompt versions in production",
-      "Respond to AI incidents like an SRE",
-      "Forecast and cap AI spend",
-    ],
-    curriculum: [
-      { title: "Module 1 · Eval foundations", lessons: ["Golden sets", "LLM-as-judge", "Human review queues"] },
-      {
-        title: "Module 2 · Observability",
-        lessons: ["Traces and spans for LLMs", "Quality dashboards", "Drift signals"],
-      },
-      {
-        title: "Module 3 · Cost & latency",
-        lessons: ["Budgets and caps", "Caching strategies", "Routing across models"],
-      },
-      { title: "Module 4 · Safety & incidents", lessons: ["Kill-switches", "Rollback playbooks", "Postmortems"] },
-      { title: "Module 5 · Migrations", lessons: ["Provider swaps", "Prompt versioning", "Shadow launches"] },
-    ],
-    instructor: {
-      name: "The AI Sorix Team",
-      role: "AI Ops",
-      bio: "Practices used to keep AI Sorix running for users in many countries every day.",
-    },
-    faqs: [
-      {
-        q: "Tooling required?",
-        a: "Bring any observability stack. Examples use open tools so the patterns transfer anywhere.",
+        q: "Certificate পাব?",
+        a: "হ্যাঁ, capstone সম্পন্ন করলে Sorix Scholars verified certificate পাবেন।",
       },
     ],
   },
 ];
+
 
 export interface Competition {
   slug: string;
