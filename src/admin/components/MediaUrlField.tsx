@@ -132,9 +132,20 @@ export function MediaUrlField({
 
   const upload = async (file: File) => {
     const err = validateFile(file);
-    if (err) { toast.error(err); return; }
+    if (err) {
+      if (err.includes("exceeds")) {
+        setUploadErrorKind("file_size");
+        setUploadError(err);
+      } else {
+        setUploadErrorKind("file_type");
+        setUploadError(err);
+      }
+      toast.error(err);
+      return;
+    }
     setLastFile(file);
     setUploadError(null);
+    setUploadErrorKind("none");
     setUploading(true);
     setProgress(0);
     setBytes({ loaded: 0, total: file.size });
