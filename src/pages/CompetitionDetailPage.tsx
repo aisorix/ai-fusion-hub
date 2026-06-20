@@ -1,12 +1,19 @@
+import { useEffect, useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { Calendar, Trophy, Globe } from "lucide-react";
 import SorixDetailPage from "@/components/scholars/SorixDetailPage";
 import { getCompetition } from "@/data/academy";
 import founderAsset from "@/assets/founder-rakib.jpg.asset.json";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function CompetitionDetailPage() {
   const { slug = "" } = useParams();
   const c = getCompetition(slug);
+  const [dbItem, setDbItem] = useState<any>(null);
+  useEffect(() => {
+    supabase.from("competitions").select("id, slug, title, entry_fee_bdt").eq("slug", slug).maybeSingle()
+      .then(({ data }) => setDbItem(data));
+  }, [slug]);
   if (!c) return <Navigate to="/sorixscholars/competitions" replace />;
 
   // Hard-coded Bangla detail content per competition slug
@@ -127,6 +134,8 @@ export default function CompetitionDetailPage() {
 
         enrollKind: "competition",
         enrollSlug: c.slug,
+        enrollPriceBdt: dbItem ? Number(dbItem.entry_fee_bdt) : 0,
+        enrollItemTitle: dbItem?.title || c.title,
       }}
     />
   );
