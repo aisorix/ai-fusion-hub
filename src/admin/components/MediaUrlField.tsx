@@ -238,11 +238,67 @@ export function MediaUrlField({
   const clear = () => {
     onChange("");
     setUploadError(null);
+    setUploadErrorKind("none");
     setLastFile(null);
     setBytes(null);
     setProgress(0);
     if (inputRef.current) inputRef.current.value = "";
   };
+
+  const errorMeta = (() => {
+    switch (uploadErrorKind) {
+      case "file_size":
+        return {
+          icon: <FileWarning className="w-4 h-4 text-destructive flex-shrink-0" />,
+          hint: `Choose a smaller file (max ${kind === "image" ? MAX_IMAGE_MB : MAX_VIDEO_MB} MB).`,
+          action: "pick_smaller",
+        };
+      case "file_type":
+        return {
+          icon: <FileWarning className="w-4 h-4 text-destructive flex-shrink-0" />,
+          hint: `Supported formats: ${kind === "image" ? "PNG, JPG, WebP, GIF, AVIF" : "MP4, WebM, MOV"}.`,
+          action: "pick_valid",
+        };
+      case "auth":
+        return {
+          icon: <Lock className="w-4 h-4 text-destructive flex-shrink-0" />,
+          hint: "Your session may have expired. Refresh the page or sign in again.",
+          action: "retry",
+        };
+      case "network":
+        return {
+          icon: <WifiOff className="w-4 h-4 text-destructive flex-shrink-0" />,
+          hint: "Check your internet connection, then retry.",
+          action: "retry",
+        };
+      case "server":
+        return {
+          icon: <ServerCrash className="w-4 h-4 text-destructive flex-shrink-0" />,
+          hint: "Server is temporarily unavailable. Please wait a moment and retry.",
+          action: "retry",
+        };
+      case "bucket":
+        return {
+          icon: <ServerCrash className="w-4 h-4 text-destructive flex-shrink-0" />,
+          hint: "Storage bucket misconfigured. Contact support@aisorix.com.",
+          action: "none",
+        };
+      case "aborted":
+        return {
+          icon: <X className="w-4 h-4 text-muted-foreground flex-shrink-0" />,
+          hint: "Upload cancelled. You can retry or pick a different file.",
+          action: "retry",
+        };
+      case "unknown":
+        return {
+          icon: <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />,
+          hint: "Something went wrong. Try again or use a direct URL instead.",
+          action: "retry_or_url",
+        };
+      default:
+        return null;
+    }
+  })();
 
 
   return (
