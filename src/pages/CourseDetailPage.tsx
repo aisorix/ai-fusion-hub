@@ -559,7 +559,19 @@ export default function CourseDetailPage() {
                 </div>
 
                 <button
-                  onClick={() => setModalOpen(true)}
+                  onClick={async () => {
+                    setModalOpen(true);
+                    try {
+                      const { data: { user } } = await supabase.auth.getUser();
+                      if (user) {
+                        await supabase.rpc("enroll_item" as any, {
+                          _kind: "course",
+                          _slug: course.slug,
+                          _title: course.title,
+                        });
+                      }
+                    } catch {}
+                  }}
                   className="mt-4 w-full inline-flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-white text-[#06102a] font-bold text-lg hover:bg-blue-50 transition shadow-xl"
                   style={bnFont}
                 >
