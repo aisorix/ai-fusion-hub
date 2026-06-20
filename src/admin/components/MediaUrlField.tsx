@@ -192,13 +192,33 @@ export function MediaUrlField({
       setProgress(100);
       toast.success("Uploaded");
     } catch (e: any) {
-      const msg = e?.message || "Upload failed";
-      if (msg === "__aborted__") {
-        setUploadError("Upload cancelled");
+      const rawMsg = (e?.message || "Upload failed").toString();
+      if (rawMsg === "__aborted__") {
+        setUploadErrorKind("aborted");
+        setUploadError("Upload was cancelled");
+      } else if (rawMsg.includes("Not signed in") || rawMsg.includes("Unauthorized") || rawMsg.includes("JWT") || rawMsg.includes("auth")) {
+        setUploadErrorKind("auth");
+        setUploadError("Authentication failed. Please sign in again.");
+      } else if (rawMsg.includes("Bucket") || rawMsg.includes("bucket") || rawMsg.includes("not found") || rawMsg.includes("resource")) {
+        setUploadErrorKind("bucket");
+        setUploadError("Storage bucket not found or not accessible.");
+      } else if (rawMsg.includes("Network") || rawMsg.includes("Failed to fetch") || rawMsg.includes("net::")) {
+        setUploadErrorKind("network");
+        setUploadError("Network error. Check your connection and try again.");
+      } else if (rawMsg.includes("size") || rawMsg.includes("large") || rawMsg.includes("too big") || rawMsg.includes("Payload")) {
+        setUploadErrorKind("file_size");
+        setUploadError(rawMsg);
+      } else if (rawMsg.includes("format") || rawMsg.includes("type") || rawMsg.includes("unsupported")) {
+        setUploadErrorKind("file_type");
+        setUploadError(rawMsg);
+      } else if (rawMsg.includes("500") || rawMsg.includes("502") || rawMsg.includes("503") || rawMsg.includes("server")) {
+        setUploadErrorKind("server");
+        setUploadError("Server error. Please try again in a moment.");
       } else {
-        setUploadError(msg);
-        toast.error(msg);
+        setUploadErrorKind("unknown");
+        setUploadError(rawMsg);
       }
+      toast.error(uploadError || "Upload failed");
     } finally {
       xhrRef.current = null;
       setUploading(false);
@@ -206,7 +226,7 @@ export function MediaUrlField({
   };
 
   const cancelUpload = () => { xhrRef.current?.abort(); };
-  const retryUpload = () => { if (lastFile) upload(lastFile); };
+  const retryUpload = () => { if (lastFile) { setUploadErrorKind("none"); setUploadError(null); upload(lastFile); } };
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault(); e.stopPropagation(); setDragOver(false);
