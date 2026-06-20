@@ -107,6 +107,12 @@ const ScholarsDashboard = React.lazy(() => import("./pages/scholars/ScholarsDash
 const ScholarsProfile = React.lazy(() => import("./pages/scholars/ScholarsProfile"));
 const CertificateVerifyPage = React.lazy(() => import("./pages/scholars/CertificateVerifyPage"));
 const AdminWorkshops = React.lazy(() => import("./admin/pages/AdminWorkshops"));
+const AdminScholarsCourses = React.lazy(() => import("./admin/pages/scholars/AdminScholarsCourses"));
+const AdminScholarsWorkshops = React.lazy(() => import("./admin/pages/scholars/AdminScholarsWorkshops"));
+const AdminScholarsCompetitions = React.lazy(() => import("./admin/pages/scholars/AdminScholarsCompetitions"));
+const AdminScholarsEnrollments = React.lazy(() => import("./admin/pages/scholars/AdminScholarsEnrollments"));
+const AdminScholarsRevenue = React.lazy(() => import("./admin/pages/scholars/AdminScholarsRevenue"));
+const AdminScholarsCertificates = React.lazy(() => import("./admin/pages/scholars/AdminScholarsCertificates"));
 
 const EventsPage = React.lazy(() => import("./pages/EventsPage"));
 const InsideSorixCodePage = React.lazy(() => import("./pages/InsideSorixCodePage"));
@@ -204,6 +210,12 @@ const App = () => (
                   <Route path="broadcasts" element={<AdminBroadcasts />} />
                   <Route path="database" element={<AdminDatabase />} />
                   <Route path="content/workshops" element={<AdminWorkshops />} />
+                  <Route path="scholars/courses" element={<AdminScholarsCourses />} />
+                  <Route path="scholars/workshops" element={<AdminScholarsWorkshops />} />
+                  <Route path="scholars/competitions" element={<AdminScholarsCompetitions />} />
+                  <Route path="scholars/enrollments" element={<AdminScholarsEnrollments />} />
+                  <Route path="scholars/revenue" element={<AdminScholarsRevenue />} />
+                  <Route path="scholars/certificates" element={<AdminScholarsCertificates />} />
 
                 </Route>
                 <Route path="/blog" element={<BlogPage />} />

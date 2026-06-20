@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import SEOHead from "@/components/SEOHead";
 import ContactModal from "@/components/academy/ContactModal";
 import { supabase } from "@/integrations/supabase/client";
+import ScholarsEnrollButton from "@/components/scholars/ScholarsEnrollButton";
 import { getCourse } from "@/data/academy";
 import courseCover from "@/assets/course-prompt.jpg";
 import mentorImg from "@/assets/founder-rakib.jpg.asset.json";
@@ -165,8 +166,17 @@ export default function CourseDetailPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [promo, setPromo] = useState("");
+  const [dbCourse, setDbCourse] = useState<any>(null);
+  // Load DB price for secure server-side checkout
+  // (falls back to free / contact flow if missing)
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    supabase.from("courses").select("id, slug, title, price_bdt").eq("slug", slug).maybeSingle()
+      .then(({ data }) => setDbCourse(data));
+  }, [slug]);
 
   if (!course) return <Navigate to="/sorixscholars/courses" replace />;
+
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -558,27 +568,17 @@ export default function CourseDetailPage() {
                   </button>
                 </div>
 
-                <button
-                  onClick={async () => {
-                    setModalOpen(true);
-                    try {
-                      const { data: { user } } = await supabase.auth.getUser();
-                      if (user) {
-                        await supabase.rpc("enroll_item" as any, {
-                          _kind: "course",
-                          _slug: course.slug,
-                          _title: course.title,
-                        });
-                      }
-                    } catch {}
-                  }}
-                  className="mt-4 w-full inline-flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-white text-[#06102a] font-bold text-lg hover:bg-blue-50 transition shadow-xl"
-                  style={bnFont}
-                >
-                  <BookOpen className="w-5 h-5" /> এখনই প্রিবুক করুন <ArrowRight className="w-5 h-5" />
-                </button>
+                <div className="mt-4">
+                  <ScholarsEnrollButton
+                    kind="course"
+                    slug={course.slug}
+                    title={course.title}
+                    priceBdt={dbCourse ? Number(dbCourse.price_bdt) : 0}
+                    className="w-full text-lg py-4 rounded-2xl"
+                  />
+                </div>
 
-                <div className="mt-5 flex items-center gap-2 text-sm text-emerald-300" style={bnFont}>
+                <div className="mt-3 flex items-center gap-2 text-sm text-emerald-300" style={bnFont}>
                   <Shield className="w-4 h-4" /> ১০০% নিরাপদ পেমেন্ট ও ইনস্ট্যান্ট এক্সেস
                 </div>
               </div>

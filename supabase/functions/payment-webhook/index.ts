@@ -278,7 +278,7 @@ const handler = async (req: Request): Promise<Response> => {
       // when the user initiated checkout). This is what defeats plan-upgrade attacks.
       const { data: intent, error: intentErr } = await supabase
         .from('payment_intents')
-        .select('user_id, plan_id, amount, currency, billing_cycle')
+        .select('id, user_id, plan_id, amount, currency, billing_cycle, kind, item_slug, seats, metadata')
         .eq('gateway', callbackData.gateway)
         .eq('external_id', intentLookupKey)
         .maybeSingle();
@@ -303,6 +303,70 @@ const handler = async (req: Request): Promise<Response> => {
       callbackData.amount = trustedAmount;
       callbackData.currency = trustedCurrency;
       callbackData.billing_cycle = trustedBillingCycle;
+
+      // === SCHOLARS BRANCH ===
+      // For course/workshop/competition purchases, write to scholars tables and exit early.
+      if (intent.kind && intent.kind !== 'subscription') {
+        const meta: any = intent.metadata || {};
+        const itemId: string | undefined = meta.item_id;
+        const itemTitle: string = meta.item_title || intent.item_slug || 'Sorix Scholars';
+        const teamName: string | null = meta.team_name || null;
+        const seats: number = intent.seats || 1;
+
+        // Idempotency: already recorded in payment_history?
+        const { data: dup } = await supabase.from('payment_history')
+          .select('id').eq('transaction_id', callbackData.tran_id).maybeSingle();
+        if (dup) {
+          return new Response(JSON.stringify({ success: true, message: "Already processed" }),
+            { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } });
+        }
+
+        if (intent.kind === 'course' && itemId) {
+          await supabase.from('course_purchases').upsert({
+            user_id: trustedUserId, course_id: itemId, amount_paid: trustedAmount, currency: trustedCurrency,
+            payment_intent_id: intent.id, tran_id: callbackData.tran_id, status: 'confirmed',
+          }, { onConflict: 'user_id,course_id' });
+          await supabase.from('user_enrollments').upsert({
+            user_id: trustedUserId, kind: 'course', source_slug: intent.item_slug, title: itemTitle,
+          }, { onConflict: 'user_id,kind,source_slug' });
+        } else if (intent.kind === 'workshop' && itemId) {
+          await supabase.from('workshop_bookings').insert({
+            user_id: trustedUserId, workshop_id: itemId, seats, amount_paid: trustedAmount, currency: trustedCurrency,
+            payment_intent_id: intent.id, tran_id: callbackData.tran_id, status: 'confirmed',
+          });
+          await supabase.from('user_enrollments').upsert({
+            user_id: trustedUserId, kind: 'workshop', source_slug: intent.item_slug, title: itemTitle,
+          }, { onConflict: 'user_id,kind,source_slug' });
+        } else if (intent.kind === 'competition' && itemId) {
+          await supabase.from('competition_registrations').upsert({
+            user_id: trustedUserId, competition_id: itemId, team_name: teamName,
+            amount_paid: trustedAmount, currency: trustedCurrency,
+            payment_intent_id: intent.id, tran_id: callbackData.tran_id, status: 'confirmed',
+          }, { onConflict: 'user_id,competition_id' });
+          await supabase.from('user_enrollments').upsert({
+            user_id: trustedUserId, kind: 'competition', source_slug: intent.item_slug, title: itemTitle,
+          }, { onConflict: 'user_id,kind,source_slug' });
+        }
+
+        await supabase.from('payment_intents').update({ status: 'paid', updated_at: new Date().toISOString() })
+          .eq('id', intent.id);
+
+        await supabase.from('payment_history').insert({
+          user_id: trustedUserId,
+          subscription_id: null,
+          transaction_id: callbackData.tran_id,
+          payment_method: callbackData.payment_method || callbackData.gateway,
+          amount: trustedAmount,
+          currency: trustedCurrency,
+          status: 'completed',
+          plan_id: intent.plan_id,
+          billing_cycle: intent.billing_cycle,
+          gateway_response: { gateway: callbackData.gateway, scholars: true, kind: intent.kind, item_slug: intent.item_slug },
+        });
+
+        return new Response(JSON.stringify({ success: true, message: "Scholars purchase recorded" }),
+          { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } });
+      }
     } else {
       // Failure paths — still require tran_id; fill user/plan from intent if available.
       const { data: intent } = await supabase

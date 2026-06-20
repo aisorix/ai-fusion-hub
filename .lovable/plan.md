@@ -1,109 +1,101 @@
-# Sorix Scholars — Dashboard, Profile, Certificate System
+# Sorix Scholars — Full Admin Control + Payments
 
-Build a complete learner workspace inside `/sorixscholars`: a dashboard with enrollments + progress, a profile editor, an upgraded certificate hub with PDF download + verification, and automatic certificate issuance when a learner finishes a course/workshop/competition. Visual style matches the existing courses/workshops pages (Plus Jakarta Sans, soft cards, Bangla/English toggle).
-
----
-
-## 1. Database changes (one migration)
-
-Extend `public.user_certificates`:
-- `certificate_number text unique` — human-readable ID, format `SS-YYYY-XXXXXX` (e.g. `SS-2026-A4F19K`)
-- `recipient_name text` — snapshot of name at issue time (so renames don't change old certs)
-- `issuer_name text default 'Rakib Eslam'`
-- `issuer_title text default 'Founder & CEO, AI Sorix Limited'`
-- `metadata jsonb default '{}'` — for description / extra fields
-
-New table `public.user_enrollments`:
-- `user_id uuid` (FK auth.users)
-- `kind text check in ('course','workshop','competition')`
-- `source_slug text` — slug of the item
-- `title text`
-- `progress int default 0` (0–100)
-- `status text default 'in_progress'` ('in_progress' | 'completed')
-- `enrolled_at`, `completed_at`, `updated_at`
-- Unique `(user_id, kind, source_slug)`
-- GRANTs + RLS: user can SELECT/INSERT/UPDATE their own; service_role full.
-
-RPCs (SECURITY DEFINER, search_path = public):
-- `enroll_item(_kind, _slug, _title)` — upsert enrollment for `auth.uid()`.
-- `update_progress(_kind, _slug, _progress)` — clamps 0–100; if 100 → marks completed_at + status, then auto-issues certificate by inserting into `user_certificates` (only if one doesn't already exist for that user+kind+slug); generates `certificate_number` server-side.
-- `verify_certificate(_number text)` — public (granted to anon + authenticated); returns `{ valid, recipient_name, title, kind, issued_at, certificate_number, issuer_name, issuer_title }` or `{ valid:false }`. No user_id leak.
-
-Update existing `user_certificates` policy to also allow public SELECT only through the verify RPC (keep table RLS user-only, RPC bypasses).
-
-Make `certificates` policy add public-read of minimal columns? No — use RPC only.
-
-Add public GRANT EXECUTE on `verify_certificate` to `anon, authenticated`; others to `authenticated` + `service_role`.
-
-Backfill: for existing rows in `user_certificates`, populate `certificate_number` = `SS-<year>-<6 random hex>` and `recipient_name` from profiles.full_name.
+Bring courses, workshops, and competitions fully into the database, give admins end-to-end control from the Admin panel, wire SSLCommerz checkout for purchases/registrations, and surface enrollments + revenue analytics. Make every new admin screen polished and responsive (mobile / tablet / desktop).
 
 ---
 
-## 2. Certificate PDF (shared utility)
+## 1. Database (one migration)
 
-New `src/lib/certificateGenerator.ts` exporting `generateCertificatePdf(cert)`. Recreates the design in image 2 exactly:
-- Landscape A4, cream `#F5EBD6` background.
-- Brown ornamental corner brackets (drawn with jsPDF lines/rects) + simple daisy clusters (small circles + petals) in 4 corners.
-- Big serif "CERTIFICATE" (Times Bold), subtitle "OF COMPLETION" (or "OF PARTICIPATION" for competitions).
-- "THIS CERTIFICATE IS PROUDLY PRESENTED TO".
-- Recipient name in cursive (use jsPDF's `times` italic at 48pt as best-available script font; document limitation — embedding a true script font like "Great Vibes" requires adding a base64 TTF, which we'll do via a small `greatVibes.ts` font file loaded with `doc.addFileToVFS` + `doc.addFont` for an authentic look).
-- Body paragraph: "for successfully completing the {kind} '{title}' organized by AI Sorix Limited, showing curiosity, effort and a passion for learning."
-- Signature block: cursive "Rakib Eslam" + thin divider + "Founder & CEO, AI Sorix Limited".
-- Footer-left: `Certificate No: SS-2026-A4F19K`  ·  `Issued: June 20, 2026`  ·  `Verify at aisorix.com/verify/SS-2026-A4F19K`.
+New tables (all in `public`, with GRANTs + RLS + admin-write / public-read-on-published patterns matching the existing `workshops` table):
 
-Replace the inline PDF code in `ScholarsCertificates.tsx` with this util. Reuse on dashboard, certificates page, and verify page.
+- **`courses`** — slug, title, tagline, level, duration_label, price_bdt, old_price_bdt, cover_url, banner_url, overview, outcomes (jsonb), instructor (jsonb), faqs (jsonb), seats_total, is_published, sort_order
+- **`course_modules`** — course_id, title, sort_order
+- **`course_lessons`** — module_id, title, video_url, duration_sec, content_md, is_preview, sort_order
+- **`competitions`** — slug, title, tagline, cover_url, banner_url, description, rules, prizes (jsonb), entry_fee_bdt, starts_at, deadline_at, max_participants, is_published
+- **`workshop_bookings`** — workshop_id, user_id, seats, amount_paid, payment_intent_id, status (pending/confirmed/cancelled)
+- **`competition_registrations`** — competition_id, user_id, team_name, amount_paid, payment_intent_id, status
+- **`course_purchases`** — course_id, user_id, amount_paid, payment_intent_id, status
+
+Extend existing:
+- `workshops`: add `banner_url`, `seats_total`, `seats_booked` (maintained by trigger on confirmed bookings)
+- `payment_intents`: allow `kind` in (`subscription`, `course`, `workshop`, `competition`) + `item_id`/`item_slug` columns (nullable)
+
+RLS pattern per table:
+- Public can `SELECT` rows where `is_published = true`
+- Admins (`is_admin_user`) full CRUD
+- Users can `SELECT` their own purchase/booking/registration rows
+- Inserts to purchase/booking/registration tables only via the payment webhook (service_role) — no direct INSERT policy for `authenticated`
+
+RPCs:
+- `admin_scholars_overview()` — counts + revenue per kind for date range
+- `admin_scholars_enrollments(_kind, _slug, _from, _to)` — user list with paid amount, progress, certificate status
+
+Storage: reuse existing `profile-avatars` for now; add a new **public** bucket `scholars-media` for course/workshop/competition banners + lesson videos. RLS: public read, admin write.
+
+## 2. Data migration
+
+One-time seed from `src/data/academy.ts` and `src/data/workshops.ts` into the new tables (so nothing visually breaks), then switch the public pages to query from DB.
+
+## 3. Admin panel (`/admin/...`)
+
+New section **"Scholars"** in `AdminLayout` sidebar, grouped:
+
+- **`/admin/scholars/courses`** — list + create/edit dialog with tabs: Details · Curriculum (modules/lessons drag-reorder, video upload) · Banner & Cover (image upload) · Pricing · FAQs · Publish toggle
+- **`/admin/scholars/workshops`** — replaces current `AdminWorkshops`, extended with banner upload, seats, bookings tab showing every booked user (name, email, seats, amount, status, payment id, export CSV)
+- **`/admin/scholars/competitions`** — full CRUD + registrations tab (participants, team, amount, status, CSV)
+- **`/admin/scholars/enrollments`** — unified view across all kinds: filter by kind/slug/date, columns = user, item, progress, paid, certificate #, issued at; row click → user profile drawer
+- **`/admin/scholars/revenue`** — KPI cards (Total scholars revenue, by kind, refunds), MRR-style trend chart, top items, recent transactions; reuses `KpiCard`, `ChartCard`, `DataTable`, `DateRangePicker`
+- **`/admin/scholars/certificates`** — list issued certificates, search by SS-number / user, view PDF, revoke (sets a `revoked_at` flag — verify page already reads this)
+
+All writes route through `RoleGate mode="write"` and existing `_shared/adminAuth.ts` audit logging. Forms use `react-hook-form` + `zod` (length limits per `<input-validation-security>`). Toasts via `sonner` (per memory).
+
+## 4. SSLCommerz payments for Scholars
+
+Reuse `supabase/functions/sslcommerz-payment` pattern. New edge function **`scholars-checkout`** (verify_jwt = true):
+
+Input: `{ kind: 'course'|'workshop'|'competition', slug, seats?, team_name? }`
+1. Look up item by slug, verify `is_published`, compute amount server-side (never trust client price)
+2. For workshops, verify `seats_booked + seats <= seats_total`
+3. Insert `payment_intents` row with `kind`, `item_slug`, `amount`
+4. Call SSLCommerz, return `GatewayPageURL`
+
+Extend **`payment-webhook`** to handle scholars intents:
+- On `VALID`/`VALIDATED`: insert into `course_purchases` / `workshop_bookings` / `competition_registrations` (service_role), auto-enroll via existing `enroll_item` for courses, increment `seats_booked` for workshops
+- On fail/cancel: mark intent failed
+- Idempotent on `tran_id`
+
+Frontend:
+- Course/Workshop/Competition detail pages get a **"Enroll · ৳X"** primary button that opens a payment modal (reuse `PaymentModal` styling) → posts to `scholars-checkout` → redirects to gateway
+- After redirect back, existing `/payment/success` page resolves the intent and shows the right success state per kind
+- Free items (price 0) skip checkout and call `enroll_item` directly
+- Mandatory T&C consent + coupon support (reuse `validate-coupon`) — per `mem://business/payment-gateway-sslcommerz`
+
+## 5. Responsive polish
+
+Every new admin page:
+- Mobile-first layout: cards collapse to single column, tables convert to stacked list on `< sm`
+- Sticky toolbar with search + filters that wraps on tablet
+- Dialogs `max-h-[90dvh] overflow-y-auto`, full-screen on mobile
+- Image uploads with live preview + drag-drop, lazy-loaded thumbnails
+- Bangla-safe widths (`min-w-0`, `truncate`, `whitespace-nowrap` only where appropriate) per i18n memory
+
+## 6. Technical notes
+
+- All new admin pages live under `src/admin/pages/scholars/` and route in `App.jsx` inside the existing `AdminGuard` + `AdminLayout`
+- Reuse existing admin primitives (`KpiCard`, `DataTable`, `ChartCard`, `ConfirmDialog`, `EmptyState`, `StatusPill`, `DateRangePicker`)
+- Public Scholars pages refactored to read from Supabase with React Query; keep current visual design intact
+- Video upload uses `scholars-media` bucket with signed-progress upload; large files (>50MB) prompt user to paste a hosted URL instead
+- Audit every write through `_shared/adminAuth.ts`
+- No client-side price calculation for payments — server recomputes from DB row
+- Currency: BDT only (matches existing SSLCommerz integration)
+- Seats trigger uses an `AFTER INSERT/UPDATE/DELETE` trigger on `workshop_bookings` to recompute `seats_booked`
+
+## 7. Out of scope (call out)
+
+- Live streaming for workshops (just video URL field; users join via the URL)
+- Refund automation — admin can mark a purchase refunded which writes to `payment_history` (matches existing manual-refund pattern from `AdminSubscriptions`)
+- Bkash/other gateways — SSLCommerz only per project memory
 
 ---
 
-## 3. Pages & routes
-
-Add to `src/App.jsx` under `/sorixscholars`:
-- `dashboard` → `ScholarsDashboard.tsx` (auth-gated; redirect to /login if signed-out)
-- `profile` → `ScholarsProfile.tsx` (auth-gated)
-- `verify` and `verify/:number` → `CertificateVerifyPage.tsx` (public)
-
-Keep `certificates` route. Add navbar/footer links so both navbar and footer point to certificates (already there) + dashboard + profile (in user dropdown).
-
-### 3a. `ScholarsDashboard.tsx` (`/sorixscholars/dashboard`)
-- Header: greeting "স্বাগতম, {firstName} 👋" + small "Edit profile" button → `/sorixscholars/profile`.
-- 4 stat cards: Enrolled courses, Workshops attended, Competitions joined, Certificates earned.
-- 3 tabbed sections (Courses / Workshops / Competitions):
-  - Each item card shows: thumb (kind icon), title, status pill, progress bar (`progress %`), enrolled date, "Continue" → detail page, and if status=in_progress an "Mark complete" button (calls `update_progress(_,_,100)` → toast "🎉 Certificate issued").
-  - Empty state for each tab with a CTA to browse.
-- "Recent certificates" row: latest 3 cards with Download PDF.
-
-### 3b. `ScholarsProfile.tsx` (`/sorixscholars/profile`)
-- Avatar uploader (drag/click) → uploads to existing `profile-avatars` storage bucket (path `{user_id}/avatar.{ext}`, public URL → `profiles.avatar_url`).
-- Form fields: Full name, Email (read-only, with "Change email" calling `supabase.auth.updateUser({ email })`), Phone (country code + number, reusing existing columns), Bio (optional, add `bio text` to profiles in same migration).
-- Password section: "Change password" → `supabase.auth.updateUser({ password })`.
-- Save → updates `profiles`; sonner toast on success.
-
-### 3c. `ScholarsCertificates.tsx` (upgrade)
-- Same Plus Jakarta layout as today, but:
-  - Sorted newest-first (already), badge "NEW" if issued in last 7 days.
-  - Each card shows certificate number prominently, kind icon, title, issued date, "Download PDF" (new util) + "Verify" link → `/sorixscholars/verify/{number}` + "Copy link" button (sonner toast).
-  - Empty state CTAs unchanged.
-
-### 3d. `CertificateVerifyPage.tsx` (`/sorixscholars/verify` and `/verify/:number`)
-- Hero: "Verify a Sorix Scholars certificate" + an input box (auto-filled when `:number` present).
-- On submit → calls `verify_certificate` RPC.
-- Valid result: green success card showing recipient name, title, kind, issued date, certificate number, issuer; "Download a copy" button (re-renders PDF from returned data).
-- Invalid: red card "No certificate found with this number."
-- Page styled like courses/workshops listing pages.
-
----
-
-## 4. Navbar / Footer / triggers
-
-- Navbar user dropdown (currently has "আমার সার্টিফিকেট" + "ড্যাশবোর্ড" pointing to `/dashboard`): change Dashboard to `/sorixscholars/dashboard`, add "প্রোফাইল / Profile" item above logout.
-- Footer "গুরুত্বপূর্ণ লিংক": add "Verify certificate" → `/sorixscholars/verify` and "ড্যাশবোর্ড" → `/sorixscholars/dashboard` (only when signed in is fine — but easier to always show).
-- On course/workshop/competition detail pages, "Enroll" / "Register" buttons (currently open ContactModal) — also call `enroll_item` RPC when the user is authenticated, so it shows in the dashboard. ContactModal flow stays for unauthenticated leads.
-
----
-
-## 5. Out of scope
-
-- Real lesson-by-lesson progress tracking (we expose only manual "Mark complete" + RPC; future lesson UI can call `update_progress`).
-- Public certificate "share" image (PDF download covers the request).
-- Editing certificates after issue (immutable by design).
-- Embedding a custom signature image (cursive font via embedded Great Vibes TTF approximates image 2's hand-written look).
+Once approved I will ship this in this order: (1) migration + seed, (2) admin CRUD pages, (3) checkout edge function + webhook extension, (4) public detail-page wiring, (5) revenue/enrollment dashboards, (6) responsive QA pass.

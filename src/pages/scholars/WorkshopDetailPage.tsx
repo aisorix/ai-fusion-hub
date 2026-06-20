@@ -1,13 +1,21 @@
+import { useEffect, useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { Calendar, Clock, MapPin } from "lucide-react";
 import SorixDetailPage from "@/components/scholars/SorixDetailPage";
 import { getWorkshop } from "@/data/workshops";
 import founderAsset from "@/assets/founder-rakib.jpg.asset.json";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function WorkshopDetailPage() {
   const { slug = "" } = useParams();
   const w = getWorkshop(slug);
+  const [dbItem, setDbItem] = useState<any>(null);
+  useEffect(() => {
+    supabase.from("workshops").select("id, slug, title, price_bdt, seats_total, seats_booked").eq("slug", slug).maybeSingle()
+      .then(({ data }) => setDbItem(data));
+  }, [slug]);
   if (!w) return <Navigate to="/sorixscholars/workshops" replace />;
+  const seatsLeft = dbItem?.seats_total ? Math.max(0, (dbItem.seats_total || 0) - (dbItem.seats_booked || 0)) : null;
 
   return (
     <SorixDetailPage
@@ -67,6 +75,9 @@ export default function WorkshopDetailPage() {
 
         enrollKind: "workshop",
         enrollSlug: w.slug,
+        enrollPriceBdt: dbItem ? Number(dbItem.price_bdt) : undefined,
+        enrollItemTitle: dbItem?.title || w.title,
+        enrollSeatsAvailable: seatsLeft,
       }}
     />
   );

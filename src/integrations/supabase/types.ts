@@ -382,6 +382,138 @@ export type Database = {
           },
         ]
       }
+      competition_registrations: {
+        Row: {
+          amount_paid: number
+          competition_id: string
+          created_at: string
+          currency: string
+          id: string
+          payment_intent_id: string | null
+          status: string
+          team_name: string | null
+          tran_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_paid?: number
+          competition_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          payment_intent_id?: string | null
+          status?: string
+          team_name?: string | null
+          tran_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number
+          competition_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          payment_intent_id?: string | null
+          status?: string
+          team_name?: string | null
+          tran_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competition_registrations_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competition_registrations_payment_intent_id_fkey"
+            columns: ["payment_intent_id"]
+            isOneToOne: false
+            referencedRelation: "payment_intents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competitions: {
+        Row: {
+          banner_url: string | null
+          cover_url: string | null
+          created_at: string
+          criteria: Json
+          deadline_at: string | null
+          entry_fee_bdt: number
+          faqs: Json
+          id: string
+          is_published: boolean
+          max_participants: number | null
+          overview: string | null
+          prize_label: string | null
+          prizes: Json
+          rules: Json
+          slug: string
+          sort_order: number
+          starts_at: string | null
+          status_label: string | null
+          tagline: string | null
+          timeline: Json
+          title: string
+          tracks: Json
+          updated_at: string
+        }
+        Insert: {
+          banner_url?: string | null
+          cover_url?: string | null
+          created_at?: string
+          criteria?: Json
+          deadline_at?: string | null
+          entry_fee_bdt?: number
+          faqs?: Json
+          id?: string
+          is_published?: boolean
+          max_participants?: number | null
+          overview?: string | null
+          prize_label?: string | null
+          prizes?: Json
+          rules?: Json
+          slug: string
+          sort_order?: number
+          starts_at?: string | null
+          status_label?: string | null
+          tagline?: string | null
+          timeline?: Json
+          title: string
+          tracks?: Json
+          updated_at?: string
+        }
+        Update: {
+          banner_url?: string | null
+          cover_url?: string | null
+          created_at?: string
+          criteria?: Json
+          deadline_at?: string | null
+          entry_fee_bdt?: number
+          faqs?: Json
+          id?: string
+          is_published?: boolean
+          max_participants?: number | null
+          overview?: string | null
+          prize_label?: string | null
+          prizes?: Json
+          rules?: Json
+          slug?: string
+          sort_order?: number
+          starts_at?: string | null
+          status_label?: string | null
+          tagline?: string | null
+          timeline?: Json
+          title?: string
+          tracks?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       coupons: {
         Row: {
           active: boolean
@@ -426,6 +558,196 @@ export type Database = {
           max_redemptions?: number | null
           percent_off?: number | null
           redeemed_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      course_lessons: {
+        Row: {
+          content_md: string | null
+          created_at: string
+          duration_sec: number | null
+          id: string
+          is_preview: boolean
+          module_id: string
+          sort_order: number
+          title: string
+          video_url: string | null
+        }
+        Insert: {
+          content_md?: string | null
+          created_at?: string
+          duration_sec?: number | null
+          id?: string
+          is_preview?: boolean
+          module_id: string
+          sort_order?: number
+          title: string
+          video_url?: string | null
+        }
+        Update: {
+          content_md?: string | null
+          created_at?: string
+          duration_sec?: number | null
+          id?: string
+          is_preview?: boolean
+          module_id?: string
+          sort_order?: number
+          title?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_lessons_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "course_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_modules: {
+        Row: {
+          course_id: string
+          created_at: string
+          id: string
+          sort_order: number
+          title: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          id?: string
+          sort_order?: number
+          title: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          id?: string
+          sort_order?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_modules_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_purchases: {
+        Row: {
+          amount_paid: number
+          course_id: string
+          created_at: string
+          currency: string
+          id: string
+          payment_intent_id: string | null
+          status: string
+          tran_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_paid?: number
+          course_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          payment_intent_id?: string | null
+          status?: string
+          tran_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number
+          course_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          payment_intent_id?: string | null
+          status?: string
+          tran_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_purchases_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_purchases_payment_intent_id_fkey"
+            columns: ["payment_intent_id"]
+            isOneToOne: false
+            referencedRelation: "payment_intents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          banner_url: string | null
+          cover_url: string | null
+          created_at: string
+          duration_label: string | null
+          faqs: Json
+          id: string
+          instructor: Json
+          is_published: boolean
+          level: string | null
+          old_price_bdt: number | null
+          outcomes: Json
+          overview: string | null
+          price_bdt: number
+          slug: string
+          sort_order: number
+          tagline: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          banner_url?: string | null
+          cover_url?: string | null
+          created_at?: string
+          duration_label?: string | null
+          faqs?: Json
+          id?: string
+          instructor?: Json
+          is_published?: boolean
+          level?: string | null
+          old_price_bdt?: number | null
+          outcomes?: Json
+          overview?: string | null
+          price_bdt?: number
+          slug: string
+          sort_order?: number
+          tagline?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          banner_url?: string | null
+          cover_url?: string | null
+          created_at?: string
+          duration_label?: string | null
+          faqs?: Json
+          id?: string
+          instructor?: Json
+          is_published?: boolean
+          level?: string | null
+          old_price_bdt?: number | null
+          outcomes?: Json
+          overview?: string | null
+          price_bdt?: number
+          slug?: string
+          sort_order?: number
+          tagline?: string | null
+          title?: string
           updated_at?: string
         }
         Relationships: []
@@ -839,8 +1161,11 @@ export type Database = {
           external_id: string
           gateway: string
           id: string
+          item_slug: string | null
+          kind: string
           metadata: Json
           plan_id: string
+          seats: number | null
           status: string
           updated_at: string
           user_id: string
@@ -853,8 +1178,11 @@ export type Database = {
           external_id: string
           gateway: string
           id?: string
+          item_slug?: string | null
+          kind?: string
           metadata?: Json
           plan_id: string
+          seats?: number | null
           status?: string
           updated_at?: string
           user_id: string
@@ -867,8 +1195,11 @@ export type Database = {
           external_id?: string
           gateway?: string
           id?: string
+          item_slug?: string | null
+          kind?: string
           metadata?: Json
           plan_id?: string
+          seats?: number | null
           status?: string
           updated_at?: string
           user_id?: string
@@ -1825,19 +2156,78 @@ export type Database = {
         }
         Relationships: []
       }
+      workshop_bookings: {
+        Row: {
+          amount_paid: number
+          created_at: string
+          currency: string
+          id: string
+          payment_intent_id: string | null
+          seats: number
+          status: string
+          tran_id: string | null
+          user_id: string
+          workshop_id: string
+        }
+        Insert: {
+          amount_paid?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          payment_intent_id?: string | null
+          seats?: number
+          status?: string
+          tran_id?: string | null
+          user_id: string
+          workshop_id: string
+        }
+        Update: {
+          amount_paid?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          payment_intent_id?: string | null
+          seats?: number
+          status?: string
+          tran_id?: string | null
+          user_id?: string
+          workshop_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workshop_bookings_payment_intent_id_fkey"
+            columns: ["payment_intent_id"]
+            isOneToOne: false
+            referencedRelation: "payment_intents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workshop_bookings_workshop_id_fkey"
+            columns: ["workshop_id"]
+            isOneToOne: false
+            referencedRelation: "workshops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workshops: {
         Row: {
+          banner_url: string | null
           cover_url: string | null
           created_at: string
           description: string | null
           duration_hours: number | null
           id: string
           is_published: boolean
+          join_url: string | null
+          location: string | null
           mentor_avatar_url: string | null
           mentor_bio: string | null
           mentor_name: string | null
           mentor_role: string | null
           price_bdt: number | null
+          seats_booked: number
+          seats_total: number | null
           slug: string
           starts_at: string | null
           summary: string | null
@@ -1845,17 +2235,22 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          banner_url?: string | null
           cover_url?: string | null
           created_at?: string
           description?: string | null
           duration_hours?: number | null
           id?: string
           is_published?: boolean
+          join_url?: string | null
+          location?: string | null
           mentor_avatar_url?: string | null
           mentor_bio?: string | null
           mentor_name?: string | null
           mentor_role?: string | null
           price_bdt?: number | null
+          seats_booked?: number
+          seats_total?: number | null
           slug: string
           starts_at?: string | null
           summary?: string | null
@@ -1863,17 +2258,22 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          banner_url?: string | null
           cover_url?: string | null
           created_at?: string
           description?: string | null
           duration_hours?: number | null
           id?: string
           is_published?: boolean
+          join_url?: string | null
+          location?: string | null
           mentor_avatar_url?: string | null
           mentor_bio?: string | null
           mentor_name?: string | null
           mentor_role?: string | null
           price_bdt?: number | null
+          seats_booked?: number
+          seats_total?: number | null
           slug?: string
           starts_at?: string | null
           summary?: string | null
@@ -1922,6 +2322,10 @@ export type Database = {
       }
     }
     Functions: {
+      admin_scholars_overview: {
+        Args: { _from?: string; _to?: string }
+        Returns: Json
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -2024,6 +2428,10 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      get_scholars_item: {
+        Args: { _kind: string; _slug: string }
+        Returns: Json
       }
       get_shared_chat_by_token: {
         Args: { _token: string }
