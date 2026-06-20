@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import SEOHead from "@/components/SEOHead";
 import ContactModal from "@/components/academy/ContactModal";
 import { supabase } from "@/integrations/supabase/client";
+import ScholarsEnrollButton from "@/components/scholars/ScholarsEnrollButton";
 
 const BN_NUM = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
 export const toBn = (n: number | string) =>
@@ -631,27 +632,40 @@ export default function SorixDetailPage({ cfg }: { cfg: DetailConfig }) {
                   ⚡ মাত্র {toBn(998)} টি সিট বাকি
                 </p>
 
-                <button
-                  onClick={async () => {
-                    setModalOpen(true);
-                    if (cfg.enrollKind && cfg.enrollSlug) {
-                      try {
-                        const { data: { user } } = await supabase.auth.getUser();
-                        if (user) {
-                          await supabase.rpc("enroll_item" as any, {
-                            _kind: cfg.enrollKind,
-                            _slug: cfg.enrollSlug,
-                            _title: cfg.heroTitleLines.join(" "),
-                          });
-                        }
-                      } catch {}
-                    }
-                  }}
-                  className="mt-4 w-full inline-flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-95 text-white font-bold text-lg transition shadow-xl"
-                  style={bnFont}
-                >
-                  {cfg.enrollCtaLabel} <ArrowRight className="w-5 h-5" />
-                </button>
+                {cfg.enrollKind && cfg.enrollSlug && typeof cfg.enrollPriceBdt === "number" ? (
+                  <div className="mt-4 flex justify-center">
+                    <ScholarsEnrollButton
+                      kind={cfg.enrollKind}
+                      slug={cfg.enrollSlug}
+                      title={cfg.enrollItemTitle || cfg.heroTitleLines.join(" ")}
+                      priceBdt={cfg.enrollPriceBdt}
+                      seatsAvailable={cfg.enrollSeatsAvailable ?? null}
+                      className="w-full text-lg py-4 rounded-2xl"
+                    />
+                  </div>
+                ) : (
+                  <button
+                    onClick={async () => {
+                      setModalOpen(true);
+                      if (cfg.enrollKind && cfg.enrollSlug) {
+                        try {
+                          const { data: { user } } = await supabase.auth.getUser();
+                          if (user) {
+                            await supabase.rpc("enroll_item" as any, {
+                              _kind: cfg.enrollKind,
+                              _slug: cfg.enrollSlug,
+                              _title: cfg.heroTitleLines.join(" "),
+                            });
+                          }
+                        } catch {}
+                      }
+                    }}
+                    className="mt-4 w-full inline-flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-95 text-white font-bold text-lg transition shadow-xl"
+                    style={bnFont}
+                  >
+                    {cfg.enrollCtaLabel} <ArrowRight className="w-5 h-5" />
+                  </button>
+                )}
 
                 <div
                   className="mt-5 flex items-center justify-center gap-5 text-xs text-blue-200/80"
