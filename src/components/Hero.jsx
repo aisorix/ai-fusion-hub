@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ArrowUpRight, Sparkles, Zap, Shield, Play, FlaskConical } from "lucide-react";
+import { ArrowUpRight, Sparkles, Zap, Shield, Play, GraduationCap } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import {
   ChatGPTLogo,
