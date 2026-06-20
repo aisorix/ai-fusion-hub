@@ -1,38 +1,47 @@
-# Plan: Rebuild Course Detail Page (AI for Professionals)
+# Plan: Workshop & Competition Detail Pages — Match Course Detail Design
 
-Full rewrite of `src/pages/CourseDetailPage.tsx` to match the 9 attached screenshots, section-by-section in Bangla. All content is hard-coded for the single `ai-for-professionals` course (also widening `Course` data shape in `src/data/academy.ts` where new fields are needed).
-
-## Sections (top → bottom)
-
-1. **Hero (dark blue grid bg)** — left: "ভর্তি হন এখনই" pill, big serif "AI for Professionals" title, Bangla tagline, two CTAs: "কোর্সে ভর্তি হোন →" (primary blue, scrolls to enroll card) and "📖 কারিকুলাম দেখুন" (outline, scrolls to curriculum). Right: rounded video placeholder card with play button overlay (uses existing course cover image; clicking play does nothing for now or opens a YouTube embed if URL provided).
-
-2. **"এই সমস্যাগুলোর সাথে কি আপনি রিলেট করতে পারছেন?"** (light bg) — 2×2 grid of soft white cards, each with red ⚠ icon + Bangla problem text. Below: dark navy banner with the "এই কোর্সে আমরা ধাপে ধাপে…" reassurance text.
-
-3. **"কোর্সে কী কী শিখতে পারবেন"** (dark bg) — 2×3 grid of dark glass cards, each with blue ▶ icon, Bangla/English title, and Bangla description (6 outcomes).
-
-4. **"কোর্স সামারি" + "আপনি পাবেন"** (split: light card on left, dark card on right) — Left: Bangla summary paragraph + 2×2+1 grid of stat tiles (১৫ দিনের execution roadmap, ৫টি practical module, ১৫টি office use-case class, লাইফটাইম অ্যাক্সেস, সকল ডিভাইস সাপোর্ট with monitor icon). Right: 2×3 dark grid (লাইফটাইম এক্সেস, সার্টিফিকেট, কমিউনিটি এক্সেস, মেন্টর সাপোর্ট, প্রম্পট ই-বুক, কুইজ) each with ✓ icon, title, and Bangla description.
-
-5. **"কোর্স কারিকুলাম"** (dark bg) — Centered title + pill "মোট ৬ টি মডিউল • ৪৩ টি ক্লাস". Vertical timeline (left circle numbers in Bangla numerals) with 6 accordion modules. Each closed row shows title + "X টি ক্লাস". Open module reveals lessons list with ▶ icons and Bangla numeral index. First module open by default. Module data: Foundation (5), AI in Writing (7), AI in Presentation & Graphics (13), AI in Research (6), AI in Data Analysis (6), AI in Personal Productivity (6) — total 43.
-
-6. **"শিক্ষার্থীদের মন্তব্য"** (light heading band → dark section) — Mentor card with rounded photo (founder-rakib.jpg) on left, "আপনার মেন্টর" pill, name "Md. Rakibul Islam" (large serif), role "Founder, AI Sorix", and Bangla bio on right.
-
-7. **"সচরাচর জিজ্ঞাসিত প্রশ্নাবলী"** (light bg) — Centered title, accordion FAQ list (reuse existing FAQs from data).
-
-8. **"এখনই প্রিবুক করুন"** (light bg, large dark enroll card) — Title + Bangla subtitle. Card: left = checklist of 6 features. Right = strikethrough "৳৮৭০" + "০% ছাড়" red pill, large "৳ ৮৭০" price, promo code input + "প্রয়োগ করুন" blue button, big white "📖 এখনই প্রিবুক করুন →" CTA, "১০০% নিরাপদ পেমেন্ট ও ইনস্ট্যান্ট এক্সেস" footer. Yellow "⭐ বেস্ট ভ্যালু" badge top-right. CTA opens existing `ContactModal`.
-
-## Button behavior
-- Hero "কোর্সে ভর্তি হোন" → smooth-scroll to `#enroll` section.
-- Hero "কারিকুলাম দেখুন" → smooth-scroll to `#curriculum`.
-- Promo "প্রয়োগ করুন" → no-op visual (toast "শীঘ্রই আসছে" via sonner).
-- "এখনই প্রিবুক করুন" → opens `ContactModal` with subject "Pre-book: AI for Professionals".
-- Back link → `/sorixscholars/courses`.
+Rewrite both `WorkshopDetailPage.tsx` and `CompetitionDetailPage.tsx` to mirror the high-fidelity Bangla layout already shipped on `CourseDetailPage.tsx` (matching the 9 attached screenshots).
 
 ## Files to change
-- `src/pages/CourseDetailPage.tsx` — full rewrite.
-- `src/data/academy.ts` — extend `ai-for-professionals` curriculum to the 6 modules / 43 lessons shown in screenshots; add `problems[]`, `learnings[]`, `summary`, `perks[]`, `stats[]` fields on the Course (optional, typed).
-- No new assets; reuse `course-prompt.jpg` and `founder-rakib.jpg.asset.json`.
+
+1. **`src/pages/scholars/WorkshopDetailPage.tsx`** — full rewrite. Drop the Supabase fetch; use the static `WORKSHOPS` array from `WorkshopsPage.tsx` (lift it to `src/data/workshops.ts` so both pages share it). Match by `slug`, 404 → redirect to `/sorixscholars/workshops`.
+
+2. **`src/pages/CompetitionDetailPage.tsx`** — full rewrite. Source data from `src/data/academy.ts` `competitions[]` matched by `slug`. Extend that entry with the same extra fields used below (problems, learnings, curriculum/timeline, mentor, FAQs, perks, pricing) — hard-coded per competition.
+
+3. **`src/data/workshops.ts`** (new) — export the WORKSHOPS array + per-workshop extended content (problems, learnings, curriculum days, mentor, FAQs, perks, price/oldPrice, batch label, deadline timestamp).
+
+## Section-by-section (both pages, same pattern)
+
+1. **Hero (dark navy, grid bg)** — left: green pulse pill (`চলমান ব্যাচ: Batch 4` for workshop / `স্ট্যাটাস` pill for competition), big serif title (Bangla + English mix), Bangla tagline, 3 info pills (date / time / Google Meet OR prize / deadline / mode), primary yellow "সিট বুক করুন →" CTA + outline "📖 কারিকুলাম দেখুন" CTA. Right: rounded video placeholder card with play button overlay; below: live countdown ("রেজিস্ট্রেশন শেষ হতে বাকি: XX দিন : XX ঘণ্টা : XX মিনিট : XX সেকেন্ড") ticking via `useEffect` + `setInterval`. Smooth-scroll CTAs → `#enroll` / `#curriculum`.
+
+2. **"কেন এই ওয়ার্কশপ/কম্পিটিশন আপনার প্রয়োজন?"** (light bg) — centered title with short blue underline, 2×2 grid of soft white cards with red ⚠ circle icon + Bangla problem text.
+
+3. **"এই ওয়ার্কশপ/কম্পিটিশন থেকে যা যা শিখবেন/পাবেন"** (dark navy bg) — centered title + short blue underline, 2×2 dark glass cards with blue ▶ icon, title + Bangla description.
+
+4. **"ওয়ার্কশপ কারিকুলাম" / "কম্পিটিশন রাউন্ডসমূহ"** (light bg) — centered title + blue underline + Bangla subtitle. Pill-tab selector (Day 1 / Day 2 / Day 3 for workshop, Round 1 / Round 2 / Final for competition) with Bangla numeral in blue square. Active tab gets blue gradient bg + shadow; inactive light. Selected tab reveals a white rounded card listing items with blue ● bullets in 2-column grid.
+
+5. **"যাদের জন্য এই ওয়ার্কশপ" + "ওয়ার্কশপে যা যা প্রয়োজন"** (light bg, 2-col split cards) — two rounded cards side-by-side with icon header (Users / Target) and bulleted Bangla list (blue ● / blue ✓).
+
+6. **"আপনার ইনস্ট্রাক্টর" / "আয়োজক"** (dark navy section) — rounded photo card on left (uses `founder-rakib.jpg`), big serif Bangla name, blue subtitle (role/institution), Bangla bio paragraph with left blue border.
+
+7. **"শিক্ষার্থীদের মতামত"** (light bg) — horizontal scroll row of 4–6 white testimonial cards, each: 5 yellow stars, Bangla quote, blue circle avatar with first letter + name + "AI Workshop Participant" / "Competition Participant".
+
+8. **"সচরাচর জিজ্ঞাসিত প্রশ্ন"** (light bg) — centered title + blue underline. Accordion list (first item open by default, blue ring + light blue bg when open; closed items white with grey `?` circle). Reuses `shadcn/ui` Accordion already in project.
+
+9. **"এখনই রেজিস্ট্রেশন করুন"** (large dark enroll card, `id="enroll"`) — top blue→purple gradient border. Left: "ওয়ার্কশপে কী কী পাচ্ছেন?" + 6 ✓ Bangla checklist. Right: strikethrough old price (rose), giant white price (৳৪৭০ etc.), "সীমিত সময়ের জন্য" subtitle, "প্রোমো কোড (যদি থাকে)" input + dark "Apply" button (sonner toast), yellow "⚡ মাত্র ৯৯৮ টি সিট বাকি" line, big blue→purple gradient "রেজিস্ট্রেশন করুন →" CTA → opens existing `ContactModal` with the workshop/competition title as subject, footer row "🛡 সিকিউর পেমেন্ট    ⏱ লাইফটাইম অ্যাক্সেস".
+
+10. **Sticky bottom bar** (mobile + desktop, fixed `bottom-4`) — dark pill: title + price + Batch pill + live countdown + yellow "সিট বুক করুন →" button (scrolls to `#enroll`).
+
+## Button behavior
+- Hero "সিট বুক করুন" / sticky CTA → smooth-scroll to `#enroll`.
+- Hero "কারিকুলাম দেখুন" → smooth-scroll to `#curriculum`.
+- Promo "Apply" → sonner toast `"শীঘ্রই আসছে"`.
+- "রেজিস্ট্রেশন করুন" → opens `ContactModal` (subject = item title).
+- Back link → `/sorixscholars/workshops` or `/sorixscholars/competitions`.
+- Countdown computes from a hard-coded `deadline` ISO timestamp per item.
 
 ## Out of scope
 - Real video playback (placeholder only).
-- Real promo code / payment processing.
-- Other pages.
+- Real promo / payment.
+- Editing `CourseDetailPage` or other pages.
+- New imagery beyond `founder-rakib.jpg`.
