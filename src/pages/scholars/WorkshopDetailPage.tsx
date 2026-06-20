@@ -75,6 +75,9 @@ export default function WorkshopDetailPage() {
 
         enrollKind: "workshop",
         enrollSlug: w.slug,
+        enrollPriceBdt: dbItem ? Number(dbItem.price_bdt) : undefined,
+        enrollItemTitle: dbItem?.title || w.title,
+        enrollSeatsAvailable: seatsLeft,
       }}
     />
   );
