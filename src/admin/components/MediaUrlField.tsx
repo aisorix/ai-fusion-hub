@@ -124,31 +124,69 @@ export function MediaUrlField({
   const upload = async (file: File) => {
     const err = validateFile(file);
     if (err) { toast.error(err); return; }
+    setLastFile(file);
+    setUploadError(null);
     setUploading(true);
-    setProgress(10);
+    setProgress(0);
+    setBytes({ loaded: 0, total: file.size });
+
+    let path: string;
     try {
+      const { data: sess } = await supabase.auth.getSession();
+      const token = sess.session?.access_token;
+      if (!token) throw new Error("Not signed in");
       const ext = (file.name.split(".").pop() || "bin").toLowerCase();
-      const path = `${uploadFolder.replace(/^\/+|\/+$/g, "")}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}-${safeName(file.name.replace(/\.[^.]+$/, ""))}.${ext}`;
-      setProgress(40);
-      const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, {
-        cacheControl: "31536000",
-        upsert: false,
-        contentType: file.type || undefined,
+      path = `${uploadFolder.replace(/^\/+|\/+$/g, "")}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}-${safeName(file.name.replace(/\.[^.]+$/, ""))}.${ext}`;
+      const endpoint = `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`;
+
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhrRef.current = xhr;
+        xhr.open("POST", endpoint, true);
+        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+        xhr.setRequestHeader("x-upsert", "false");
+        xhr.setRequestHeader("Cache-Control", "max-age=31536000");
+        if (file.type) xhr.setRequestHeader("Content-Type", file.type);
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            setBytes({ loaded: e.loaded, total: e.total });
+            setProgress(Math.min(99, Math.round((e.loaded / e.total) * 100)));
+          }
+        };
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) resolve();
+          else {
+            let msg = `Upload failed (${xhr.status})`;
+            try { const j = JSON.parse(xhr.responseText); if (j?.message) msg = j.message; } catch {}
+            reject(new Error(msg));
+          }
+        };
+        xhr.onerror = () => reject(new Error("Network error"));
+        xhr.onabort = () => reject(new Error("__aborted__"));
+        xhr.send(file);
       });
-      if (upErr) throw upErr;
-      setProgress(80);
+
       const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(path);
       if (!pub?.publicUrl) throw new Error("Could not resolve URL");
       onChange(pub.publicUrl);
       setProgress(100);
       toast.success("Uploaded");
     } catch (e: any) {
-      toast.error(e?.message || "Upload failed");
+      const msg = e?.message || "Upload failed";
+      if (msg === "__aborted__") {
+        setUploadError("Upload cancelled");
+      } else {
+        setUploadError(msg);
+        toast.error(msg);
+      }
     } finally {
+      xhrRef.current = null;
       setUploading(false);
-      setTimeout(() => setProgress(0), 400);
     }
   };
+
+  const cancelUpload = () => { xhrRef.current?.abort(); };
+  const retryUpload = () => { if (lastFile) upload(lastFile); };
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault(); e.stopPropagation(); setDragOver(false);
@@ -157,7 +195,15 @@ export function MediaUrlField({
     if (file) upload(file);
   };
 
-  const clear = () => { onChange(""); if (inputRef.current) inputRef.current.value = ""; };
+  const clear = () => {
+    onChange("");
+    setUploadError(null);
+    setLastFile(null);
+    setBytes(null);
+    setProgress(0);
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
 
   return (
     <div>
