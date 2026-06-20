@@ -5,7 +5,7 @@ import { courses } from "@/data/academy";
 
 export default function PopularCourses() {
   const { t } = useScholarsLang();
-  const featured = courses.slice(0, 3);
+  const featured = courses.slice(0, 1);
 
   return (
     <section className="bg-background py-14 sm:py-20">
