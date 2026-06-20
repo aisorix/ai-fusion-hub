@@ -344,7 +344,7 @@ export function MediaUrlField({
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 min-w-0">
               {uploading ? <Loader2 className="w-4 h-4 animate-spin text-primary flex-shrink-0" />
-                : uploadError ? <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+                : uploadError ? (errorMeta?.icon ?? <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />)
                 : <Upload className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
               <span className="truncate text-muted-foreground">
                 {uploading
@@ -362,7 +362,7 @@ export function MediaUrlField({
                   <X className="w-3.5 h-3.5 mr-1" /> Cancel
                 </Button>
               )}
-              {!uploading && uploadError && lastFile && (
+              {!uploading && uploadError && lastFile && errorMeta?.action !== "none" && (
                 <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-primary" onClick={(e) => { e.stopPropagation(); retryUpload(); }}>
                   <RotateCcw className="w-3.5 h-3.5 mr-1" /> Retry
                 </Button>
@@ -374,6 +374,30 @@ export function MediaUrlField({
               )}
             </div>
           </div>
+
+          {uploadError && errorMeta && (
+            <div className="mt-2 rounded-md bg-destructive/10 px-2.5 py-2 text-[11px] text-destructive/90 leading-relaxed">
+              <div className="flex items-start gap-1.5">
+                <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                <span>{errorMeta.hint}</span>
+              </div>
+              {errorMeta.action === "pick_smaller" && lastFile && (
+                <div className="mt-1 ml-5 text-[10px] text-muted-foreground">
+                  {lastFile.name} · {formatBytes(lastFile.size)}
+                </div>
+              )}
+              {errorMeta.action === "pick_valid" && lastFile && (
+                <div className="mt-1 ml-5 text-[10px] text-muted-foreground">
+                  Detected type: {lastFile.type || "unknown"}
+                </div>
+              )}
+              {errorMeta.action === "retry_or_url" && (
+                <div className="mt-1 ml-5 text-[10px] text-muted-foreground">
+                  Tip: Paste a YouTube / Vimeo / direct video link in the field above as an alternative.
+                </div>
+              )}
+            </div>
+          )}
 
           {uploading && (
             <div className="mt-2 space-y-1">
