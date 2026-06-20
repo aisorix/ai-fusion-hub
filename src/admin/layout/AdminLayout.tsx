@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import {
   LayoutDashboard, Users, Cpu, DollarSign, FileText, Headphones,
   Settings, ChevronLeft, ChevronRight, LogOut, Bell, Shield, Database, Megaphone, Sun, Moon,
+  GraduationCap, BookOpen, Trophy, Award,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -32,11 +33,18 @@ const groups: NavGroup[] = [
     { to: "/admin/revenue/invoices", icon: FileText, label: "Invoices" },
     { to: "/admin/revenue/coupons", icon: FileText, label: "Coupons", minRole: "manager" },
   ]},
+  { label: "SCHOLARS", items: [
+    { to: "/admin/scholars/revenue", icon: DollarSign, label: "Revenue" },
+    { to: "/admin/scholars/courses", icon: BookOpen, label: "Courses", minRole: "manager" },
+    { to: "/admin/scholars/workshops", icon: GraduationCap, label: "Workshops", minRole: "manager" },
+    { to: "/admin/scholars/competitions", icon: Trophy, label: "Competitions", minRole: "manager" },
+    { to: "/admin/scholars/enrollments", icon: Users, label: "Enrollments" },
+    { to: "/admin/scholars/certificates", icon: Award, label: "Certificates" },
+  ]},
   { label: "CONTENT", items: [
     { to: "/admin/content/flags", icon: FileText, label: "Feature Flags", minRole: "manager" },
     { to: "/admin/content/announcements", icon: FileText, label: "Announcements", minRole: "manager" },
     { to: "/admin/content/prompts", icon: FileText, label: "Prompt Templates", minRole: "manager" },
-    { to: "/admin/content/workshops", icon: FileText, label: "Workshops", minRole: "manager" },
   ]},
 
   { label: "COMMUNICATIONS", items: [
