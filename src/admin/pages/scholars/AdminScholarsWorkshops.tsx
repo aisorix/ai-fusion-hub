@@ -145,7 +145,6 @@ export default function AdminScholarsWorkshops() {
                 <MediaUrlField label="Cover image URL" kind="image" value={editing.cover_url || ""} onChange={(v: string) => setEditing({ ...editing, cover_url: v })} />
                 <MediaUrlField label="Banner image URL" kind="image" value={editing.banner_url || ""} onChange={(v: string) => setEditing({ ...editing, banner_url: v })} />
               </TabsContent>
-              </TabsContent>
             </Tabs>
           )}
           <DialogFooter>
