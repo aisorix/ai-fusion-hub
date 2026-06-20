@@ -155,8 +155,11 @@ const Hero = () => {
             href="/sorixscholars"
             className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 sm:px-10 py-4 sm:py-5 rounded-2xl font-semibold text-base sm:text-lg glass-card hover:border-primary/30 transition-all duration-500 text-foreground hover-lift"
           >
-            <FlaskConical className="w-4 h-4 text-primary group-hover:rotate-12 transition-transform" />
+            <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-cyan-400 to-sky-500 shadow-md group-hover:scale-110 transition-transform">
+              <GraduationCap className="w-4 h-4 text-slate-900" strokeWidth={2.5} />
+            </span>
             {language === "en" ? "Sorix Scholars" : "সরিক্স স্কলার্স"}
+
           </a>
         </div>
 
