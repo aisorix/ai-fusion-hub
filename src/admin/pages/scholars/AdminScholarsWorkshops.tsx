@@ -14,6 +14,7 @@ import { Edit3, Plus, Trash2, GraduationCap, Users } from "lucide-react";
 import { toast } from "sonner";
 import RoleGate from "../../components/RoleGate";
 import { Header, FieldText } from "./AdminScholarsCourses";
+import MediaUrlField from "../../components/MediaUrlField";
 
 interface Workshop {
   id?: string; slug: string; title: string; summary: string | null; description: string | null;
