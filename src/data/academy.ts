@@ -1,11 +1,6 @@
 // Centralized content for SorixLab Scholars / Sorix Academy.
 // Edit text and pricing here — pages re-render automatically.
 import promptImg from "@/assets/course-prompt.jpg";
-import agentsImg from "@/assets/course-agents.jpg";
-import pmImg from "@/assets/course-pm.jpg";
-import visionImg from "@/assets/course-vision.jpg";
-import researchImg from "@/assets/course-research.jpg";
-import llmopsImg from "@/assets/course-llmops.jpg";
 import aiCompImg from "@/assets/competition-ai.jpg";
 import startupCompImg from "@/assets/competition-startup.jpg";
 
