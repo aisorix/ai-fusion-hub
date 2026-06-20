@@ -238,18 +238,27 @@ export function MediaUrlField({
             </div>
           )}
           {preview.type === "video" && (
-            <video src={preview.src} controls preload="metadata" className="w-full max-h-56 bg-black"
-              onLoadedMetadata={() => setLoadState("ok")} onError={() => setLoadState("error")} />
+            <div className="aspect-video bg-black">
+              <video src={preview.src} controls preload="metadata" className="w-full h-full object-contain"
+                onLoadedMetadata={() => setLoadState("ok")} onError={() => setLoadState("error")} />
+            </div>
           )}
           {preview.type === "iframe" && (
-            <div className="aspect-video">
+            <div className="aspect-video bg-black">
               <iframe src={preview.src} title="preview" className="w-full h-full"
                 allow="accelerometer; encrypted-media; picture-in-picture" allowFullScreen
                 onLoad={() => setLoadState("ok")} />
             </div>
           )}
           <div className="flex items-center justify-between gap-2 px-2.5 py-1.5 text-[11px] text-muted-foreground border-t border-border">
-            <span className="truncate">{url?.hostname}</span>
+            <span className="inline-flex items-center gap-1.5 min-w-0">
+              {sourceLabel && (
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium text-[10px] uppercase tracking-wide">
+                  {sourceLabel}
+                </span>
+              )}
+              <span className="truncate">{url?.hostname}</span>
+            </span>
             <a href={preview.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-foreground" onClick={(e) => e.stopPropagation()}>
               Open <ExternalLink className="w-3 h-3" />
             </a>
