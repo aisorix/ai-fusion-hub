@@ -78,6 +78,7 @@ export function MediaUrlField({
   const [progress, setProgress] = useState(0);
   const [bytes, setBytes] = useState<{ loaded: number; total: number } | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadErrorKind, setUploadErrorKind] = useState<UploadErrorKind>("none");
   const [lastFile, setLastFile] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const xhrRef = useRef<XMLHttpRequest | null>(null);
