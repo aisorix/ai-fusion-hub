@@ -201,12 +201,12 @@ export function generateCertificatePdf(cert: CertificateData) {
   doc.setTextColor(120, 90, 50);
   doc.text(`Certificate No: ${cert.certificate_number}`, 60, h - 40);
   doc.text(`Issued: ${issued}`, w / 2, h - 40, { align: "center" });
-  doc.text(
-    `Verify at aisorix.com/sorixscholars/verify/${cert.certificate_number}`,
-    w - 60,
-    h - 40,
-    { align: "right" },
-  );
+  const verifyUrl = `https://aisorix.com/sorixscholars/verify/${cert.certificate_number}`;
+  const verifyLabel = `Verify at aisorix.com/sorixscholars/verify/${cert.certificate_number}`;
+  const verifyWidth = doc.getTextWidth(verifyLabel);
+  const verifyX = w - 60 - verifyWidth;
+  const verifyY = h - 40;
+  doc.textWithLink(verifyLabel, verifyX, verifyY, { url: verifyUrl });
 
   doc.save(`sorix-scholars-${cert.certificate_number}.pdf`);
 }
