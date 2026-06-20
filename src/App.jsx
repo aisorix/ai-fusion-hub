@@ -239,6 +239,10 @@ const App = () => (
                   <Route path="workshops" element={<WorkshopsPage />} />
                   <Route path="workshops/:slug" element={<WorkshopDetailPage />} />
                   <Route path="certificates" element={<ScholarsCertificates />} />
+                  <Route path="dashboard" element={<ScholarsDashboard />} />
+                  <Route path="profile" element={<ScholarsProfile />} />
+                  <Route path="verify" element={<CertificateVerifyPage />} />
+                  <Route path="verify/:number" element={<CertificateVerifyPage />} />
                 </Route>
 
                 {/* Backwards-compatible redirects from old top-level paths */}
