@@ -6,9 +6,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
   AlertCircle, CheckCircle2, ImageIcon, Video, ExternalLink, Loader2,
-  Upload, X, RotateCcw,
+  Upload, X, RotateCcw, WifiOff, Lock, FileWarning, ServerCrash,
 } from "lucide-react";
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+
+type UploadErrorKind = "none" | "file_size" | "file_type" | "auth" | "network" | "server" | "bucket" | "aborted" | "unknown";
 
 type Kind = "image" | "video";
 
@@ -76,6 +78,7 @@ export function MediaUrlField({
   const [progress, setProgress] = useState(0);
   const [bytes, setBytes] = useState<{ loaded: number; total: number } | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadErrorKind, setUploadErrorKind] = useState<UploadErrorKind>("none");
   const [lastFile, setLastFile] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const xhrRef = useRef<XMLHttpRequest | null>(null);
@@ -129,9 +132,20 @@ export function MediaUrlField({
 
   const upload = async (file: File) => {
     const err = validateFile(file);
-    if (err) { toast.error(err); return; }
+    if (err) {
+      if (err.includes("exceeds")) {
+        setUploadErrorKind("file_size");
+        setUploadError(err);
+      } else {
+        setUploadErrorKind("file_type");
+        setUploadError(err);
+      }
+      toast.error(err);
+      return;
+    }
     setLastFile(file);
     setUploadError(null);
+    setUploadErrorKind("none");
     setUploading(true);
     setProgress(0);
     setBytes({ loaded: 0, total: file.size });
@@ -178,13 +192,33 @@ export function MediaUrlField({
       setProgress(100);
       toast.success("Uploaded");
     } catch (e: any) {
-      const msg = e?.message || "Upload failed";
-      if (msg === "__aborted__") {
-        setUploadError("Upload cancelled");
+      const rawMsg = (e?.message || "Upload failed").toString();
+      if (rawMsg === "__aborted__") {
+        setUploadErrorKind("aborted");
+        setUploadError("Upload was cancelled");
+      } else if (rawMsg.includes("Not signed in") || rawMsg.includes("Unauthorized") || rawMsg.includes("JWT") || rawMsg.includes("auth")) {
+        setUploadErrorKind("auth");
+        setUploadError("Authentication failed. Please sign in again.");
+      } else if (rawMsg.includes("Bucket") || rawMsg.includes("bucket") || rawMsg.includes("not found") || rawMsg.includes("resource")) {
+        setUploadErrorKind("bucket");
+        setUploadError("Storage bucket not found or not accessible.");
+      } else if (rawMsg.includes("Network") || rawMsg.includes("Failed to fetch") || rawMsg.includes("net::")) {
+        setUploadErrorKind("network");
+        setUploadError("Network error. Check your connection and try again.");
+      } else if (rawMsg.includes("size") || rawMsg.includes("large") || rawMsg.includes("too big") || rawMsg.includes("Payload")) {
+        setUploadErrorKind("file_size");
+        setUploadError(rawMsg);
+      } else if (rawMsg.includes("format") || rawMsg.includes("type") || rawMsg.includes("unsupported")) {
+        setUploadErrorKind("file_type");
+        setUploadError(rawMsg);
+      } else if (rawMsg.includes("500") || rawMsg.includes("502") || rawMsg.includes("503") || rawMsg.includes("server")) {
+        setUploadErrorKind("server");
+        setUploadError("Server error. Please try again in a moment.");
       } else {
-        setUploadError(msg);
-        toast.error(msg);
+        setUploadErrorKind("unknown");
+        setUploadError(rawMsg);
       }
+      toast.error(uploadError || "Upload failed");
     } finally {
       xhrRef.current = null;
       setUploading(false);
@@ -192,7 +226,7 @@ export function MediaUrlField({
   };
 
   const cancelUpload = () => { xhrRef.current?.abort(); };
-  const retryUpload = () => { if (lastFile) upload(lastFile); };
+  const retryUpload = () => { if (lastFile) { setUploadErrorKind("none"); setUploadError(null); upload(lastFile); } };
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault(); e.stopPropagation(); setDragOver(false);
@@ -204,11 +238,67 @@ export function MediaUrlField({
   const clear = () => {
     onChange("");
     setUploadError(null);
+    setUploadErrorKind("none");
     setLastFile(null);
     setBytes(null);
     setProgress(0);
     if (inputRef.current) inputRef.current.value = "";
   };
+
+  const errorMeta = (() => {
+    switch (uploadErrorKind) {
+      case "file_size":
+        return {
+          icon: <FileWarning className="w-4 h-4 text-destructive flex-shrink-0" />,
+          hint: `Choose a smaller file (max ${kind === "image" ? MAX_IMAGE_MB : MAX_VIDEO_MB} MB).`,
+          action: "pick_smaller",
+        };
+      case "file_type":
+        return {
+          icon: <FileWarning className="w-4 h-4 text-destructive flex-shrink-0" />,
+          hint: `Supported formats: ${kind === "image" ? "PNG, JPG, WebP, GIF, AVIF" : "MP4, WebM, MOV"}.`,
+          action: "pick_valid",
+        };
+      case "auth":
+        return {
+          icon: <Lock className="w-4 h-4 text-destructive flex-shrink-0" />,
+          hint: "Your session may have expired. Refresh the page or sign in again.",
+          action: "retry",
+        };
+      case "network":
+        return {
+          icon: <WifiOff className="w-4 h-4 text-destructive flex-shrink-0" />,
+          hint: "Check your internet connection, then retry.",
+          action: "retry",
+        };
+      case "server":
+        return {
+          icon: <ServerCrash className="w-4 h-4 text-destructive flex-shrink-0" />,
+          hint: "Server is temporarily unavailable. Please wait a moment and retry.",
+          action: "retry",
+        };
+      case "bucket":
+        return {
+          icon: <ServerCrash className="w-4 h-4 text-destructive flex-shrink-0" />,
+          hint: "Storage bucket misconfigured. Contact support@aisorix.com.",
+          action: "none",
+        };
+      case "aborted":
+        return {
+          icon: <X className="w-4 h-4 text-muted-foreground flex-shrink-0" />,
+          hint: "Upload cancelled. You can retry or pick a different file.",
+          action: "retry",
+        };
+      case "unknown":
+        return {
+          icon: <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />,
+          hint: "Something went wrong. Try again or use a direct URL instead.",
+          action: "retry_or_url",
+        };
+      default:
+        return null;
+    }
+  })();
 
 
   return (
@@ -254,7 +344,7 @@ export function MediaUrlField({
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 min-w-0">
               {uploading ? <Loader2 className="w-4 h-4 animate-spin text-primary flex-shrink-0" />
-                : uploadError ? <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+                : uploadError ? (errorMeta?.icon ?? <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />)
                 : <Upload className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
               <span className="truncate text-muted-foreground">
                 {uploading
@@ -272,7 +362,7 @@ export function MediaUrlField({
                   <X className="w-3.5 h-3.5 mr-1" /> Cancel
                 </Button>
               )}
-              {!uploading && uploadError && lastFile && (
+              {!uploading && uploadError && lastFile && errorMeta?.action !== "none" && (
                 <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-primary" onClick={(e) => { e.stopPropagation(); retryUpload(); }}>
                   <RotateCcw className="w-3.5 h-3.5 mr-1" /> Retry
                 </Button>
@@ -284,6 +374,30 @@ export function MediaUrlField({
               )}
             </div>
           </div>
+
+          {uploadError && errorMeta && (
+            <div className="mt-2 rounded-md bg-destructive/10 px-2.5 py-2 text-[11px] text-destructive/90 leading-relaxed">
+              <div className="flex items-start gap-1.5">
+                <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                <span>{errorMeta.hint}</span>
+              </div>
+              {errorMeta.action === "pick_smaller" && lastFile && (
+                <div className="mt-1 ml-5 text-[10px] text-muted-foreground">
+                  {lastFile.name} · {formatBytes(lastFile.size)}
+                </div>
+              )}
+              {errorMeta.action === "pick_valid" && lastFile && (
+                <div className="mt-1 ml-5 text-[10px] text-muted-foreground">
+                  Detected type: {lastFile.type || "unknown"}
+                </div>
+              )}
+              {errorMeta.action === "retry_or_url" && (
+                <div className="mt-1 ml-5 text-[10px] text-muted-foreground">
+                  Tip: Paste a YouTube / Vimeo / direct video link in the field above as an alternative.
+                </div>
+              )}
+            </div>
+          )}
 
           {uploading && (
             <div className="mt-2 space-y-1">
