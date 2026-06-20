@@ -14,6 +14,7 @@ import { Edit3, Plus, Trash2, Trophy, Users } from "lucide-react";
 import { toast } from "sonner";
 import RoleGate from "../../components/RoleGate";
 import { Header, FieldText } from "./AdminScholarsCourses";
+import MediaUrlField from "../../components/MediaUrlField";
 
 interface Competition {
   id?: string;
