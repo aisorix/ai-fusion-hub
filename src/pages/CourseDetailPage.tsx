@@ -17,6 +17,7 @@ import {
 import { toast } from "sonner";
 import SEOHead from "@/components/SEOHead";
 import ContactModal from "@/components/academy/ContactModal";
+import { supabase } from "@/integrations/supabase/client";
 import { getCourse } from "@/data/academy";
 import courseCover from "@/assets/course-prompt.jpg";
 import mentorImg from "@/assets/founder-rakib.jpg.asset.json";
