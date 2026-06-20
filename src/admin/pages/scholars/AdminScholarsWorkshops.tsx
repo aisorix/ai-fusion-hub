@@ -138,12 +138,12 @@ export default function AdminScholarsWorkshops() {
                   <FieldText label="Mentor role" value={editing.mentor_role || ""} onChange={(v: string) => setEditing({ ...editing, mentor_role: v })} />
                 </div>
                 <div><Label>Mentor bio</Label><Textarea rows={3} value={editing.mentor_bio || ""} onChange={(e) => setEditing({ ...editing, mentor_bio: e.target.value })} /></div>
-                <MediaUrlField label="Mentor avatar URL" kind="image" value={editing.mentor_avatar_url || ""} onChange={(v: string) => setEditing({ ...editing, mentor_avatar_url: v })} />
+                <MediaUrlField label="Mentor avatar URL" kind="image" uploadFolder="workshops/mentors" value={editing.mentor_avatar_url || ""} onChange={(v: string) => setEditing({ ...editing, mentor_avatar_url: v })} />
               </TabsContent>
 
               <TabsContent value="media" className="space-y-3 pt-4">
-                <MediaUrlField label="Cover image URL" kind="image" value={editing.cover_url || ""} onChange={(v: string) => setEditing({ ...editing, cover_url: v })} />
-                <MediaUrlField label="Banner image URL" kind="image" value={editing.banner_url || ""} onChange={(v: string) => setEditing({ ...editing, banner_url: v })} />
+                <MediaUrlField label="Cover image URL" kind="image" uploadFolder="workshops/covers" value={editing.cover_url || ""} onChange={(v: string) => setEditing({ ...editing, cover_url: v })} />
+                <MediaUrlField label="Banner image URL" kind="image" uploadFolder="workshops/banners" value={editing.banner_url || ""} onChange={(v: string) => setEditing({ ...editing, banner_url: v })} />
               </TabsContent>
             </Tabs>
           )}

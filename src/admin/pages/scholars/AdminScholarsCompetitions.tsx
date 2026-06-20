@@ -155,8 +155,8 @@ export default function AdminScholarsCompetitions() {
               </TabsContent>
 
               <TabsContent value="media" className="space-y-3 pt-4">
-                <MediaUrlField label="Cover image URL" kind="image" value={editing.cover_url || ""} onChange={(v: string) => setEditing({ ...editing, cover_url: v })} />
-                <MediaUrlField label="Banner image URL" kind="image" value={editing.banner_url || ""} onChange={(v: string) => setEditing({ ...editing, banner_url: v })} />
+                <MediaUrlField label="Cover image URL" kind="image" uploadFolder="competitions/covers" value={editing.cover_url || ""} onChange={(v: string) => setEditing({ ...editing, cover_url: v })} />
+                <MediaUrlField label="Banner image URL" kind="image" uploadFolder="competitions/banners" value={editing.banner_url || ""} onChange={(v: string) => setEditing({ ...editing, banner_url: v })} />
               </TabsContent>
 
               <TabsContent value="faqs" className="space-y-3 pt-4">
