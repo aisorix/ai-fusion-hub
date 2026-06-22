@@ -64,10 +64,13 @@ export const cineshootApi = {
       headers,
       body: JSON.stringify(params),
     });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || 'Failed to start video job');
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.error || data.message || 'Failed to start video job');
+    }
     return data;
   },
+
 
   // Poll job status. Returns the latest snapshot.
   getJobStatus: async (jobId: string): Promise<CineshootJob> => {
