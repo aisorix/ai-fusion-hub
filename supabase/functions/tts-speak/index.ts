@@ -90,8 +90,9 @@ Deno.serve(async (req) => {
 
     const apiKey = Deno.env.get('OPENROUTER_API_KEY');
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'OPENROUTER_API_KEY not configured' }), {
-        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      // Tell the client to use its browser fallback instead of throwing.
+      return new Response(JSON.stringify({ fallback: true, reason: 'tts_not_configured' }), {
+        status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
@@ -104,8 +105,9 @@ Deno.serve(async (req) => {
     }
 
     if (!result.ok) {
-      return new Response(JSON.stringify({ error: 'TTS provider error', detail: String(result.error).slice(0, 300) }), {
-        status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      // Graceful degradation: client switches to window.speechSynthesis.
+      return new Response(JSON.stringify({ fallback: true, reason: 'provider_error', detail: String(result.error).slice(0, 200) }), {
+        status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
@@ -120,8 +122,9 @@ Deno.serve(async (req) => {
     });
   } catch (err) {
     console.error('[tts-speak] error', err);
-    return new Response(JSON.stringify({ error: String(err) }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return new Response(JSON.stringify({ fallback: true, reason: 'edge_error', detail: String(err).slice(0, 200) }), {
+      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });
+
