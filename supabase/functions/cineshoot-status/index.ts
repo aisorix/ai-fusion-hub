@@ -216,20 +216,34 @@ serve(async (req) => {
 
     if (completedRows && completedRows.length > 0) {
       // We won the race — deduct tokens once and write history row.
-      const { data: sub } = await supabaseAdmin
-        .from('subscriptions')
-        .select('id, tokens_used')
-        .eq('user_id', userId)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (sub) {
-        await supabaseAdmin
+      if (tokensCost > 0) {
+        const { data: sub } = await supabaseAdmin
           .from('subscriptions')
-          .update({ tokens_used: (sub.tokens_used ?? 0) + tokensCost })
-          .eq('id', sub.id);
+          .select('id, tokens_used')
+          .eq('user_id', userId)
+          .eq('status', 'active')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (sub) {
+          await supabaseAdmin
+            .from('subscriptions')
+            .update({ tokens_used: (sub.tokens_used ?? 0) + tokensCost })
+            .eq('id', sub.id);
+        }
+      } else {
+        // Free-trial render — bump the per-user counter.
+        const { data: prof } = await supabaseAdmin
+          .from('profiles')
+          .select('cineshoot_free_renders_used')
+          .eq('user_id', userId)
+          .maybeSingle();
+        const next = (prof?.cineshoot_free_renders_used ?? 0) + 1;
+        await supabaseAdmin
+          .from('profiles')
+          .update({ cineshoot_free_renders_used: next })
+          .eq('user_id', userId);
       }
 
       // Mirror into video_generations history.
@@ -246,6 +260,7 @@ serve(async (req) => {
         tokens_used: tokensCost,
       });
     }
+
 
     // Re-load for final return shape.
     const { data: final } = await supabase

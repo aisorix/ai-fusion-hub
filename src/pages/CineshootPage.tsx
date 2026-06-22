@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import SEOHead from '@/components/SEOHead';
-import { ArrowLeft, Clapperboard, Film } from 'lucide-react';
+import { ArrowLeft, Clapperboard, Film, Sparkles } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useChatStore, type Attachment } from '@/stores/chatStore';
@@ -19,12 +19,42 @@ import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 import TokenCostChip from '@/components/shared/TokenCostChip';
 import { useSubscription } from '@/hooks/useSubscription';
 import { meetsPlan } from '@/lib/planAccess';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+
+const FREE_TRIAL_LIMIT = 2;
+
 
 const CineshootPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, setUser } = useChatStore();
   const { currentPlan, isLoading: planLoading } = useSubscription();
+  const { user: authUser } = useAuth();
+
+  const [freeRendersUsed, setFreeRendersUsed] = useState<number>(0);
+  const [trialLoaded, setTrialLoaded] = useState(false);
+  const isPaidCineshoot = meetsPlan(currentPlan, 'premium_plus');
+  const freeRendersLeft = Math.max(0, FREE_TRIAL_LIMIT - freeRendersUsed);
+  const trialExhausted = !isPaidCineshoot && freeRendersLeft <= 0;
+
+  useEffect(() => {
+    if (!authUser?.id || isPaidCineshoot) { setTrialLoaded(true); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('cineshoot_free_renders_used')
+        .eq('user_id', authUser.id)
+        .maybeSingle();
+      if (!cancelled) {
+        setFreeRendersUsed((data as any)?.cineshoot_free_renders_used ?? 0);
+        setTrialLoaded(true);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [authUser?.id, isPaidCineshoot]);
+
 
   const [selectedModel, setSelectedModel] = useState<CineshootModel>(cineshootModels[0]);
   const [aspect, setAspect] = useState<VideoAspect>('16:9');
@@ -95,7 +125,11 @@ const CineshootPage: React.FC = () => {
   };
 
   const handleGenerate = async (prompt: string, attachments?: Attachment[]) => {
-    if (tokensRemaining < costEstimate) { setShowUpgrade(true); return; }
+    if (!isPaidCineshoot) {
+      if (trialExhausted) { setShowUpgrade(true); return; }
+    } else if (tokensRemaining < costEstimate) {
+      setShowUpgrade(true); return;
+    }
     if (activeJobId) return;
 
     const isRefining = refineEnabled && !!videoUrl && !attachments?.length;
@@ -123,11 +157,20 @@ const CineshootPage: React.FC = () => {
         imageData,
       });
       setActiveJobId(jobId);
+      if (!isPaidCineshoot) {
+        // Optimistically reflect the trial increment; backend will confirm.
+        setFreeRendersUsed((n) => n + 1);
+      }
     } catch (err: any) {
-      if (err?.message === 'insufficient_tokens') setShowUpgrade(true);
-      else toast.error(err?.message || 'Failed to start video generation');
+      const msg = err?.message || '';
+      if (msg === 'insufficient_tokens' || msg === 'free_trial_exhausted' || msg.includes('Free Cineshoot')) {
+        setShowUpgrade(true);
+      } else {
+        toast.error(msg || 'Failed to start video generation');
+      }
     }
   };
+
 
   const handleHistorySelect = (gen: VideoGeneration) => {
     setVideoUrl(gen.video_url);
@@ -161,23 +204,23 @@ const CineshootPage: React.FC = () => {
     );
   }
 
-  if (!meetsPlan(currentPlan, 'premium_plus')) {
+  if (!isPaidCineshoot && trialLoaded && trialExhausted) {
     return (
       <>
         {seo}
         <PlanLockScreen
           toolName="Sorix Cineshoot"
-          tagline="AI Video Generation"
-          description="Sorix Cineshoot turns prompts and images into cinematic video using frontier models like Veo 3.1, Sora 2 Pro, Kling and Seedance. Available on Premium Plus and Max."
+          tagline="Free trial used up"
+          description={`You've used your ${FREE_TRIAL_LIMIT} free Cineshoot renders. Upgrade to Premium Plus, Max, or Enterprise for unlimited cinematic video generation.`}
           requiredPlan="premium_plus"
           accentGradient="from-fuchsia-500 to-pink-500"
           icon={Clapperboard}
           features={[
-            "Frontier models: Veo 3.1, Sora 2 Pro, Kling, Seedance",
+            "Unlimited renders on frontier video models",
+            "Veo 3.1, Sora 2 Pro, Kling, Seedance",
             "Text-to-video and image-to-video",
             "Up to 4K, customizable aspect ratio and duration",
             "Refine the previous render with a single prompt",
-            "Tokens only deducted on a successful render",
           ]}
         />
       </>
@@ -188,6 +231,7 @@ const CineshootPage: React.FC = () => {
     <div className="h-[100dvh] flex flex-col bg-background overflow-hidden">
       {seo}
       <header className="shrink-0 bg-card/80 backdrop-blur-xl relative">
+
         <div className="flex items-center justify-between px-3 sm:px-4 md:px-6 h-12 sm:h-14">
           <div className="flex items-center gap-2.5 min-w-0">
             <button
@@ -216,7 +260,25 @@ const CineshootPage: React.FC = () => {
 
       <main className="flex-1 overflow-y-auto">
         <div className="max-w-3xl mx-auto px-3 sm:px-4 lg:px-6 pt-3 pb-6 sm:pt-5 sm:pb-8 md:pt-8 flex flex-col gap-4 sm:gap-5">
+          {!isPaidCineshoot && (
+            <div className="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-fuchsia-500/10 to-pink-500/10 border border-fuchsia-500/30">
+              <div className="flex items-center gap-2 min-w-0">
+                <Sparkles className="w-4 h-4 text-fuchsia-500 shrink-0" />
+                <p className="text-xs sm:text-sm text-foreground truncate">
+                  <span className="font-semibold">Free trial:</span>{' '}
+                  <span className="text-muted-foreground">{freeRendersLeft} of {FREE_TRIAL_LIMIT} renders left</span>
+                </p>
+              </div>
+              <button
+                onClick={() => setShowUpgrade(true)}
+                className="text-[11px] sm:text-xs font-semibold px-3 py-1.5 rounded-lg bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white hover:opacity-90 transition-opacity whitespace-nowrap"
+              >
+                Upgrade
+              </button>
+            </div>
+          )}
           <div className="relative z-[60]">
+
             <CineshootPromptBar
               onGenerate={handleGenerate}
               isGenerating={isGenerating}

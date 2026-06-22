@@ -101,18 +101,33 @@ serve(async (req) => {
     const currentUsed = sub?.tokens_used ?? 0;
     const limit = PLAN_LIMITS[planId] ?? 15000;
 
-    if ((PLAN_RANK[planId] ?? 0) < CINESHOOT_MIN_RANK) {
-      return json({ error: 'Sorix Cineshoot is available on Premium Plus and Max plans.' }, 403);
+    // Free trial: users below premium_plus may render up to 2 videos for free.
+    const isPaidCineshootPlan = (PLAN_RANK[planId] ?? 0) >= CINESHOOT_MIN_RANK;
+    let isFreeTrialRender = false;
+    let freeRendersUsed = 0;
+    if (!isPaidCineshootPlan) {
+      const { data: prof } = await supabaseAdmin
+        .from('profiles')
+        .select('cineshoot_free_renders_used')
+        .eq('user_id', userId)
+        .maybeSingle();
+      freeRendersUsed = prof?.cineshoot_free_renders_used ?? 0;
+      if (freeRendersUsed >= 2) {
+        return json({ error: 'free_trial_exhausted', message: 'Free Cineshoot trial used up — upgrade to Premium Plus or above for unlimited renders.' }, 402);
+      }
+      isFreeTrialRender = true;
     }
-    if ((PLAN_RANK[planId] ?? 0) < TIER_RANK[cfg.tier]) {
+
+    if ((PLAN_RANK[planId] ?? 0) < TIER_RANK[cfg.tier] && !isFreeTrialRender) {
       return json({ error: `This model requires ${cfg.tier} plan or above` }, 403);
     }
 
     const usdCost = cfg.price * dur * MARKUP * (RES_MULT[resolved] || 1);
     const tokensCost = Math.ceil(usdCost * TOKENS_PER_USD);
-    if (currentUsed + tokensCost > limit) {
+    if (!isFreeTrialRender && currentUsed + tokensCost > limit) {
       return json({ error: 'insufficient_tokens', tokensUsed: currentUsed, tokensLimit: limit }, 403);
     }
+
 
     const openrouterKey = Deno.env.get('OPENROUTER_API_KEY');
     if (!openrouterKey) return json({ error: 'Video generation not configured' }, 500);
@@ -183,7 +198,7 @@ serve(async (req) => {
         sound: !!sound,
         source_type: imageData ? 'image' : 'text',
         image_data_url: imageData ?? null,
-        tokens_estimated: tokensCost,
+        tokens_estimated: isFreeTrialRender ? 0 : tokensCost,
       })
       .select('id')
       .single();

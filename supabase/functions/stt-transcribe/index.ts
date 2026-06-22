@@ -100,8 +100,8 @@ Deno.serve(async (req) => {
 
     const apiKey = Deno.env.get('OPENROUTER_API_KEY');
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'OPENROUTER_API_KEY not configured' }), {
-        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      return new Response(JSON.stringify({ fallback: true, reason: 'stt_not_configured', text: '' }), {
+        status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
@@ -122,8 +122,9 @@ Deno.serve(async (req) => {
     }
 
     if (!result.ok) {
-      return new Response(JSON.stringify({ error: 'STT provider error', detail: String(result.error).slice(0, 300) }), {
-        status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      // Graceful: tell client to try its browser SpeechRecognition fallback.
+      return new Response(JSON.stringify({ fallback: true, reason: 'provider_error', text: '', detail: String(result.error).slice(0, 200) }), {
+        status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
@@ -132,8 +133,9 @@ Deno.serve(async (req) => {
     });
   } catch (err) {
     console.error('[stt-transcribe] error', err);
-    return new Response(JSON.stringify({ error: String(err) }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return new Response(JSON.stringify({ fallback: true, reason: 'edge_error', text: '', detail: String(err).slice(0, 200) }), {
+      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });
+

@@ -57,6 +57,8 @@ const Pricing = () => {
         { text: sorixAgroLabel, included: true },
         { text: sorixLegendsLabel, included: true },
         { text: 'Sorix Deck', subtext: t('slideFree'), included: true },
+        { text: 'Sorix Cineshoot', subtext: language === 'en' ? '2 free renders trial' : '২টি ফ্রি ভিডিও ট্রায়াল', included: true },
+
         { text: t('webSearch'), included: false },
         { text: t('projects'), included: false },
         { text: t('voiceAI'), included: false },
@@ -84,6 +86,8 @@ const Pricing = () => {
         { text: sorixAgroLabel, included: true },
         { text: sorixLegendsLabel, included: true },
         { text: 'Sorix Deck', included: true },
+        { text: 'Sorix Cineshoot', subtext: language === 'en' ? '2 free renders trial' : '২টি ফ্রি ভিডিও ট্রায়াল', included: true },
+
         { text: t('webSearchBasic'), included: true },
         { text: `${t('voiceAIBasic')}`, subtext: '10 min/day', included: true },
         { text: t('fileUpload') + ': PDF/DOC', subtext: t('maxSize') + ' 5MB', included: true },
@@ -112,6 +116,8 @@ const Pricing = () => {
         { text: sorixAgroLabel, included: true },
         { text: sorixLegendsLabel, included: true },
         { text: 'Sorix Deck', included: true },
+        { text: 'Sorix Cineshoot', subtext: language === 'en' ? '2 free renders trial' : '২টি ফ্রি ভিডিও ট্রায়াল', included: true },
+
         { text: t('webSearchPro'), included: true },
         { text: t('voiceAIHigh'), included: true },
         { text: t('fileUpload') + ': PDF/DOC', subtext: t('maxSize') + ' 10MB', included: true },
@@ -138,6 +144,8 @@ const Pricing = () => {
         { text: sorixAgroLabel, included: true },
         { text: sorixLegendsLabel, included: true },
         { text: 'Sorix Deck', included: true },
+        { text: 'Sorix Cineshoot', subtext: language === 'en' ? '2 free renders trial' : '২টি ফ্রি ভিডিও ট্রায়াল', included: true },
+
         { text: 'Sorix Agent', included: true },
         { text: t('webSearchPremium'), included: true },
         { text: t('voiceAIUnlimited'), included: true },
@@ -301,7 +309,7 @@ const Pricing = () => {
             onScroll={(e) => {
               const container = e.target;
               const scrollLeft = container.scrollLeft;
-              const cardWidth = 280 + 16; // card width + gap
+              const cardWidth = 320 + 16; // card width + gap
               const newIndex = Math.round(scrollLeft / cardWidth);
               setActiveCardIndex(Math.min(Math.max(newIndex, 0), allPricingPlans.length - 1));
             }}
@@ -313,11 +321,12 @@ const Pricing = () => {
               key={plan.name}
               className={`relative ${plan.cardStyle} rounded-2xl ${
                 plan.popular ? 'shadow-glow' : ''
-              } ${isCurrentUserPlan ? 'ring-2 ring-primary/50' : ''} overflow-hidden transition-all duration-500 flex-shrink-0 w-[280px] snap-center`}
+              } ${isCurrentUserPlan ? 'ring-2 ring-primary/50' : ''} overflow-hidden transition-all duration-500 flex-shrink-0 w-[88vw] max-w-[340px] min-w-[280px] snap-center`}
               style={{ animationDelay: `${planIndex * 100}ms` }}
             >
               {/* Popular Badge or Current Plan Badge */}
               {plan.badge && !isCurrentUserPlan && (
+
                 <div className="absolute top-0 left-0 right-0">
                   <div className="gradient-primary text-center py-2 text-xs font-bold text-foreground flex items-center justify-center gap-1.5">
                     <Sparkles className="w-3 h-3" />
