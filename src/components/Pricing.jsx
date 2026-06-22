@@ -144,6 +144,8 @@ const Pricing = () => {
         { text: sorixAgroLabel, included: true },
         { text: sorixLegendsLabel, included: true },
         { text: 'Sorix Deck', included: true },
+        { text: 'Sorix Cineshoot', subtext: language === 'en' ? '2 free renders trial' : '২টি ফ্রি ভিডিও ট্রায়াল', included: true },
+
         { text: 'Sorix Agent', included: true },
         { text: t('webSearchPremium'), included: true },
         { text: t('voiceAIUnlimited'), included: true },
