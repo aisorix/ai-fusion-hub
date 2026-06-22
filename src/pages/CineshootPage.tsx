@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import SEOHead from '@/components/SEOHead';
-import { ArrowLeft, Clapperboard, Film } from 'lucide-react';
+import { ArrowLeft, Clapperboard, Film, Sparkles } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useChatStore, type Attachment } from '@/stores/chatStore';
@@ -19,6 +19,11 @@ import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 import TokenCostChip from '@/components/shared/TokenCostChip';
 import { useSubscription } from '@/hooks/useSubscription';
 import { meetsPlan } from '@/lib/planAccess';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+
+const FREE_TRIAL_LIMIT = 2;
+
 
 const CineshootPage: React.FC = () => {
   const navigate = useNavigate();
