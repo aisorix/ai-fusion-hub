@@ -204,23 +204,23 @@ const CineshootPage: React.FC = () => {
     );
   }
 
-  if (!meetsPlan(currentPlan, 'premium_plus')) {
+  if (!isPaidCineshoot && trialLoaded && trialExhausted) {
     return (
       <>
         {seo}
         <PlanLockScreen
           toolName="Sorix Cineshoot"
-          tagline="AI Video Generation"
-          description="Sorix Cineshoot turns prompts and images into cinematic video using frontier models like Veo 3.1, Sora 2 Pro, Kling and Seedance. Available on Premium Plus and Max."
+          tagline="Free trial used up"
+          description={`You've used your ${FREE_TRIAL_LIMIT} free Cineshoot renders. Upgrade to Premium Plus, Max, or Enterprise for unlimited cinematic video generation.`}
           requiredPlan="premium_plus"
           accentGradient="from-fuchsia-500 to-pink-500"
           icon={Clapperboard}
           features={[
-            "Frontier models: Veo 3.1, Sora 2 Pro, Kling, Seedance",
+            "Unlimited renders on frontier video models",
+            "Veo 3.1, Sora 2 Pro, Kling, Seedance",
             "Text-to-video and image-to-video",
             "Up to 4K, customizable aspect ratio and duration",
             "Refine the previous render with a single prompt",
-            "Tokens only deducted on a successful render",
           ]}
         />
       </>
@@ -231,6 +231,7 @@ const CineshootPage: React.FC = () => {
     <div className="h-[100dvh] flex flex-col bg-background overflow-hidden">
       {seo}
       <header className="shrink-0 bg-card/80 backdrop-blur-xl relative">
+
         <div className="flex items-center justify-between px-3 sm:px-4 md:px-6 h-12 sm:h-14">
           <div className="flex items-center gap-2.5 min-w-0">
             <button
