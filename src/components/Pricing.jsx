@@ -86,6 +86,8 @@ const Pricing = () => {
         { text: sorixAgroLabel, included: true },
         { text: sorixLegendsLabel, included: true },
         { text: 'Sorix Deck', included: true },
+        { text: 'Sorix Cineshoot', subtext: language === 'en' ? '2 free renders trial' : '২টি ফ্রি ভিডিও ট্রায়াল', included: true },
+
         { text: t('webSearchBasic'), included: true },
         { text: `${t('voiceAIBasic')}`, subtext: '10 min/day', included: true },
         { text: t('fileUpload') + ': PDF/DOC', subtext: t('maxSize') + ' 5MB', included: true },
