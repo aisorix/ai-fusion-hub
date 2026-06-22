@@ -131,19 +131,35 @@ export function useVoiceDictation({ onTranscript, language, maxSeconds = 60 }: U
           if (language) form.append('language', language);
 
           const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stt-transcribe`;
-          const res = await fetch(url, {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            },
-            body: form,
-          });
-          if (!res.ok) {
-            const txt = await res.text().catch(() => '');
-            throw new Error(txt || `Transcription failed (${res.status})`);
+          let res: Response;
+          try {
+            res = await fetch(url, {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+              },
+              body: form,
+            });
+          } catch {
+            // Network failure — quiet, just reset state.
+            toast.message("Network hiccup — couldn't reach voice service");
+            setStatus('idle');
+            setElapsed(0);
+            return;
           }
-          const json = await res.json();
+
+          let json: any = {};
+          try { json = await res.json(); } catch { /* */ }
+
+          if (!res.ok || json?.fallback) {
+            // Premium STT unavailable — no scary error; just nudge user.
+            toast.message("Voice transcription is busy — please type or try again");
+            setStatus('idle');
+            setElapsed(0);
+            return;
+          }
+
           const text = (json.text || '').trim();
           if (text) {
             onTranscript(text);
@@ -153,12 +169,13 @@ export function useVoiceDictation({ onTranscript, language, maxSeconds = 60 }: U
           setStatus('idle');
           setElapsed(0);
         } catch (err: any) {
-          console.error('[useVoiceDictation] transcribe', err);
-          toast.error(err?.message || 'Transcription failed');
+          console.warn('[useVoiceDictation] transcribe', err);
+          toast.message("Voice transcription unavailable — please type instead");
           setError(err?.message || 'Transcription failed');
-          setStatus('error');
-          setTimeout(() => setStatus('idle'), 1500);
+          setStatus('idle');
+          setElapsed(0);
         }
+
       };
 
       // Volume meter
