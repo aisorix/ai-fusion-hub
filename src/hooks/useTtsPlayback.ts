@@ -172,28 +172,65 @@ export const useTtsPlayback = create<TtsState>((set, get) => ({
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const accessToken = session?.access_token;
-      if (!accessToken) throw new Error('Please sign in to use Read aloud');
 
-      const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tts-speak`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          },
-          body: JSON.stringify({ text: cleanText, voice: get().voice }),
+      // Browser-native fallback (used when premium is unavailable or fails).
+      const speakWithBrowser = () => {
+        try {
+          if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+            throw new Error('Speech not supported in this browser');
+          }
+          window.speechSynthesis.cancel();
+          const utter = new SpeechSynthesisUtterance(cleanText);
+          utter.rate = get().speed || 1;
+          utter.onstart = () => set({ status: 'playing' });
+          utter.onend = () => set({
+            activeId: null, status: 'idle', text: '', position: 0, duration: 0,
+            audio: null, words: [], activeWordIndex: -1,
+          });
+          utter.onerror = () => set({ activeId: null, status: 'idle', audio: null });
+          window.speechSynthesis.speak(utter);
+        } catch (e: any) {
+          toast.error(e?.message || 'Read aloud unavailable');
+          set({ activeId: null, status: 'idle', audio: null });
         }
-      );
+      };
 
-      if (!res.ok) {
-        const txt = await res.text().catch(() => '');
-        throw new Error(txt || `Read aloud failed (${res.status})`);
+      if (!accessToken) { speakWithBrowser(); return; }
+
+      let res: Response;
+      try {
+        res = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tts-speak`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${accessToken}`,
+              apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            },
+            body: JSON.stringify({ text: cleanText, voice: get().voice }),
+          }
+        );
+      } catch {
+        // Network failure → browser fallback, no toast.
+        speakWithBrowser();
+        return;
+      }
+
+      const contentType = res.headers.get('Content-Type') || '';
+      if (!res.ok || contentType.includes('application/json')) {
+        // Either a structured fallback signal or any non-audio response → browser TTS.
+        try { await res.json(); } catch { /* ignore */ }
+        speakWithBrowser();
+        return;
       }
 
       const blob = await res.blob();
       if (get().activeId !== id) return;
+      if (!blob.type.startsWith('audio') && blob.size < 1024) {
+        speakWithBrowser();
+        return;
+      }
 
       const objectUrl = URL.createObjectURL(blob);
 
@@ -227,16 +264,30 @@ export const useTtsPlayback = create<TtsState>((set, get) => ({
 
       audio.addEventListener('error', () => {
         URL.revokeObjectURL(objectUrl);
-        toast.error('Audio playback failed');
-        set({ activeId: null, status: 'idle', audio: null });
+        // Don't bother the user — switch to browser TTS silently.
+        speakWithBrowser();
       });
 
       audio.src = objectUrl;
       set({ status: 'playing' });
-      await audio.play();
+      await audio.play().catch(() => speakWithBrowser());
     } catch (err: any) {
-      console.error('[useTtsPlayback]', err);
-      toast.error(err?.message || 'Read aloud failed');
+      console.warn('[useTtsPlayback]', err);
+      // Last-resort silent fallback to browser TTS.
+      try {
+        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+          const utter = new SpeechSynthesisUtterance(cleanText);
+          utter.rate = get().speed || 1;
+          utter.onend = () => set({
+            activeId: null, status: 'idle', text: '', position: 0, duration: 0,
+            audio: null, words: [], activeWordIndex: -1,
+          });
+          window.speechSynthesis.cancel();
+          window.speechSynthesis.speak(utter);
+          set({ status: 'playing' });
+          return;
+        }
+      } catch { /* ignore */ }
       set({
         activeId: null, status: 'idle', text: '',
         audio: null, words: [], activeWordIndex: -1,
@@ -244,3 +295,4 @@ export const useTtsPlayback = create<TtsState>((set, get) => ({
     }
   },
 }));
+
