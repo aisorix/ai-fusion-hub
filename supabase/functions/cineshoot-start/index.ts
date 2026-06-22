@@ -198,7 +198,7 @@ serve(async (req) => {
         sound: !!sound,
         source_type: imageData ? 'image' : 'text',
         image_data_url: imageData ?? null,
-        tokens_estimated: tokensCost,
+        tokens_estimated: isFreeTrialRender ? 0 : tokensCost,
       })
       .select('id')
       .single();
