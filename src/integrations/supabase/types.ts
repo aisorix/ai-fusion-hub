@@ -1269,6 +1269,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          cineshoot_free_renders_used: number
           country_code: string | null
           created_at: string
           full_name: string | null
@@ -1280,6 +1281,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          cineshoot_free_renders_used?: number
           country_code?: string | null
           created_at?: string
           full_name?: string | null
@@ -1291,6 +1293,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          cineshoot_free_renders_used?: number
           country_code?: string | null
           created_at?: string
           full_name?: string | null
@@ -2474,6 +2477,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_cineshoot_free_render: { Args: never; Returns: number }
       increment_tokens_used: { Args: { _amount: number }; Returns: number }
       is_admin_user: { Args: { _user_id: string }; Returns: boolean }
       log_page_view: {
