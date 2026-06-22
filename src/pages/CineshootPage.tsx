@@ -30,6 +30,31 @@ const CineshootPage: React.FC = () => {
   const location = useLocation();
   const { user, setUser } = useChatStore();
   const { currentPlan, isLoading: planLoading } = useSubscription();
+  const { user: authUser } = useAuth();
+
+  const [freeRendersUsed, setFreeRendersUsed] = useState<number>(0);
+  const [trialLoaded, setTrialLoaded] = useState(false);
+  const isPaidCineshoot = meetsPlan(currentPlan, 'premium_plus');
+  const freeRendersLeft = Math.max(0, FREE_TRIAL_LIMIT - freeRendersUsed);
+  const trialExhausted = !isPaidCineshoot && freeRendersLeft <= 0;
+
+  useEffect(() => {
+    if (!authUser?.id || isPaidCineshoot) { setTrialLoaded(true); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('cineshoot_free_renders_used')
+        .eq('user_id', authUser.id)
+        .maybeSingle();
+      if (!cancelled) {
+        setFreeRendersUsed((data as any)?.cineshoot_free_renders_used ?? 0);
+        setTrialLoaded(true);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [authUser?.id, isPaidCineshoot]);
+
 
   const [selectedModel, setSelectedModel] = useState<CineshootModel>(cineshootModels[0]);
   const [aspect, setAspect] = useState<VideoAspect>('16:9');
