@@ -125,7 +125,11 @@ const CineshootPage: React.FC = () => {
   };
 
   const handleGenerate = async (prompt: string, attachments?: Attachment[]) => {
-    if (tokensRemaining < costEstimate) { setShowUpgrade(true); return; }
+    if (!isPaidCineshoot) {
+      if (trialExhausted) { setShowUpgrade(true); return; }
+    } else if (tokensRemaining < costEstimate) {
+      setShowUpgrade(true); return;
+    }
     if (activeJobId) return;
 
     const isRefining = refineEnabled && !!videoUrl && !attachments?.length;
@@ -153,11 +157,20 @@ const CineshootPage: React.FC = () => {
         imageData,
       });
       setActiveJobId(jobId);
+      if (!isPaidCineshoot) {
+        // Optimistically reflect the trial increment; backend will confirm.
+        setFreeRendersUsed((n) => n + 1);
+      }
     } catch (err: any) {
-      if (err?.message === 'insufficient_tokens') setShowUpgrade(true);
-      else toast.error(err?.message || 'Failed to start video generation');
+      const msg = err?.message || '';
+      if (msg === 'insufficient_tokens' || msg === 'free_trial_exhausted' || msg.includes('Free Cineshoot')) {
+        setShowUpgrade(true);
+      } else {
+        toast.error(msg || 'Failed to start video generation');
+      }
     }
   };
+
 
   const handleHistorySelect = (gen: VideoGeneration) => {
     setVideoUrl(gen.video_url);
