@@ -10,6 +10,7 @@ import HealthIntakeForm from '@/components/health/HealthIntakeForm';
 import HealthAnalysisResults from '@/components/health/HealthAnalysisResults';
 import HealthChatMode from '@/components/health/HealthChatMode';
 import AnalysisTimer from '@/components/shared/AnalysisTimer';
+import SafetyWarningBanner from '@/components/shared/SafetyWarningBanner';
 
 export interface PatientData {
   symptoms: string;
