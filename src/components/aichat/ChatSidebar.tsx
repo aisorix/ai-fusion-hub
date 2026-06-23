@@ -239,6 +239,13 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
       icon: Workflow,
       gradient: "bg-gradient-to-br from-violet-500 to-purple-600",
       free: false,
+    {
+      id: "codex",
+      name: "Sorix Codex",
+      description: "Project workspaces & GitHub sync",
+      icon: FolderKanban,
+      gradient: "bg-gradient-to-br from-slate-600 to-slate-800",
+      free: false,
     },
   ];
 
