@@ -40,15 +40,15 @@ const CoWorkPage: React.FC = () => {
     );
   }
 
-  if (!meetsPlan(currentPlan, "premium")) {
+  if (!meetsPlan(currentPlan, "basic")) {
     return (
       <>
         {seo}
         <PlanLockScreen
           toolName="Sorix Agent"
           tagline="Your Tasks, Handled by Intelligence."
-          description="Sorix Agent autonomously plans and executes multi-step work — research, writing, scheduling, integrations and more. Available on Premium and above."
-          requiredPlan="premium"
+          description="Sorix Agent autonomously plans and executes multi-step work — research, writing, scheduling, integrations and more. Available on every paid plan."
+          requiredPlan="basic"
           accentGradient="from-cyan-500 to-teal-500"
           icon={Bot}
           features={[
