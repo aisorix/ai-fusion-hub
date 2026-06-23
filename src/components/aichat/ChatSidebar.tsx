@@ -461,6 +461,17 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
             <span>Sorix Cineshoot</span>
           </button>
 
+          <button
+            onClick={() => setProjectsModalOpen(true)}
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <FolderKanban className="w-4 h-4" />
+              <span>{t('projects')}</span>
+            </div>
+            {user.plan === "free" && <span className="text-muted-foreground">🔒</span>}
+          </button>
+
           <div>
             <button
               onClick={() => navigate("/tools")}
@@ -491,6 +502,7 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
                           if (tool.id === "imagine") navigate("/imagine");
                           if (tool.id === "deck") navigate("/deck");
                           if (tool.id === "flowbuilder") navigate("/flowbuilder");
+                          if (tool.id === "codex") setProjectsModalOpen(true);
                         }}
                         className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
                       >
@@ -513,17 +525,6 @@ const ChatSidebar = ({ onNewChat }: ChatSidebarProps) => {
               )}
             </AnimatePresence>
           </div>
-
-          <button
-            onClick={() => setProjectsModalOpen(true)}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <FolderKanban className="w-4 h-4" />
-              <span>{t('projects')}</span>
-            </div>
-            {user.plan === "free" && <span className="text-muted-foreground">🔒</span>}
-          </button>
         </div>
 
         {/* Chat History */}
