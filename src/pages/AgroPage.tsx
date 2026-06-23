@@ -10,6 +10,7 @@ import { AgroHistory } from '@/components/agro';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import AnalysisTimer from '@/components/shared/AnalysisTimer';
+import SafetyWarningBanner from '@/components/shared/SafetyWarningBanner';
 
 export interface CropData {
   cropType: string;
