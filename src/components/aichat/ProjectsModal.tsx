@@ -238,7 +238,7 @@ const ProjectsModal = () => {
                     </div>
                     <div>
                       <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-                        Projects
+                        Sorix Codex
                         {!isFreePlan && (
                           <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
                             {projects.length}/{maxProjects}
