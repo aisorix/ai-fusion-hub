@@ -257,7 +257,7 @@ const ProjectsModal = () => {
                         className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
                       >
                         <Plus className="w-4 h-4" />
-                        <span className="hidden sm:inline">New Project</span>
+                        <span className="hidden sm:inline">New Codex Project</span>
                       </Button>
                     )}
                     <button onClick={() => setProjectsModalOpen(false)} className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-muted transition-colors">
