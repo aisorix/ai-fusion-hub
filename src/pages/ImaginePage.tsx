@@ -112,7 +112,12 @@ const ImaginePage: React.FC = () => {
   };
 
   const handleGenerate = async (prompt: string, attachments?: Attachment[]) => {
-    if (tokensRemaining < costEstimate) {
+    // Free trial gate (3 renders for free users).
+    if (!isPaidImagine && trialExhausted) {
+      setShowUpgrade(true);
+      return;
+    }
+    if (isPaidImagine && tokensRemaining < costEstimate) {
       setShowUpgrade(true);
       return;
     }
@@ -144,6 +149,11 @@ const ImaginePage: React.FC = () => {
       setImageUrls(result.imageUrls || (result.imageUrl ? [result.imageUrl] : []));
       setRefreshHistory((p) => p + 1);
       setUser({ ...user, tokensUsed: result.totalTokensUsed });
+      if (!isPaidImagine) {
+        const next = freeRendersUsed + 1;
+        setFreeRendersUsed(next);
+        try { localStorage.setItem(FREE_IMAGINE_KEY, String(next)); } catch {}
+      }
     } catch (err: any) {
       if (err.message === 'insufficient_tokens') {
         setShowUpgrade(true);
