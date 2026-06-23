@@ -222,8 +222,10 @@ const AgroPage: React.FC = () => {
         </div>
       </header>
 
+      <SafetyWarningBanner kind="agro" />
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
+
         <AnimatePresence mode="wait">
           {currentStep === 'intake' && (
             <motion.div
