@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Stethoscope, Leaf, Crown, Presentation, Workflow, Palette, Languages, Music, Clapperboard } from "lucide-react";
+import { ArrowLeft, Stethoscope, Leaf, Crown, Presentation, Workflow, Palette, Languages, Music, Clapperboard, FolderKanban } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 
 const tools = [
@@ -10,6 +10,7 @@ const tools = [
   { id: "flowbuilder", name: "Sorix FlowBuilder", desc: "AI flowchart & diagram builder", icon: Workflow, route: "/flowbuilder", gradient: "from-violet-500 to-purple-500", free: false },
   { id: "cineshoot", name: "Sorix Cineshoot", desc: "AI video generation from text, image & video", icon: Clapperboard, route: "/cineshoot", gradient: "from-fuchsia-500 to-pink-500", free: false },
   { id: "imagine", name: "Sorix Imagine", desc: "AI image generation & editing", icon: Palette, route: "/imagine", gradient: "from-cyan-500 to-blue-500", free: false },
+  { id: "codex", name: "Sorix Codex", desc: "Project workspaces with VS Code explorer & GitHub sync", icon: FolderKanban, route: "/chat", gradient: "from-slate-600 to-slate-800", free: false },
 ];
 
 const comingSoon = [

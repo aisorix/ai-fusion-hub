@@ -199,53 +199,53 @@ const smartAutoModel: Model = {
   backendId: 'smart-auto',
   description: 'AI routes your query to the best model for optimal results',
   category: 'system',
-  plans: ['free', 'basic', 'pro', 'premium'],
+  plans: ['free', 'basic', 'pro', 'premium', 'premium_plus', 'max', 'enterprise'],
   multiplier: 1,
 };
 
-// 🆓 FREE TIER MODELS
+// 🆓 FREE TIER MODELS — available to everyone
 const freeModels: Model[] = [
-  { id: 'gpt-4o', name: 'GPT-4o', backendId: 'openai/gpt-4o-mini', description: 'Smart AI assistant', category: 'chat', plans: ['free', 'basic', 'pro', 'premium'], multiplier: 1 },
-  { id: 'deepseek-v31', name: 'DeepSeek V3.1', backendId: 'deepseek/deepseek-chat-v3.1', description: 'Advanced reasoning', category: 'chat', plans: ['free', 'basic', 'pro', 'premium'], multiplier: 1 },
-  { id: 'gemini-25-flash', name: 'Gemini 2.5 Flash', backendId: 'google/gemini-2.5-flash-lite', description: 'Fast Google model', category: 'chat', plans: ['free', 'basic', 'pro', 'premium'], multiplier: 1 },
+  { id: 'gpt-4o', name: 'GPT-4o', backendId: 'openai/gpt-4o-mini', description: 'Smart AI assistant', category: 'chat', plans: ['free', 'basic', 'pro', 'premium', 'premium_plus', 'max', 'enterprise'], multiplier: 1 },
+  { id: 'deepseek-v31', name: 'DeepSeek V3.1', backendId: 'deepseek/deepseek-chat-v3.1', description: 'Advanced reasoning', category: 'chat', plans: ['free', 'basic', 'pro', 'premium', 'premium_plus', 'max', 'enterprise'], multiplier: 1 },
+  { id: 'gemini-25-flash', name: 'Gemini 2.5 Flash', backendId: 'google/gemini-2.5-flash-lite', description: 'Fast Google model', category: 'chat', plans: ['free', 'basic', 'pro', 'premium', 'premium_plus', 'max', 'enterprise'], multiplier: 1 },
 ];
 
-// 📦 BASIC TIER MODELS
+// 📦 BASIC TIER MODELS — available to basic and above
 const basicModels: Model[] = [
-  { id: 'gpt5-1-mini', name: 'GPT-5.1 mini', backendId: 'openai/gpt-5-mini', description: 'Fast and efficient', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
-  { id: 'gpt5-nano', name: 'GPT-5 nano', backendId: 'openai/gpt-5-nano', description: 'Ultra-fast responses', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
-  { id: 'gemini-3-flash', name: 'Gemini 3 Flash', backendId: 'google/gemini-3-flash-preview', description: 'Next-gen Gemini', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1.5 },
-  { id: 'gemini-3', name: 'Gemini 3', backendId: 'google/gemini-3-flash-preview', description: 'Google flagship', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1.5 },
-  { id: 'grok-4', name: 'Grok 4', backendId: 'x-ai/grok-3-mini', description: 'xAI smart model', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
-  { id: 'grok-4-fast', name: 'Grok 4 Fast', backendId: 'x-ai/grok-4-fast', description: 'Fast xAI model', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
-  { id: 'deepseek-v32', name: 'DeepSeek V3.2', backendId: 'deepseek/deepseek-v3.2', description: 'Newest DeepSeek', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
-  { id: 'llama-31', name: 'LLaMA 3.1', backendId: 'meta-llama/llama-3.1-70b-instruct', description: 'Meta open-source', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
-  { id: 'llama-33', name: 'LLaMA 3.3', backendId: 'meta-llama/llama-3.3-70b-instruct', description: 'Latest LLaMA', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
-  { id: 'qwen3-coder', name: 'Qwen 3 Coder', backendId: 'qwen/qwen3-coder', description: 'Code specialist', category: 'code', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
-  { id: 'qwen3-vl', name: 'Qwen 3 VL', backendId: 'qwen/qwen3-vl-235b-a22b-instruct', description: 'Vision-language', category: 'chat', plans: ['basic', 'pro', 'premium'], multiplier: 1 },
+  { id: 'gpt5-1-mini', name: 'GPT-5.1 mini', backendId: 'openai/gpt-5-mini', description: 'Fast and efficient', category: 'chat', plans: ['basic', 'pro', 'premium', 'premium_plus', 'max', 'enterprise'], multiplier: 1 },
+  { id: 'gpt5-nano', name: 'GPT-5 nano', backendId: 'openai/gpt-5-nano', description: 'Ultra-fast responses', category: 'chat', plans: ['basic', 'pro', 'premium', 'premium_plus', 'max', 'enterprise'], multiplier: 1 },
+  { id: 'gemini-3-flash', name: 'Gemini 3 Flash', backendId: 'google/gemini-3-flash-preview', description: 'Next-gen Gemini', category: 'chat', plans: ['basic', 'pro', 'premium', 'premium_plus', 'max', 'enterprise'], multiplier: 1.5 },
+  { id: 'gemini-3', name: 'Gemini 3', backendId: 'google/gemini-3-flash-preview', description: 'Google flagship', category: 'chat', plans: ['basic', 'pro', 'premium', 'premium_plus', 'max', 'enterprise'], multiplier: 1.5 },
+  { id: 'grok-4', name: 'Grok 4', backendId: 'x-ai/grok-3-mini', description: 'xAI smart model', category: 'chat', plans: ['basic', 'pro', 'premium', 'premium_plus', 'max', 'enterprise'], multiplier: 1 },
+  { id: 'grok-4-fast', name: 'Grok 4 Fast', backendId: 'x-ai/grok-4-fast', description: 'Fast xAI model', category: 'chat', plans: ['basic', 'pro', 'premium', 'premium_plus', 'max', 'enterprise'], multiplier: 1 },
+  { id: 'deepseek-v32', name: 'DeepSeek V3.2', backendId: 'deepseek/deepseek-v3.2', description: 'Newest DeepSeek', category: 'chat', plans: ['basic', 'pro', 'premium', 'premium_plus', 'max', 'enterprise'], multiplier: 1 },
+  { id: 'llama-31', name: 'LLaMA 3.1', backendId: 'meta-llama/llama-3.1-70b-instruct', description: 'Meta open-source', category: 'chat', plans: ['basic', 'pro', 'premium', 'premium_plus', 'max', 'enterprise'], multiplier: 1 },
+  { id: 'llama-33', name: 'LLaMA 3.3', backendId: 'meta-llama/llama-3.3-70b-instruct', description: 'Latest LLaMA', category: 'chat', plans: ['basic', 'pro', 'premium', 'premium_plus', 'max', 'enterprise'], multiplier: 1 },
+  { id: 'qwen3-coder', name: 'Qwen 3 Coder', backendId: 'qwen/qwen3-coder', description: 'Code specialist', category: 'code', plans: ['basic', 'pro', 'premium', 'premium_plus', 'max', 'enterprise'], multiplier: 1 },
+  { id: 'qwen3-vl', name: 'Qwen 3 VL', backendId: 'qwen/qwen3-vl-235b-a22b-instruct', description: 'Vision-language', category: 'chat', plans: ['basic', 'pro', 'premium', 'premium_plus', 'max', 'enterprise'], multiplier: 1 },
 ];
 
-// ⚡ PRO TIER MODELS
+// ⚡ PRO TIER MODELS — available to pro and above
 const proModels: Model[] = [
-  { id: 'qwen3-pro', name: 'Qwen 3 Pro', backendId: 'qwen/qwen3-235b-a22b-2507', description: 'Professional Qwen', category: 'chat', plans: ['pro', 'premium'], multiplier: 1 },
-  { id: 'gpt5-1', name: 'GPT-5.1', backendId: 'openai/gpt-5.1', description: 'Enhanced GPT model', category: 'chat', plans: ['pro', 'premium'], multiplier: 4, dailyLimit: { pro: 20, premium: 20 } },
+  { id: 'qwen3-pro', name: 'Qwen 3 Pro', backendId: 'qwen/qwen3-235b-a22b-2507', description: 'Professional Qwen', category: 'chat', plans: ['pro', 'premium', 'premium_plus', 'max', 'enterprise'], multiplier: 1 },
+  { id: 'gpt5-1', name: 'GPT-5.1', backendId: 'openai/gpt-5.1', description: 'Enhanced GPT model', category: 'chat', plans: ['pro', 'premium', 'premium_plus', 'max', 'enterprise'], multiplier: 4, dailyLimit: { pro: 20, premium: 20 } },
   { id: 'gpt5-2-limited', name: 'GPT-5.2 (Limited)', backendId: 'openai/gpt-5.2', description: 'Flagship reasoning', category: 'chat', plans: ['pro'], multiplier: 6.5, dailyLimit: { pro: 10 } },
   { id: 'gemini-25-pro-limited', name: 'Gemini 2.5 Pro (Limited)', backendId: 'google/gemini-2.5-pro', description: 'Professional Gemini', category: 'chat', plans: ['pro'], multiplier: 4, dailyLimit: { pro: 20 } },
-  { id: 'grok-41-fast', name: 'Grok 4.1 fast', backendId: 'x-ai/grok-4.1-fast', description: 'Latest xAI model', category: 'chat', plans: ['pro', 'premium'], multiplier: 1 },
-  { id: 'perplexity-sonar', name: 'Perplexity Sonar', backendId: 'perplexity/sonar', description: 'Web search powered', category: 'search', plans: ['pro', 'premium'], multiplier: 3 },
-  { id: 'llama-4-maverick', name: 'Llama 4 Maverick', backendId: 'meta-llama/llama-4-maverick', description: 'Latest Llama 4', category: 'chat', plans: ['pro', 'premium'], multiplier: 1 },
-  { id: 'llama-4-scout', name: 'Llama 4 Scout', backendId: 'meta-llama/llama-4-scout', description: 'Llama 4 Scout', category: 'chat', plans: ['pro', 'premium'], multiplier: 1 },
+  { id: 'grok-41-fast', name: 'Grok 4.1 fast', backendId: 'x-ai/grok-4.1-fast', description: 'Latest xAI model', category: 'chat', plans: ['pro', 'premium', 'premium_plus', 'max', 'enterprise'], multiplier: 1 },
+  { id: 'perplexity-sonar', name: 'Perplexity Sonar', backendId: 'perplexity/sonar', description: 'Web search powered', category: 'search', plans: ['pro', 'premium', 'premium_plus', 'max', 'enterprise'], multiplier: 3 },
+  { id: 'llama-4-maverick', name: 'Llama 4 Maverick', backendId: 'meta-llama/llama-4-maverick', description: 'Latest Llama 4', category: 'chat', plans: ['pro', 'premium', 'premium_plus', 'max', 'enterprise'], multiplier: 1 },
+  { id: 'llama-4-scout', name: 'Llama 4 Scout', backendId: 'meta-llama/llama-4-scout', description: 'Llama 4 Scout', category: 'chat', plans: ['pro', 'premium', 'premium_plus', 'max', 'enterprise'], multiplier: 1 },
 ];
 
-// 👑 PREMIUM TIER MODELS
+// 👑 PREMIUM TIER MODELS — available to premium and above (incl. enterprise)
 const premiumModels: Model[] = [
-  { id: 'claude-sonnet-45', name: 'Claude Sonnet 4.5', backendId: 'anthropic/claude-sonnet-4.5', description: 'Anthropic Sonnet', category: 'chat', plans: ['premium', 'premium_plus', 'max'], multiplier: 6, dailyLimit: { premium: 20, premium_plus: 40, max: 80 } },
-  { id: 'claude-opus-45', name: 'Claude Opus 4.5', backendId: 'anthropic/claude-opus-4.5', description: 'Anthropic Opus', category: 'chat', plans: ['premium', 'premium_plus', 'max'], multiplier: 10, dailyLimit: { premium: 10, premium_plus: 25, max: 50 } },
-  { id: 'gpt5-2', name: 'GPT-5.2', backendId: 'openai/gpt-5.2', description: 'Flagship reasoning', category: 'chat', plans: ['premium', 'premium_plus', 'max'], multiplier: 6.5, dailyLimit: { premium: 30, premium_plus: 60, max: 120 } },
-  { id: 'gemini-25-pro', name: 'Gemini 2.5 Pro', backendId: 'google/gemini-2.5-pro', description: 'Professional Gemini', category: 'chat', plans: ['premium', 'premium_plus', 'max'], multiplier: 4, dailyLimit: { premium: 20, premium_plus: 40, max: 80 } },
+  { id: 'claude-sonnet-45', name: 'Claude Sonnet 4.5', backendId: 'anthropic/claude-sonnet-4.5', description: 'Anthropic Sonnet', category: 'chat', plans: ['premium', 'premium_plus', 'max', 'enterprise'], multiplier: 6, dailyLimit: { premium: 20, premium_plus: 40, max: 80 } },
+  { id: 'claude-opus-45', name: 'Claude Opus 4.5', backendId: 'anthropic/claude-opus-4.5', description: 'Anthropic Opus', category: 'chat', plans: ['premium', 'premium_plus', 'max', 'enterprise'], multiplier: 10, dailyLimit: { premium: 10, premium_plus: 25, max: 50 } },
+  { id: 'gpt5-2', name: 'GPT-5.2', backendId: 'openai/gpt-5.2', description: 'Flagship reasoning', category: 'chat', plans: ['premium', 'premium_plus', 'max', 'enterprise'], multiplier: 6.5, dailyLimit: { premium: 30, premium_plus: 60, max: 120 } },
+  { id: 'gemini-25-pro', name: 'Gemini 2.5 Pro', backendId: 'google/gemini-2.5-pro', description: 'Professional Gemini', category: 'chat', plans: ['premium', 'premium_plus', 'max', 'enterprise'], multiplier: 4, dailyLimit: { premium: 20, premium_plus: 40, max: 80 } },
 
-  { id: 'kimi-k25', name: 'Kimi-K2.5', backendId: 'moonshotai/kimi-k2.5', description: 'Advanced Moonshot', category: 'chat', plans: ['premium', 'premium_plus', 'max'], multiplier: 1 },
-  { id: 'mistral-large-3', name: 'Mistral Large 3', backendId: 'mistralai/mistral-large-2512', description: 'Mistral flagship', category: 'chat', plans: ['premium', 'premium_plus', 'max'], multiplier: 1 },
+  { id: 'kimi-k25', name: 'Kimi-K2.5', backendId: 'moonshotai/kimi-k2.5', description: 'Advanced Moonshot', category: 'chat', plans: ['premium', 'premium_plus', 'max', 'enterprise'], multiplier: 1 },
+  { id: 'mistral-large-3', name: 'Mistral Large 3', backendId: 'mistralai/mistral-large-2512', description: 'Mistral flagship', category: 'chat', plans: ['premium', 'premium_plus', 'max', 'enterprise'], multiplier: 1 },
 ];
 
 const allModels: Model[] = [

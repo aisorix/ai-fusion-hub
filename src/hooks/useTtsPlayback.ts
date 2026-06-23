@@ -128,6 +128,13 @@ export const useTtsPlayback = create<TtsState>((set, get) => ({
     if (audio) {
       try { audio.pause(); audio.removeAttribute('src'); audio.load(); } catch {}
     }
+    // CRITICAL: also cancel browser SpeechSynthesis — without this the
+    // fallback voice keeps speaking after the user hits close.
+    try {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    } catch {}
     set({
       activeId: null, status: 'idle', text: '', position: 0, duration: 0,
       audio: null, words: [], activeWordIndex: -1,

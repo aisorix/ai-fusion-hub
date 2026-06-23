@@ -261,20 +261,25 @@ const CineshootPage: React.FC = () => {
       <main className="flex-1 overflow-y-auto">
         <div className="max-w-3xl mx-auto px-3 sm:px-4 lg:px-6 pt-3 pb-6 sm:pt-5 sm:pb-8 md:pt-8 flex flex-col gap-4 sm:gap-5">
           {!isPaidCineshoot && (
-            <div className="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-fuchsia-500/10 to-pink-500/10 border border-fuchsia-500/30">
-              <div className="flex items-center gap-2 min-w-0">
-                <Sparkles className="w-4 h-4 text-fuchsia-500 shrink-0" />
-                <p className="text-xs sm:text-sm text-foreground truncate">
-                  <span className="font-semibold">Free trial:</span>{' '}
-                  <span className="text-muted-foreground">{freeRendersLeft} of {FREE_TRIAL_LIMIT} renders left</span>
-                </p>
+            <div className="flex flex-col gap-2 px-3.5 py-3 rounded-xl bg-gradient-to-r from-fuchsia-500/10 to-pink-500/10 border border-fuchsia-500/30">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Sparkles className="w-4 h-4 text-fuchsia-500 shrink-0" />
+                  <p className="text-xs sm:text-sm text-foreground truncate">
+                    <span className="font-semibold">Free trial:</span>{' '}
+                    <span className="text-muted-foreground">{freeRendersLeft} of {FREE_TRIAL_LIMIT} renders left</span>
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowUpgrade(true)}
+                  className="text-[11px] sm:text-xs font-semibold px-3 py-1.5 rounded-lg bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white hover:opacity-90 transition-opacity whitespace-nowrap"
+                >
+                  Upgrade
+                </button>
               </div>
-              <button
-                onClick={() => setShowUpgrade(true)}
-                className="text-[11px] sm:text-xs font-semibold px-3 py-1.5 rounded-lg bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white hover:opacity-90 transition-opacity whitespace-nowrap"
-              >
-                Upgrade
-              </button>
+              <p className="text-[10.5px] sm:text-[11px] text-muted-foreground leading-snug">
+                Full Cineshoot access requires <span className="font-semibold text-foreground">Sorix Premium Plus, Max, or Enterprise</span>.
+              </p>
             </div>
           )}
           <div className="relative z-[60]">

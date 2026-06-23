@@ -1,111 +1,94 @@
-## Goals
+## Scope
 
-1. Lock **Sorix Cineshoot** to Premium Plus / Max / Enterprise, but allow every other plan a **2-render free trial**.
-2. Fix the **Pricing / plan packages** so all plans render correctly on mobile (and any other broken responsive spots in the same component).
-3. Fix **Text-to-Speech** and **Speech-to-Text** "failed to fetch" errors with graceful fallbacks.
-4. Fix **mobile chat** layout/update issues.
-5. Fix **Sorix Scholars** mobile view issues.
-
-All work is frontend + edge-function hardening + a tiny backend counter for free-trial renders. No business-logic rewrites beyond what is needed for the above.
+A large multi-area update covering plan access, voice (STT/TTS), tools gating, safety banners, account/profile management with soft-delete + recovery, and a "Sorix Codex" rebrand of the Projects section. All changes will be applied on desktop and mobile.
 
 ---
 
-## 1) Cineshoot free trial (2 renders for non-eligible plans)
+## 1. Plan-tier access updates
 
-**Backend**
-- New migration: add `cineshoot_free_renders_used INTEGER NOT NULL DEFAULT 0` on `profiles` (or `subscriptions`, whichever already tracks per-user counters — will confirm during build and pick the existing one). GRANTs + RLS preserved.
-- `cineshoot-start` edge function:
-  - If user plan meets `premium_plus` → unchanged.
-  - Else if `cineshoot_free_renders_used < 2` → allow, and on successful completion (in `cineshoot-status` finalize path) increment the counter atomically via a `SECURITY DEFINER` RPC `increment_cineshoot_free_render()`.
-  - Else → return `{ error: 'free_trial_exhausted' }` (402).
+**Chat LLMs — unlock for all paid tiers**
+- Update `src/lib/smartRouting.ts` and `ModelSelector` gating so every model currently unlocked for `premium` is also unlocked for `premium_plus`, `max`, `enterprise` (no extra gates above premium).
+- Verify `useSubscription`/`planAccess.meetsPlan` already covers this; remove any `=== "premium"` strict checks and switch to `meetsPlan(plan, "premium")`.
 
-**Frontend (`src/pages/CineshootPage.tsx`)**
-- Replace the hard `PlanLockScreen` block with:
-  - Eligible plan → current full UI.
-  - Non-eligible plan with `freeRendersUsed < 2` → show full UI plus a prominent "Free trial: X of 2 renders left — upgrade for unlimited" banner; gate the Generate button to open `UpgradePlanModal` once exhausted.
-  - Non-eligible plan with trial exhausted → keep `PlanLockScreen`.
-- Read counter via existing `useSubscription` (extend it to expose `cineshootFreeRendersUsed`) or a small dedicated hook.
-- Handle the `free_trial_exhausted` server error by opening `UpgradePlanModal`.
+**Sorix Agent — available on every paid plan**
+- `src/pages/CoWorkPage.tsx` + agent route guard: drop the premium-only lock; allow `basic | pro | premium | premium_plus | max | enterprise`. Free plan still locked (shows upgrade CTA).
 
-**Pricing copy (`src/components/Pricing.jsx`)**
-- For plans below Premium Plus, show "Sorix Cineshoot — 2 free renders" instead of hiding it.
+**Sorix Imagine — 3 free renders, then upgrade (Cineshoot-style)**
+- New `imagine_free_renders_used` column on `profiles` + `increment_imagine_free_render()` RPC mirroring the existing cineshoot pattern.
+- `imagine-generate` edge function: if user is on free tier and `< 3` renders, allow and increment; else 402.
+- `ImaginePage.tsx`: show "Free trial: X of 3 renders left" banner; show upgrade modal when exhausted.
+
+**Cineshoot — clarify trial banner**
+- Banner copy update: "2 free renders for everyone. Full access requires **Sorix Premium Plus, Max, or Enterprise**."
 
 ---
 
-## 2) Mobile pricing / plan packages
+## 2. Voice fixes
 
-`src/components/Pricing.jsx`
-- Audit the plan grid: currently uses a desktop-first grid that clips cards on small screens.
-- Switch to a horizontally scrollable snap carousel on `<md` (Tailwind `flex overflow-x-auto snap-x snap-mandatory` with `min-w-[85%]` cards) and the existing grid on `md+`.
-- Ensure every plan card (Free, Basic, Pro, Premium, Premium Plus, Max, Enterprise) renders with full feature list, no truncation, no overflow.
-- Repeat the same audit on other plan-comparison spots (`UpgradePlanModal`, any plan grids inside Dashboard) and apply the same responsive treatment where they break.
+**STT (speech-to-text)**
+- Replace current OpenAI Whisper path in `supabase/functions/stt-transcribe` with **Google `chirp-3`** via Lovable AI Gateway (`google/chirp-3`). Keep browser `SpeechRecognition` as silent fallback.
+- Improve `useVoiceDictation.ts`: ensure mic stream stops on `stop`/`cancel`, drop stale "Failed to fetch" toasts, return clean transcript.
+- Apply to every prompt bar that uses `VoiceDictationButton`: ChatInput, Imagine, Cineshoot, FlowBuilder, Deck, Health, Agro, Agent, Legends, Scholars chat.
 
----
-
-## 3) Text-to-Speech + Speech-to-Text reliability
-
-**TTS — `src/hooks/useTtsPlayback.ts` + `supabase/functions/tts-speak/index.ts`**
-- Edge function: on provider failure, return `200 { fallback: true, reason }` instead of 502 so the client never throws "failed to fetch".
-- Client: detect `Content-Type: application/json` and `fallback: true` → seamlessly fall back to `window.speechSynthesis` with the requested language voice. Also fallback on any network throw.
-- Preserve the gesture chain: create `SpeechSynthesisUtterance` synchronously in the click handler before any `await`.
-
-**STT — `src/hooks/useVoiceDictation.ts` + `supabase/functions/stt-transcribe/index.ts`**
-- Edge function: same pattern, return `200 { fallback: true }` on provider error.
-- Client: on fallback / network error, switch to the browser `SpeechRecognition` API (where available) and emit the transcript through the existing `onTranscript` callback. Surface a single sonner toast only when both premium + browser fallback fail.
-- Cancel in-flight uploads cleanly on `cancel()`.
+**TTS (text-to-speech) — fix non-stop voice on close**
+- `useTtsPlayback.ts`: on `stop()` call `window.speechSynthesis.cancel()` AND pause/clear the `<audio>` element AND abort the in-flight fetch via `AbortController`. Ensure unmount also cancels.
+- Close button on TTS UI calls the same unified `stop()`.
 
 ---
 
-## 4) Mobile chat fixes
+## 3. Safety banners (Health & Agro)
 
-`src/pages/ChatPage.tsx` + `src/components/aichat/*` + `src/hooks/useChatSync.ts`
-- Ensure root container uses `h-[100dvh]` and the message list is the only scroll container (fixes iOS Safari "doesn't update" bug caused by nested scrollers).
-- Fix the input bar so it stays above the iOS keyboard (`env(safe-area-inset-bottom)` padding, `position: sticky` instead of `fixed` where needed).
-- Verify realtime subscription resubscribes on visibility change (mobile tab suspension currently drops it silently).
-- Ensure messages re-render after streaming completes on mobile (force scroll-to-bottom via the existing `useAutoScroll` hook with `will-change: scroll-position`).
+Add a prominent **Bangla** warning banner at the top of `HealthPage.tsx` and `AgroPage.tsx`:
+
+> ⚠️ সতর্কতা: ডাক্তার / কৃষি বিশেষজ্ঞের অনুমতি ছাড়া কোনো ঔষধ বা চিকিৎসা গ্রহণ করবেন না। এই টুলটি কেবল তথ্যমূলক সহায়তা প্রদান করে — চূড়ান্ত সিদ্ধান্ত পেশাদারের পরামর্শ অনুযায়ী নিন।
+
+Styled with amber/red gradient, icon, bold heading, dismissible per-session only (re-shows next visit). Same banner on mobile.
 
 ---
 
-## 5) Sorix Scholars mobile
+## 4. Profile & Account (chat-side parity with Scholars + soft-delete)
 
-`src/components/scholars/ScholarsLayout.tsx`, `ScholarsNavbar.tsx`, `pages/scholars/ScholarsHome.tsx`, `CourseDetailPage.tsx`, `WorkshopDetailPage.tsx`, `CompetitionDetailPage.tsx`, `sections/*`
-- Navbar: collapse to hamburger under `md`, ensure language toggle stays visible.
-- Hero + section grids: switch to single-column on `<md`, add `min-w-0` and `truncate`/`whitespace-nowrap` for the Bangla strings per memory rule (BN is 20-30% wider).
-- Detail pages: standardized 10-section layout must stack cleanly on mobile (no horizontal scroll, no overlapping CTAs).
-- Footer: ensure links wrap rather than overflow.
+**Chat-side Settings → Profile**
+- Mirror the Scholars profile editor: full name, phone (with country code), email (read-only), avatar upload — same layout/styles as screenshot 2.
+
+**Soft-delete with 30-day recovery**
+- New table `account_deletion_requests` (user_id, reason, requested_at, scheduled_purge_at, status: pending|cancelled|purged) with RLS + GRANTs + service_role for cron.
+- Add `deleted_at` + `deletion_scheduled_at` on `profiles`.
+- Delete flow modal: 3-step
+  1. "Why are you leaving?" (radio list + free text)
+  2. Confirm — explain "Account will be recoverable for 30 days, then permanently deleted."
+  3. Final confirm + sign-out.
+- On login during the 30-day window: show "Your account is scheduled for deletion on {date}. Recover account?" banner with one-click restore.
+- Edge function `account-delete-request` (schedule) + `account-delete-recover` + scheduled `account-delete-purge` (cron daily) using service role.
+- Mirror same flow in the **Scholars** profile page.
+
+---
+
+## 5. "Sorix Codex" rebrand (Projects → Sorix Codex)
+
+- Rename "Projects" everywhere in UI copy → **Sorix Codex** (sidebar, page titles, breadcrumbs, More Tools page, empty states, dashboards). Keep DB table/URL slugs as `projects` to avoid migration risk; only UI strings change.
+- Chat sidebar tools order: **Cineshoot → Sorix Codex → More Tools**.
+- Add Sorix Codex card to the **More Tools** page and the chat-input tools menu.
+- Mobile: same rename + same ordering in the mobile drawer.
+
+---
+
+## 6. Mobile parity
+
+Every change above (banners, profile editor, delete flow, codex rename, voice button states, trial banners, plan gating) is verified on `<md` breakpoints using `h-[100dvh]`, safe-area insets, and the existing horizontal-scroll patterns.
 
 ---
 
 ## Technical notes
 
-- New migration file under `supabase/migrations/` with grants + RLS + RPC.
-- Edge function changes: `cineshoot-start`, `cineshoot-status`, `tts-speak`, `stt-transcribe`. JWT verification stays on; forwarded Auth header preserved.
-- No changes to payments, no changes to existing token-cost logic for Cineshoot (paid plans still spend tokens; free-trial renders cost 0 tokens but increment the trial counter).
-- All new toasts use `sonner` per project memory.
-- Brand styling (Plus Jakarta Sans, gap-1.5) preserved.
+- DB migrations: `profiles.imagine_free_renders_used`, `profiles.deleted_at`, `profiles.deletion_scheduled_at`, new `account_deletion_requests` table with grants + RLS + update trigger, new RPCs `increment_imagine_free_render`, `request_account_deletion(reason)`, `recover_account()`.
+- Edge functions: update `stt-transcribe` (chirp-3), update `imagine-generate`, new `account-delete-request` / `account-delete-recover` / `account-delete-purge` (cron).
+- Frontend: `useTtsPlayback.ts` AbortController + speechSynthesis.cancel; `useVoiceDictation.ts` track stop; `ImaginePage.tsx` trial banner; `CineshootPage.tsx` banner copy; `HealthPage.tsx` / `AgroPage.tsx` Bangla warning; `ChatSettings` profile editor + delete modal; Scholars profile delete modal; Projects→Sorix Codex string rename across `src/**`; sidebar reorder.
+- No changes to existing chat business logic beyond model unlocking.
 
 ---
 
-## Files expected to change
+## Out of scope (call out for confirmation if needed)
 
-```
-supabase/migrations/<new>_cineshoot_free_trial.sql
-supabase/functions/cineshoot-start/index.ts
-supabase/functions/cineshoot-status/index.ts
-supabase/functions/tts-speak/index.ts
-supabase/functions/stt-transcribe/index.ts
-src/hooks/useTtsPlayback.ts
-src/hooks/useVoiceDictation.ts
-src/hooks/useSubscription.ts
-src/pages/CineshootPage.tsx
-src/components/Pricing.jsx
-src/components/aichat/UpgradePlanModal.tsx          (plan grid responsive)
-src/pages/ChatPage.tsx
-src/components/aichat/*                              (input bar / scroll containers)
-src/components/scholars/ScholarsLayout.tsx
-src/components/scholars/ScholarsNavbar.tsx
-src/components/scholars/ScholarsFooter.tsx
-src/components/scholars/sections/*                   (responsive)
-src/pages/scholars/ScholarsHome.tsx
-src/pages/scholars/{CourseDetail,WorkshopDetail,CompetitionDetail}Page.tsx
-```
+- Actual hard-purge cron requires Supabase pg_cron — will be wired but you must enable the scheduled trigger once.
+- Email notifications for "account scheduled for deletion" / "recovered" can be added in a follow-up.

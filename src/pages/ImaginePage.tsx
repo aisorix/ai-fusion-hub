@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEOHead from '@/components/SEOHead';
-import { ArrowLeft, ImageIcon, History, X, Wand2 } from 'lucide-react';
+import { ArrowLeft, ImageIcon, History, X, Wand2, Sparkles } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useChatStore, type Attachment } from '@/stores/chatStore';
@@ -19,6 +19,9 @@ import ImagineHistory from '@/components/imagine/ImagineHistory';
 import ImagineExplorer from '@/components/imagine/ImagineExplorer';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 import TokenCostChip from '@/components/shared/TokenCostChip';
+
+const FREE_IMAGINE_LIMIT = 3;
+const FREE_IMAGINE_KEY = 'sorix-imagine-free-renders-used';
 
 const ImaginePage: React.FC = () => {
   const navigate = useNavigate();
@@ -43,6 +46,13 @@ const ImaginePage: React.FC = () => {
   // When user submits a follow-up prompt with no new attachment, refine the
   // currently-displayed image instead of starting fresh.
   const [refineEnabled, setRefineEnabled] = useState(true);
+
+  const isPaidImagine = user.plan !== 'free';
+  const [freeRendersUsed, setFreeRendersUsed] = useState<number>(() => {
+    try { return parseInt(localStorage.getItem(FREE_IMAGINE_KEY) || '0', 10) || 0; } catch { return 0; }
+  });
+  const freeRendersLeft = Math.max(0, FREE_IMAGINE_LIMIT - freeRendersUsed);
+  const trialExhausted = !isPaidImagine && freeRendersLeft <= 0;
 
   const tokensRemaining = user.tokensLimit - user.tokensUsed;
   const isProPlus = user.plan === 'pro' || user.plan === 'premium';
@@ -102,7 +112,12 @@ const ImaginePage: React.FC = () => {
   };
 
   const handleGenerate = async (prompt: string, attachments?: Attachment[]) => {
-    if (tokensRemaining < costEstimate) {
+    // Free trial gate (3 renders for free users).
+    if (!isPaidImagine && trialExhausted) {
+      setShowUpgrade(true);
+      return;
+    }
+    if (isPaidImagine && tokensRemaining < costEstimate) {
       setShowUpgrade(true);
       return;
     }
@@ -134,6 +149,11 @@ const ImaginePage: React.FC = () => {
       setImageUrls(result.imageUrls || (result.imageUrl ? [result.imageUrl] : []));
       setRefreshHistory((p) => p + 1);
       setUser({ ...user, tokensUsed: result.totalTokensUsed });
+      if (!isPaidImagine) {
+        const next = freeRendersUsed + 1;
+        setFreeRendersUsed(next);
+        try { localStorage.setItem(FREE_IMAGINE_KEY, String(next)); } catch {}
+      }
     } catch (err: any) {
       if (err.message === 'insufficient_tokens') {
         setShowUpgrade(true);
@@ -202,6 +222,24 @@ const ImaginePage: React.FC = () => {
 
       <main className="flex-1 overflow-y-auto">
         <div className="max-w-3xl mx-auto px-3 sm:px-4 lg:px-6 pt-3 pb-6 sm:pt-5 sm:pb-8 md:pt-8 flex flex-col gap-4 sm:gap-5">
+          {!isPaidImagine && (
+            <div className="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30">
+              <div className="flex items-center gap-2 min-w-0">
+                <Sparkles className="w-4 h-4 text-purple-500 shrink-0" />
+                <p className="text-xs sm:text-sm text-foreground truncate">
+                  <span className="font-semibold">Free trial:</span>{' '}
+                  <span className="text-muted-foreground">{freeRendersLeft} of {FREE_IMAGINE_LIMIT} images left</span>
+                </p>
+              </div>
+              <button
+                onClick={() => setShowUpgrade(true)}
+                className="text-[11px] sm:text-xs font-semibold px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 transition-opacity whitespace-nowrap"
+              >
+                Upgrade
+              </button>
+            </div>
+          )}
+
 
           {/* Prompt bar with embedded model picker */}
           <div className="relative z-[60]">
