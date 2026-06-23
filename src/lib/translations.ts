@@ -134,7 +134,7 @@ export const translations = {
     searchChats: 'চ্যাট খুঁজুন',
     pinned: 'পিন করা',
     soon: 'শীঘ্রই',
-    projects: 'প্রজেক্ট',
+    projects: 'সোরিক্স কোডেক্স',
     moreTools: 'আরও টুলস',
     sorixAgro: 'সরিক্স এগ্রো',
     sorixAgroDesc: 'বাংলাদেশি কৃষকদের জন্য AI-চালিত কৃষি সহকারী',
