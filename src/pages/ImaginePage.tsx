@@ -20,6 +20,9 @@ import ImagineExplorer from '@/components/imagine/ImagineExplorer';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 import TokenCostChip from '@/components/shared/TokenCostChip';
 
+const FREE_IMAGINE_LIMIT = 3;
+const FREE_IMAGINE_KEY = 'sorix-imagine-free-renders-used';
+
 const ImaginePage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -43,6 +46,13 @@ const ImaginePage: React.FC = () => {
   // When user submits a follow-up prompt with no new attachment, refine the
   // currently-displayed image instead of starting fresh.
   const [refineEnabled, setRefineEnabled] = useState(true);
+
+  const isPaidImagine = user.plan !== 'free';
+  const [freeRendersUsed, setFreeRendersUsed] = useState<number>(() => {
+    try { return parseInt(localStorage.getItem(FREE_IMAGINE_KEY) || '0', 10) || 0; } catch { return 0; }
+  });
+  const freeRendersLeft = Math.max(0, FREE_IMAGINE_LIMIT - freeRendersUsed);
+  const trialExhausted = !isPaidImagine && freeRendersLeft <= 0;
 
   const tokensRemaining = user.tokensLimit - user.tokensUsed;
   const isProPlus = user.plan === 'pro' || user.plan === 'premium';
