@@ -6,7 +6,7 @@ export const translations = {
     searchChats: 'Search chats',
     pinned: 'Pinned',
     soon: 'Soon',
-    projects: 'Projects',
+    projects: 'Sorix Codex',
     moreTools: 'More Tools',
     sorixAgro: 'Sorix Agro',
     sorixAgroDesc: 'AI-powered agricultural assistant for Bangladeshi farmers',
