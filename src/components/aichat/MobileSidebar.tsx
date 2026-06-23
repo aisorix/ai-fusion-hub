@@ -6,6 +6,7 @@ import {
   LayoutGrid,
   Sparkles,
   FolderKanban,
+  Clapperboard,
   ChevronDown,
   Workflow,
   Grid3X3,
