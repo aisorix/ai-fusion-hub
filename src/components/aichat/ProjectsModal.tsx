@@ -273,7 +273,7 @@ const ProjectsModal = () => {
                         <div className="w-20 h-20 rounded-2xl bg-muted/50 border border-border flex items-center justify-center mb-6">
                           <Lock className="w-9 h-9 text-muted-foreground" />
                         </div>
-                        <h3 className="text-xl font-bold text-foreground mb-2">Projects are for Paid Users</h3>
+                        <h3 className="text-xl font-bold text-foreground mb-2">Sorix Codex is for Paid Users</h3>
                         <p className="text-sm text-muted-foreground max-w-sm mb-6">
                           Upgrade to Basic, Pro, or Premium to create AI-powered development projects with DeepSeek V3.2 or Claude Sonnet 4.5.
                         </p>
