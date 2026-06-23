@@ -323,21 +323,6 @@ const MobileSidebar = ({ isOpen, onClose, onNewChat }: MobileSidebarProps) => {
                 )}
               </AnimatePresence>
             </div>
-
-            <button
-              onClick={() => { setProjectsModalOpen(true); onClose(); }}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-foreground/80 hover:bg-muted/50 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <FolderKanban className="w-4 h-4" />
-                <span>{t('projects')}</span>
-              </div>
-              {user.plan === 'free' && (
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-bold">PRO</span>
-                </div>
-              )}
-            </button>
           </div>
 
           {/* Chat History */}
