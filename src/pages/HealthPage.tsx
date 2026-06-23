@@ -234,7 +234,9 @@ const HealthPage: React.FC = () => {
       </header>
 
       {/* Main Content */}
+      <SafetyWarningBanner kind="health" />
       <main className="flex-1 overflow-y-auto">
+
         <AnimatePresence mode="wait">
           {currentStep === 'intake' && (
             <motion.div
