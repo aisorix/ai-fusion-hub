@@ -1,11 +1,12 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Camera, Save, KeyRound, Mail, Phone, User as UserIcon, FileText } from "lucide-react";
+import { Camera, Save, KeyRound, Mail, Phone, User as UserIcon, FileText, Trash2 } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useScholarsLang } from "@/contexts/ScholarsI18nContext";
 import { toast } from "sonner";
+import DeleteAccountModal from "@/components/shared/DeleteAccountModal";
 
 export default function ScholarsProfile() {
   const { user, loading: authLoading } = useAuth();
@@ -24,6 +25,7 @@ export default function ScholarsProfile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
