@@ -1,11 +1,12 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Camera, Save, KeyRound, Mail, Phone, User as UserIcon, FileText } from "lucide-react";
+import { Camera, Save, KeyRound, Mail, Phone, User as UserIcon, FileText, Trash2 } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useScholarsLang } from "@/contexts/ScholarsI18nContext";
 import { toast } from "sonner";
+import DeleteAccountModal from "@/components/shared/DeleteAccountModal";
 
 export default function ScholarsProfile() {
   const { user, loading: authLoading } = useAuth();
@@ -24,6 +25,7 @@ export default function ScholarsProfile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -258,10 +260,32 @@ export default function ScholarsProfile() {
             </button>
           </div>
         </div>
+
+        {/* Danger zone */}
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6 mt-5">
+          <h2 className="text-sm font-bold text-destructive mb-1 flex items-center gap-2">
+            <Trash2 className="w-4 h-4" /> {t("অ্যাকাউন্ট মুছুন", "Delete account")}
+          </h2>
+          <p className="text-xs text-muted-foreground mb-3">
+            {t(
+              "অ্যাকাউন্ট মুছলে ৩০ দিন পর্যন্ত পুনরুদ্ধারযোগ্য থাকবে; এরপর সব ডেটা স্থায়ীভাবে মুছে যাবে।",
+              "When you delete your account it stays recoverable for 30 days, then everything is permanently removed."
+            )}
+          </p>
+          <button
+            onClick={() => setShowDelete(true)}
+            className="px-4 py-2 rounded-lg bg-destructive text-destructive-foreground text-sm font-semibold hover:opacity-90"
+          >
+            {t("অ্যাকাউন্ট মুছুন", "Delete my account")}
+          </button>
+        </div>
       </section>
+
+      <DeleteAccountModal open={showDelete} onClose={() => setShowDelete(false)} bn />
     </>
   );
 }
+
 
 function Field({ label, icon: Icon, children }: { label: string; icon: any; children: React.ReactNode }) {
   return (

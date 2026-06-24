@@ -19,14 +19,16 @@ import ImagineHistory from '@/components/imagine/ImagineHistory';
 import ImagineExplorer from '@/components/imagine/ImagineExplorer';
 import UpgradePlanModal from '@/components/aichat/UpgradePlanModal';
 import TokenCostChip from '@/components/shared/TokenCostChip';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 const FREE_IMAGINE_LIMIT = 3;
-const FREE_IMAGINE_KEY = 'sorix-imagine-free-renders-used';
 
 const ImaginePage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, setUser } = useChatStore();
+  const { user: authUser } = useAuth();
 
   const [selectedModel, setSelectedModel] = useState<ImageModel>(imageModels[0]);
   const [aspect, setAspect] = useState<AspectRatio>('1:1');
@@ -48,11 +50,25 @@ const ImaginePage: React.FC = () => {
   const [refineEnabled, setRefineEnabled] = useState(true);
 
   const isPaidImagine = user.plan !== 'free';
-  const [freeRendersUsed, setFreeRendersUsed] = useState<number>(() => {
-    try { return parseInt(localStorage.getItem(FREE_IMAGINE_KEY) || '0', 10) || 0; } catch { return 0; }
-  });
+  const [freeRendersUsed, setFreeRendersUsed] = useState<number>(0);
   const freeRendersLeft = Math.max(0, FREE_IMAGINE_LIMIT - freeRendersUsed);
   const trialExhausted = !isPaidImagine && freeRendersLeft <= 0;
+
+  // Server-truth: hydrate trial counter from profiles.
+  useEffect(() => {
+    if (!authUser?.id || isPaidImagine) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('imagine_free_renders_used')
+        .eq('user_id', authUser.id)
+        .maybeSingle();
+      if (!cancelled) setFreeRendersUsed((data as any)?.imagine_free_renders_used ?? 0);
+    })();
+    return () => { cancelled = true; };
+  }, [authUser?.id, isPaidImagine]);
+
 
   const tokensRemaining = user.tokensLimit - user.tokensUsed;
   const isProPlus = user.plan === 'pro' || user.plan === 'premium';
@@ -149,13 +165,13 @@ const ImaginePage: React.FC = () => {
       setImageUrls(result.imageUrls || (result.imageUrl ? [result.imageUrl] : []));
       setRefreshHistory((p) => p + 1);
       setUser({ ...user, tokensUsed: result.totalTokensUsed });
-      if (!isPaidImagine) {
-        const next = freeRendersUsed + 1;
-        setFreeRendersUsed(next);
-        try { localStorage.setItem(FREE_IMAGINE_KEY, String(next)); } catch {}
+      if (!isPaidImagine && typeof result.freeRendersUsed === 'number') {
+        setFreeRendersUsed(result.freeRendersUsed);
+      } else if (!isPaidImagine) {
+        setFreeRendersUsed((n) => n + (result.imageUrls?.length || 1));
       }
     } catch (err: any) {
-      if (err.message === 'insufficient_tokens') {
+      if (err.message === 'insufficient_tokens' || err.message === 'free_trial_exhausted') {
         setShowUpgrade(true);
       } else {
         toast.error(err.message || 'Failed to generate image');

@@ -1,21 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Camera, ChevronDown, User, Check, LogOut, Trash2, Loader2 } from 'lucide-react';
+import { Camera, ChevronDown, User, Check, LogOut, Trash2, Loader2, FileText } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useChatStore } from '@/stores/chatStore';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import DeleteAccountModal from '@/components/shared/DeleteAccountModal';
 
 const COUNTRY_CODES = [
   { code: '+880', country: 'BD', flag: '🇧🇩' },
@@ -31,7 +22,7 @@ const COUNTRY_CODES = [
 ];
 
 const ProfileTab = () => {
-  const { user, signOut, session } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { language } = useChatStore();
@@ -40,13 +31,13 @@ const ProfileTab = () => {
   const [fullName, setFullName] = useState('');
   const [countryCode, setCountryCode] = useState('+1');
   const [phone, setPhone] = useState('');
+  const [bio, setBio] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [countryOpen, setCountryOpen] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const email = user?.email || '';
@@ -58,7 +49,7 @@ const ProfileTab = () => {
     const loadProfile = async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('full_name, avatar_url, phone, country_code')
+        .select('full_name, avatar_url, phone, country_code, bio')
         .eq('user_id', user.id)
         .maybeSingle();
       if (data) {
@@ -66,6 +57,7 @@ const ProfileTab = () => {
         setAvatarUrl(data.avatar_url || null);
         setPhone(data.phone || '');
         setCountryCode(data.country_code || '+1');
+        setBio((data as any).bio || '');
       } else {
         setFullName(user.user_metadata?.full_name || '');
       }
@@ -121,7 +113,7 @@ const ProfileTab = () => {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ full_name: fullName, phone, country_code: countryCode })
+        .update({ full_name: fullName, phone, country_code: countryCode, bio } as any)
         .eq('user_id', user.id);
       if (error) throw error;
       setHasChanges(false);
@@ -135,27 +127,11 @@ const ProfileTab = () => {
     }
   };
 
-  const handleDeleteAccount = async () => {
-    if (!session) return;
-    setDeleting(true);
-    try {
-      const res = await supabase.functions.invoke('delete-account');
-      if (res.error) throw res.error;
-      await signOut();
-      navigate('/');
-      toast.success(bn ? 'অ্যাকাউন্ট মুছে ফেলা হয়েছে' : 'Account deleted successfully');
-    } catch (err: any) {
-      toast.error(err.message || (bn ? 'অ্যাকাউন্ট মুছতে ব্যর্থ' : 'Failed to delete account'));
-    } finally {
-      setDeleting(false);
-      setShowDeleteDialog(false);
-    }
-  };
-
   const handleSignOut = async () => {
     await signOut();
     navigate('/login');
   };
+
 
   const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setter(e.target.value);
@@ -280,6 +256,27 @@ const ProfileTab = () => {
           </div>
         </div>
 
+        {/* Bio */}
+        <div>
+          <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 flex items-center gap-1.5">
+            <FileText className="w-3.5 h-3.5" />
+            {bn ? 'বায়ো' : 'Bio'}
+          </label>
+          <textarea
+            value={bio}
+            onChange={(e) => { setBio(e.target.value); setHasChanges(true); }}
+            maxLength={300}
+            rows={3}
+            placeholder={bn ? 'নিজের সম্পর্কে কিছু লিখুন…' : 'Tell us a bit about yourself…'}
+            className={cn(
+              'w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-200 text-sm sm:text-base resize-none',
+              'bg-muted border border-border placeholder:text-muted-foreground',
+              'focus:outline-none focus:border-primary/50 focus:shadow-glow'
+            )}
+          />
+          <p className="text-[10px] sm:text-xs mt-1 text-muted-foreground">{bio.length}/300</p>
+        </div>
+
         {/* Email */}
         <div>
           <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">{bn ? 'ইমেইল' : 'Email'}</label>
@@ -306,9 +303,12 @@ const ProfileTab = () => {
             <Trash2 className="w-4 h-4" />
             {bn ? 'অ্যাকাউন্ট মুছুন' : 'Delete Account'}
           </button>
-          <p className="text-[10px] sm:text-xs mt-1 text-muted-foreground text-center">{bn ? 'এই কাজটি স্থায়ী এবং পূর্বাবস্থায় ফেরানো যাবে না' : 'This action is permanent and cannot be undone'}</p>
+          <p className="text-[10px] sm:text-xs mt-1 text-muted-foreground text-center">
+            {bn ? '৩০ দিন পর্যন্ত পুনরুদ্ধারযোগ্য, তারপর স্থায়ীভাবে মুছে যাবে' : 'Recoverable for 30 days, then permanently deleted'}
+          </p>
         </div>
       </div>
+
 
       {/* Update Button */}
       <div className="pt-4 sm:pt-6 mt-auto">
@@ -326,24 +326,8 @@ const ProfileTab = () => {
         </button>
       </div>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{bn ? 'অ্যাকাউন্ট মুছুন' : 'Delete Account'}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {bn ? 'এটি আপনার অ্যাকাউন্ট, সমস্ত ডেটা, প্রকল্প এবং সাবস্ক্রিপশন স্থায়ীভাবে মুছে ফেলবে। এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।' : 'This will permanently delete your account, all your data, projects, and subscription. This action cannot be undone.'}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>{bn ? 'বাতিল' : 'Cancel'}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteAccount} disabled={deleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              {deleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              {bn ? 'চিরতরে মুছুন' : 'Delete Forever'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteAccountModal open={showDeleteDialog} onClose={() => setShowDeleteDialog(false)} bn={bn} />
+
     </div>
   );
 };

@@ -40,6 +40,8 @@ export interface GenerateImageResult {
   ids: string[];
   tokensUsed: number;
   totalTokensUsed: number;
+  freeRendersUsed?: number;
+  isFreeTrial?: boolean;
 }
 
 export const imagineApi = {

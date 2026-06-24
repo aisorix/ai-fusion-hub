@@ -232,19 +232,8 @@ serve(async (req) => {
             .update({ tokens_used: (sub.tokens_used ?? 0) + tokensCost })
             .eq('id', sub.id);
         }
-      } else {
-        // Free-trial render — bump the per-user counter.
-        const { data: prof } = await supabaseAdmin
-          .from('profiles')
-          .select('cineshoot_free_renders_used')
-          .eq('user_id', userId)
-          .maybeSingle();
-        const next = (prof?.cineshoot_free_renders_used ?? 0) + 1;
-        await supabaseAdmin
-          .from('profiles')
-          .update({ cineshoot_free_renders_used: next })
-          .eq('user_id', userId);
       }
+
 
       // Mirror into video_generations history.
       await supabaseAdmin.from('video_generations').insert({
