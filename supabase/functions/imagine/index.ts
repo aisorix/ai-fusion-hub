@@ -324,7 +324,14 @@ serve(async (req) => {
     }
 
     const actualCost = perImageCost * imageUrls.length * mult;
-    if (sub) {
+    let freeRendersUsed = 0;
+    if (isFreeTrial) {
+      // Increment the lifetime free-trial counter, once per generated image.
+      for (let i = 0; i < imageUrls.length; i++) {
+        const { data } = await supabase.rpc("increment_imagine_free_render");
+        if (typeof data === "number") freeRendersUsed = data;
+      }
+    } else if (sub) {
       await supabase
         .from("subscriptions")
         .update({ tokens_used: currentUsed + actualCost })
@@ -337,14 +344,17 @@ serve(async (req) => {
         imageUrls,
         imageUrl: imageUrls[0],
         ids,
-        tokensUsed: actualCost,
-        totalTokensUsed: currentUsed + actualCost,
+        tokensUsed: isFreeTrial ? 0 : actualCost,
+        totalTokensUsed: isFreeTrial ? currentUsed : currentUsed + actualCost,
+        freeRendersUsed,
+        isFreeTrial,
         width,
         height,
         format: fmt,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
+
   } catch (err) {
     console.error("Imagine error:", err);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
