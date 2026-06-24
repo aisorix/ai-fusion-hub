@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_deletion_requests: {
+        Row: {
+          cancelled_at: string | null
+          created_at: string
+          details: string | null
+          id: string
+          purged_at: string | null
+          reason: string | null
+          requested_at: string
+          scheduled_purge_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          purged_at?: string | null
+          reason?: string | null
+          requested_at?: string
+          scheduled_purge_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          purged_at?: string | null
+          reason?: string | null
+          requested_at?: string
+          scheduled_purge_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       agent_runs: {
         Row: {
           created_at: string
@@ -1272,8 +1314,11 @@ export type Database = {
           cineshoot_free_renders_used: number
           country_code: string | null
           created_at: string
+          deleted_at: string | null
+          deletion_scheduled_at: string | null
           full_name: string | null
           id: string
+          imagine_free_renders_used: number
           phone: string | null
           updated_at: string
           user_id: string
@@ -1284,8 +1329,11 @@ export type Database = {
           cineshoot_free_renders_used?: number
           country_code?: string | null
           created_at?: string
+          deleted_at?: string | null
+          deletion_scheduled_at?: string | null
           full_name?: string | null
           id?: string
+          imagine_free_renders_used?: number
           phone?: string | null
           updated_at?: string
           user_id: string
@@ -1296,8 +1344,11 @@ export type Database = {
           cineshoot_free_renders_used?: number
           country_code?: string | null
           created_at?: string
+          deleted_at?: string | null
+          deletion_scheduled_at?: string | null
           full_name?: string | null
           id?: string
+          imagine_free_renders_used?: number
           phone?: string | null
           updated_at?: string
           user_id?: string
@@ -2478,6 +2529,7 @@ export type Database = {
         Returns: boolean
       }
       increment_cineshoot_free_render: { Args: never; Returns: number }
+      increment_imagine_free_render: { Args: never; Returns: number }
       increment_tokens_used: { Args: { _amount: number }; Returns: number }
       is_admin_user: { Args: { _user_id: string }; Returns: boolean }
       log_page_view: {
@@ -2508,6 +2560,11 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      recover_account: { Args: never; Returns: Json }
+      request_account_deletion: {
+        Args: { _details?: string; _reason: string }
+        Returns: Json
       }
       send_guest_message: {
         Args: { _content: string; _sender_type?: string; _token: string }
