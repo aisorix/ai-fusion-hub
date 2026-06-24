@@ -57,7 +57,7 @@ const Pricing = () => {
         { text: sorixAgroLabel, included: true },
         { text: sorixLegendsLabel, included: true },
         { text: 'Sorix Deck', subtext: t('slideFree'), included: true },
-        { text: 'Sorix Cineshoot', subtext: language === 'en' ? 'Premium Plus { text: 'Sorix Cineshoot', subtext: language === 'en' ? '2 free renders trial' : '২টি ফ্রি ভিডিও ট্রায়াল', included: true } above' : 'প্রিমিয়াম প্লাস ও তদূর্ধ্ব', included: false },
+        { text: 'Sorix Cineshoot', subtext: language === 'en' ? 'Premium Plus & above' : 'প্রিমিয়াম প্লাস ও তদূর্ধ্ব', included: false },
 
         { text: t('webSearch'), included: false },
         { text: t('projects'), included: false },
@@ -86,7 +86,7 @@ const Pricing = () => {
         { text: sorixAgroLabel, included: true },
         { text: sorixLegendsLabel, included: true },
         { text: 'Sorix Deck', included: true },
-        { text: 'Sorix Cineshoot', subtext: language === 'en' ? 'Premium Plus { text: 'Sorix Cineshoot', subtext: language === 'en' ? '2 free renders trial' : '২টি ফ্রি ভিডিও ট্রায়াল', included: true } above' : 'প্রিমিয়াম প্লাস ও তদূর্ধ্ব', included: false },
+        { text: 'Sorix Cineshoot', subtext: language === 'en' ? 'Premium Plus & above' : 'প্রিমিয়াম প্লাস ও তদূর্ধ্ব', included: false },
 
         { text: t('webSearchBasic'), included: true },
         { text: `${t('voiceAIBasic')}`, subtext: '10 min/day', included: true },
@@ -116,7 +116,7 @@ const Pricing = () => {
         { text: sorixAgroLabel, included: true },
         { text: sorixLegendsLabel, included: true },
         { text: 'Sorix Deck', included: true },
-        { text: 'Sorix Cineshoot', subtext: language === 'en' ? 'Premium Plus { text: 'Sorix Cineshoot', subtext: language === 'en' ? '2 free renders trial' : '২টি ফ্রি ভিডিও ট্রায়াল', included: true } above' : 'প্রিমিয়াম প্লাস ও তদূর্ধ্ব', included: false },
+        { text: 'Sorix Cineshoot', subtext: language === 'en' ? 'Premium Plus & above' : 'প্রিমিয়াম প্লাস ও তদূর্ধ্ব', included: false },
 
         { text: t('webSearchPro'), included: true },
         { text: t('voiceAIHigh'), included: true },
@@ -144,7 +144,7 @@ const Pricing = () => {
         { text: sorixAgroLabel, included: true },
         { text: sorixLegendsLabel, included: true },
         { text: 'Sorix Deck', included: true },
-        { text: 'Sorix Cineshoot', subtext: language === 'en' ? 'Premium Plus { text: 'Sorix Cineshoot', subtext: language === 'en' ? '2 free renders trial' : '২টি ফ্রি ভিডিও ট্রায়াল', included: true } above' : 'প্রিমিয়াম প্লাস ও তদূর্ধ্ব', included: false },
+        { text: 'Sorix Cineshoot', subtext: language === 'en' ? 'Premium Plus & above' : 'প্রিমিয়াম প্লাস ও তদূর্ধ্ব', included: false },
 
         { text: 'Sorix Agent', included: true },
         { text: t('webSearchPremium'), included: true },
