@@ -326,24 +326,8 @@ const ProfileTab = () => {
         </button>
       </div>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{bn ? 'অ্যাকাউন্ট মুছুন' : 'Delete Account'}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {bn ? 'এটি আপনার অ্যাকাউন্ট, সমস্ত ডেটা, প্রকল্প এবং সাবস্ক্রিপশন স্থায়ীভাবে মুছে ফেলবে। এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।' : 'This will permanently delete your account, all your data, projects, and subscription. This action cannot be undone.'}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>{bn ? 'বাতিল' : 'Cancel'}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteAccount} disabled={deleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              {deleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              {bn ? 'চিরতরে মুছুন' : 'Delete Forever'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteAccountModal open={showDeleteDialog} onClose={() => setShowDeleteDialog(false)} bn={bn} />
+
     </div>
   );
 };
