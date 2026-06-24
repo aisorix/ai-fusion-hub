@@ -22,7 +22,7 @@ const COUNTRY_CODES = [
 ];
 
 const ProfileTab = () => {
-  const { user, signOut, session } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { language } = useChatStore();
