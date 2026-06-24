@@ -260,10 +260,32 @@ export default function ScholarsProfile() {
             </button>
           </div>
         </div>
+
+        {/* Danger zone */}
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6 mt-5">
+          <h2 className="text-sm font-bold text-destructive mb-1 flex items-center gap-2">
+            <Trash2 className="w-4 h-4" /> {t("অ্যাকাউন্ট মুছুন", "Delete account")}
+          </h2>
+          <p className="text-xs text-muted-foreground mb-3">
+            {t(
+              "অ্যাকাউন্ট মুছলে ৩০ দিন পর্যন্ত পুনরুদ্ধারযোগ্য থাকবে; এরপর সব ডেটা স্থায়ীভাবে মুছে যাবে।",
+              "When you delete your account it stays recoverable for 30 days, then everything is permanently removed."
+            )}
+          </p>
+          <button
+            onClick={() => setShowDelete(true)}
+            className="px-4 py-2 rounded-lg bg-destructive text-destructive-foreground text-sm font-semibold hover:opacity-90"
+          >
+            {t("অ্যাকাউন্ট মুছুন", "Delete my account")}
+          </button>
+        </div>
       </section>
+
+      <DeleteAccountModal open={showDelete} onClose={() => setShowDelete(false)} bn />
     </>
   );
 }
+
 
 function Field({ label, icon: Icon, children }: { label: string; icon: any; children: React.ReactNode }) {
   return (
