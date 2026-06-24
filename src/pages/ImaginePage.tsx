@@ -165,13 +165,13 @@ const ImaginePage: React.FC = () => {
       setImageUrls(result.imageUrls || (result.imageUrl ? [result.imageUrl] : []));
       setRefreshHistory((p) => p + 1);
       setUser({ ...user, tokensUsed: result.totalTokensUsed });
-      if (!isPaidImagine) {
-        const next = freeRendersUsed + 1;
-        setFreeRendersUsed(next);
-        try { localStorage.setItem(FREE_IMAGINE_KEY, String(next)); } catch {}
+      if (!isPaidImagine && typeof result.freeRendersUsed === 'number') {
+        setFreeRendersUsed(result.freeRendersUsed);
+      } else if (!isPaidImagine) {
+        setFreeRendersUsed((n) => n + (result.imageUrls?.length || 1));
       }
     } catch (err: any) {
-      if (err.message === 'insufficient_tokens') {
+      if (err.message === 'insufficient_tokens' || err.message === 'free_trial_exhausted') {
         setShowUpgrade(true);
       } else {
         toast.error(err.message || 'Failed to generate image');
