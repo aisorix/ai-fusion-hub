@@ -133,11 +133,35 @@ serve(async (req) => {
     const planId = sub?.plan_id ?? "free";
     const limit = planLimits[planId] ?? 15000;
     const isProPlus = planId === "pro" || planId === "premium";
+    const isFreeTier = planId === "free";
 
     const modelTier = MODEL_TIER[selectedModel] ?? 'basic';
     const perImageCost = TIER_COST[modelTier];
 
-    if ((PLAN_RANK[planId] ?? 0) < (TIER_RANK[modelTier] ?? 1)) {
+    // Free-tier trial: up to 3 free image renders, no model-tier or token gates.
+    let isFreeTrial = false;
+    if (isFreeTier) {
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("imagine_free_renders_used")
+        .eq("user_id", userId)
+        .maybeSingle();
+      const used = (prof as any)?.imagine_free_renders_used ?? 0;
+      if (used + count > 3) {
+        return new Response(
+          JSON.stringify({
+            error: "free_trial_exhausted",
+            message: "Free Sorix Imagine trial used up — upgrade to keep creating.",
+            usedFreeRenders: used,
+            freeLimit: 3,
+          }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      isFreeTrial = true;
+    }
+
+    if (!isFreeTrial && (PLAN_RANK[planId] ?? 0) < (TIER_RANK[modelTier] ?? 1)) {
       return new Response(
         JSON.stringify({ error: `This model requires a ${modelTier} plan or above` }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -157,7 +181,7 @@ serve(async (req) => {
     }
 
     const totalCost = perImageCost * count * mult;
-    if (currentUsed + totalCost > limit) {
+    if (!isFreeTrial && currentUsed + totalCost > limit) {
       return new Response(
         JSON.stringify({ error: "insufficient_tokens", tokensUsed: currentUsed, tokensLimit: limit }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
