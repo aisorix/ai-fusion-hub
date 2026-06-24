@@ -1,94 +1,85 @@
-## Scope
+# Implementation Plan
 
-A large multi-area update covering plan access, voice (STT/TTS), tools gating, safety banners, account/profile management with soft-delete + recovery, and a "Sorix Codex" rebrand of the Projects section. All changes will be applied on desktop and mobile.
+## 1. Chat-side Profile Editor (parity with Scholars)
 
----
+Rewrite `src/components/aichat/settings/ProfileTab.tsx` to mirror `src/pages/scholars/ScholarsProfile.tsx`:
 
-## 1. Plan-tier access updates
+- Fields: avatar upload (uses `profile-avatars` bucket, `user.id/avatar.<ext>`), Full Name, Phone (with country code input), Email (read-only).
+- Load from `profiles` table on mount; save via `supabase.from('profiles').update(...)`.
+- Avatar preview, "Change photo" / "Remove" buttons, Save button with loading + Sonner toast.
+- Same Tailwind layout/styles as Scholars (card, rounded-2xl, divider, primary CTA).
+- Mobile responsive (stacked card, full-width inputs).
 
-**Chat LLMs — unlock for all paid tiers**
-- Update `src/lib/smartRouting.ts` and `ModelSelector` gating so every model currently unlocked for `premium` is also unlocked for `premium_plus`, `max`, `enterprise` (no extra gates above premium).
-- Verify `useSubscription`/`planAccess.meetsPlan` already covers this; remove any `=== "premium"` strict checks and switch to `meetsPlan(plan, "premium")`.
+## 2. 30-Day Soft-Delete + Recovery (Chat + Scholars)
 
-**Sorix Agent — available on every paid plan**
-- `src/pages/CoWorkPage.tsx` + agent route guard: drop the premium-only lock; allow `basic | pro | premium | premium_plus | max | enterprise`. Free plan still locked (shows upgrade CTA).
+**DB migration** (`account_deletion_requests` table + profile columns):
+```text
+profiles: + deleted_at timestamptz, + deletion_scheduled_at timestamptz
+account_deletion_requests(id, user_id FK auth.users, reason text, details text,
+  requested_at, scheduled_purge_at = now()+30d, status pending|cancelled|purged)
+GRANTS: authenticated SELECT/INSERT/UPDATE own row; service_role ALL
+RLS: user can see/cancel own pending request; insert own
+RPCs (SECURITY DEFINER):
+  request_account_deletion(reason, details) -> schedules + sets profile flags + signs nothing
+  recover_account() -> clears flags, marks request cancelled
+```
 
-**Sorix Imagine — 3 free renders, then upgrade (Cineshoot-style)**
-- New `imagine_free_renders_used` column on `profiles` + `increment_imagine_free_render()` RPC mirroring the existing cineshoot pattern.
-- `imagine-generate` edge function: if user is on free tier and `< 3` renders, allow and increment; else 402.
-- `ImaginePage.tsx`: show "Free trial: X of 3 renders left" banner; show upgrade modal when exhausted.
+**Edge functions**:
+- `account-delete-request` — wraps the RPC, returns scheduled date.
+- `account-delete-recover` — wraps recover RPC.
+- `account-delete-purge` — service-role cron; for every request where `scheduled_purge_at <= now()` and status='pending', purges user data (mirrors current `delete-account` function logic) and marks status='purged'.
+- Schedule via `pg_cron` daily (note: requires one-time enable; instructions in chat).
 
-**Cineshoot — clarify trial banner**
-- Banner copy update: "2 free renders for everyone. Full access requires **Sorix Premium Plus, Max, or Enterprise**."
+**UI — 3-step modal** (`src/components/shared/DeleteAccountModal.tsx`, reused in chat Settings → Profile and Scholars Profile):
+1. "Why are you leaving?" — radio options (Too expensive / Missing features / Privacy concerns / Found alternative / Other) + free-text details.
+2. Confirmation — "Your account will be recoverable for 30 days, then permanently deleted on {date}."
+3. Final confirm + sign-out → calls `account-delete-request`, then `supabase.auth.signOut()`.
 
----
+**Recovery banner** (`src/components/shared/AccountRecoveryBanner.tsx`):
+- Mounted in `AuthContext` / top-level layout. If `profiles.deletion_scheduled_at` is in the future, show sticky banner: "Your account is scheduled for deletion on {date}. [Recover Account]". One-click calls `account-delete-recover`.
+- Mirror in Scholars layout.
 
-## 2. Voice fixes
+**Cleanup**: existing `delete-account` function stays as the purge implementation core (called by purge cron with `user_id`), but client UI no longer calls it directly.
 
-**STT (speech-to-text)**
-- Replace current OpenAI Whisper path in `supabase/functions/stt-transcribe` with **Google `chirp-3`** via Lovable AI Gateway (`google/chirp-3`). Keep browser `SpeechRecognition` as silent fallback.
-- Improve `useVoiceDictation.ts`: ensure mic stream stops on `stop`/`cancel`, drop stale "Failed to fetch" toasts, return clean transcript.
-- Apply to every prompt bar that uses `VoiceDictationButton`: ChatInput, Imagine, Cineshoot, FlowBuilder, Deck, Health, Agro, Agent, Legends, Scholars chat.
+## 3. Cineshoot Server-Side Gating
 
-**TTS (text-to-speech) — fix non-stop voice on close**
-- `useTtsPlayback.ts`: on `stop()` call `window.speechSynthesis.cancel()` AND pause/clear the `<audio>` element AND abort the in-flight fetch via `AbortController`. Ensure unmount also cancels.
-- Close button on TTS UI calls the same unified `stop()`.
+- `supabase/functions/cineshoot-start/index.ts`: remove the 2-free-render trial branch. Enforce `PLAN_RANK[planId] >= 4` (premium_plus). Return 402 `{ error: 'plan_required', requiredPlan: 'premium_plus' }` otherwise.
+- `src/pages/CineshootPage.tsx`: remove free-trial banner/logic; restore `PlanLockScreen` for users below premium_plus with clear copy "Sorix Cineshoot is available on Premium Plus, Max, and Enterprise plans."
+- `src/components/Pricing.jsx`: remove "2 free renders trial" line under sub-Premium-Plus plans; show "Sorix Cineshoot" only on Premium Plus+.
 
----
+## 4. Sorix Agent — Remove Upgrade Pop-up
 
-## 3. Safety banners (Health & Agro)
+- `src/pages/CoWorkPage.tsx`: agent is available on all paid plans (already gated to `basic`+). Remove any `UpgradePlanModal` auto-opening on mount and any one-time intro modal that shows an upgrade CTA. Keep the `PlanLockScreen` only for free-tier users (existing behavior).
+- Audit `src/components/cowork/` for an "Upgrade" dialog mounted at page open; delete or guard behind explicit user action.
 
-Add a prominent **Bangla** warning banner at the top of `HealthPage.tsx` and `AgroPage.tsx`:
+## 5. Sorix Imagine — 3 Free Renders (Cineshoot-style, server-enforced)
 
-> ⚠️ সতর্কতা: ডাক্তার / কৃষি বিশেষজ্ঞের অনুমতি ছাড়া কোনো ঔষধ বা চিকিৎসা গ্রহণ করবেন না। এই টুলটি কেবল তথ্যমূলক সহায়তা প্রদান করে — চূড়ান্ত সিদ্ধান্ত পেশাদারের পরামর্শ অনুযায়ী নিন।
+**DB migration**:
+```text
+profiles: + imagine_free_renders_used integer default 0
+RPC increment_imagine_free_render() SECURITY DEFINER → mirrors increment_cineshoot_free_render
+```
 
-Styled with amber/red gradient, icon, bold heading, dismissible per-session only (re-shows next visit). Same banner on mobile.
+**Edge function** `supabase/functions/imagine/index.ts`:
+- Free plan: allow up to 3 lifetime renders, set token cost to 0, increment counter on success.
+- Beyond 3: return 402 `{ error: 'free_trial_exhausted' }`.
+- Paid plans: unchanged (tokens deducted as today).
 
----
-
-## 4. Profile & Account (chat-side parity with Scholars + soft-delete)
-
-**Chat-side Settings → Profile**
-- Mirror the Scholars profile editor: full name, phone (with country code), email (read-only), avatar upload — same layout/styles as screenshot 2.
-
-**Soft-delete with 30-day recovery**
-- New table `account_deletion_requests` (user_id, reason, requested_at, scheduled_purge_at, status: pending|cancelled|purged) with RLS + GRANTs + service_role for cron.
-- Add `deleted_at` + `deletion_scheduled_at` on `profiles`.
-- Delete flow modal: 3-step
-  1. "Why are you leaving?" (radio list + free text)
-  2. Confirm — explain "Account will be recoverable for 30 days, then permanently deleted."
-  3. Final confirm + sign-out.
-- On login during the 30-day window: show "Your account is scheduled for deletion on {date}. Recover account?" banner with one-click restore.
-- Edge function `account-delete-request` (schedule) + `account-delete-recover` + scheduled `account-delete-purge` (cron daily) using service role.
-- Mirror same flow in the **Scholars** profile page.
-
----
-
-## 5. "Sorix Codex" rebrand (Projects → Sorix Codex)
-
-- Rename "Projects" everywhere in UI copy → **Sorix Codex** (sidebar, page titles, breadcrumbs, More Tools page, empty states, dashboards). Keep DB table/URL slugs as `projects` to avoid migration risk; only UI strings change.
-- Chat sidebar tools order: **Cineshoot → Sorix Codex → More Tools**.
-- Add Sorix Codex card to the **More Tools** page and the chat-input tools menu.
-- Mobile: same rename + same ordering in the mobile drawer.
-
----
-
-## 6. Mobile parity
-
-Every change above (banners, profile editor, delete flow, codex rename, voice button states, trial banners, plan gating) is verified on `<md` breakpoints using `h-[100dvh]`, safe-area insets, and the existing horizontal-scroll patterns.
-
----
+**UI** `src/pages/ImaginePage.tsx`:
+- Replace current localStorage trial with server-truth via `profiles.imagine_free_renders_used`.
+- Banner for free users: "Free trial: X of 3 images left" (purple gradient, matches Cineshoot styling).
+- When exhausted, open `UpgradePlanModal` on generate attempt.
+- Mobile-responsive banner (full-width, condensed copy).
 
 ## Technical notes
 
-- DB migrations: `profiles.imagine_free_renders_used`, `profiles.deleted_at`, `profiles.deletion_scheduled_at`, new `account_deletion_requests` table with grants + RLS + update trigger, new RPCs `increment_imagine_free_render`, `request_account_deletion(reason)`, `recover_account()`.
-- Edge functions: update `stt-transcribe` (chirp-3), update `imagine-generate`, new `account-delete-request` / `account-delete-recover` / `account-delete-purge` (cron).
-- Frontend: `useTtsPlayback.ts` AbortController + speechSynthesis.cancel; `useVoiceDictation.ts` track stop; `ImaginePage.tsx` trial banner; `CineshootPage.tsx` banner copy; `HealthPage.tsx` / `AgroPage.tsx` Bangla warning; `ChatSettings` profile editor + delete modal; Scholars profile delete modal; Projects→Sorix Codex string rename across `src/**`; sidebar reorder.
-- No changes to existing chat business logic beyond model unlocking.
+- All new edge functions: CORS headers, JWT verified in code via user supabase client; service-role only for purge.
+- All Sonner toasts for success/error.
+- Run Supabase linter after migration; fix any function search_path warnings.
+- pg_cron daily schedule for purge installed via `supabase--insert` (user-specific URL/anon key).
+- Types regenerate after migration; UI code referencing new columns lands after.
 
----
+## Out of scope
 
-## Out of scope (call out for confirmation if needed)
-
-- Actual hard-purge cron requires Supabase pg_cron — will be wired but you must enable the scheduled trigger once.
-- Email notifications for "account scheduled for deletion" / "recovered" can be added in a follow-up.
+- Email notifications on deletion request / recovery (follow-up).
+- Hard-delete of auth user in purge runs via existing `delete-account` logic invoked server-side.
