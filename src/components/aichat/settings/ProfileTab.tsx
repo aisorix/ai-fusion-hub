@@ -1,21 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Camera, ChevronDown, User, Check, LogOut, Trash2, Loader2 } from 'lucide-react';
+import { Camera, ChevronDown, User, Check, LogOut, Trash2, Loader2, FileText } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useChatStore } from '@/stores/chatStore';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import DeleteAccountModal from '@/components/shared/DeleteAccountModal';
 
 const COUNTRY_CODES = [
   { code: '+880', country: 'BD', flag: '🇧🇩' },
@@ -40,13 +31,13 @@ const ProfileTab = () => {
   const [fullName, setFullName] = useState('');
   const [countryCode, setCountryCode] = useState('+1');
   const [phone, setPhone] = useState('');
+  const [bio, setBio] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [countryOpen, setCountryOpen] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const email = user?.email || '';
@@ -58,7 +49,7 @@ const ProfileTab = () => {
     const loadProfile = async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('full_name, avatar_url, phone, country_code')
+        .select('full_name, avatar_url, phone, country_code, bio')
         .eq('user_id', user.id)
         .maybeSingle();
       if (data) {
@@ -66,6 +57,7 @@ const ProfileTab = () => {
         setAvatarUrl(data.avatar_url || null);
         setPhone(data.phone || '');
         setCountryCode(data.country_code || '+1');
+        setBio((data as any).bio || '');
       } else {
         setFullName(user.user_metadata?.full_name || '');
       }
