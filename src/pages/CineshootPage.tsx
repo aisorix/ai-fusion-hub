@@ -22,38 +22,14 @@ import { meetsPlan } from '@/lib/planAccess';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
-const FREE_TRIAL_LIMIT = 2;
-
-
 const CineshootPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, setUser } = useChatStore();
   const { currentPlan, isLoading: planLoading } = useSubscription();
-  const { user: authUser } = useAuth();
-
-  const [freeRendersUsed, setFreeRendersUsed] = useState<number>(0);
-  const [trialLoaded, setTrialLoaded] = useState(false);
   const isPaidCineshoot = meetsPlan(currentPlan, 'premium_plus');
-  const freeRendersLeft = Math.max(0, FREE_TRIAL_LIMIT - freeRendersUsed);
-  const trialExhausted = !isPaidCineshoot && freeRendersLeft <= 0;
 
-  useEffect(() => {
-    if (!authUser?.id || isPaidCineshoot) { setTrialLoaded(true); return; }
-    let cancelled = false;
-    (async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('cineshoot_free_renders_used')
-        .eq('user_id', authUser.id)
-        .maybeSingle();
-      if (!cancelled) {
-        setFreeRendersUsed((data as any)?.cineshoot_free_renders_used ?? 0);
-        setTrialLoaded(true);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [authUser?.id, isPaidCineshoot]);
+
 
 
   const [selectedModel, setSelectedModel] = useState<CineshootModel>(cineshootModels[0]);
@@ -125,11 +101,8 @@ const CineshootPage: React.FC = () => {
   };
 
   const handleGenerate = async (prompt: string, attachments?: Attachment[]) => {
-    if (!isPaidCineshoot) {
-      if (trialExhausted) { setShowUpgrade(true); return; }
-    } else if (tokensRemaining < costEstimate) {
-      setShowUpgrade(true); return;
-    }
+    if (!isPaidCineshoot) { setShowUpgrade(true); return; }
+    if (tokensRemaining < costEstimate) { setShowUpgrade(true); return; }
     if (activeJobId) return;
 
     const isRefining = refineEnabled && !!videoUrl && !attachments?.length;
