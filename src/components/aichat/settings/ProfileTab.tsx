@@ -1,129 +1,136 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Camera, ChevronDown, User, Check, LogOut, Trash2, Loader2, FileText } from 'lucide-react';
+import { Camera, Save, KeyRound, Mail, Phone, User as UserIcon, FileText, Trash2, Loader2, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useChatStore } from '@/stores/chatStore';
 import DeleteAccountModal from '@/components/shared/DeleteAccountModal';
 
-const COUNTRY_CODES = [
-  { code: '+880', country: 'BD', flag: '🇧🇩' },
-  { code: '+1', country: 'US', flag: '🇺🇸' },
-  { code: '+44', country: 'UK', flag: '🇬🇧' },
-  { code: '+91', country: 'IN', flag: '🇮🇳' },
-  { code: '+61', country: 'AU', flag: '🇦🇺' },
-  { code: '+81', country: 'JP', flag: '🇯🇵' },
-  { code: '+49', country: 'DE', flag: '🇩🇪' },
-  { code: '+33', country: 'FR', flag: '🇫🇷' },
-  { code: '+86', country: 'CN', flag: '🇨🇳' },
-  { code: '+971', country: 'AE', flag: '🇦🇪' },
-];
-
 const ProfileTab = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const { language } = useChatStore();
   const bn = language === 'bn';
+  const t = (b: string, e: string) => (bn ? b : e);
 
   const [fullName, setFullName] = useState('');
-  const [countryCode, setCountryCode] = useState('+1');
   const [phone, setPhone] = useState('');
+  const [countryCode, setCountryCode] = useState('+1');
   const [bio, setBio] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [countryOpen, setCountryOpen] = useState(false);
-  const [hasChanges, setHasChanges] = useState(false);
+  const [email, setEmail] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [updatingEmail, setUpdatingEmail] = useState(false);
+  const [updatingPwd, setUpdatingPwd] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
 
-  const email = user?.email || '';
   const googleAvatar = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
 
-  // Load profile
   useEffect(() => {
     if (!user) return;
-    const loadProfile = async () => {
+    (async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('full_name, avatar_url, phone, country_code, bio')
+        .select('full_name, phone, country_code, avatar_url, bio')
         .eq('user_id', user.id)
         .maybeSingle();
       if (data) {
         setFullName(data.full_name || user.user_metadata?.full_name || '');
-        setAvatarUrl(data.avatar_url || null);
         setPhone(data.phone || '');
         setCountryCode(data.country_code || '+1');
+        setAvatarUrl(data.avatar_url || null);
         setBio((data as any).bio || '');
       } else {
         setFullName(user.user_metadata?.full_name || '');
       }
+      setEmail(user.email || '');
+      setNewEmail(user.email || '');
       setLoading(false);
-    };
-    loadProfile();
+    })();
   }, [user]);
 
-  const displayAvatar = avatarUrl || googleAvatar;
-
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
+  const uploadAvatar = async (file: File) => {
+    if (!user) return;
     if (!file.type.startsWith('image/')) {
-      toast.error(bn ? 'অনুগ্রহ করে একটি ছবি নির্বাচন করুন' : 'Please select an image file');
+      toast.error(t('অনুগ্রহ করে একটি ছবি নির্বাচন করুন', 'Please select an image file'));
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error(bn ? 'ছবি ৫MB এর কম হতে হবে' : 'Image must be less than 5MB');
+      toast.error(t('ছবি ৫MB এর কম হতে হবে', 'Image must be under 5MB'));
       return;
     }
-
     setUploading(true);
     try {
-      const ext = file.name.split('.').pop();
-      const path = `${user.id}/avatar.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from('profile-avatars')
-        .upload(path, file, { upsert: true });
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('profile-avatars')
-        .getPublicUrl(path);
-      
-      const url = `${publicUrl}?t=${Date.now()}`;
+      const ext = file.name.split('.').pop() || 'jpg';
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from('profile-avatars').upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage.from('profile-avatars').getPublicUrl(path);
+      const url = `${data.publicUrl}?t=${Date.now()}`;
       setAvatarUrl(url);
-      
       await supabase.from('profiles').update({ avatar_url: url }).eq('user_id', user.id);
       const store = useChatStore.getState();
       store.setUser({ ...store.user, avatar: url });
-      toast.success(bn ? 'প্রোফাইল ছবি আপডেট হয়েছে' : 'Profile picture updated');
+      toast.success(t('প্রোফাইল ছবি আপডেট হয়েছে', 'Profile photo updated'));
     } catch (err: any) {
-      toast.error(err.message || (bn ? 'আপলোড ব্যর্থ হয়েছে' : 'Failed to upload'));
+      toast.error(err.message || t('আপলোড ব্যর্থ হয়েছে', 'Upload failed'));
     } finally {
       setUploading(false);
     }
   };
 
-  const handleUpdateProfile = async () => {
+  const saveProfile = async () => {
     if (!user) return;
+    if (!fullName.trim()) {
+      toast.error(t('নাম খালি রাখা যাবে না', 'Name is required'));
+      return;
+    }
     setSaving(true);
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ full_name: fullName, phone, country_code: countryCode, bio } as any)
-        .eq('user_id', user.id);
-      if (error) throw error;
-      setHasChanges(false);
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        full_name: fullName.trim(),
+        phone: phone.trim() || null,
+        country_code: countryCode,
+        bio: bio.trim() || null,
+      } as any)
+      .eq('user_id', user.id);
+    setSaving(false);
+    if (error) toast.error(error.message);
+    else {
       const store = useChatStore.getState();
-      store.setUser({ ...store.user, name: fullName || store.user.name });
-      toast.success(bn ? 'প্রোফাইল আপডেট হয়েছে' : 'Profile updated successfully');
-    } catch (err: any) {
-      toast.error(err.message || (bn ? 'প্রোফাইল আপডেট ব্যর্থ' : 'Failed to update profile'));
-    } finally {
-      setSaving(false);
+      store.setUser({ ...store.user, name: fullName.trim() });
+      toast.success(t('সফলভাবে সংরক্ষিত', 'Profile saved'));
+    }
+  };
+
+  const updateEmail = async () => {
+    if (!newEmail || newEmail === email) return;
+    setUpdatingEmail(true);
+    const { error } = await supabase.auth.updateUser({ email: newEmail });
+    setUpdatingEmail(false);
+    if (error) toast.error(error.message);
+    else toast.success(t('ইমেইলে কনফার্ম লিংক পাঠানো হয়েছে', 'Confirmation link sent to new email'));
+  };
+
+  const updatePassword = async () => {
+    if (newPassword.length < 8) {
+      toast.error(t('পাসওয়ার্ড কমপক্ষে ৮ অক্ষর', 'Password must be at least 8 characters'));
+      return;
+    }
+    setUpdatingPwd(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setUpdatingPwd(false);
+    if (error) toast.error(error.message);
+    else {
+      toast.success(t('পাসওয়ার্ড আপডেট হয়েছে', 'Password updated'));
+      setNewPassword('');
     }
   };
 
@@ -131,14 +138,6 @@ const ProfileTab = () => {
     await signOut();
     navigate('/login');
   };
-
-
-  const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setter(e.target.value);
-    setHasChanges(true);
-  };
-
-  const selectedCountry = COUNTRY_CODES.find(c => c.code === countryCode);
 
   if (loading) {
     return (
@@ -148,188 +147,192 @@ const ProfileTab = () => {
     );
   }
 
+  const displayAvatar = avatarUrl || googleAvatar;
+  const initials = (fullName || email || 'U').split(' ').map((s) => s[0]).join('').slice(0, 2).toUpperCase();
+
   return (
     <div className="h-full flex flex-col">
-      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
-
-      <div className="mb-4 sm:mb-6">
-        <h3 className="text-lg sm:text-xl font-bold">{bn ? 'প্রোফাইল তথ্য' : 'Profile Information'}</h3>
-        <p className="text-xs sm:text-sm mt-1 text-muted-foreground">{bn ? 'আপনার মৌলিক প্রোফাইল বিবরণ পরিচালনা করুন' : 'Manage your basic profile details'}</p>
+      <div className="mb-4 sm:mb-5">
+        <h3 className="text-lg sm:text-xl font-bold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+          {t('আমার প্রোফাইল', 'My Profile')}
+        </h3>
+        <p className="text-xs sm:text-sm mt-1 text-muted-foreground">
+          {t('নাম, ছবি, ফোন ও পাসওয়ার্ড পরিবর্তন করুন।', 'Update your name, photo, phone and password.')}
+        </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto pr-1 sm:pr-2 space-y-4 sm:space-y-5">
-        {/* Profile Picture */}
-        <div className="flex items-center gap-3 sm:gap-4">
-          <div className="relative">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl flex items-center justify-center bg-gradient-to-br from-primary to-accent overflow-hidden">
+      <div className="flex-1 overflow-y-auto pr-1 sm:pr-2 space-y-4">
+        {/* Avatar card */}
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <div className="flex items-center gap-4">
+            <div className="relative">
               {displayAvatar ? (
-                <img src={displayAvatar} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                <img src={displayAvatar} alt="" className="w-16 h-16 rounded-full object-cover" referrerPolicy="no-referrer" />
               ) : (
-                <User className="w-8 h-8 sm:w-10 sm:h-10 text-primary-foreground" />
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-cyan-500 grid place-items-center text-primary-foreground text-xl font-bold">
+                  {initials}
+                </div>
               )}
+              <button
+                onClick={() => fileRef.current?.click()}
+                disabled={uploading}
+                className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-foreground text-background grid place-items-center hover:opacity-90 disabled:opacity-50"
+                aria-label="Change avatar"
+              >
+                {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Camera className="w-3.5 h-3.5" />}
+              </button>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={(e) => e.target.files?.[0] && uploadAvatar(e.target.files[0])}
+              />
             </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-foreground truncate">{fullName || email}</p>
+              <p className="text-xs text-muted-foreground truncate">{email}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Profile form */}
+        <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+          <Field label={t('পুরো নাম', 'Full name')} icon={UserIcon}>
+            <input
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              maxLength={120}
+              className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+          </Field>
+
+          <Field label={t('ফোন নম্বর', 'Phone')} icon={Phone}>
+            <div className="flex gap-2">
+              <input
+                value={countryCode}
+                onChange={(e) => setCountryCode(e.target.value)}
+                maxLength={5}
+                className="w-20 bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+              <input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                maxLength={20}
+                className="flex-1 bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+            </div>
+          </Field>
+
+          <Field label={t('বায়ো', 'Bio')} icon={FileText}>
+            <textarea
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              maxLength={300}
+              rows={3}
+              placeholder={t('নিজের সম্পর্কে কিছু লিখুন…', 'Tell us a bit about yourself…')}
+              className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+            />
+            <p className="text-[10px] mt-1 text-muted-foreground">{bio.length}/300</p>
+          </Field>
+
+          <button
+            onClick={saveProfile}
+            disabled={saving}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-foreground text-background text-sm font-semibold hover:opacity-90 disabled:opacity-50"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {saving ? t('সংরক্ষণ হচ্ছে…', 'Saving…') : t('সংরক্ষণ', 'Save')}
+          </button>
+        </div>
+
+        {/* Email change */}
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <h2 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+            <Mail className="w-4 h-4" /> {t('ইমেইল পরিবর্তন', 'Change email')}
+          </h2>
+          <div className="flex gap-2">
+            <input
+              type="email"
+              value={newEmail}
+              onChange={(e) => setNewEmail(e.target.value)}
+              className="flex-1 min-w-0 bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
             <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              className={cn(
-                'absolute -bottom-1 -right-1 w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center',
-                'bg-card border-2 border-background',
-                'hover:bg-accent transition-all duration-200'
-              )}
+              onClick={updateEmail}
+              disabled={updatingEmail || newEmail === email}
+              className="px-4 py-2 rounded-lg border border-border text-sm font-semibold hover:bg-muted/40 disabled:opacity-50 shrink-0"
             >
-              {uploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Camera className="w-3 h-3 sm:w-4 sm:h-4" />}
+              {updatingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : t('আপডেট', 'Update')}
             </button>
           </div>
-          <div>
-            <p className="font-medium text-sm sm:text-base">{bn ? 'প্রোফাইল ছবি' : 'Profile picture'}</p>
-            <p className="text-xs sm:text-sm text-muted-foreground">{bn ? 'নতুন ছবি আপলোড করতে ক্লিক করুন' : 'Click to upload a new photo'}</p>
-          </div>
         </div>
 
-        {/* Full Name */}
-        <div>
-          <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">{bn ? 'পুরো নাম' : 'Full name'}</label>
-          <input
-            type="text"
-            value={fullName}
-            onChange={handleInputChange(setFullName)}
-            className={cn(
-              'w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-200 text-sm sm:text-base',
-              'bg-muted border border-border',
-              'placeholder:text-muted-foreground',
-              'focus:outline-none focus:border-primary/50 focus:shadow-glow'
-            )}
-          />
-        </div>
-
-        {/* Phone */}
-        <div>
-          <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">{bn ? 'ফোন' : 'Phone'}</label>
+        {/* Password */}
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <h2 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+            <KeyRound className="w-4 h-4" /> {t('পাসওয়ার্ড পরিবর্তন', 'Change password')}
+          </h2>
           <div className="flex gap-2">
-            <div className="relative">
-              <button
-                onClick={() => setCountryOpen(!countryOpen)}
-                className={cn(
-                  'flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-200',
-                  'bg-muted border border-border',
-                  'hover:border-primary/50'
-                )}
-              >
-                <span className="text-base sm:text-lg">{selectedCountry?.flag}</span>
-                <span className="text-sm sm:text-base">{selectedCountry?.code}</span>
-                <ChevronDown className={cn('w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-200 text-muted-foreground', countryOpen && 'rotate-180')} />
-              </button>
-              {countryOpen && (
-                <>
-                  <div className="fixed inset-0 z-10" onClick={() => setCountryOpen(false)} />
-                  <div className={cn('absolute top-full left-0 mt-2 rounded-lg sm:rounded-xl shadow-xl z-20 overflow-hidden min-w-[120px] sm:min-w-[140px] max-h-48 overflow-y-auto', 'bg-popover border border-border backdrop-blur-xl')}>
-                    {COUNTRY_CODES.map((country) => (
-                      <button
-                        key={country.code}
-                        onClick={() => { setCountryCode(country.code); setCountryOpen(false); setHasChanges(true); }}
-                        className={cn(
-                          'w-full flex items-center gap-2 px-2.5 sm:px-3 py-2 sm:py-2.5 text-left transition-all duration-200 text-sm sm:text-base',
-                          countryCode === country.code ? 'bg-primary/10' : 'hover:bg-accent'
-                        )}
-                      >
-                        <span className="text-base sm:text-lg">{country.flag}</span>
-                        <span className="flex-1">{country.code}</span>
-                        {countryCode === country.code && <Check className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
             <input
-              type="tel"
-              value={phone}
-              onChange={handleInputChange(setPhone)}
-              placeholder="e.g. 555-123-4567"
-              className={cn(
-                'flex-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-200 text-sm sm:text-base',
-                'bg-muted border border-border',
-                'placeholder:text-muted-foreground',
-                'focus:outline-none focus:border-primary/50 focus:shadow-glow'
-              )}
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder={t('নতুন পাসওয়ার্ড', 'New password')}
+              className="flex-1 min-w-0 bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
+            <button
+              onClick={updatePassword}
+              disabled={updatingPwd || !newPassword}
+              className="px-4 py-2 rounded-lg border border-border text-sm font-semibold hover:bg-muted/40 disabled:opacity-50 shrink-0"
+            >
+              {updatingPwd ? <Loader2 className="w-4 h-4 animate-spin" /> : t('আপডেট', 'Update')}
+            </button>
           </div>
         </div>
 
-        {/* Bio */}
-        <div>
-          <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 flex items-center gap-1.5">
-            <FileText className="w-3.5 h-3.5" />
-            {bn ? 'বায়ো' : 'Bio'}
-          </label>
-          <textarea
-            value={bio}
-            onChange={(e) => { setBio(e.target.value); setHasChanges(true); }}
-            maxLength={300}
-            rows={3}
-            placeholder={bn ? 'নিজের সম্পর্কে কিছু লিখুন…' : 'Tell us a bit about yourself…'}
-            className={cn(
-              'w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-200 text-sm sm:text-base resize-none',
-              'bg-muted border border-border placeholder:text-muted-foreground',
-              'focus:outline-none focus:border-primary/50 focus:shadow-glow'
-            )}
-          />
-          <p className="text-[10px] sm:text-xs mt-1 text-muted-foreground">{bio.length}/300</p>
-        </div>
-
-        {/* Email */}
-        <div>
-          <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2">{bn ? 'ইমেইল' : 'Email'}</label>
-          <input
-            type="email"
-            value={email}
-            disabled
-            className={cn('w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl cursor-not-allowed text-sm sm:text-base', 'bg-muted/50 border border-border text-muted-foreground')}
-          />
-          <p className="text-[10px] sm:text-xs mt-1 text-muted-foreground">{bn ? 'ইমেইল পরিবর্তন করা যাবে না' : 'Email cannot be changed'}</p>
-        </div>
-
-        {/* Sign Out */}
-        <div className="pt-2">
-          <button onClick={handleSignOut} className={cn('w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-medium text-sm sm:text-base transition-all duration-200', 'bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20')}>
-            <LogOut className="w-4 h-4" />
-            {bn ? 'সাইন আউট' : 'Sign Out'}
-          </button>
-        </div>
-
-        {/* Delete Account */}
-        <div>
-          <button onClick={() => setShowDeleteDialog(true)} className={cn('w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-medium text-sm sm:text-base transition-all duration-200', 'bg-destructive text-destructive-foreground hover:bg-destructive/90')}>
-            <Trash2 className="w-4 h-4" />
-            {bn ? 'অ্যাকাউন্ট মুছুন' : 'Delete Account'}
-          </button>
-          <p className="text-[10px] sm:text-xs mt-1 text-muted-foreground text-center">
-            {bn ? '৩০ দিন পর্যন্ত পুনরুদ্ধারযোগ্য, তারপর স্থায়ীভাবে মুছে যাবে' : 'Recoverable for 30 days, then permanently deleted'}
-          </p>
-        </div>
-      </div>
-
-
-      {/* Update Button */}
-      <div className="pt-4 sm:pt-6 mt-auto">
+        {/* Sign out */}
         <button
-          onClick={handleUpdateProfile}
-          disabled={saving || !hasChanges}
-          className={cn(
-            'w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-medium text-sm sm:text-base transition-all duration-200',
-            hasChanges
-              ? 'bg-gradient-to-r from-primary to-accent text-primary-foreground hover:shadow-glow'
-              : 'bg-primary/50 text-primary-foreground/50 cursor-not-allowed'
-          )}
+          onClick={handleSignOut}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-medium text-sm bg-muted hover:bg-muted/70 border border-border"
         >
-          {saving ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : (bn ? 'প্রোফাইল আপডেট করুন' : 'Update Profile')}
+          <LogOut className="w-4 h-4" /> {t('সাইন আউট', 'Sign Out')}
         </button>
+
+        {/* Danger zone */}
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-5">
+          <h2 className="text-sm font-bold text-destructive mb-1 flex items-center gap-2">
+            <Trash2 className="w-4 h-4" /> {t('অ্যাকাউন্ট মুছুন', 'Delete account')}
+          </h2>
+          <p className="text-xs text-muted-foreground mb-3">
+            {t(
+              'অ্যাকাউন্ট মুছলে ৩০ দিন পর্যন্ত পুনরুদ্ধারযোগ্য থাকবে; এরপর সব ডেটা স্থায়ীভাবে মুছে যাবে।',
+              'When you delete your account it stays recoverable for 30 days, then everything is permanently removed.'
+            )}
+          </p>
+          <button
+            onClick={() => setShowDelete(true)}
+            className="px-4 py-2 rounded-lg bg-destructive text-destructive-foreground text-sm font-semibold hover:opacity-90"
+          >
+            {t('অ্যাকাউন্ট মুছুন', 'Delete my account')}
+          </button>
+        </div>
       </div>
 
-      <DeleteAccountModal open={showDeleteDialog} onClose={() => setShowDeleteDialog(false)} bn={bn} />
-
+      <DeleteAccountModal open={showDelete} onClose={() => setShowDelete(false)} bn={bn} />
     </div>
   );
 };
+
+function Field({ label, icon: Icon, children }: { label: string; icon: any; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground mb-1.5">
+        <Icon className="w-3.5 h-3.5" /> {label}
+      </label>
+      {children}
+    </div>
+  );
+}
 
 export default ProfileTab;
