@@ -40,7 +40,9 @@ Deno.test("account-delete lifecycle: request → recover → request → purge",
   const email = `e2e-delete-${crypto.randomUUID()}@aisorixtest.local`;
   const password = "Test1234!Aa$";
 
-  const anon = createClient(SUPABASE_URL, ANON_KEY);
+  const anon = createClient(SUPABASE_URL, ANON_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
   const { data: signUp, error: signUpErr } = await anon.auth.signUp({ email, password });
   assertEquals(signUpErr, null, `signup failed: ${signUpErr?.message}`);
   let token = signUp.session?.access_token ?? "";
