@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useChatStore, type UserPlan } from "@/stores/chatStore";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +12,7 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { setUser, setUserPlan, user: storeUser } = useChatStore();
+  const location = useLocation();
 
   // Cross-device sync
   useChatSync(user?.id || null);
@@ -73,7 +74,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    const from = location.pathname + location.search + location.hash;
+    return <Navigate to="/login" replace state={{ from }} />;
   }
 
   return <>{children}</>;

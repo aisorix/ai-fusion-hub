@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,11 +9,13 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import logo from "../assets/logo.png";
+import { consumePostAuthRedirect } from "@/lib/authRedirect";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/chat";
+  const explicitRedirect = searchParams.get("redirect");
   const { user, signIn, loading: authLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -24,9 +26,9 @@ const Login = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (user && !authLoading) {
-      navigate(redirectTo);
+      navigate(consumePostAuthRedirect(location.state, explicitRedirect), { replace: true });
     }
-  }, [user, authLoading, navigate, redirectTo]);
+  }, [user, authLoading, navigate, location.state, explicitRedirect]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -62,7 +64,7 @@ const Login = () => {
       }
     } else {
       toast.success("Welcome back! You have successfully signed in.");
-      navigate("/chat");
+      navigate(consumePostAuthRedirect(location.state, explicitRedirect), { replace: true });
     }
   };
 

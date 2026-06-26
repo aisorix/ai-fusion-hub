@@ -16,18 +16,19 @@ import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
 import { ChatWidget } from "@/components/chat/ChatWidget";
 import { useAuth } from "@/hooks/useAuth";
+import { consumePostAuthRedirect } from "@/lib/authRedirect";
 
 const Index = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isLoading } = useAuth();
 
-  // Redirect to /chat after email verification or OAuth
+  // Redirect to the user's previous page (or /chat) after email verification or OAuth
   useEffect(() => {
     const justRegistered = sessionStorage.getItem('justRegistered');
     if (user && !isLoading && justRegistered) {
       sessionStorage.removeItem('justRegistered');
-      navigate('/chat');
+      navigate(consumePostAuthRedirect(null), { replace: true });
     }
   }, [user, isLoading, navigate]);
 
