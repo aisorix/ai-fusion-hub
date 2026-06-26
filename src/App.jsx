@@ -9,6 +9,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AccountRecoveryBanner from "./components/shared/AccountRecoveryBanner";
+import LastVisitedTracker from "./components/LastVisitedTracker";
 
 // Lazy-loaded pages for code splitting
 const Index = React.lazy(() => import("./pages/Index"));
@@ -149,6 +150,7 @@ const App = () => (
           <Sonner position="top-center" />
           <BrowserRouter>
             <ScrollToTop />
+            <LastVisitedTracker />
             <AccountRecoveryBanner />
             <Suspense fallback={null}><PageViewTracker /></Suspense>
             <Suspense fallback={<LoadingScreen />}>
