@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, User, Loader2, Check, X } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,11 +11,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import logo from "../assets/logo.png";
+import { consumePostAuthRedirect, rememberReturnTo } from "@/lib/authRedirect";
 
 const Register = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/chat";
+  const explicitRedirect = searchParams.get("redirect");
   const { user, loading: authLoading } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -33,9 +35,9 @@ const Register = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (user && !authLoading) {
-      navigate(redirectTo);
+      navigate(consumePostAuthRedirect(location.state, explicitRedirect), { replace: true });
     }
-  }, [user, authLoading, navigate, redirectTo]);
+  }, [user, authLoading, navigate, location.state, explicitRedirect]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -127,12 +129,15 @@ const Register = () => {
 
         toast.error("Registration Failed", { description: errorMessage });
       } else if (data?.session) {
-        // Auto-confirmed: user has a session, go straight to chat
+        // Auto-confirmed: user has a session, return to origin (or /chat)
         sessionStorage.setItem("justRegistered", "true");
         toast.success("Account Created!", { description: "Welcome to AI Sorix!" });
-        navigate("/chat");
+        navigate(consumePostAuthRedirect(location.state, explicitRedirect), { replace: true });
       } else {
-        // Fallback: email verification required
+        // Fallback: email verification required. Persist the desired return
+        // path so that VerifyEmail / Index can pick it up after confirmation.
+        const desired = (location.state && (location.state.returnTo || location.state.from)) || explicitRedirect;
+        if (desired) rememberReturnTo(desired);
         setShowOtp(true);
         sessionStorage.setItem("justRegistered", "true");
         toast.success("Email Sent!", { description: "Please check your email to verify your account." });

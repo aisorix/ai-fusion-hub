@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "../assets/logo.png";
+import { consumePostAuthRedirect } from "@/lib/authRedirect";
 
 const VerifyEmail = () => {
   const navigate = useNavigate();
@@ -73,8 +74,8 @@ const VerifyEmail = () => {
         description: "Your account has been created successfully. Welcome to AI Sorix!",
       });
 
-      // Redirect to chat after successful verification
-      navigate("/chat");
+      // Redirect back to where the user came from (or /chat) after verification
+      navigate(consumePostAuthRedirect(location.state), { replace: true });
     } catch (error) {
       console.error("Verification error:", error);
       let errorMessage = "Invalid or expired verification code. Please try again.";
