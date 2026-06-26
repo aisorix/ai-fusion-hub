@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable';
+import { consumePostAuthRedirect, rememberReturnTo } from '@/lib/authRedirect';
 
 interface AuthContextType {
   user: User | null;
@@ -46,9 +47,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } else if (data.session) {
             setSession(data.session);
             setUser(data.session.user);
-            // Clean up URL hash and redirect to chat after OAuth
-            window.history.replaceState(null, '', '/chat');
-            window.location.href = '/chat';
+            // Clean up URL hash and bounce the user back to where they started
+            // (or /chat as the sensible default for fresh OAuth sign-ins).
+            const target = consumePostAuthRedirect(null);
+            window.history.replaceState(null, '', target);
+            window.location.href = target;
           }
         } catch (err) {
           console.error('OAuth callback error:', err);
@@ -115,11 +118,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signInWithGoogle = async () => {
+    // Persist current page so we can return after the full-page OAuth round-trip.
+    try {
+      const here = window.location.pathname + window.location.search + window.location.hash;
+      if (here && !here.startsWith('/login') && !here.startsWith('/register')) {
+        rememberReturnTo(here);
+      }
+    } catch { /* ignore */ }
+
     // Use Lovable Cloud managed OAuth with proper redirect
     const { error } = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
     });
-    
+
     return { error: error as Error | null };
   };
 
