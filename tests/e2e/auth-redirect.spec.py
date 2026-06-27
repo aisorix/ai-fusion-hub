@@ -1,24 +1,23 @@
-/**
- * Playwright end-to-end tests for the post-authentication redirect system.
- *
- * Run from the project root with the dev server already on http://localhost:8080
- * and a Lovable-injected Supabase session present in the sandbox env:
- *
- *   python3 tests/e2e/auth-redirect.spec.py
- *
- * Scenarios covered:
- *   1. Logged-out visit to a protected page (/dashboard) bounces to /login
- *      carrying state.from.
- *   2. After signing in (session restored), landing on /login while
- *      sessionStorage.lastVisitedPath points to /pricing redirects to /pricing.
- *   3. sessionStorage.postAuthReturnTo wins over lastVisitedPath (OAuth flow).
- *   4. Scholars deep link is preserved: rememberReturnTo("/scholars/profile")
- *      → /login → /scholars/profile.
- *   5. Payment success deep link is preserved across the auth bounce.
- *   6. /verify-email respects state.returnTo forwarded from Register.
- *   7. Auth-loop guard: stored values pointing at /login/register/verify-email
- *      never redirect back into the auth pages.
- */
+"""Playwright end-to-end tests for the post-authentication redirect system.
+
+Run from the project root with the dev server already on http://localhost:8080
+and a Lovable-injected Supabase session present in the sandbox env:
+
+    python3 tests/e2e/auth-redirect.spec.py
+
+Scenarios covered:
+    1. Logged-out visit to a protected page (/dashboard) bounces to /login
+       carrying state.from.
+    2. After signing in (session restored), landing on /login while
+       sessionStorage.lastVisitedPath points to /pricing redirects to /pricing.
+    3. sessionStorage.postAuthReturnTo wins over lastVisitedPath (OAuth flow).
+    4. Scholars deep link is preserved: rememberReturnTo("/scholars/profile")
+       -> /login -> /scholars/profile.
+    5. Payment success deep link is preserved across the auth bounce.
+    6. /verify-email respects state.returnTo forwarded from Register.
+    7. Auth-loop guard: stored values pointing at /login/register/verify-email
+       never redirect back into the auth pages.
+"""
 import asyncio
 import json
 import os
