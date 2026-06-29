@@ -101,14 +101,28 @@ serve(async (req) => {
     const currentUsed = sub?.tokens_used ?? 0;
     const limit = PLAN_LIMITS[planId] ?? 15000;
 
-    // Cineshoot requires Premium Plus, Max, or Enterprise.
-    if ((PLAN_RANK[planId] ?? 0) < CINESHOOT_MIN_RANK) {
-      return json({
-        error: 'plan_required',
-        requiredPlan: 'premium_plus',
-        message: 'Sorix Cineshoot is available on Premium Plus, Max, and Enterprise plans.',
-      }, 402);
+    // Free render allowance: every plan gets up to CINESHOOT_FREE_RENDERS
+    // before Premium Plus is required. Tokens are still budgeted normally.
+    const CINESHOOT_FREE_RENDERS = 2;
+    const isPaidCineshoot = (PLAN_RANK[planId] ?? 0) >= CINESHOOT_MIN_RANK;
+    let useFreeRender = false;
+    if (!isPaidCineshoot) {
+      const { data: prof } = await supabaseAdmin
+        .from('profiles')
+        .select('cineshoot_free_renders_used')
+        .eq('user_id', userId)
+        .maybeSingle();
+      const usedFree = prof?.cineshoot_free_renders_used ?? 0;
+      if (usedFree >= CINESHOOT_FREE_RENDERS) {
+        return json({
+          error: 'plan_required',
+          requiredPlan: 'premium_plus',
+          message: `You've used all ${CINESHOOT_FREE_RENDERS} free Cineshoot renders. Upgrade to Premium Plus for unlimited renders.`,
+        }, 402);
+      }
+      useFreeRender = true;
     }
+
 
     if ((PLAN_RANK[planId] ?? 0) < TIER_RANK[cfg.tier]) {
       return json({ error: `This model requires ${cfg.tier} plan or above` }, 403);
