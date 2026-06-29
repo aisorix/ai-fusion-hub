@@ -171,28 +171,6 @@ const CineshootPage: React.FC = () => {
     );
   }
 
-  if (!isPaidCineshoot) {
-    return (
-      <>
-        {seo}
-        <PlanLockScreen
-          toolName="Sorix Cineshoot"
-          tagline="Cinematic AI video generation"
-          description="Sorix Cineshoot is available on Premium Plus, Max, and Enterprise plans. Upgrade to render unlimited cinematic videos with frontier video models."
-          requiredPlan="premium_plus"
-          accentGradient="from-fuchsia-500 to-pink-500"
-          icon={Clapperboard}
-          features={[
-            "Unlimited renders on frontier video models",
-            "Veo 3.1, Sora 2 Pro, Kling, Seedance",
-            "Text-to-video and image-to-video",
-            "Up to 4K, customizable aspect ratio and duration",
-            "Refine the previous render with a single prompt",
-          ]}
-        />
-      </>
-    );
-  }
 
   return (
     <div className="h-[100dvh] flex flex-col bg-background overflow-hidden">
