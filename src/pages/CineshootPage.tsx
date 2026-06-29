@@ -99,9 +99,9 @@ const CineshootPage: React.FC = () => {
   };
 
   const handleGenerate = async (prompt: string, attachments?: Attachment[]) => {
-    if (!isPaidCineshoot) { setShowUpgrade(true); return; }
     if (tokensRemaining < costEstimate) { setShowUpgrade(true); return; }
     if (activeJobId) return;
+
 
     const isRefining = refineEnabled && !!videoUrl && !attachments?.length;
     const finalPrompt = isRefining && currentPrompt
