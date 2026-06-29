@@ -215,8 +215,9 @@ serve(async (req) => {
     }
 
     if (useFreeRender) {
-      await supabaseAdmin.rpc('increment_cineshoot_free_render');
+      await supabase.rpc('increment_cineshoot_free_render');
     }
+
 
     return json({ jobId: row.id }, 200);
 
