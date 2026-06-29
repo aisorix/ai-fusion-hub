@@ -214,7 +214,12 @@ serve(async (req) => {
       return json({ error: 'Failed to register job' }, 500);
     }
 
+    if (useFreeRender) {
+      await supabaseAdmin.rpc('increment_cineshoot_free_render');
+    }
+
     return json({ jobId: row.id }, 200);
+
   } catch (e) {
     console.error('cineshoot-start fatal', e);
     return json({ error: 'Internal server error' }, 500);
