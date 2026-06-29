@@ -65,6 +65,41 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     }
   }, [user, isAuthenticated, setUser, setUserPlan]);
 
+  // Realtime: instantly reflect admin-driven plan/status changes
+  useEffect(() => {
+    if (!user?.id) return;
+    const channel = supabase
+      .channel(`subscription-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "subscriptions", filter: `user_id=eq.${user.id}` },
+        async () => {
+          const { data: subscription } = await supabase
+            .from("subscriptions")
+            .select("plan_id, status, tokens_used")
+            .eq("user_id", user.id)
+            .eq("status", "active")
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .single();
+          const actualPlan: UserPlan = (subscription?.plan_id as UserPlan) || "free";
+          const planTokenLimits: Record<UserPlan, number> = {
+            free: 15000, basic: 800000, pro: 1500000, premium: 3000000,
+            premium_plus: 7000000, max: 17000000, enterprise: 50000000,
+          };
+          setUserPlan(actualPlan);
+          setUser({
+            ...storeUser,
+            plan: actualPlan,
+            tokensUsed: (subscription as any)?.tokens_used ?? storeUser.tokensUsed,
+            tokensLimit: planTokenLimits[actualPlan],
+          });
+        }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user?.id, setUser, setUserPlan, storeUser]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
