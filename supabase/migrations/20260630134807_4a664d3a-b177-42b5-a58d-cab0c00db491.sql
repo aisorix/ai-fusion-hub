@@ -1,0 +1,1 @@
+ALTER TABLE public.subscriptions REPLICA IDENTITY FULL;
