@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ArrowUpRight, Sparkles, Zap, Shield, Play, GraduationCap } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useAuth } from "@/hooks/useAuth";
 import {
   ChatGPTLogo,
   ClaudeLogo,
