@@ -68,37 +68,42 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   // Realtime: instantly reflect admin-driven plan/status changes
   useEffect(() => {
     if (!user?.id) return;
+    const uid = user.id;
+    const planTokenLimits: Record<UserPlan, number> = {
+      free: 15000, basic: 800000, pro: 1500000, premium: 3000000,
+      premium_plus: 7000000, max: 17000000, enterprise: 50000000,
+    };
+    const refresh = async () => {
+      const { data: subscription } = await supabase
+        .from("subscriptions")
+        .select("plan_id, status, tokens_used")
+        .eq("user_id", uid)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const isActive = (subscription as any)?.status === "active";
+      const actualPlan: UserPlan = isActive
+        ? ((subscription?.plan_id as UserPlan) || "free")
+        : "free";
+      const current = useChatStore.getState().user;
+      setUserPlan(actualPlan);
+      setUser({
+        ...current,
+        plan: actualPlan,
+        tokensUsed: (subscription as any)?.tokens_used ?? current.tokensUsed,
+        tokensLimit: planTokenLimits[actualPlan],
+      });
+    };
     const channel = supabase
-      .channel(`subscription-${user.id}`)
+      .channel(`subscription-${uid}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "subscriptions", filter: `user_id=eq.${user.id}` },
-        async () => {
-          const { data: subscription } = await supabase
-            .from("subscriptions")
-            .select("plan_id, status, tokens_used")
-            .eq("user_id", user.id)
-            .eq("status", "active")
-            .order("created_at", { ascending: false })
-            .limit(1)
-            .single();
-          const actualPlan: UserPlan = (subscription?.plan_id as UserPlan) || "free";
-          const planTokenLimits: Record<UserPlan, number> = {
-            free: 15000, basic: 800000, pro: 1500000, premium: 3000000,
-            premium_plus: 7000000, max: 17000000, enterprise: 50000000,
-          };
-          setUserPlan(actualPlan);
-          setUser({
-            ...storeUser,
-            plan: actualPlan,
-            tokensUsed: (subscription as any)?.tokens_used ?? storeUser.tokensUsed,
-            tokensLimit: planTokenLimits[actualPlan],
-          });
-        }
+        { event: "*", schema: "public", table: "subscriptions", filter: `user_id=eq.${uid}` },
+        () => { refresh(); }
       )
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [user?.id, setUser, setUserPlan, storeUser]);
+  }, [user?.id, setUser, setUserPlan]);
 
   if (isLoading) {
     return (
