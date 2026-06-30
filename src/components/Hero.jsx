@@ -23,6 +23,7 @@ const rotatingWords = {
 
 const Hero = () => {
   const { t, language } = useLanguage();
+  const { isAuthenticated } = useAuth();
   const [wordIndex, setWordIndex] = useState(0);
   const [typedText, setTypedText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
