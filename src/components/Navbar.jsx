@@ -452,12 +452,14 @@ const Navbar = () => {
                 <div className="flex items-center gap-2">
                   <Link
                     to="/login"
+                    state={{ returnTo: "/chat" }}
                     className="px-5 py-2.5 border border-border/50 rounded-xl font-semibold text-foreground hover:bg-muted/50 backdrop-blur-sm transition-all duration-300"
                   >
                     {t("login")}
                   </Link>
                   <Link
                     to="/register"
+                    state={{ returnTo: "/chat" }}
                     className="px-5 py-2.5 gradient-primary text-foreground font-semibold rounded-xl shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
                   >
                     {t("register")}
