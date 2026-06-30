@@ -641,6 +641,7 @@ const Navbar = () => {
                     <div className="flex flex-col gap-3">
                       <Link
                         to="/login"
+                        state={{ returnTo: "/chat" }}
                         className="flex items-center justify-center w-full py-4 border-2 border-border/50 text-foreground font-bold rounded-2xl hover:bg-muted/50 transition-all"
                         onClick={() => setMobileMenuOpen(false)}
                       >
@@ -648,6 +649,7 @@ const Navbar = () => {
                       </Link>
                       <Link
                         to="/register"
+                        state={{ returnTo: "/chat" }}
                         className="flex items-center justify-center w-full py-4 gradient-primary text-foreground font-bold rounded-2xl shadow-xl transition-all"
                         onClick={() => setMobileMenuOpen(false)}
                       >
