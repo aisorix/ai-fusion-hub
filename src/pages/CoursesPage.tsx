@@ -23,7 +23,7 @@ export default function CoursesPage() {
             আমাদের কোর্সসমূহ
           </h1>
           <p className="mt-5 text-sm sm:text-base text-muted-foreground leading-relaxed">
-            AI এবং আধুনিক প্রযুক্তির সঠিক ব্যবহারের মাধ্যমে আপনার ক্যারিয়ারকে আরও এক ধাপ এগিয়ে নিতে আমাদের বিশেষায়িত কোর্সগুলোতে যুক্ত হোন।
+            আধুনিক টেকনোলজি আর AI-এর সঠিক ব্যবহার শিখে ক্যারিয়ারে পরের ধাপে যেতে চান? তাহলে আমাদের স্পেশাল কোর্সগুলো আপনার জন্যই!
           </p>
         </div>
 
@@ -36,9 +36,9 @@ export default function CoursesPage() {
                 className="w-full h-full object-cover"
                 loading="lazy"
               />
-              <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-background/90 backdrop-blur text-[11px] font-bold text-foreground shadow">
-                প্রিমিয়াম
-              </span>
+              {/* <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-background/90 backdrop-blur text-[11px] font-bold text-foreground shadow">
+                
+              </span> */}
               <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-background/90 backdrop-blur text-[11px] font-semibold text-foreground shadow">
                 <BookOpen className="w-3 h-3" />
                 {course.duration}
@@ -56,10 +56,10 @@ export default function CoursesPage() {
               <div className="mt-5 pt-5 border-t border-border/60 flex items-center justify-between gap-3">
                 <div className="text-lg sm:text-xl font-bold text-foreground">{course.priceLabel}</div>
                 <Link
-                  to={`/sorixscholars/courses/${course.slug}`}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-semibold hover:bg-primary/20 transition-colors whitespace-nowrap"
+                  //to={`/sorixscholars/courses/${course.slug}`}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-semibold hover:bg-primary/20 transition-colors whitespace-nowrap cursor-not-allowed"
                 >
-                  বিস্তারিত <ArrowRight className="w-3.5 h-3.5" />
+                  Comming Soon <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
             </div>

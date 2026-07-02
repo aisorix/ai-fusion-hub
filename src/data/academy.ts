@@ -28,13 +28,13 @@ export interface Course {
 
 export const courses: Course[] = [
   {
-    slug: "ai-for-professionals",
-    title: "AI for Professionals",
+    slug: "ai-expertise-for-working-professionals",
+    title: "AI Expertise for Working Professionals",
     tagline:
-      "অফিসের real কাজ মাথায় রেখে তৈরি practical masterclass — Email, report, presentation, research সব এক কোর্সে।",
+      "অফিসের রিয়েল কাজ শিখুন এক মাস্টারক্লাসেই! ইমেইল থেকে শুরু করে রিপোর্ট, প্রেজেন্টেশন ও রিসার্চ—সব পাবেন একসাথে।",
     level: "Intermediate",
-    duration: "6 মডিউল",
-    priceLabel: "৳870",
+    duration: "4 মডিউল",
+    priceLabel: "৳499",
     cover: promptImg,
     overview:
       "একজন প্রফেশনালের প্রতিদিনের অফিস-কাজ সহজ ও দ্রুত করার জন্য ডিজাইন করা একটি practical AI masterclass। ChatGPT, Claude, Gemini এবং AI Sorix-এর মতো frontier টুল ব্যবহার করে email লেখা, report তৈরি, presentation বানানো, research সারসংক্ষেপ — সবকিছু কিভাবে কম সময়ে high-quality output দিয়ে করবেন তা শেখানো হবে।",

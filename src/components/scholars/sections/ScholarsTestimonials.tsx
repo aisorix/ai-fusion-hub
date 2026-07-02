@@ -103,10 +103,10 @@ export default function ScholarsTestimonials() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
           <h2
-            className="text-2xl sm:text-3xl lg:text-[44px] leading-tight font-bold text-foreground"
+            className="text-2xl sm:text-3xl lg:text-[40px] leading-tight font-bold text-foreground"
             style={{ fontFamily: "'Playfair Display', 'Noto Serif Bengali', Georgia, serif" }}
           >
-            {t("আমাদের লার্নাররা কী বলছেন?", "What our learners say")}
+            {t("আমাদের প্রশিক্ষণার্থীদের মূল্যায়ন ও অভিজ্ঞতা।", "Evaluation and experiences of our trainees.")}
           </h2>
           <div className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-foreground">
             {[0, 1, 2, 3, 4].map((i) => (

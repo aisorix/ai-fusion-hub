@@ -22,7 +22,7 @@ export default function ScholarsHome() {
       <WhyLearnAI />
       <WhatWeDo />
       <PopularCourses />
-      <UpcomingWorkshops />
+      {/* <UpcomingWorkshops /> */}
       <span id="testimonials" />
       <ScholarsTestimonials />
       <span id="faq" />

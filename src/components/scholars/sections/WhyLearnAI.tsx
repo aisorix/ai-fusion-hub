@@ -6,62 +6,62 @@ export default function WhyLearnAI() {
 
   const losses = [
     {
-      title: t("আপনার চাকুরী চলে যেতে পারে", "Your job could disappear"),
+      title: t("আপনার চাকরির সুযোগ কমে যেতে পারে", "Your career opportunities could shrink"),
       body: t(
-        "যিনি AI জানেন জব মার্কেটে অলরেডি তার চাহিদা বেড়েছে বহুগুণ।",
-        "AI-literate professionals are already in massively higher demand."
+        "AI দক্ষতাসম্পন্ন পেশাজীবীদের চাহিদা দ্রুত বাড়ছে। তাই বর্তমান ও ভবিষ্যতের কর্মবাজারে প্রতিযোগিতামূলক থাকতে AI দক্ষতা অর্জন এখন আগের চেয়ে অনেক বেশি গুরুত্বপূর্ণ।",
+        "Demand for professionals with AI skills is growing rapidly. To stay competitive in today's and tomorrow's job market, developing AI skills is becoming increasingly important."
       ),
     },
     {
-      title: t("ব্যবসার মুনাফা কমে যেতে পারে", "Your business profit may shrink"),
+      title: t("ব্যবসার প্রবৃদ্ধি ও মুনাফা কমে যেতে পারে", "Your business growth and profits could slow down"),
       body: t(
-        "AI-এর সুবিধা না নিলে কম্পিটিটররা আপনার চেয়ে কম খরচে বেশি কাজ করবে।",
-        "Without AI leverage, competitors will out-produce you at lower cost."
+        "AI ব্যবহারকারী ব্যবসাগুলো কম সময়ে, কম খরচে এবং আরও দক্ষতার সঙ্গে কাজ করতে পারে। AI-এর কার্যকর ব্যবহার না করলে প্রতিযোগিতায় পিছিয়ে পড়ার ঝুঁকি বাড়তে পারে।",
+        "Businesses that adopt AI can often work faster, reduce costs, and improve efficiency. Without leveraging AI effectively, staying competitive can become more challenging."
       ),
     },
     {
-      title: t("সময় থেকে পিছিয়ে পড়বেন", "You'll fall behind your peers"),
+      title: t("আপনি সহকর্মীদের তুলনায় পিছিয়ে পড়তে পারেন", "You may fall behind your peers"),
       body: t(
-        "AI ব্যবহারকারী ১০ জন মানুষ থেকে অন্তত ২০ বছর পিছিয়ে পড়বেন।",
-        "You'll be 20 years behind colleagues who use AI every day."
+        "যারা AI ব্যবহার করে তাদের দক্ষতা ও কাজের গতি দ্রুত বাড়ছে। AI না শিখলে পরিবর্তনশীল কর্মপরিবেশে তাদের তুলনায় পিছিয়ে পড়ার ঝুঁকি তৈরি হতে পারে।",
+        "Those who use AI are rapidly improving their skills and productivity. Without learning AI, there is a risk of falling behind in an evolving work environment."
       ),
     },
     {
-      title: t("সময়ের বরকত হারাতে পারেন", "You'll lose the gift of time"),
+      title: t("আপনার সময়ের দক্ষতা কমে যেতে পারে", "You may lose efficiency with your time"),
       body: t(
-        "যে কাজ ৫ মিনিটে করা যেত, সেটা করতে আপনাকে ব্যয় করতে হবে ৫ ঘণ্টা।",
-        "A 5-minute task with AI will keep costing you 5 hours."
+        "AI ব্যবহার করলে অনেক কাজ খুব অল্প সময়ে সম্পন্ন করা যায়। AI না জানলে একই কাজ করতে অনেক বেশি সময় ও পরিশ্রম ব্যয় হতে পারে, যা আপনার উৎপাদনশীলতাকে কমিয়ে দেয়।",
+        "With AI, many tasks can be completed in a fraction of the time. Without it, the same work may require significantly more time and effort, reducing overall productivity."
       ),
     },
   ];
 
   const gains = [
     {
-      title: t("জব মার্কেটে চাহিদা বেশি", "Higher demand in the job market"),
+      title: t("জব মার্কেটে AI দক্ষতার উচ্চ চাহিদা", "High demand for AI skills in the job market"),
       body: t(
-        "আপনি AI জানলে যেকোনো কোম্পানি আপনাকে নিয়োগের ক্ষেত্রে প্রাধান্য দেবে।",
-        "AI-skilled candidates are prioritised by hiring teams everywhere."
+        "AI দক্ষতা থাকা প্রার্থীরা নিয়োগ প্রক্রিয়ায় দ্রুত অগ্রাধিকার পান। বর্তমান চাকরির বাজারে AI জানা একটি গুরুত্বপূর্ণ প্রতিযোগিতামূলক সুবিধা হিসেবে বিবেচিত হচ্ছে।",
+        "Candidates with AI skills are increasingly prioritized in hiring processes. In today’s job market, AI knowledge is considered a strong competitive advantage."
       ),
     },
     {
-      title: t("ব্যবসার কস্ট কমে আসবে", "Your operating cost drops"),
+      title: t("আপনার ব্যবসার অপারেটিং কস্ট কমতে পারে", "Your operating costs can decrease"),
       body: t(
-        "AI ব্যবহারের ফলে ১০ জনের কাজ ২ জন করে দিতে পারায় আপনার ব্যবসার খরচ কমে আসবে বহুগুণ।",
-        "Work that needed 10 people now needs 2 — slashing your operating cost."
+        "AI ব্যবহারের মাধ্যমে অনেক কাজ আরও দ্রুত ও দক্ষভাবে সম্পন্ন করা যায়, ফলে প্রক্রিয়াগুলো সহজ হয় এবং সামগ্রিক অপারেটিং খরচ কমাতে সহায়তা করে।",
+        "AI can help streamline workflows by automating and accelerating many tasks, which may lead to lower overall operational costs and improved efficiency."
       ),
     },
     {
-      title: t("প্রাসঙ্গিক থাকবেন সবসময়", "Stay relevant for the long run"),
+      title: t("দীর্ঘমেয়াদে প্রাসঙ্গিক থাকতে পারবেন", "Stay relevant in the long run"),
       body: t(
-        "যুগের চাহিদাসম্পন্ন এই AI শেখার ফলে আপনি সবসময় প্রাসঙ্গিক থাকবেন। কালের গহ্বরে হারাবেন না।",
-        "Learning today's most-demanded skill keeps you future-relevant — you won't be left behind."
+        "AI-এর মতো চাহিদাসম্পন্ন দক্ষতা শিখলে পরিবর্তনশীল প্রযুক্তি ও কর্মবাজারে নিজেকে আপডেটেড রাখা সহজ হয়, যা দীর্ঘমেয়াদে আপনার প্রাসঙ্গিকতা বজায় রাখতে সাহায্য করে।",
+        "Learning in-demand skills like AI helps you stay updated with evolving technology and job markets, supporting your long-term relevance in your field."
       ),
     },
     {
-      title: t("সময়ের বরকত আসবে", "Time becomes your superpower"),
+      title: t("আপনার সময় হবে আরও উৎপাদনশীল", "Your time becomes far more productive"),
       body: t(
-        "৫ ঘণ্টার কাজ মাত্র ৫ মিনিটে করতে পারায় সময়ের বরকত পাবেন হিউজ পরিমাণে।",
-        "Compressing 5 hours of work into 5 minutes gives you a massive time multiplier."
+        "AI ব্যবহার করলে অনেক কাজ অনেক দ্রুত সম্পন্ন করা সম্ভব হয়, ফলে আপনি একই সময়ে আরও বেশি কাজ শেষ করতে পারেন এবং আপনার সামগ্রিক উৎপাদনশীলতা বৃদ্ধি পায়।",
+        "With AI, many tasks can be completed much faster, allowing you to accomplish more in the same amount of time and significantly increase your overall productivity."
       ),
     },
   ];
@@ -79,8 +79,8 @@ export default function WhyLearnAI() {
           </h2>
           <p className="mt-4 text-sm sm:text-base text-muted-foreground leading-relaxed">
             {t(
-              "AI না জানলে আপনি কতটা পিছিয়ে পড়বেন আর জানলে কতটা এগিয়ে যাবেন — তার একটি তুলনামূলক চিত্র নিচে দেওয়া হলো।",
-              "Here's a simple side-by-side of what you lose without AI vs. what you gain with it."
+              "AI না জানলে আপনি কতটা পিছিয়ে পড়তে পারেন এবং AI জানলে কতটা এগিয়ে যেতে পারেন—তার একটি সহজ তুলনামূলক চিত্র নিচে দেওয়া হলো।",
+              "Here's a simple comparison of how far you might fall behind without AI—and how much you can gain by learning it."
             )}
           </p>
         </div>
@@ -96,7 +96,7 @@ export default function WhyLearnAI() {
                 className="text-xl sm:text-2xl font-bold text-rose-600 dark:text-rose-400"
                 style={{ fontFamily: "'Playfair Display', 'Noto Serif Bengali', Georgia, serif" }}
               >
-                {t("AI না শিখলে কী লস?", "What you lose without AI?")}
+                {t("AI না শিখলে কী কী সুযোগ হারাচ্ছেন?", "What opportunities are you missing without AI?")}
               </h3>
             </div>
             <ul className="space-y-5">
@@ -126,7 +126,7 @@ export default function WhyLearnAI() {
                 className="text-xl sm:text-2xl font-bold text-emerald-700 dark:text-emerald-400"
                 style={{ fontFamily: "'Playfair Display', 'Noto Serif Bengali', Georgia, serif" }}
               >
-                {t("AI শিখলে কী লাভ?", "What you gain with AI?")}
+                {t("AI শিখে কী কী অর্জন করতে পারবেন?", "What can you achieve with AI?")}
               </h3>
             </div>
             <ul className="space-y-5">

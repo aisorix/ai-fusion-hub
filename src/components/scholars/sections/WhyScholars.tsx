@@ -26,14 +26,14 @@ export default function WhyScholars() {
             </h2>
             <p className="mt-4 text-sm sm:text-base text-muted-foreground leading-relaxed">
               {t(
-                "আমরা আপনার জন্য নিয়ে এসেছি এমন এক লার্নিং প্ল্যাটফর্ম, যেখানে আপনি খুব সহজে ও হাতে-কলমে AI-এর ব্যবহার শিখে নিজের পার্সোনাল ও প্রফেশনাল লাইফে আরও গ্রোথ আনতে পারবেন।",
-                "We've built a learning platform where you can quickly and practically master AI — and use it to grow your personal and professional life."
+                "আমরা তৈরি করেছি এমন একটি AI লার্নিং প্ল্যাটফর্ম, যেখানে আপনি সহজ ভাষায় এবং হাতে-কলমে AI-এর বাস্তব ব্যবহার শিখতে পারবেন। অর্জিত দক্ষতা কাজে লাগিয়ে আপনার ব্যক্তিগত ও পেশাগত জীবনে আরও দক্ষ, উৎপাদনশীল এবং এগিয়ে থাকতে পারবেন।",
+                "We've built an AI learning platform where you can learn practical AI skills through simple, hands-on lessons. Apply what you learn to work smarter, boost your productivity, and grow in both your personal and professional life."
               )}
             </p>
             <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
               {t(
-                "তাতে করে আপনার বিদ্যমান জব ও বিজনেস সবকিছু থাকবে ফিউচার প্রুফ ও রিস্ক ফ্রি।",
-                "That way your current job and business stay future-proof and risk-free."
+                "AI-নির্ভর ভবিষ্যতের জন্য নিজেকে প্রস্তুত করুন এবং আপনার বর্তমান চাকরি বা ব্যবসায় আরও দক্ষতা ও আত্মবিশ্বাসের সঙ্গে এগিয়ে থাকুন।",
+                "Prepare yourself for an AI-driven future and stay ahead in your career or business with greater confidence and efficiency."
               )}
             </p>
 

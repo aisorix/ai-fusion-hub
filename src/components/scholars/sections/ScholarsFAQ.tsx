@@ -57,16 +57,16 @@ export default function ScholarsFAQ() {
       <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10 sm:mb-14">
           <h2
-            className="text-2xl sm:text-3xl lg:text-[44px] leading-tight font-bold text-foreground"
+            className="text-2xl sm:text-3xl lg:text-[40px] leading-tight font-bold text-foreground"
             style={{ fontFamily: "'Playfair Display', 'Noto Serif Bengali', Georgia, serif" }}
           >
-            {t("সাধারণ প্রশ্নসমূহ ", "Frequently asked questions ")}
+            {t("সচরাচর জিজ্ঞাসিত প্রশ্নাবলী ও সমাধান ", "Frequently Asked Questions and Solutions. ")}
             <span className="text-primary">(FAQ)</span>
           </h2>
           <p className="mt-4 text-sm sm:text-base text-muted-foreground leading-relaxed">
             {t(
-              "Sorix Scholars প্ল্যাটফর্ম এবং আমাদের কোর্সগুলো সম্পর্কে আপনার মনে হতে পারে এমন কিছু প্রশ্নের উত্তর নিচে দেওয়া হলো।",
-              "Some quick answers about Sorix Scholars and our courses."
+              "Sorix Scholars এবং আমাদের প্রিমিয়াম কোর্সগুলো নিয়ে মনে কোনো কনফিউশন? সব প্রশ্নের ঝটপট উত্তর পেয়ে যান ঠিক নিচেই!",
+              "Any confusion about Sorix Scholars and our premium courses? Find quick answers to all great questions right below!"
             )}
           </p>
         </div>

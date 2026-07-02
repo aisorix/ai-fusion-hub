@@ -54,12 +54,12 @@ export default function UpcomingWorkshops() {
             className="text-2xl sm:text-3xl lg:text-[44px] leading-tight font-bold text-white"
             style={{ fontFamily: "'Playfair Display', 'Noto Serif Bengali', Georgia, serif" }}
           >
-            {t("আসন্ন ওয়ার্কশপসমূহ", "Upcoming workshops")}
+            {t("ওয়ার্কশপসমূহ", "Upcoming workshops")}
           </h2>
           <p className="mt-4 text-sm sm:text-base text-white/70">
             {t(
-              "সরাসরি এক্সপার্টদের কাছ থেকে শিখুন। আমাদের প্র্যাক্টিক্যাল লাইভ ওয়ার্কশপগুলোতে জয়েন করে আপনার স্কিলকে নিয়ে যান নেক্সট লেভেলে।",
-              "Learn directly from experts. Join our practical live workshops and take your skill set to the next level."
+              "সেরা ইন্ডাস্ট্রি এক্সপার্টদের সাথে শেখার মহাসুযোগ! আজই আমাদের প্র্যাক্টিক্যাল লাইভ ওয়ার্কশপগুলোতে জয়েন করে নিজের স্কিলকে করুন রকেট গতিতে আপগ্রেড।",
+              "A great opportunity to learn from top industry experts! Join our practical live workshops today to rocket-boost your skills."
             )}
           </p>
         </div>

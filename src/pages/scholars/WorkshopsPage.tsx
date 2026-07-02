@@ -21,7 +21,7 @@ export default function WorkshopsPage() {
             আমাদের ওয়ার্কশপসমূহ
           </h1>
           <p className="mt-5 text-sm sm:text-base text-muted-foreground leading-relaxed">
-            সরাসরি এক্সপার্টদের কাছ থেকে শিখুন। আমাদের প্র্যাক্টিক্যাল লাইভ ওয়ার্কশপগুলোতে জয়েন করে আপনার স্কিলকে নিয়ে যান নেক্সট লেভেলে।
+            অভিজ্ঞ মেন্টরদের সরাসরি তত্ত্বাবধান পেতে অবিলম্বে আমাদের বাস্তবমুখী লাইভ কর্মশালাসমূহে অংশগ্রহণ করুন এবং আপনার পেশাগত দক্ষতাকে পরবর্তী স্তরে উন্নীত করুন।
           </p>
         </div>
 
@@ -65,10 +65,10 @@ export default function WorkshopsPage() {
                     )}
                   </div>
                   <Link
-                    to={`/sorixscholars/workshops/${w.slug}`}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-semibold hover:bg-primary/20 transition-colors whitespace-nowrap"
+                    //to={`/sorixscholars/workshops/${w.slug}`}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-semibold hover:bg-primary/20 transition-colors whitespace-nowrap cursor-not-allowed"
                   >
-                    বিস্তারিত <ArrowRight className="w-3.5 h-3.5" />
+                    Comming Soon <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
               </div>
