@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { MapPin, Calendar, Clock, ArrowRight } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import { WORKSHOPS } from "@/data/workshops";
