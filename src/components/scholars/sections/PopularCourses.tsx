@@ -59,12 +59,11 @@ export default function PopularCourses() {
                                 <p className="mt-2 text-sm text-muted-foreground line-clamp-3 flex-1">{c.tagline}</p>
                                 <div className="mt-5 pt-5 border-t border-border/60 flex items-center justify-between gap-3">
                                     <div className="text-lg sm:text-xl font-bold text-foreground">{c.priceLabel}</div>
-                                    <Link
-                                        //to={`/sorixscholars/courses/${c.slug}`}
-                                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-semibold hover:bg-primary/20 transition-colors whitespace-nowrap cursor-not-allowed"
+                                    <span
+                                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-semibold whitespace-nowrap cursor-not-allowed"
                                     >
                                         {t("Comming Soon", "Comming Soon")} <ArrowRight className="w-3.5 h-3.5" />
-                                    </Link>
+                                    </span>
                                 </div>
                             </div>
                         </div>

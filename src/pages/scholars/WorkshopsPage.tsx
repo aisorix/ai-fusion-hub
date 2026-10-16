@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { MapPin, Calendar, Clock, ArrowRight } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import { WORKSHOPS } from "@/data/workshops";
@@ -64,12 +63,11 @@ export default function WorkshopsPage() {
                       <span className="text-sm line-through text-rose-500/80">{w.oldPrice}</span>
                     )}
                   </div>
-                  <Link
-                    //to={`/sorixscholars/workshops/${w.slug}`}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-semibold hover:bg-primary/20 transition-colors whitespace-nowrap cursor-not-allowed"
+                  <span
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-semibold whitespace-nowrap cursor-not-allowed"
                   >
                     Comming Soon <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
+                  </span>
                 </div>
               </div>
             </div>
